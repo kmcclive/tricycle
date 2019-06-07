@@ -3,6 +3,7 @@ namespace Tricycle.Media.Models
 {
     public enum StreamType
     {
+        Other,
         Audio,
         Video,
         Subtitle
@@ -12,6 +13,7 @@ namespace Tricycle.Media.Models
     {
         public int Index { get; set; }
         public StreamType StreamType { get; set; }
-        public string Name { get; set; }
+        public string FormatName { get; set; }
+        public string Language { get; set; }
     }
 }

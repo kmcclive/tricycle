@@ -8,6 +8,8 @@ namespace Tricycle.Diagnostics
     /// </summary>
     public interface IProcess : IDisposable
     {
+        bool HasExited { get; }
+
         /// <summary>
         /// Starts the process.
         /// </summary>

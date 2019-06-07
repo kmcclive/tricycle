@@ -13,6 +13,8 @@ namespace Tricycle.Diagnostics
     {
         readonly Process _process;
 
+        public bool HasExited => _process.HasExited;
+
         public event Action Exited;
         public event Action<string> ErrorDataReceived;
         public event Action<string> OutputDataReceived;
