@@ -15,28 +15,15 @@ namespace Tricycle.Diagnostics.Tests.Utilities
 
             Assert.ThrowsException<ArgumentNullException>(() => utility.EscapeFilePath(null));
 
-            string path, expected;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                path = @"C:\Users\Fred Mertz\info.txt";
-                expected = "\"C:\\Users\\Fred Mertz\\info.txt\"";
-            }
-            else
-            {
-                path = @"/Users/Fred Mertz/info.txt";
-                expected = @"/Users/Fred\ Mertz/info.txt";
-            }
+            string path = "/Users/Fred Mertz/info.txt";
+            string expected = "\"/Users/Fred Mertz/info.txt\"";
 
             Assert.AreEqual(expected, utility.EscapeFilePath(path));
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                path = @"C:\Users\Fred Mertz\";
-                expected = "\"C:\\Users\\Fred Mertz\\\\";
+            path = @"C:\Users\Fred Mertz\";
+            expected = "\"C:\\Users\\Fred Mertz\\\\\"";
 
-                Assert.AreEqual(expected, utility.EscapeFilePath(path));
-            }
+            Assert.AreEqual(expected, utility.EscapeFilePath(path));
         }
     }
 }

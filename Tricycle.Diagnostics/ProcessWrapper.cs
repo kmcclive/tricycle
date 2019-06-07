@@ -58,7 +58,19 @@ namespace Tricycle.Diagnostics
 
             try
             {
-                return _process.Start();
+                bool result = _process.Start();
+
+                if (startInfo.RedirectStandardOutput)
+                {
+                    _process.BeginOutputReadLine();
+                }
+
+                if (startInfo.RedirectStandardError)
+                {
+                    _process.BeginErrorReadLine();
+                }
+
+                return result;
             }
             catch (ObjectDisposedException ex)
             {

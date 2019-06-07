@@ -20,12 +20,7 @@ namespace Tricycle.Diagnostics.Utilities
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return $"\"{Regex.Replace(path, @"(\\+)$", @"$1$1")}\"";
-            }
-
-            return path.Replace(" ", @"\ ");
+            return $"\"{Regex.Replace(path, @"(\\+)$", @"$1$1")}\"";
         }
     }
 }

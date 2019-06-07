@@ -165,7 +165,10 @@ namespace Tricycle.Media.FFmpeg.Tests
                         Thread.Sleep(TIMEOUT_MS + 5);
                         break;
                     default:
-                        ErrorDataReceived?.Invoke("Failed to probe file.");
+                        if (startInfo.RedirectStandardError)
+                        {
+                            ErrorDataReceived?.Invoke("Failed to probe file.");
+                        }
                         break;
                 }
 
@@ -179,7 +182,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
                         line = reader.ReadLine();
 
-                        if (line != null)
+                        if (startInfo.RedirectStandardOutput && (line != null))
                         {
                             OutputDataReceived?.Invoke(line);
                         }

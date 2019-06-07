@@ -82,8 +82,11 @@ namespace Tricycle.Media.FFmpeg
                 var escapedFileName = _processUtility.EscapeFilePath(fileName);
                 var startInfo = new ProcessStartInfo()
                 {
+                    CreateNoWindow = true,
                     FileName = _ffprobeFileName,
-                    Arguments = $"-v quiet -print_format json -show_format -show_streams -i {escapedFileName}"
+                    Arguments = $"-v quiet -print_format json -show_format -show_streams -i {escapedFileName}",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
                 };
                 var builder = new StringBuilder();
                 var completion = new ManualResetEvent(false);
@@ -93,7 +96,7 @@ namespace Tricycle.Media.FFmpeg
 
                 try
                 {
-                    process.Start(startInfo);
+                    bool test = process.Start(startInfo);
 
                     if (!completion.WaitOne(_timeout))
                     {
