@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -82,33 +83,19 @@ namespace Tricycle.Media.FFmpeg
                 var startInfo = new ProcessStartInfo()
                 {
                     FileName = _ffprobeFileName,
-                    Arguments = $"-v quiet -print_format json -show_format -show_streams -i ${escapedFileName}"
+                    Arguments = $"-v quiet -print_format json -show_format -show_streams -i {escapedFileName}"
                 };
                 var builder = new StringBuilder();
-                bool exited = false;
-                var lockTarget = new object();
+                var completion = new ManualResetEvent(false);
 
                 process.OutputDataReceived += (data) => builder.AppendLine(data);
-                process.Exited += () => { lock (lockTarget) { exited = true; } };
+                process.Exited += () => completion.Set();
 
                 try
                 {
                     process.Start(startInfo);
 
-                    var endTime = DateTime.Now + _timeout;
-
-                    while (DateTime.Now < endTime)
-                    {
-                        lock (lockTarget)
-                        {
-                            if (exited)
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!process.HasExited)
+                    if (!completion.WaitOne(_timeout))
                     {
                         process.Kill();
                     }

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Tricycle.Media.FFmpeg
 {
     //Adapted from https://app.quicktype.io/
-    public class ParseStringConverter : JsonConverter
+    class ParseStringConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType) => objectType == typeof(long) || objectType == typeof(long?);
 
