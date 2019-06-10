@@ -60,14 +60,17 @@ namespace Tricycle.Diagnostics
             {
                 bool result = _process.Start();
 
-                if (startInfo.RedirectStandardOutput)
+                if (!startInfo.UseShellExecute)
                 {
-                    _process.BeginOutputReadLine();
-                }
+                    if (startInfo.RedirectStandardOutput)
+                    {
+                        _process.BeginOutputReadLine();
+                    }
 
-                if (startInfo.RedirectStandardError)
-                {
-                    _process.BeginErrorReadLine();
+                    if (startInfo.RedirectStandardError)
+                    {
+                        _process.BeginErrorReadLine();
+                    }
                 }
 
                 return result;

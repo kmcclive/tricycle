@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
 using Tricycle.Diagnostics;
@@ -59,11 +60,24 @@ namespace Tricycle.Media.FFmpeg
             }
 
             MediaInfo result = null;
-            Output output = RunFFprobe(fileName);
+            var output = RunFFprobe<Output>(fileName, "-show_format -show_streams");
 
             if (output != null)
             {
                 result = Map(output);
+
+                var hdrVideoStreams = result.Streams.Where(
+                    s => s is VideoStreamInfo && ((VideoStreamInfo)s).DynamicRange == DynamicRange.High);
+
+                foreach (VideoStreamInfo videoStream in hdrVideoStreams)
+                {
+                    var options = $"-show_frames -select_streams {videoStream.Index} -read_intervals %+#1";
+                    var frameOutput = RunFFprobe<FrameOutput>(fileName, options);
+                    var (displayProperties, lightProperties) = Map(frameOutput);
+
+                    videoStream.MasterDisplayProperties = displayProperties;
+                    videoStream.LightLevelProperties = lightProperties;
+                }
             }
 
             return result;
@@ -73,9 +87,9 @@ namespace Tricycle.Media.FFmpeg
 
         #region Private
 
-        Output RunFFprobe(string fileName)
+        T RunFFprobe<T>(string fileName, string options)
         {
-            Output result = null;
+            T result = default(T);
 
             using (IProcess process = _processCreator.Invoke())
             {
@@ -84,7 +98,7 @@ namespace Tricycle.Media.FFmpeg
                 {
                     CreateNoWindow = true,
                     FileName = _ffprobeFileName,
-                    Arguments = $"-v quiet -print_format json -show_format -show_streams -i {escapedFileName}",
+                    Arguments = $"-loglevel error -print_format json {options} -i {escapedFileName}",
                     RedirectStandardOutput = true,
                     UseShellExecute = false
                 };
@@ -105,7 +119,7 @@ namespace Tricycle.Media.FFmpeg
 
                     if (builder.Length > 0)
                     {
-                        result = JsonConvert.DeserializeObject<Output>(builder.ToString());
+                        result = JsonConvert.DeserializeObject<T>(builder.ToString());
                     }
                 }
                 catch (ArgumentException) { }
@@ -178,9 +192,89 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
+        (MasterDisplayProperties, LightLevelProperties) Map(FrameOutput frameOutput)
+        {
+            MasterDisplayProperties displayProperties = null;
+            LightLevelProperties lightProperties = null;
+            Frame frame = frameOutput.Frames?.FirstOrDefault();
+
+            if (frame != null)
+            {
+                foreach (SideData data in frame.SideDataList)
+                {
+                    switch (data.SideDataType)
+                    {
+                        case "Mastering display metadata":
+                            displayProperties = new MasterDisplayProperties()
+                            {
+                                Red = ParseCoordinate(data.RedX, data.RedY),
+                                Green = ParseCoordinate(data.GreenX, data.GreenY),
+                                Blue = ParseCoordinate(data.BlueX, data.BlueY),
+                                WhitePoint = ParseCoordinate(data.WhitePointX, data.WhitePointY),
+                                Luminance = ParseRange(data.MinLuminance, data.MaxLuminance)
+                            };
+                            break;
+                        case "Content light level metadata":
+                            lightProperties = new LightLevelProperties()
+                            {
+                                MaxCll = GetInt(data.MaxContent),
+                                MaxFall = GetInt(data.MaxAverage)
+                            };
+                            break;
+                    }
+                }
+            }
+
+            return (displayProperties, lightProperties);
+        }
+
         int GetInt(long? value)
         {
             return value.HasValue ? (int)value : 0;
+        }
+
+        Coordinate<int> ParseCoordinate(string xRatio, string yRatio)
+        {
+            var (x, y) = ParseTuple(xRatio, yRatio);
+
+            return new Coordinate<int>(x, y);
+        }
+
+        Range<int> ParseRange(string minRatio, string maxRatio)
+        {
+            var (min, max) = ParseTuple(minRatio, maxRatio);
+
+            return new Range<int>(min, max);
+        }
+
+        (int, int) ParseTuple(string ratio1, string ratio2)
+        {
+            int? value1 = null;
+            int? value2 = null;
+
+            if (ratio1 != null)
+            {
+                value1 = ParseValueFromRatio(ratio1);
+            }
+
+            if (ratio2 != null)
+            {
+                value2 = ParseValueFromRatio(ratio2);
+            }
+
+            return (value1 ?? 0, value2 ?? 0);
+        }
+
+        int? ParseValueFromRatio(string ratio)
+        {
+            var match = Regex.Match(ratio, @"(?<value>\d+)/\d+");
+
+            if (match.Success && int.TryParse(match.Groups["value"].Value, out var value))
+            {
+                return value;
+            }
+
+            return null;
         }
 
         #endregion

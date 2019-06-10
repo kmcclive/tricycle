@@ -113,6 +113,39 @@ namespace Tricycle.Media.FFmpeg.Tests
                     ""duration"": ""1597.654000"",
                 }
             }";
+        const string FRAME_OUTPUT =
+            @"{
+                ""frames"": [
+                    {
+                        ""media_type"": ""video"",
+                        ""stream_index"": 0,
+                        ""key_frame"": 1,
+                        ""width"": 3840,
+                        ""height"": 2160,
+                        ""color_transfer"": ""smpte2084"",
+                        ""side_data_list"": [
+                            {
+                                ""side_data_type"": ""Mastering display metadata"",
+                                ""red_x"": ""34000/50000"",
+                                ""red_y"": ""16000/50000"",
+                                ""green_x"": ""13250/50000"",
+                                ""green_y"": ""34500/50000"",
+                                ""blue_x"": ""7500/50000"",
+                                ""blue_y"": ""3000/50000"",
+                                ""white_point_x"": ""15635/50000"",
+                                ""white_point_y"": ""16450/50000"",
+                                ""min_luminance"": ""1/10000"",
+                                ""max_luminance"": ""10000000/10000""
+                            },
+                            {
+                                ""side_data_type"": ""Content light level metadata"",
+                                ""max_content"": 1000,
+                                ""max_average"": 400
+                            }
+                        ]
+                    }
+                ]
+            }";
         const int TIMEOUT_MS = 100;
 
         #endregion
@@ -149,27 +182,38 @@ namespace Tricycle.Media.FFmpeg.Tests
                     throw new InvalidOperationException();
                 }
 
-                const string PATTERN = @"-v\s+quiet\s+-print_format\s+json\s+-show_format\s+-show_streams\s+-i\s+(?<file>.+)";
+                const string PATTERN = @"-loglevel\s+error\s+-print_format\s+json\s+(?<options>.+)\s+-i\s+(?<file>.+)";
                 var match = Regex.Match(startInfo.Arguments, PATTERN);
+                string fileName = match.Groups["file"]?.Value;
+                string options = match.Groups["options"]?.Value;
                 var output = string.Empty;
 
-                switch (match.Groups["file"]?.Value)
+                if (Regex.IsMatch(options, @"-show_format\s+-show_streams"))
                 {
-                    case FILE_NAME_1:
-                        output = FILE_OUTPUT_1;
-                        break;
-                    case FILE_NAME_2:
-                        output = FILE_OUTPUT_2;
-                        break;
-                    case FILE_NAME_3:
-                        Thread.Sleep(TIMEOUT_MS + 5);
-                        break;
-                    default:
-                        if (startInfo.RedirectStandardError)
-                        {
-                            ErrorDataReceived?.Invoke("Failed to probe file.");
-                        }
-                        break;
+                    switch (fileName)
+                    {
+                        case FILE_NAME_1:
+                            output = FILE_OUTPUT_1;
+                            break;
+                        case FILE_NAME_2:
+                            output = FILE_OUTPUT_2;
+                            break;
+                        case FILE_NAME_3:
+                            Thread.Sleep(TIMEOUT_MS + 5);
+                            break;
+                        default:
+                            if (startInfo.RedirectStandardError && !startInfo.UseShellExecute)
+                            {
+                                ErrorDataReceived?.Invoke("Failed to probe file.");
+                            }
+                            break;
+                    }
+                }
+
+                if (Regex.IsMatch(options, @"-show_frames\s+-select_streams\s+0\s+-read_intervals\s+%\+#1")
+                    && fileName == FILE_NAME_1)
+                {
+                    output = FRAME_OUTPUT;
                 }
 
                 using (var reader = new StringReader(output))
@@ -182,7 +226,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
                         line = reader.ReadLine();
 
-                        if (startInfo.RedirectStandardOutput && (line != null))
+                        if (startInfo.RedirectStandardOutput && !startInfo.UseShellExecute && (line != null))
                         {
                             OutputDataReceived?.Invoke(line);
                         }
@@ -236,6 +280,24 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.AreEqual(new Dimensions(3840, 2160), videoStream.Dimensions);
             Assert.AreEqual(DynamicRange.High, videoStream.DynamicRange);
+
+            var displayProperties = videoStream.MasterDisplayProperties;
+
+            Assert.IsNotNull(displayProperties);
+            Assert.AreEqual(34000, displayProperties.Red.X);
+            Assert.AreEqual(16000, displayProperties.Red.Y);
+            Assert.AreEqual(13250, displayProperties.Green.X);
+            Assert.AreEqual(34500, displayProperties.Green.Y);
+            Assert.AreEqual(7500, displayProperties.Blue.X);
+            Assert.AreEqual(3000, displayProperties.Blue.Y);
+            Assert.AreEqual(15635, displayProperties.WhitePoint.X);
+            Assert.AreEqual(16450, displayProperties.WhitePoint.Y);
+
+            var lightProperties = videoStream.LightLevelProperties;
+
+            Assert.IsNotNull(lightProperties);
+            Assert.AreEqual(1000, lightProperties.MaxCll);
+            Assert.AreEqual(400, lightProperties.MaxFall);
 
             stream = info.Streams[1];
 
@@ -292,6 +354,8 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.AreEqual(new Dimensions(1920, 1080), videoStream.Dimensions);
             Assert.AreEqual(DynamicRange.Standard, videoStream.DynamicRange);
+            Assert.IsNull(videoStream.MasterDisplayProperties);
+            Assert.IsNull(videoStream.LightLevelProperties);
 
             stream = info.Streams[1];
 
