@@ -30,6 +30,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                         ""codec_type"": ""video"",
                         ""width"": 3840,
                         ""height"": 2160,
+                        ""pix_fmt"": ""yuv420p10le"",
                         ""color_transfer"": ""smpte2084"",
                         ""tags"": {
                             ""language"": ""eng"",
@@ -81,6 +82,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                         ""codec_type"": ""video"",
                         ""width"": 1920,
                         ""height"": 1080,
+                        ""pix_fmt"": ""yuv420p"",
                         ""color_transfer"": ""bt709"",
                         ""tags"": {
                             ""language"": ""und"",
@@ -280,6 +282,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.AreEqual(new Dimensions(3840, 2160), videoStream.Dimensions);
             Assert.AreEqual(DynamicRange.High, videoStream.DynamicRange);
+            Assert.AreEqual(10, videoStream.BitDepth);
 
             var displayProperties = videoStream.MasterDisplayProperties;
 
@@ -354,6 +357,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.AreEqual(new Dimensions(1920, 1080), videoStream.Dimensions);
             Assert.AreEqual(DynamicRange.Standard, videoStream.DynamicRange);
+            Assert.AreEqual(8, videoStream.BitDepth);
             Assert.IsNull(videoStream.MasterDisplayProperties);
             Assert.IsNull(videoStream.LightLevelProperties);
 

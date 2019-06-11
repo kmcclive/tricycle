@@ -77,6 +77,12 @@ namespace Tricycle.Media.FFmpeg
 
                     videoStream.MasterDisplayProperties = displayProperties;
                     videoStream.LightLevelProperties = lightProperties;
+
+                    if (displayProperties == null)
+                    {
+                        // fall back to SDR if metadata is not found
+                        videoStream.DynamicRange = DynamicRange.Standard;
+                    }
                 }
             }
 
@@ -172,6 +178,7 @@ namespace Tricycle.Media.FFmpeg
                 case "video":
                     result = new VideoStreamInfo()
                     {
+                        BitDepth = GetBitDepth(stream.PixFmt),
                         Dimensions = new Dimensions(GetInt(stream.Width), GetInt(stream.Height)),
                         DynamicRange = stream.ColorTransfer == "smpte2084" ? DynamicRange.High : DynamicRange.Standard
                     };
@@ -231,6 +238,25 @@ namespace Tricycle.Media.FFmpeg
         int GetInt(long? value)
         {
             return value.HasValue ? (int)value : 0;
+        }
+
+        int GetBitDepth(string pixelFormat)
+        {
+            int result = 8;
+
+            if (string.IsNullOrWhiteSpace(pixelFormat))
+            {
+                return result;
+            }
+
+            var match = Regex.Match(pixelFormat, @"^\w+p(?<depth>\d{2})\w+$");
+
+            if (match.Success && int.TryParse(match.Groups["depth"].Value, out var depth))
+            {
+                result = depth;
+            }
+
+            return result;
         }
 
         Coordinate<int> ParseCoordinate(string xRatio, string yRatio)

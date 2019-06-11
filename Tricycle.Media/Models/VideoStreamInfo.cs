@@ -11,6 +11,7 @@ namespace Tricycle.Media.Models
     {
         public Dimensions Dimensions { get; set; }
         public DynamicRange DynamicRange { get; set; }
+        public int BitDepth { get; set; }
         public MasterDisplayProperties MasterDisplayProperties { get; set; }
         public LightLevelProperties LightLevelProperties { get; set; }
 
