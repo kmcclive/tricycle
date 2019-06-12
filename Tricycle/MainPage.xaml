@@ -1,7 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:Tricycle" x:Class="Tricycle.MainPage">
-    <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" />
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Tricycle"
+             xmlns:controls="clr-namespace:Tricycle.Controls"
+             x:Class="Tricycle.MainPage"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <StackLayout Padding="20">
+        <FlexLayout AlignItems="Center">
+            <Label FlexLayout.Basis="75" Text="Source" />
+            <Entry FlexLayout.Grow="1" Margin="10, 0" />
+            <controls:FramedImageButton Source="folder-open.png" Margin="0, 0, 50, 0" />
+        </FlexLayout>
+        <FlexLayout AlignItems="Center">
+            <Label FlexLayout.Basis="75" Text="Destination" />
+            <Entry FlexLayout.Grow="1" Margin="10, 0" />
+            <controls:FramedImageButton Source="folder-browse.png" Margin="0, 0, 10, 0" />
+            <controls:FramedImageButton Source="play.png" />
+        </FlexLayout>
     </StackLayout>
-</ContentPage>
+</ContentPage> 

@@ -1,5 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Application xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Tricycle.App">
     <Application.Resources>
+        <Color x:FactoryMethod="FromHex" x:Key="BackgroundColor">
+            <x:Arguments><x:String>#e9e9e9</x:String></x:Arguments>
+        </Color>
+        <Style TargetType="Entry"
+               ApplyToDerivedTypes="True"
+               CanCascade="True">
+            <Setter Property="FontSize" Value="Small" />
+            <Setter Property="FontFamily" Value="San Francisco" />
+        </Style>
+        <Style TargetType="Label"
+               ApplyToDerivedTypes="True"
+               CanCascade="True">
+            <Setter Property="FontSize" Value="Small" />
+            <Setter Property="FontFamily" Value="San Francisco" />
+        </Style>
     </Application.Resources>
 </Application>

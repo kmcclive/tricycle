@@ -107,6 +107,12 @@
       <Name>Tricycle</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\folder-browse.png" />
+    <BundleResource Include="Resources\folder-open.png" />
+    <BundleResource Include="Resources\play.png" />
+    <BundleResource Include="Resources\stop.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.targets')" />
 </Project>
