@@ -31,46 +31,62 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource PanelBorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="265">
-                    <Grid RowSpacing="20" VerticalOptions="Start">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                        <Picker Grid.Column="1" Grid.Row="0" />
-                        <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
-                        <Slider Grid.Column="1" Grid.Row="1" />
-                        <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
-                        <Switch Grid.Column="1" Grid.Row="2" />
-                        <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-                        <Picker Grid.Column="1" Grid.Row="3" />
-                        <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-                        <Picker Grid.Column="1" Grid.Row="4" />
-                        <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-                        <Switch Grid.Column="1" Grid.Row="5" />
-                    </Grid>             
+                       HeightRequest="265"
+                       Padding="20, 0, 20, 20">
+                    <StackLayout VerticalOptions="Start">
+                        <Label Text="Video"
+                               TextColor="Gray"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               Margin="0,5" />                
+                        <Grid RowSpacing="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                            <Picker Grid.Column="1" Grid.Row="0" />
+                            <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+                            <Slider Grid.Column="1" Grid.Row="1" />
+                            <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+                            <Switch Grid.Column="1" Grid.Row="2" />
+                            <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+                            <Picker Grid.Column="1" Grid.Row="3" />
+                            <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+                            <Picker Grid.Column="1" Grid.Row="4" />
+                            <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+                            <Switch Grid.Column="1" Grid.Row="5" />
+                        </Grid>
+                    </StackLayout>
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource PanelBorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="265">
-                    <Grid RowSpacing="20" VerticalOptions="Start">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Text="Track" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                        <Label Text="Format" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
-                        <Label Text="Mixdown" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
-                        <Picker Grid.Column="0" Grid.Row="1" />
-                        <Picker Grid.Column="1" Grid.Row="1" />
-                        <Picker Grid.Column="2" Grid.Row="1" />
-                        <Picker Grid.Column="0" Grid.Row="2" />
-                        <Picker Grid.Column="1" Grid.Row="2" />
-                        <Picker Grid.Column="2" Grid.Row="2" />
-                    </Grid>
+                       HeightRequest="265"
+                       Padding="20, 0, 20, 20">
+                    <StackLayout>
+                        <Label Text="Audio"
+                               TextColor="Gray"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               Margin="0,5"/>
+                        <Grid RowSpacing="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Text="Track" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                            <Label Text="Format" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+                            <Label Text="Mixdown" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                            <Picker Grid.Column="0" Grid.Row="1" />
+                            <Picker Grid.Column="1" Grid.Row="1" />
+                            <Picker Grid.Column="2" Grid.Row="1" />
+                            <Picker Grid.Column="0" Grid.Row="2" />
+                            <Picker Grid.Column="1" Grid.Row="2" />
+                            <Picker Grid.Column="2" Grid.Row="2" />
+                        </Grid>
+                    </StackLayout>
                 </Frame>
             </FlexLayout>
         </ScrollView>
