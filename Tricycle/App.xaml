@@ -6,11 +6,14 @@
         <Color x:FactoryMethod="FromHex" x:Key="BackgroundColor">
             <x:Arguments><x:String>#e9e9e9</x:String></x:Arguments>
         </Color>
-        <Color x:FactoryMethod="FromHex" x:Key="PanelBackgroundColor">
-            <x:Arguments><x:String>#d9d9d9</x:String></x:Arguments>
+        <Color x:FactoryMethod="FromHex" x:Key="BorderColor">
+            <x:Arguments><x:String>#cfcfd0</x:String></x:Arguments>
         </Color>
-        <Color x:FactoryMethod="FromHex" x:Key="PanelBorderColor">
-            <x:Arguments><x:String>#c9c9c9</x:String></x:Arguments>
+        <Color x:FactoryMethod="FromHex" x:Key="PanelBackgroundColor">
+            <x:Arguments><x:String>#e5e5e5</x:String></x:Arguments>
+        </Color>
+        <Color x:FactoryMethod="FromHex" x:Key="PanelTitleColor">
+            <x:Arguments><x:String>#686868</x:String></x:Arguments>
         </Color>
         <Style TargetType="Entry"
                ApplyToDerivedTypes="True"

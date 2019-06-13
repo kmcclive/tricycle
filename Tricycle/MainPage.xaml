@@ -29,13 +29,13 @@
         <ScrollView>
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
-                       BorderColor="{StaticResource PanelBorderColor}"
+                       BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
                        HeightRequest="265"
                        Padding="20, 0, 20, 20">
                     <StackLayout VerticalOptions="Start">
                         <Label Text="Video"
-                               TextColor="Gray"
+                               TextColor="{StaticResource PanelTitleColor}"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                Margin="0,5" />                
@@ -60,13 +60,13 @@
                     </StackLayout>
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
-                       BorderColor="{StaticResource PanelBorderColor}"
+                       BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
                        HeightRequest="265"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Audio"
-                               TextColor="Gray"
+                               TextColor="{StaticResource PanelTitleColor}"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                Margin="0,5"/>
