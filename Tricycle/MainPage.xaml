@@ -31,9 +31,9 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="265"
+                       HeightRequest="300"
                        Padding="20, 0, 20, 20">
-                    <StackLayout VerticalOptions="Start">
+                    <StackLayout>
                         <Label Text="Video"
                                TextColor="{StaticResource PanelTitleColor}"
                                FontAttributes="Bold"
@@ -44,10 +44,25 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
                             <Picker Grid.Column="1" Grid.Row="0" />
                             <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
-                            <Slider Grid.Column="1" Grid.Row="1" />
+                            <StackLayout Grid.Column="1" Grid.Row="1">
+                                <Slider />
+                                <FlexLayout JustifyContent="SpaceBetween" Margin="0, -5, 0, 0">
+                                    <Label Text="Good" FontSize="Micro" />
+                                    <Label Text="Better" FontSize="Micro" />
+                                    <Label Text="Best" FontSize="Micro" />
+                                </FlexLayout>
+                            </StackLayout>
                             <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
                             <Switch Grid.Column="1" Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
@@ -62,7 +77,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="265"
+                       HeightRequest="300"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Audio"
