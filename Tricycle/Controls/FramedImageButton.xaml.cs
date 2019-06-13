@@ -1,18 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace Tricycle.Controls
 {
     public partial class FramedImageButton : ContentView
     {
+        public static readonly BindableProperty CommandProperty = BindableProperty.Create(
+          nameof(Command),
+          typeof(ICommand),
+          typeof(FramedImageButton));
         public static readonly BindableProperty SourceProperty = BindableProperty.Create(
-          propertyName: "Source",
-          returnType: typeof(string),
-          declaringType: typeof(FramedImageButton),
-          defaultValue: "",
-          defaultBindingMode: BindingMode.TwoWay,
-          propertyChanged: SourcePropertyChanged);
+          nameof(Source),
+          typeof(string),
+          typeof(FramedImageButton));
+
+        public ICommand Command
+        {
+            get { return (ICommand)GetValue(CommandProperty); }
+            set { SetValue(CommandProperty, value); }
+        }
 
         public string Source
         {
@@ -25,6 +34,22 @@ namespace Tricycle.Controls
         public FramedImageButton()
         {
             InitializeComponent();
+        }
+
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            switch (propertyName)
+            {
+                case "Command":
+                case "IsEnabled":
+                    curtain.IsVisible = !IsEnabled || Command?.CanExecute(null) == false;
+                    break;
+                case "Source":
+                    image.Source = ImageSource.FromFile(Source);
+                    break;
+            }
         }
 
         void OnFrameTapped(object sender, EventArgs args)
@@ -40,12 +65,7 @@ namespace Tricycle.Controls
             });
 
             Clicked?.Invoke(this, args);
-        }
-
-        private static void SourcePropertyChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            var control = (FramedImageButton)bindable;
-            control.image.Source = ImageSource.FromFile(newValue.ToString());
+            Command?.Execute(null);
         }
     }
 }
