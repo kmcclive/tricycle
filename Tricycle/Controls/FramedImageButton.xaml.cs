@@ -36,24 +36,58 @@ namespace Tricycle.Controls
             InitializeComponent();
         }
 
+        protected override void OnPropertyChanging([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanging(propertyName);
+
+            if (propertyName == nameof(Command))
+            {
+                var command = Command;
+
+                if (command != null)
+                {
+                    command.CanExecuteChanged -= OnCanExecuteChanged;
+                }
+            }
+        }
+
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
 
             switch (propertyName)
             {
-                case "Command":
-                case "IsEnabled":
-                    curtain.IsVisible = !IsEnabled || Command?.CanExecute(null) == false;
+                case nameof(Command):
+                    var command = Command;
+
+                    if (command != null)
+                    {
+                        command.CanExecuteChanged += OnCanExecuteChanged;
+                    }
+
+                    UpdateCurtainVisibility();
                     break;
-                case "Source":
+                case nameof(IsEnabled):
+                    UpdateCurtainVisibility();
+                    break;
+                case nameof(Source):
                     image.Source = ImageSource.FromFile(Source);
                     break;
             }
         }
 
+        void OnCanExecuteChanged(object sender, EventArgs e)
+        {
+            UpdateCurtainVisibility();
+        }
+
         void OnFrameTapped(object sender, EventArgs args)
         {
+            if (curtain.IsVisible)
+            {
+                return;
+            }
+
             var oldColor = frame.BackgroundColor;
 
             frame.BackgroundColor = Color.FromHex("e9e9e9");
@@ -66,6 +100,11 @@ namespace Tricycle.Controls
 
             Clicked?.Invoke(this, args);
             Command?.Execute(null);
+        }
+
+        void UpdateCurtainVisibility()
+        {
+            curtain.IsVisible = !IsEnabled || Command?.CanExecute(null) == false;
         }
     }
 }
