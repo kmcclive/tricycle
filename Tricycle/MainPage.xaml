@@ -5,14 +5,62 @@
              xmlns:controls="clr-namespace:Tricycle.Controls"
              x:Class="Tricycle.MainPage"
              BackgroundColor="{StaticResource BackgroundColor}">
-    <StackLayout Padding="20">
-        <FlexLayout AlignItems="Center">
-            <Label FlexLayout.Basis="75" Text="Source" />
+    <StackLayout>
+        <FlexLayout AlignItems="Center" Padding="20">
+            <Label Text="Source" />
             <Entry FlexLayout.Grow="1" Margin="10, 0" />
-            <controls:FramedImageButton Source="folder-open.png" Margin="0, 0, 50, 0" />
+            <controls:FramedImageButton Source="folder-open.png" />
         </FlexLayout>
-        <FlexLayout AlignItems="Center">
-            <Label FlexLayout.Basis="75" Text="Destination" />
+        <ScrollView>
+            <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
+                <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
+                       BorderColor="{StaticResource PanelBorderColor}"
+                       FlexLayout.Basis="370"
+                       HeightRequest="265">
+                    <Grid RowSpacing="20" VerticalOptions="Start">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                        <Picker Grid.Column="1" Grid.Row="0" />
+                        <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+                        <Slider Grid.Column="1" Grid.Row="1" />
+                        <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+                        <Switch Grid.Column="1" Grid.Row="2" />
+                        <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+                        <Picker Grid.Column="1" Grid.Row="3" />
+                        <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+                        <Picker Grid.Column="1" Grid.Row="4" />
+                        <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+                        <Switch Grid.Column="1" Grid.Row="5" />
+                    </Grid>             
+                </Frame>
+                <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
+                       BorderColor="{StaticResource PanelBorderColor}"
+                       FlexLayout.Basis="370"
+                       HeightRequest="265">
+                    <Grid RowSpacing="20" VerticalOptions="Start">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Text="Track" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                        <Label Text="Format" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+                        <Label Text="Mixdown" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                        <Picker Grid.Column="0" Grid.Row="1" />
+                        <Picker Grid.Column="1" Grid.Row="1" />
+                        <Picker Grid.Column="2" Grid.Row="1" />
+                        <Picker Grid.Column="0" Grid.Row="2" />
+                        <Picker Grid.Column="1" Grid.Row="2" />
+                        <Picker Grid.Column="2" Grid.Row="2" />
+                    </Grid>
+                </Frame>
+            </FlexLayout>
+        </ScrollView>
+        <FlexLayout AlignItems="Center" Padding="20">
+            <Label Text="Destination" />
             <Entry FlexLayout.Grow="1" Margin="10, 0" />
             <controls:FramedImageButton Source="folder-browse.png" Margin="0, 0, 10, 0" />
             <controls:FramedImageButton Source="play.png" />
