@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>Tricycle.macOS</string>
+	<string>Tricycle</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.astound.Tricycle-macOS</string>
 	<key>CFBundleShortVersionString</key>
@@ -26,5 +26,7 @@
 	<string>NSApplication</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
 </dict>
 </plist>
