@@ -17,5 +17,9 @@
   <ItemGroup>
     <Folder Include="Controls\" />
     <Folder Include="Models\" />
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tricycle.Media\Tricycle.Media.csproj" />
   </ItemGroup>
 </Project>
