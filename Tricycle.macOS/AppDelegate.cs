@@ -1,5 +1,7 @@
 ﻿using AppKit;
 using Foundation;
+using Tricycle.IO.macOS;
+using Tricycle.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 
@@ -21,6 +23,8 @@ namespace Tricycle.macOS
 
         public override void DidFinishLaunching(NSNotification notification)
         {
+            AppState.FileBrowser = new FileBrowser();
+
             Forms.Init();
             LoadApplication(new App());
             base.DidFinishLaunching(notification);

@@ -21,5 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tricycle.Media\Tricycle.Media.csproj" />
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
   </ItemGroup>
 </Project>

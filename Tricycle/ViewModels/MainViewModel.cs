@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
+using Tricycle.IO;
+using Tricycle.Media;
 using Tricycle.Models;
 using Xamarin.Forms;
 
@@ -9,6 +11,8 @@ namespace Tricycle.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        readonly IFileBrowser _fileBrowser;
+        readonly IMediaInspector _mediaInspector;
         readonly TricycleConfig _tricycleConfig;
 
         bool _isSourceInfoVisible;
@@ -30,14 +34,21 @@ namespace Tricycle.ViewModels
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
 
-        public MainViewModel()
+        public MainViewModel(IFileBrowser fileBrowser, IMediaInspector mediaInspector, TricycleConfig tricycleConfig)
         {
-
-        }
-
-        public MainViewModel(TricycleConfig tricycleConfig)
-        {
+            _fileBrowser = fileBrowser;
+            _mediaInspector = mediaInspector;
             _tricycleConfig = tricycleConfig;
+
+            SourceSelectCommand = new Command(() =>
+            {
+                var result = _fileBrowser.BrowseToOpen();
+
+                if (result.Confirmed)
+                {
+                    SourceName = result.FileName;
+                }
+            });
         }
 
         public bool IsSourceInfoVisible
@@ -148,9 +159,6 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _isDenoiseChecked, value); }
         }
 
-        public ICommand SourceSelectCommand { get; } = new Command(() =>
-        {
-
-        });
+        public ICommand SourceSelectCommand { get; }
     }
 }
