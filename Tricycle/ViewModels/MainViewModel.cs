@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media;
+using Tricycle.Media.Models;
 using Tricycle.Models;
 using Xamarin.Forms;
 
@@ -16,7 +17,6 @@ namespace Tricycle.ViewModels
         readonly TricycleConfig _tricycleConfig;
 
         bool _isSourceInfoVisible;
-        string _sourceFormat;
         string _sourceDuration;
         string _sourceSize;
         string _sourceDynamicRange;
@@ -34,6 +34,8 @@ namespace Tricycle.ViewModels
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
 
+        MediaInfo _sourceInfo;
+
         public MainViewModel(IFileBrowser fileBrowser, IMediaInspector mediaInspector, TricycleConfig tricycleConfig)
         {
             _fileBrowser = fileBrowser;
@@ -46,7 +48,16 @@ namespace Tricycle.ViewModels
 
                 if (result.Confirmed)
                 {
-                    SourceName = result.FileName;
+                    _sourceInfo = _mediaInspector.Inspect(result.FileName);
+
+                    if (_sourceInfo != null)
+                    {
+                        TimeSpan duration = _sourceInfo.Duration;
+
+                        SourceName = result.FileName;
+                        SourceDuration = $"{duration.Hours}:{duration.Minutes}:{duration.Seconds}";
+                        IsSourceInfoVisible = true;
+                    }
                 }
             });
         }
@@ -55,12 +66,6 @@ namespace Tricycle.ViewModels
         {
             get { return _isSourceInfoVisible; }
             set { SetProperty(ref _isSourceInfoVisible, value); }
-        }
-
-        public string SourceFormat
-        {
-            get { return _sourceFormat; }
-            set { SetProperty(ref _sourceFormat, value); }
         }
 
         public string SourceDuration

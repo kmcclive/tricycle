@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using Tricycle.IO;
+using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.ViewModels;
 using Xamarin.Forms;
@@ -20,7 +16,10 @@ namespace Tricycle
         {
             InitializeComponent();
 
-            BindingContext = new MainViewModel(AppState.FileBrowser, AppState.MediaInspector, new TricycleConfig());
+            BindingContext = new MainViewModel(
+                AppState.IocContainer.GetInstance<IFileBrowser>(),
+                AppState.IocContainer.GetInstance<IMediaInspector>(),
+                AppState.TricycleConfig);
         }
     }
 }

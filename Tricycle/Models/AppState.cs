@@ -1,12 +1,10 @@
-﻿using System;
-using Tricycle.IO;
-using Tricycle.Media;
+﻿using StructureMap;
 
 namespace Tricycle.Models
 {
     public static class AppState
     {
-        public static IFileBrowser FileBrowser { get; set; }
-        public static IMediaInspector MediaInspector { get; set; }
+        public static Container IocContainer { get; set; }
+        public static TricycleConfig TricycleConfig { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AppKit;
 using Foundation;
+using Tricycle.Bootstrap.macOS;
 using Tricycle.IO.macOS;
-using Tricycle.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 
@@ -23,10 +23,13 @@ namespace Tricycle.macOS
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            AppState.FileBrowser = new FileBrowser();
+            string resourcePath = NSBundle.MainBundle.ResourcePath;
+
+            Bootstrapper.Run(new FileBrowser(), $"{resourcePath}/Tools/FFmpeg/ffprobe");
 
             Forms.Init();
             LoadApplication(new App());
+
             base.DidFinishLaunching(notification);
         }
 

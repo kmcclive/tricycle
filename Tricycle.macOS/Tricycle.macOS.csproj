@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.props')" />
+  <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,6 +32,7 @@
     <LinkMode>None</LinkMode>
     <XamMacArch></XamMacArch>
     <AOTMode>None</AOTMode>
+    <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,16 +57,22 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Xamarin.Forms.Core">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.482894\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.482894\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform.macOS">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.482894\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.482894\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap">
+      <HintPath>..\packages\StructureMap.4.7.1\lib\netstandard2.0\StructureMap.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +91,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Resources\Tools\" />
+    <Folder Include="Resources\Tools\FFmpeg\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -106,33 +115,27 @@
       <Project>{55B9CEAE-0758-49E7-9B2F-5D04CDD3CCC7}</Project>
       <Name>Tricycle</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj">
-      <Project>{8E31720E-E9C1-4D3F-AA41-F70F0AD78CED}</Project>
-      <Name>Tricycle.IO</Name>
+    <ProjectReference Include="..\Tricycle.Bootstrap.macOS\Tricycle.Bootstrap.macOS.csproj">
+      <Project>{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}</Project>
+      <Name>Tricycle.Bootstrap.macOS</Name>
     </ProjectReference>
     <ProjectReference Include="..\Tricycle.IO.macOS\Tricycle.IO.macOS.csproj">
       <Project>{E303680C-0FFB-4CE6-AD29-482FAB318438}</Project>
       <Name>Tricycle.IO.macOS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Tricycle.Media\Tricycle.Media.csproj">
-      <Project>{879F9F92-4A54-4F41-82BD-17D7E55CAC6B}</Project>
-      <Name>Tricycle.Media</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj">
-      <Project>{FF03A145-405E-4C92-8B1B-401946EA6E61}</Project>
-      <Name>Tricycle.Media.FFmpeg</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj">
-      <Project>{EEE33ED0-2D2E-419F-BABB-3825B6AB620B}</Project>
-      <Name>Tricycle.Diagnostics</Name>
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj">
+      <Project>{8E31720E-E9C1-4D3F-AA41-F70F0AD78CED}</Project>
+      <Name>Tricycle.IO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="Resources\folder-browse.png" />
-    <BundleResource Include="Resources\folder-open.png" />
-    <BundleResource Include="Resources\play.png" />
-    <BundleResource Include="Resources\stop.png" />
+    <BundleResource Include="Resources\Images\folder-browse.png" />
+    <BundleResource Include="Resources\Images\folder-open.png" />
+    <BundleResource Include="Resources\Images\play.png" />
+    <BundleResource Include="Resources\Images\stop.png" />
+    <BundleResource Include="Resources\Tools\FFmpeg\ffprobe" />
+    <BundleResource Include="Resources\Tools\FFmpeg\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
-  <Import Project="..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.482894\build\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets')" />
 </Project>
