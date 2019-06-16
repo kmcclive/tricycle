@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media;
@@ -19,8 +20,7 @@ namespace Tricycle.ViewModels
         bool _isSourceInfoVisible;
         string _sourceDuration;
         string _sourceSize;
-        string _sourceDynamicRange;
-        Color _sourceDynamicRangeColor;
+        bool _isSourceHdr;
         string _sourceName;
         IList<ListItem> _videoFormatOptions;
         ListItem _selectedVideoFormat;
@@ -53,9 +53,13 @@ namespace Tricycle.ViewModels
                     if (_sourceInfo != null)
                     {
                         TimeSpan duration = _sourceInfo.Duration;
+                        VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
 
                         SourceName = result.FileName;
-                        SourceDuration = $"{duration.Hours}:{duration.Minutes}:{duration.Seconds}";
+                        SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
+                            duration.Hours, duration.Minutes, duration.Seconds);
+                        SourceSize = GetSizeName(videoStream.Dimensions);
+                        IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
                         IsSourceInfoVisible = true;
                     }
                 }
@@ -80,16 +84,10 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _sourceSize, value); }
         }
 
-        public string SourceDynamicRange
+        public bool IsSourceHdr
         {
-            get { return _sourceDynamicRange; }
-            set { SetProperty(ref _sourceDynamicRange, value); }
-        }
-
-        public Color SourceDynamicRangeColor
-        {
-            get { return _sourceDynamicRangeColor; }
-            set { SetProperty(ref _sourceDynamicRangeColor, value); }
+            get { return _isSourceHdr; }
+            set { SetProperty(ref _isSourceHdr, value); }
         }
 
         public string SourceName
@@ -165,5 +163,31 @@ namespace Tricycle.ViewModels
         }
 
         public ICommand SourceSelectCommand { get; }
+
+        VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
+        {
+            return streams.OfType<VideoStreamInfo>()
+                          .FirstOrDefault();
+        }
+
+        string GetSizeName(Dimensions dimensions)
+        {
+            if ((dimensions.Width >= 3840) || (dimensions.Height >= 2160))
+            {
+                return "4K";
+            }
+
+            if ((dimensions.Width >= 1920) || (dimensions.Height >= 1080))
+            {
+                return "1080p";
+            }
+
+            if ((dimensions.Width >= 1280) || (dimensions.Height >= 720))
+            {
+                return "720p";
+            }
+
+            return "480p";
+        }
     }
 }

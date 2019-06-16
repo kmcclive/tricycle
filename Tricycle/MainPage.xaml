@@ -19,8 +19,11 @@
                 </Grid.RowDefinitions>
                 <FlexLayout IsVisible="{Binding IsSourceInfoVisible}" Grid.Column="1" Grid.Row="0">
                     <controls:Pill Text="{Binding SourceDuration}" Margin="2, 0" />
-                    <controls:Pill Text="4K" Margin="2, 0" />
-                    <controls:Pill Text="HDR" BackgroundColor="Red" Margin="2, 0" />
+                    <controls:Pill Text="{Binding SourceSize}" Margin="2, 0" />
+                    <controls:Pill Text="HDR" 
+                                   BackgroundColor="#ff4f00"
+                                   IsVisible="{Binding IsSourceHdr}"
+                                   Margin="2, 0" />
                 </FlexLayout>
                 <Label Text="Source" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                 <Entry IsReadOnly="true" Text="{Binding SourceName}" Grid.Column="1" Grid.Row="1" />
