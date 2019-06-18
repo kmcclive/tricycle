@@ -42,9 +42,9 @@ namespace Tricycle.ViewModels
             _mediaInspector = mediaInspector;
             _tricycleConfig = tricycleConfig;
 
-            SourceSelectCommand = new Command(() =>
+            SourceSelectCommand = new Command(async () =>
             {
-                var result = _fileBrowser.BrowseToOpen();
+                var result = await _fileBrowser.BrowseToOpen();
 
                 if (result.Confirmed)
                 {

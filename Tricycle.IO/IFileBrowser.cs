@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tricycle.IO.Models;
 
 namespace Tricycle.IO
 {
     public interface IFileBrowser
     {
-        FileBrowserResult BrowseToOpen();
-        FileBrowserResult BrowseToOpen(string defaultDirectory);
-        FileBrowserResult BrowseToOpen(string defaultDirectory, string[] extensions);
-        FileBrowserResult BrowseToSave();
-        FileBrowserResult BrowseToSave(string defaultDirectory);
-        FileBrowserResult BrowseToSave(string defaultDirectory, string[] extensions);
+        Task<FileBrowserResult> BrowseToOpen();
+        Task<FileBrowserResult> BrowseToOpen(string defaultDirectory);
+        Task<FileBrowserResult> BrowseToOpen(string defaultDirectory, IList<string> extensions);
+        Task<FileBrowserResult> BrowseToSave();
+        Task<FileBrowserResult> BrowseToSave(string defaultDirectory);
+        Task<FileBrowserResult> BrowseToSave(string defaultDirectory, IList<string> extensions);
     }
 }

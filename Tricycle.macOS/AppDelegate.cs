@@ -1,7 +1,14 @@
-﻿using AppKit;
+﻿using System;
+using AppKit;
 using Foundation;
-using Tricycle.Bootstrap.macOS;
+using StructureMap;
+using Tricycle.Diagnostics;
+using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.IO.macOS;
+using Tricycle.Media;
+using Tricycle.Media.FFmpeg;
+using Tricycle.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 
@@ -24,8 +31,14 @@ namespace Tricycle.macOS
         public override void DidFinishLaunching(NSNotification notification)
         {
             string resourcePath = NSBundle.MainBundle.ResourcePath;
+            var processCreator = new Func<IProcess>(() => new ProcessWrapper());
 
-            Bootstrapper.Run(new FileBrowser(), $"{resourcePath}/Tools/FFmpeg/ffprobe");
+            AppState.IocContainer = new Container(_ =>
+            {
+                _.For<IFileBrowser>().Use<FileBrowser>();
+                _.For<IMediaInspector>().Use(new MediaInspector($"{resourcePath}/Tools/FFmpeg/ffprobe", processCreator, ProcessUtility.Self));
+            });
+            AppState.TricycleConfig = new TricycleConfig();
 
             Forms.Init();
             LoadApplication(new App());

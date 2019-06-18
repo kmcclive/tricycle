@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.IO", "Tricycle.IO\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.IO.macOS", "Tricycle.IO.macOS\Tricycle.IO.macOS.csproj", "{E303680C-0FFB-4CE6-AD29-482FAB318438}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Bootstrap.macOS", "Tricycle.Bootstrap.macOS\Tricycle.Bootstrap.macOS.csproj", "{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -123,17 +121,5 @@ Global
 		{E303680C-0FFB-4CE6-AD29-482FAB318438}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E303680C-0FFB-4CE6-AD29-482FAB318438}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E303680C-0FFB-4CE6-AD29-482FAB318438}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|iPhone.Build.0 = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9A1892F-1B76-4A9C-8B5E-775F1124BC33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
