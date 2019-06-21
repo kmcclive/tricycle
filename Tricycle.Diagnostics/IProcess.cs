@@ -8,6 +8,7 @@ namespace Tricycle.Diagnostics
     /// </summary>
     public interface IProcess : IDisposable
     {
+        int ExitCode { get; }
         bool HasExited { get; }
 
         /// <summary>

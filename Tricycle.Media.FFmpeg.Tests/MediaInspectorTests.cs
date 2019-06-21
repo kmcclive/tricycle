@@ -156,6 +156,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
         private class MockProcess : IProcess
         {
+            public int ExitCode { get; set; }
             public bool HasExited { get; set; }
 
             public event Action Exited;
