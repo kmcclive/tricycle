@@ -176,6 +176,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             MediaInfo info = inspector.Inspect(fileName);
 
             Assert.IsNotNull(info);
+            Assert.AreEqual(fileName, info.FileName);
             Assert.AreEqual("Matroska / WebM", info.FormatName);
             Assert.AreEqual(TimeSpan.FromSeconds(3186.808000), info.Duration);
 
@@ -256,6 +257,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             info = inspector.Inspect(fileName);
 
             Assert.IsNotNull(info);
+            Assert.AreEqual(fileName, info.FileName);
             Assert.AreEqual("QuickTime / MOV", info.FormatName);
             Assert.AreEqual(TimeSpan.FromSeconds(1597.654000), info.Duration);
 

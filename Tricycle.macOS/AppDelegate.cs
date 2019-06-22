@@ -39,8 +39,7 @@ namespace Tricycle.macOS
                 _.For<IFileBrowser>().Use<FileBrowser>();
                 _.For<IMediaInspector>().Use(new MediaInspector($"{resourcePath}/Tools/FFmpeg/ffprobe",
                                                                 processRunner,
-                                                                ProcessUtility.Self,
-                                                                TimeSpan.FromSeconds(5)));
+                                                                ProcessUtility.Self));
             });
             AppState.TricycleConfig = new TricycleConfig();
 

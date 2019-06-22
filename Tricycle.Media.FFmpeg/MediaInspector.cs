@@ -24,6 +24,14 @@ namespace Tricycle.Media.FFmpeg
 
         public MediaInspector(string ffprobeFileName,
                               IProcessRunner processRunner,
+                              IProcessUtility processUtility)
+            : this(ffprobeFileName, processRunner, processUtility, TimeSpan.FromSeconds(5))
+        {
+
+        }
+
+        public MediaInspector(string ffprobeFileName,
+                              IProcessRunner processRunner,
                               IProcessUtility processUtility,
                               TimeSpan timeout)
         {
@@ -55,7 +63,7 @@ namespace Tricycle.Media.FFmpeg
 
             if (output != null)
             {
-                result = Map(output);
+                result = Map(fileName, output);
 
                 var hdrVideoStreams = result.Streams.Where(
                     s => s is VideoStreamInfo && ((VideoStreamInfo)s).DynamicRange == DynamicRange.High);
@@ -105,9 +113,12 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
-        MediaInfo Map(Output output)
+        MediaInfo Map(string fileName, Output output)
         {
-            var result = new MediaInfo();
+            var result = new MediaInfo()
+            {
+                FileName = fileName
+            };
 
             if (output.Format != null)
             {
