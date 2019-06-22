@@ -32,11 +32,15 @@ namespace Tricycle.macOS
         {
             string resourcePath = NSBundle.MainBundle.ResourcePath;
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
+            var processRunner = new ProcessRunner(processCreator);
 
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IFileBrowser>().Use<FileBrowser>();
-                _.For<IMediaInspector>().Use(new MediaInspector($"{resourcePath}/Tools/FFmpeg/ffprobe", processCreator, ProcessUtility.Self));
+                _.For<IMediaInspector>().Use(new MediaInspector($"{resourcePath}/Tools/FFmpeg/ffprobe",
+                                                                processRunner,
+                                                                ProcessUtility.Self,
+                                                                TimeSpan.FromSeconds(5)));
             });
             AppState.TricycleConfig = new TricycleConfig();
 

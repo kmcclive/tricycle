@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
+using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.Media.Models;
 
@@ -16,10 +14,6 @@ namespace Tricycle.Media.FFmpeg.Tests
     {
         #region Constants
 
-        const string FFPROBE_FILE_NAME = "/usr/sbin/ffprobe";
-        const string FILE_NAME_1 = "escaped 1";
-        const string FILE_NAME_2 = "escaped 2";
-        const string FILE_NAME_3 = "escaped 3";
         const string FILE_OUTPUT_1 =
             @"{
                 ""streams"": [
@@ -148,100 +142,6 @@ namespace Tricycle.Media.FFmpeg.Tests
                     }
                 ]
             }";
-        const int TIMEOUT_MS = 100;
-
-        #endregion
-
-        #region Nested Types
-
-        private class MockProcess : IProcess
-        {
-            public int ExitCode { get; set; }
-            public bool HasExited { get; set; }
-
-            public event Action Exited;
-            public event Action<string> ErrorDataReceived;
-            public event Action<string> OutputDataReceived;
-
-            public void Dispose()
-            {
-
-            }
-
-            public void Kill()
-            {
-                HasExited = true;
-            }
-
-            public bool Start(ProcessStartInfo startInfo)
-            {
-                if (startInfo == null)
-                {
-                    throw new ArgumentNullException();
-                }
-
-                if (startInfo.FileName != FFPROBE_FILE_NAME)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                const string PATTERN = @"-loglevel\s+error\s+-print_format\s+json\s+(?<options>.+)\s+-i\s+(?<file>.+)";
-                var match = Regex.Match(startInfo.Arguments, PATTERN);
-                string fileName = match.Groups["file"]?.Value;
-                string options = match.Groups["options"]?.Value;
-                var output = string.Empty;
-
-                if (Regex.IsMatch(options, @"-show_format\s+-show_streams"))
-                {
-                    switch (fileName)
-                    {
-                        case FILE_NAME_1:
-                            output = FILE_OUTPUT_1;
-                            break;
-                        case FILE_NAME_2:
-                            output = FILE_OUTPUT_2;
-                            break;
-                        case FILE_NAME_3:
-                            Thread.Sleep(TIMEOUT_MS + 5);
-                            break;
-                        default:
-                            if (startInfo.RedirectStandardError && !startInfo.UseShellExecute)
-                            {
-                                ErrorDataReceived?.Invoke("Failed to probe file.");
-                            }
-                            break;
-                    }
-                }
-
-                if (Regex.IsMatch(options, @"-show_frames\s+-select_streams\s+0\s+-read_intervals\s+%\+#1")
-                    && fileName == FILE_NAME_1)
-                {
-                    output = FRAME_OUTPUT;
-                }
-
-                using (var reader = new StringReader(output))
-                {
-                    string line = null;
-
-                    do
-                    {
-                        Thread.Sleep(5);
-
-                        line = reader.ReadLine();
-
-                        if (startInfo.RedirectStandardOutput && !startInfo.UseShellExecute && (line != null))
-                        {
-                            OutputDataReceived?.Invoke(line);
-                        }
-                    } while (line != null);
-                }
-
-                HasExited = true;
-                Exited?.Invoke();
-
-                return true;
-            }
-        }
 
         #endregion
 
@@ -250,17 +150,28 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void TestInspect()
         {
-            var process = new MockProcess();
-            Func<IProcess> processCreator = () => process;
+            var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
-            var timeout = TimeSpan.FromMilliseconds(TIMEOUT_MS);
-            var inspector = new MediaInspector(FFPROBE_FILE_NAME, processCreator, processUtility, timeout);
+            var timeout = TimeSpan.FromMilliseconds(2);
+            var ffprobeFileName = "/usr/sbin/ffprobe";
+            var inspector = new MediaInspector(ffprobeFileName, processRunner, processUtility, timeout);
 
             #region Test MKV with HDR
 
             var fileName = "/Users/fred/Documents/video.mkv";
+            var escapedFileName = "escaped 1";
+            var argPattern1 = @"-loglevel\s+error\s+-print_format\s+json\s+-show_format\s+-show_streams\s+-i\s+";
+            var argPattern2 = @"-loglevel\s+error\s+-print_format\s+json\s+-show_frames\s+-select_streams\s+0\s+-read_intervals\s+%\+#1\s+-i\s+";
 
-            processUtility.EscapeFilePath(fileName).Returns(FILE_NAME_1);
+            processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_1 });
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern2 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult() { OutputData = FRAME_OUTPUT });
 
             MediaInfo info = inspector.Inspect(fileName);
 
@@ -334,8 +245,13 @@ namespace Tricycle.Media.FFmpeg.Tests
             #region Test MP4 with SDR
 
             fileName = "/Users/fred/Documents/video.m4v";
+            escapedFileName = "escaped 2";
 
-            processUtility.EscapeFilePath(fileName).Returns(FILE_NAME_2);
+            processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_2 });
 
             info = inspector.Inspect(fileName);
 
@@ -382,28 +298,16 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             #endregion
 
-            #region Test timeout
-
-            var stopwatch = new Stopwatch();
-
-            fileName = "/Users/fred/Documents/complex.m2ts";
-
-            processUtility.EscapeFilePath(fileName).Returns(FILE_NAME_3);
-            stopwatch.Start();
-
-            info = inspector.Inspect(fileName);
-
-            stopwatch.Stop();
-
-            Assert.IsTrue(stopwatch.Elapsed > timeout, "The specified timeout was not honored.");
-
-            #endregion
-
             #region Test bad file
 
             fileName = "/Users/fred/Documents/text.txt";
+            escapedFileName = "bad file";
 
-            processUtility.EscapeFilePath(fileName).Returns("bad file");
+            processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult());
 
             info = inspector.Inspect(fileName);
 

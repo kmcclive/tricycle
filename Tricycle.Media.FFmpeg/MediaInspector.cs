@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Newtonsoft.Json;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -17,7 +14,7 @@ namespace Tricycle.Media.FFmpeg
         #region Fields
 
         readonly string _ffprobeFileName;
-        readonly Func<IProcess> _processCreator;
+        readonly IProcessRunner _processRunner;
         readonly IProcessUtility _processUtility;
         readonly TimeSpan _timeout;
 
@@ -25,19 +22,13 @@ namespace Tricycle.Media.FFmpeg
 
         #region Constructors
 
-        public MediaInspector(string ffprobeFileName, Func<IProcess> processCreator, IProcessUtility processUtility)
-            : this(ffprobeFileName, processCreator, processUtility, TimeSpan.FromSeconds(5))
-        {
-
-        }
-
         public MediaInspector(string ffprobeFileName,
-                              Func<IProcess> processCreator,
+                              IProcessRunner processRunner,
                               IProcessUtility processUtility,
                               TimeSpan timeout)
         {
             _ffprobeFileName = ffprobeFileName;
-            _processCreator = processCreator;
+            _processRunner = processRunner;
             _processUtility = processUtility;
             _timeout = timeout;
         }
@@ -96,41 +87,20 @@ namespace Tricycle.Media.FFmpeg
         T RunFFprobe<T>(string fileName, string options)
         {
             T result = default(T);
+            var escapedFileName = _processUtility.EscapeFilePath(fileName);
+            var arguments = $"-loglevel error -print_format json {options} -i {escapedFileName}";
 
-            using (IProcess process = _processCreator.Invoke())
+            try
             {
-                var escapedFileName = _processUtility.EscapeFilePath(fileName);
-                var startInfo = new ProcessStartInfo()
+                var processResult = _processRunner.Run(_ffprobeFileName, arguments, _timeout);
+
+                if (!string.IsNullOrWhiteSpace(processResult.OutputData))
                 {
-                    CreateNoWindow = true,
-                    FileName = _ffprobeFileName,
-                    Arguments = $"-loglevel error -print_format json {options} -i {escapedFileName}",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                };
-                var builder = new StringBuilder();
-                var completion = new ManualResetEvent(false);
-
-                process.OutputDataReceived += (data) => builder.AppendLine(data);
-                process.Exited += () => completion.Set();
-
-                try
-                {
-                    bool test = process.Start(startInfo);
-
-                    if (!completion.WaitOne(_timeout))
-                    {
-                        process.Kill();
-                    }
-
-                    if (builder.Length > 0)
-                    {
-                        result = JsonConvert.DeserializeObject<T>(builder.ToString());
-                    }
+                    result = JsonConvert.DeserializeObject<T>(processResult.OutputData);
                 }
-                catch (ArgumentException) { }
-                catch (InvalidOperationException) { }
             }
+            catch (ArgumentException) { }
+            catch (InvalidOperationException) { }
 
             return result;
         }

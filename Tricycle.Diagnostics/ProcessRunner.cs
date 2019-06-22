@@ -9,12 +9,10 @@ namespace Tricycle.Diagnostics
     public class ProcessRunner : IProcessRunner
     {
         readonly Func<IProcess> _processCreator;
-        readonly TimeSpan _timeout;
 
-        public ProcessRunner(Func<IProcess> processCreator, TimeSpan timeout)
+        public ProcessRunner(Func<IProcess> processCreator)
         {
             _processCreator = processCreator;
-            _timeout = timeout;
         }
 
         public ProcessResult Run(string fileName)
@@ -23,6 +21,11 @@ namespace Tricycle.Diagnostics
         }
 
         public ProcessResult Run(string fileName, string arguments)
+        {
+            return Run(fileName, arguments, null);
+        }
+
+        public ProcessResult Run(string fileName, string arguments, TimeSpan? timeout)
         {
             if (fileName == null)
             {
@@ -44,15 +47,33 @@ namespace Tricycle.Diagnostics
                 };
                 var outputBuilder = new StringBuilder();
                 var errorBuilder = new StringBuilder();
-                var completion = new ManualResetEvent(false);
+                bool incomplete = false;
 
-                process.OutputDataReceived += (data) => outputBuilder.AppendLine(data);
-                process.ErrorDataReceived += (data) => errorBuilder.AppendLine(data);
-                process.Exited += () => completion.Set();
+                using (var completion = new ManualResetEvent(false))
+                {
+                    process.OutputDataReceived += (data) => outputBuilder.AppendLine(data);
+                    process.ErrorDataReceived += (data) => errorBuilder.AppendLine(data);
+                    process.Exited += () => {
+                        try
+                        {
+                            completion?.Set();
+                        }
+                        catch (ObjectDisposedException) { }
+                    };
 
-                process.Start(startInfo);
+                    process.Start(startInfo);
 
-                if (!completion.WaitOne(_timeout))
+                    if (timeout.HasValue)
+                    {
+                        incomplete = !completion.WaitOne(timeout.Value);
+                    }
+                    else
+                    {
+                        completion.WaitOne();
+                    }
+                }
+
+                if (incomplete)
                 {
                     process.Kill();
                 }

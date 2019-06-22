@@ -125,11 +125,11 @@ namespace Tricycle.Diagnostics.Tests
             Func<IProcess> processCreator = () => process;
             var processUtility = Substitute.For<IProcessUtility>();
             var timeout = TimeSpan.FromMilliseconds(TIMEOUT_MS);
-            var runner = new ProcessRunner(processCreator, timeout);
+            var runner = new ProcessRunner(processCreator);
 
             Assert.ThrowsException<ArgumentNullException>(() => runner.Run(null));
 
-            var result = runner.Run(EXE_FILE_NAME, ARGS_1);
+            var result = runner.Run(EXE_FILE_NAME, ARGS_1, timeout);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.ExitCode);
@@ -140,7 +140,7 @@ namespace Tricycle.Diagnostics.Tests
 
             stopwatch.Start();
 
-            result = runner.Run(EXE_FILE_NAME, ARGS_2);
+            result = runner.Run(EXE_FILE_NAME, ARGS_2, timeout);
 
             stopwatch.Stop();
 
