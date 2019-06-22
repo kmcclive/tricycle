@@ -152,7 +152,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
-            var timeout = TimeSpan.FromMilliseconds(2);
+            var timeout = TimeSpan.FromMilliseconds(10);
             var ffprobeFileName = "/usr/sbin/ffprobe";
             var inspector = new MediaInspector(ffprobeFileName, processRunner, processUtility, timeout);
 

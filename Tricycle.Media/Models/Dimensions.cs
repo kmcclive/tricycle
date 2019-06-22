@@ -26,8 +26,8 @@ namespace Tricycle.Media.Models
         {
             int hash = 17;
 
-            hash = hash * 23 + Width;
-            hash = hash * 23 + Height;
+            hash = hash * 23 + Width.GetHashCode();
+            hash = hash * 23 + Height.GetHashCode();
 
             return hash;
         }
