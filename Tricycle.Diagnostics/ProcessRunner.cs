@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
-using System.Threading;
 using Tricycle.Diagnostics.Models;
 
 namespace Tricycle.Diagnostics
@@ -47,34 +46,40 @@ namespace Tricycle.Diagnostics
                 };
                 var outputBuilder = new StringBuilder();
                 var errorBuilder = new StringBuilder();
-                bool incomplete = false;
 
-                using (var completion = new ManualResetEvent(false))
+                process.OutputDataReceived += (data) =>
                 {
-                    process.OutputDataReceived += (data) => outputBuilder.AppendLine(data);
-                    process.ErrorDataReceived += (data) => errorBuilder.AppendLine(data);
-                    process.Exited += () => {
-                        try
-                        {
-                            completion?.Set();
-                        }
-                        catch (ObjectDisposedException) { }
-                    };
+                    Debug.WriteLine(data);
+                    outputBuilder.AppendLine(data);
+                };
+                process.ErrorDataReceived += (data) =>
+                {
+                    Debug.WriteLine(data);
+                    errorBuilder.AppendLine(data);
+                };
 
-                    process.Start(startInfo);
+                process.Start(startInfo);
 
-                    if (timeout.HasValue)
+                bool complete = false;
+
+                if (timeout.HasValue)
+                {
+                    if (process.WaitForExit((int)timeout.Value.TotalMilliseconds))
                     {
-                        incomplete = !completion.WaitOne(timeout.Value);
-                    }
-                    else
-                    {
-                        completion.WaitOne();
+                        // This is a workaround for a bug in the .NET code.
+                        // See https://stackoverflow.com/a/25772586/9090758 for more details.
+                        process.WaitForExit();
+                        complete = true;
                     }
                 }
-
-                if (incomplete)
+                else
                 {
+                    process.WaitForExit();
+                }
+
+                if (!complete)
+                {
+                    Debug.WriteLine($"Process ({fileName}) timed out. Killing...");
                     process.Kill();
                 }
 

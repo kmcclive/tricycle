@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -59,13 +60,20 @@ namespace Tricycle.Media.FFmpeg
             {
                 var processResult = _processRunner.Run(_ffmpegFileName, arguments, _timeout);
 
-                if (!string.IsNullOrWhiteSpace(processResult.OutputData))
+                //The crop detection data is written to standard error.
+                if (!string.IsNullOrWhiteSpace(processResult.ErrorData))
                 {
-                    result = Parse(processResult.OutputData);
+                    result = Parse(processResult.ErrorData);
                 }
             }
-            catch (ArgumentException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine(ex);
+            }
 
             return result;
         }

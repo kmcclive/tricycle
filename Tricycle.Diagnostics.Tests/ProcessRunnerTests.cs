@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics.Utilities;
@@ -34,6 +35,8 @@ namespace Tricycle.Diagnostics.Tests
 
         private class MockProcess : IProcess
         {
+            ManualResetEvent _completion = new ManualResetEvent(false);
+
             public int ExitCode { get; set; }
             public bool HasExited { get; set; }
 
@@ -64,54 +67,74 @@ namespace Tricycle.Diagnostics.Tests
                     throw new InvalidOperationException();
                 }
 
-                var output = string.Empty;
-                var errors = string.Empty;
-
-                switch (startInfo.Arguments)
+                Task.Run(() =>
                 {
-                    case ARGS_1:
-                        output = OUTPUT;
-                        errors = ERRORS;
-                        break;
-                    case ARGS_2:
-                        Thread.Sleep(TIMEOUT_MS + 5);
-                        break;
-                }
+                    var output = string.Empty;
+                    var errors = string.Empty;
 
-                if (!startInfo.UseShellExecute)
-                {
-                    using (var outputReader = new StringReader(output))
+                    switch (startInfo.Arguments)
                     {
-                        using (var errorReader = new StringReader(errors))
+                        case ARGS_1:
+                            output = OUTPUT;
+                            errors = ERRORS;
+                            break;
+                        case ARGS_2:
+                            Thread.Sleep(TIMEOUT_MS + 5);
+                            break;
+                    }
+
+                    if (!startInfo.UseShellExecute)
+                    {
+                        using (var outputReader = new StringReader(output))
                         {
-                            string outputLine = null;
-                            string errorLine = null;
-
-                            do
+                            using (var errorReader = new StringReader(errors))
                             {
-                                Thread.Sleep(5);
+                                string outputLine = null;
+                                string errorLine = null;
 
-                                outputLine = outputReader.ReadLine();
-                                errorLine = errorReader.ReadLine();
-
-                                if (startInfo.RedirectStandardOutput && !string.IsNullOrEmpty(outputLine))
+                                do
                                 {
-                                    OutputDataReceived?.Invoke(outputLine);
-                                }
+                                    Thread.Sleep(5);
 
-                                if (startInfo.RedirectStandardError && !string.IsNullOrEmpty(errorLine))
-                                {
-                                    ErrorDataReceived?.Invoke(errorLine);
-                                }
-                            } while ((outputLine != null) || (errorLine != null));
+                                    outputLine = outputReader.ReadLine();
+                                    errorLine = errorReader.ReadLine();
+
+                                    if (startInfo.RedirectStandardOutput && !string.IsNullOrEmpty(outputLine))
+                                    {
+                                        OutputDataReceived?.Invoke(outputLine);
+                                    }
+
+                                    if (startInfo.RedirectStandardError && !string.IsNullOrEmpty(errorLine))
+                                    {
+                                        ErrorDataReceived?.Invoke(errorLine);
+                                    }
+                                } while ((outputLine != null) || (errorLine != null));
+                            }
                         }
                     }
+
+                    ExitCode = 0;
+                    HasExited = true;
+                    Exited?.Invoke();
+                    _completion.Set();
+                });
+
+                return true;
+            }
+
+            public void WaitForExit()
+            {
+                WaitForExit(-1);
+            }
+
+            public bool WaitForExit(int milliseconds)
+            {
+                if (milliseconds > 0)
+                {
+                    return _completion.WaitOne(milliseconds);
                 }
 
-                ExitCode = 0;
-                HasExited = true;
-                Exited?.Invoke();
-
+                _completion.WaitOne();
                 return true;
             }
         }
@@ -121,13 +144,18 @@ namespace Tricycle.Diagnostics.Tests
         [TestMethod]
         public void TestRun()
         {
-            var process = new MockProcess();
-            Func<IProcess> processCreator = () => process;
+            Func<IProcess> processCreator = () => new MockProcess();
             var processUtility = Substitute.For<IProcessUtility>();
             var timeout = TimeSpan.FromMilliseconds(TIMEOUT_MS);
             var runner = new ProcessRunner(processCreator);
 
+            #region Test exceptions
+
             Assert.ThrowsException<ArgumentNullException>(() => runner.Run(null));
+
+            #endregion
+
+            #region Test successful process with output and error data
 
             var result = runner.Run(EXE_FILE_NAME, ARGS_1, timeout);
 
@@ -135,6 +163,10 @@ namespace Tricycle.Diagnostics.Tests
             Assert.AreEqual(0, result.ExitCode);
             Assert.AreEqual(OUTPUT + Environment.NewLine, result.OutputData);
             Assert.AreEqual(ERRORS + Environment.NewLine, result.ErrorData);
+
+            #endregion
+
+            #region Test process that times out
 
             var stopwatch = new Stopwatch();
 
@@ -145,6 +177,11 @@ namespace Tricycle.Diagnostics.Tests
             stopwatch.Stop();
 
             Assert.IsTrue(stopwatch.Elapsed > timeout, "The specified timeout was not honored.");
+            Assert.AreEqual(1, result.ExitCode);
+            Assert.AreEqual(string.Empty, result.OutputData);
+            Assert.AreEqual(string.Empty, result.ErrorData);
+
+            #endregion
         }
     }
 }

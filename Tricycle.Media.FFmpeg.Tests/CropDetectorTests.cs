@@ -55,7 +55,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             processRunner.Run(ffmpegFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, 300, escapedFileName))),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = output });
+                         .Returns(new ProcessResult() { ErrorData = output });
 
             CropParameters parameters = detector.Detect(mediaInfo);
 
@@ -90,7 +90,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             processRunner.Run(ffmpegFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, 30, escapedFileName))),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = output });
+                         .Returns(new ProcessResult() { ErrorData = output });
 
             parameters = detector.Detect(mediaInfo);
 

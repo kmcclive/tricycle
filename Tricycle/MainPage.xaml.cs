@@ -19,6 +19,7 @@ namespace Tricycle
             BindingContext = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
+                AppState.IocContainer.GetInstance<ICropDetector>(),
                 AppState.TricycleConfig);
         }
     }

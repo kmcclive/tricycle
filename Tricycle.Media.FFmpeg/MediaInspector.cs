@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -107,8 +108,18 @@ namespace Tricycle.Media.FFmpeg
                     result = JsonConvert.DeserializeObject<T>(processResult.OutputData);
                 }
             }
-            catch (ArgumentException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (JsonException ex)
+            {
+                Debug.WriteLine(ex);
+            }
 
             return result;
         }

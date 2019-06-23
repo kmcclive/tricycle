@@ -28,6 +28,18 @@ namespace Tricycle.Diagnostics
         void Kill();
 
         /// <summary>
+        /// Blocks the current thread until the process exits.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">An error occurred waiting for the process.</exception>
+        void WaitForExit();
+
+        /// <summary>
+        /// Blocks the current thread until the process exits or a specified number of milliseconds has passed.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">An error occurred waiting for the process.</exception>
+        bool WaitForExit(int milliseconds);
+
+        /// <summary>
         /// Occurs when the process exits.
         /// </summary>
         event Action Exited;

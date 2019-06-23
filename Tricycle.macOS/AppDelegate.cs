@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using AppKit;
 using Foundation;
 using StructureMap;
@@ -31,15 +32,19 @@ namespace Tricycle.macOS
         public override void DidFinishLaunching(NSNotification notification)
         {
             string resourcePath = NSBundle.MainBundle.ResourcePath;
+            string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
             var processRunner = new ProcessRunner(processCreator);
 
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IFileBrowser>().Use<FileBrowser>();
-                _.For<IMediaInspector>().Use(new MediaInspector($"{resourcePath}/Tools/FFmpeg/ffprobe",
+                _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,
                                                                 ProcessUtility.Self));
+                _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
+                                                            processRunner,
+                                                            ProcessUtility.Self));
             });
             AppState.TricycleConfig = new TricycleConfig();
 

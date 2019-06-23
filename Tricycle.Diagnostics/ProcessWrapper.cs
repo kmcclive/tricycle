@@ -45,10 +45,12 @@ namespace Tricycle.Diagnostics
             }
             catch (NotSupportedException ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException("An error occurred killing the process.", ex);
             }
             catch (Win32Exception ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException("An error occurred killing the process.", ex);
             }
         }
@@ -78,19 +80,52 @@ namespace Tricycle.Diagnostics
             }
             catch (ObjectDisposedException ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
             }
             catch (InvalidOperationException ex)
             {
+                Debug.WriteLine(ex);
                 throw new ArgumentException($"{nameof(startInfo)} is invalid.", ex);
             }
             catch (FileNotFoundException ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
             }
             catch (Win32Exception ex)
             {
+                Debug.WriteLine(ex);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
+            }
+        }
+
+        public void WaitForExit()
+        {
+            WaitForExit(-1);
+        }
+
+        public bool WaitForExit(int milliseconds)
+        {
+            try
+            {
+                if (milliseconds > 0)
+                {
+                    return _process.WaitForExit(milliseconds);
+                }
+
+                _process.WaitForExit();
+                return true;
+            }
+            catch (Win32Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw new InvalidOperationException("An error occurred waiting for the process.", ex);
+            }
+            catch (SystemException ex)
+            {
+                Debug.WriteLine(ex);
+                throw new InvalidOperationException("An error occurred waiting for the process.", ex);
             }
         }
     }

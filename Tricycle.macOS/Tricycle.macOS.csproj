@@ -144,6 +144,7 @@
     <BundleResource Include="Resources\Images\stop.png" />
     <BundleResource Include="Resources\Tools\FFmpeg\ffprobe" />
     <BundleResource Include="Resources\Tools\FFmpeg\License.txt" />
+    <BundleResource Include="Resources\Tools\FFmpeg\ffmpeg" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets')" />

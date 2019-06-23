@@ -15,6 +15,7 @@ namespace Tricycle.ViewModels
     {
         readonly IFileBrowser _fileBrowser;
         readonly IMediaInspector _mediaInspector;
+        readonly ICropDetector _cropDetector;
         readonly TricycleConfig _tricycleConfig;
 
         bool _isSourceInfoVisible;
@@ -35,11 +36,16 @@ namespace Tricycle.ViewModels
         bool _isDenoiseChecked;
 
         MediaInfo _sourceInfo;
+        CropParameters _cropParameters;
 
-        public MainViewModel(IFileBrowser fileBrowser, IMediaInspector mediaInspector, TricycleConfig tricycleConfig)
+        public MainViewModel(IFileBrowser fileBrowser,
+                             IMediaInspector mediaInspector,
+                             ICropDetector cropDetector,
+                             TricycleConfig tricycleConfig)
         {
             _fileBrowser = fileBrowser;
             _mediaInspector = mediaInspector;
+            _cropDetector = cropDetector;
             _tricycleConfig = tricycleConfig;
 
             SourceSelectCommand = new Command(async () =>
@@ -61,6 +67,8 @@ namespace Tricycle.ViewModels
                         SourceSize = GetSizeName(videoStream.Dimensions);
                         IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
                         IsSourceInfoVisible = true;
+
+                        _cropParameters = _cropDetector.Detect(_sourceInfo);
                     }
                 }
             });
