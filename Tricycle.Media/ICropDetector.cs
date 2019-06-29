@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Tricycle.Media.Models;
 
 namespace Tricycle.Media
@@ -12,6 +13,6 @@ namespace Tricycle.Media
         /// <returns>The crop parameters required to remove black bars.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="mediaInfo"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="mediaInfo"/> is invalid.</exception>
-        CropParameters Detect(MediaInfo mediaInfo);
+        Task<CropParameters> Detect(MediaInfo mediaInfo);
     }
 }

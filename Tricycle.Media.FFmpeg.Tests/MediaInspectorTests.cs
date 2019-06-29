@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
@@ -148,13 +149,20 @@ namespace Tricycle.Media.FFmpeg.Tests
         #region Test Methods
 
         [TestMethod]
-        public void TestInspect()
+        public async Task TestInspect()
         {
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
             var timeout = TimeSpan.FromMilliseconds(10);
             var ffprobeFileName = "/usr/sbin/ffprobe";
             var inspector = new MediaInspector(ffprobeFileName, processRunner, processUtility, timeout);
+
+            #region Test Exceptions
+
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await inspector.Inspect(null));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await inspector.Inspect(string.Empty));
+
+            #endregion
 
             #region Test MKV with HDR
 
@@ -173,7 +181,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                               timeout)
                          .Returns(new ProcessResult() { OutputData = FRAME_OUTPUT });
 
-            MediaInfo info = inspector.Inspect(fileName);
+            MediaInfo info = await inspector.Inspect(fileName);
 
             Assert.IsNotNull(info);
             Assert.AreEqual(fileName, info.FileName);
@@ -254,7 +262,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                               timeout)
                          .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_2 });
 
-            info = inspector.Inspect(fileName);
+            info = await inspector.Inspect(fileName);
 
             Assert.IsNotNull(info);
             Assert.AreEqual(fileName, info.FileName);
@@ -311,7 +319,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                               timeout)
                          .Returns(new ProcessResult());
 
-            info = inspector.Inspect(fileName);
+            info = await inspector.Inspect(fileName);
 
             Assert.IsNull(info);
 

@@ -142,7 +142,7 @@ namespace Tricycle.Diagnostics.Tests
         #endregion
 
         [TestMethod]
-        public void TestRun()
+        public async Task TestRun()
         {
             Func<IProcess> processCreator = () => new MockProcess();
             var processUtility = Substitute.For<IProcessUtility>();
@@ -157,7 +157,7 @@ namespace Tricycle.Diagnostics.Tests
 
             #region Test successful process with output and error data
 
-            var result = runner.Run(EXE_FILE_NAME, ARGS_1, timeout);
+            var result = await runner.Run(EXE_FILE_NAME, ARGS_1, timeout);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.ExitCode);
@@ -172,7 +172,7 @@ namespace Tricycle.Diagnostics.Tests
 
             stopwatch.Start();
 
-            result = runner.Run(EXE_FILE_NAME, ARGS_2, timeout);
+            result = await runner.Run(EXE_FILE_NAME, ARGS_2, timeout);
 
             stopwatch.Stop();
 

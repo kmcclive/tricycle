@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Tricycle.Media.Models;
 
 namespace Tricycle.Media
@@ -12,6 +13,6 @@ namespace Tricycle.Media
         /// <param name="fileName">The name of the file to inspect.</param>
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="fileName"/> is empty or whitespace.</exception>
-        MediaInfo Inspect(string fileName);
+        Task<MediaInfo> Inspect(string fileName);
     }
 }

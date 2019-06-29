@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.Media.Models;
@@ -35,7 +36,7 @@ namespace Tricycle.Media.FFmpeg
             _timeout = timeout;
         }
 
-        public CropParameters Detect(MediaInfo mediaInfo)
+        public async Task<CropParameters> Detect(MediaInfo mediaInfo)
         {
             if (mediaInfo == null)
             {
@@ -58,7 +59,7 @@ namespace Tricycle.Media.FFmpeg
 
             try
             {
-                var processResult = _processRunner.Run(_ffmpegFileName, arguments, _timeout);
+                var processResult = await _processRunner.Run(_ffmpegFileName, arguments, _timeout);
 
                 //The crop detection data is written to standard error.
                 if (!string.IsNullOrWhiteSpace(processResult.ErrorData))

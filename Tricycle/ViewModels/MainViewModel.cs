@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media;
@@ -48,30 +49,7 @@ namespace Tricycle.ViewModels
             _cropDetector = cropDetector;
             _tricycleConfig = tricycleConfig;
 
-            SourceSelectCommand = new Command(async () =>
-            {
-                var result = await _fileBrowser.BrowseToOpen();
-
-                if (result.Confirmed)
-                {
-                    _sourceInfo = _mediaInspector.Inspect(result.FileName);
-
-                    if (_sourceInfo != null)
-                    {
-                        TimeSpan duration = _sourceInfo.Duration;
-                        VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
-
-                        SourceName = result.FileName;
-                        SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
-                            duration.Hours, duration.Minutes, duration.Seconds);
-                        SourceSize = GetSizeName(videoStream.Dimensions);
-                        IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
-                        IsSourceInfoVisible = true;
-
-                        _cropParameters = _cropDetector.Detect(_sourceInfo);
-                    }
-                }
-            });
+            SourceSelectCommand = new Command(async () => await SelectSource());
         }
 
         public bool IsSourceInfoVisible
@@ -196,6 +174,31 @@ namespace Tricycle.ViewModels
             }
 
             return "480p";
+        }
+
+        async Task SelectSource()
+        {
+            var result = await _fileBrowser.BrowseToOpen();
+
+            if (result.Confirmed)
+            {
+                _sourceInfo = await _mediaInspector.Inspect(result.FileName);
+
+                if (_sourceInfo != null)
+                {
+                    TimeSpan duration = _sourceInfo.Duration;
+                    VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+
+                    SourceName = result.FileName;
+                    SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
+                        duration.Hours, duration.Minutes, duration.Seconds);
+                    SourceSize = GetSizeName(videoStream.Dimensions);
+                    IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
+                    IsSourceInfoVisible = true;
+
+                    _cropParameters = await _cropDetector.Detect(_sourceInfo);
+                }
+            }
         }
     }
 }

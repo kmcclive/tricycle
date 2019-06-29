@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Tricycle.Diagnostics.Models;
 
 namespace Tricycle.Diagnostics
@@ -14,7 +15,7 @@ namespace Tricycle.Diagnostics
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="fileName"/> is invalid.</exception>
         /// <exception cref="InvalidOperationException">An error occurred starting the process.</exception>
-        ProcessResult Run(string fileName);
+        Task<ProcessResult> Run(string fileName);
 
         /// <summary>
         /// Runs a process and waits for exit.
@@ -25,7 +26,7 @@ namespace Tricycle.Diagnostics
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="fileName"/> is invalid.</exception>
         /// <exception cref="InvalidOperationException">An error occurred starting the process.</exception>
-        ProcessResult Run(string fileName, string arguments);
+        Task<ProcessResult> Run(string fileName, string arguments);
 
         /// <summary>
         /// Runs a process and waits for exit until a specified timeout.
@@ -37,6 +38,6 @@ namespace Tricycle.Diagnostics
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="fileName"/> is invalid.</exception>
         /// <exception cref="InvalidOperationException">An error occurred starting the process.</exception>
-        ProcessResult Run(string fileName, string arguments, TimeSpan? timeout);
+        Task<ProcessResult> Run(string fileName, string arguments, TimeSpan? timeout);
     }
 }

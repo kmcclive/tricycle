@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -48,7 +49,7 @@ namespace Tricycle.Media.FFmpeg
 
         #region Public
 
-        public MediaInfo Inspect(string fileName)
+        public async Task<MediaInfo> Inspect(string fileName)
         {
             if (fileName == null)
             {
@@ -60,7 +61,7 @@ namespace Tricycle.Media.FFmpeg
             }
 
             MediaInfo result = null;
-            var output = RunFFprobe<Output>(fileName, "-show_format -show_streams");
+            var output = await RunFFprobe<Output>(fileName, "-show_format -show_streams");
 
             if (output != null)
             {
@@ -72,7 +73,7 @@ namespace Tricycle.Media.FFmpeg
                 foreach (VideoStreamInfo videoStream in hdrVideoStreams)
                 {
                     var options = $"-show_frames -select_streams {videoStream.Index} -read_intervals %+#1";
-                    var frameOutput = RunFFprobe<FrameOutput>(fileName, options);
+                    var frameOutput = await RunFFprobe<FrameOutput>(fileName, options);
                     var (displayProperties, lightProperties) = Map(frameOutput);
 
                     videoStream.MasterDisplayProperties = displayProperties;
@@ -93,7 +94,7 @@ namespace Tricycle.Media.FFmpeg
 
         #region Private
 
-        T RunFFprobe<T>(string fileName, string options)
+        async Task<T> RunFFprobe<T>(string fileName, string options)
         {
             T result = default(T);
             var escapedFileName = _processUtility.EscapeFilePath(fileName);
@@ -101,7 +102,7 @@ namespace Tricycle.Media.FFmpeg
 
             try
             {
-                var processResult = _processRunner.Run(_ffprobeFileName, arguments, _timeout);
+                var processResult = await _processRunner.Run(_ffprobeFileName, arguments, _timeout);
 
                 if (!string.IsNullOrWhiteSpace(processResult.OutputData))
                 {

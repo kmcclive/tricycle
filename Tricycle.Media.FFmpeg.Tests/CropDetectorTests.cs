@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
@@ -13,7 +14,7 @@ namespace Tricycle.Media.FFmpeg.Tests
     public class CropDetectorTests
     {
         [TestMethod]
-        public void TestDetect()
+        public async Task TestDetect()
         {
             const string ARG_PATTERN = "-hide_banner\\s+-ss\\s+{0}\\s+-i\\s+{1}\\s+-frames:vf\\s+2\\s+-vf\\s+cropdetect\\s+-f\\s+null\\s+-";
 
@@ -25,8 +26,8 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             #region Test Exceptions
 
-            Assert.ThrowsException<ArgumentNullException>(() => detector.Detect(null));
-            Assert.ThrowsException<ArgumentException>(() => detector.Detect(new MediaInfo() { FileName = "test" }));
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await detector.Detect(null));
+            await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await detector.Detect(new MediaInfo() { FileName = "test" }));
 
             #endregion
 
@@ -57,7 +58,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                               timeout)
                          .Returns(new ProcessResult() { ErrorData = output });
 
-            CropParameters parameters = detector.Detect(mediaInfo);
+            CropParameters parameters = await detector.Detect(mediaInfo);
 
             Assert.IsNotNull(parameters);
             Assert.AreEqual(new Coordinate<int>(0, 264), parameters.Start);
@@ -92,7 +93,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                               timeout)
                          .Returns(new ProcessResult() { ErrorData = output });
 
-            parameters = detector.Detect(mediaInfo);
+            parameters = await detector.Detect(mediaInfo);
 
             Assert.IsNotNull(parameters);
             Assert.AreEqual(new Coordinate<int>(0, 0), parameters.Start);
