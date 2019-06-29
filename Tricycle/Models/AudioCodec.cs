@@ -6,7 +6,7 @@ namespace Tricycle.Models
     public enum AudioFormat
     {
         Aac,
-        HeAAc,
+        HeAac,
         Ac3
     }
 

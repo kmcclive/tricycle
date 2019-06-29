@@ -1,0 +1,107 @@
+﻿{
+    "video": {
+        "codecs": [
+            {
+                "format": "avc",
+                "qualityRange": {
+                    "min": 22.0,
+                    "max": 18.0
+                }
+            },
+            {
+                "format": "hevc",
+                "qualityRange": {
+                    "min": 22.0,
+                    "max": 18.0
+                }
+            }
+        ],
+        "sizePresets": {
+            "480p": {
+                "width": 854,
+                "height": 480
+            },
+            "720p": {
+                "width": 1280,
+                "height": 720
+            },
+            "1080p": {
+                "width": 1920,
+                "height": 1080
+            },
+            "4K": {
+                "width": 3840,
+                "height": 2160
+            }
+        },
+        "aspectRatioPresets": {
+            "4:3": {
+                "width": 4,
+                "height": 3
+            },
+            "16:9": {
+                "width": 16,
+                "height": 9
+            },
+            "21:9": {
+                "width": 21,
+                "height": 9
+            }
+        }
+    },
+    "audio": {
+        "codecs": [
+            {
+                "format": "aac",
+                "presets": [
+                    {
+                        "mixdown": "mono",
+                        "quality": 96.0
+                    },
+                    {
+                        "mixdown": "stereo",
+                        "quality": 160.0
+                    },
+                    {
+                        "mixdown": "surround5dot1",
+                        "quality": 640.0
+                    }
+                ]
+            },
+            {
+                "format": "heAac",
+                "presets": [
+                    {
+                        "mixdown": "mono",
+                        "quality": 40.0
+                    },
+                    {
+                        "mixdown": "stereo",
+                        "quality": 80.0
+                    },
+                    {
+                        "mixdown": "surround5dot1",
+                        "quality": 192.0
+                    }
+                ]
+            },
+            {
+                "format": "ac3",
+                "presets": [
+                    {
+                        "mixdown": "mono",
+                        "quality": 96.0
+                    },
+                    {
+                        "mixdown": "stereo",
+                        "quality": 160.0
+                    },
+                    {
+                        "mixdown": "surround5dot1",
+                        "quality": 640.0
+                    }
+                ]
+            }
+        ]
+    }
+}
