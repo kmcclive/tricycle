@@ -150,6 +150,33 @@ namespace Tricycle.ViewModels
 
         public ICommand SourceSelectCommand { get; }
 
+
+        async Task SelectSource()
+        {
+            var result = await _fileBrowser.BrowseToOpen();
+
+            if (result.Confirmed)
+            {
+                _sourceInfo = await _mediaInspector.Inspect(result.FileName);
+
+                if (_sourceInfo != null)
+                {
+                    TimeSpan duration = _sourceInfo.Duration;
+                    VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+
+                    SourceName = result.FileName;
+                    SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
+                        duration.Hours, duration.Minutes, duration.Seconds);
+                    SourceSize = GetSizeName(videoStream.Dimensions);
+                    IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
+                    IsSourceInfoVisible = true;
+                    SizeOptions = GetSizeOptions(videoStream.Dimensions);
+
+                    _cropParameters = await _cropDetector.Detect(_sourceInfo);
+                }
+            }
+        }
+
         VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
         {
             return streams.OfType<VideoStreamInfo>()
@@ -176,29 +203,17 @@ namespace Tricycle.ViewModels
             return "480p";
         }
 
-        async Task SelectSource()
+        IList<ListItem> GetSizeOptions(Dimensions sourceDimensions)
         {
-            var result = await _fileBrowser.BrowseToOpen();
+            IList<ListItem> result =
+                _tricycleConfig.Video?.SizePresets?.Where(s => s.Value.Height <= sourceDimensions.Height ||
+                                                               s.Value.Width <= sourceDimensions.Width)
+                                                   .Select(s => new ListItem(s.Key))
+                                                   .ToList() ?? new List<ListItem>();
 
-            if (result.Confirmed)
-            {
-                _sourceInfo = await _mediaInspector.Inspect(result.FileName);
+            result.Insert(0, new ListItem("Same as source"));
 
-                if (_sourceInfo != null)
-                {
-                    TimeSpan duration = _sourceInfo.Duration;
-                    VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
-
-                    SourceName = result.FileName;
-                    SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
-                        duration.Hours, duration.Minutes, duration.Seconds);
-                    SourceSize = GetSizeName(videoStream.Dimensions);
-                    IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
-                    IsSourceInfoVisible = true;
-
-                    _cropParameters = await _cropDetector.Detect(_sourceInfo);
-                }
-            }
+            return result;
         }
     }
 }

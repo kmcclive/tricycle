@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle"
@@ -71,7 +71,7 @@
                             <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
                             <Switch Grid.Column="1" Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-                            <Picker Grid.Column="1" Grid.Row="3" />
+                            <Picker ItemsSource="{Binding SizeOptions}" Grid.Column="1" Grid.Row="3" />
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
                             <Picker Grid.Column="1" Grid.Row="4" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
