@@ -76,7 +76,10 @@
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
                             <Picker ItemsSource="{Binding SizeOptions}" Grid.Column="1" Grid.Row="3" />
                             <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-                            <Switch IsToggled="{Binding IsAutocropChecked}" Grid.Column="1" Grid.Row="4" />
+                            <Switch IsEnabled="{Binding IsAutocropEnabled}"
+                                    IsToggled="{Binding IsAutocropChecked}"
+                                    Grid.Column="1"
+                                    Grid.Row="4" />
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <Picker ItemsSource="{Binding AspectRatioOptions}" Grid.Column="1" Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />

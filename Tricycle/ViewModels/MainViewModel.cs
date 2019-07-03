@@ -34,6 +34,7 @@ namespace Tricycle.ViewModels
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
         ListItem _selectedSize;
+        bool _isAutocropEnabled;
         bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
@@ -133,6 +134,12 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _selectedSize, value); }
         }
 
+        public bool IsAutocropEnabled
+        {
+            get { return _isAutocropEnabled; }
+            set { SetProperty(ref _isAutocropEnabled, value); }
+        }
+
         public bool IsAutocropChecked
         {
             get { return _isAutocropChecked; }
@@ -189,6 +196,8 @@ namespace Tricycle.ViewModels
 
                     IsHdrChecked = IsSourceHdr;
                     SizeOptions = GetSizeOptions(videoStream.Dimensions);
+                    IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
+                    IsAutocropChecked = IsAutocropEnabled;
                     PopulateAspectRatioOptions();
                 }
             }
@@ -269,6 +278,16 @@ namespace Tricycle.ViewModels
         double GetAspectRatio(Dimensions dimensions)
         {
             return (double)dimensions.Width / (double)dimensions.Height;
+        }
+
+        bool HasBars(Dimensions dimensions, CropParameters cropParameters)
+        {
+            if (cropParameters != null)
+            {
+                return !dimensions.Equals(cropParameters.Size);
+            }
+
+            return false;
         }
     }
 }
