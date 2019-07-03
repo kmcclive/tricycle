@@ -36,7 +36,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="300"
+                       HeightRequest="330"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Video"
@@ -72,17 +72,19 @@
                             <Switch Grid.Column="1" Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
                             <Picker ItemsSource="{Binding SizeOptions}" Grid.Column="1" Grid.Row="3" />
-                            <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-                            <Picker Grid.Column="1" Grid.Row="4" />
-                            <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-                            <Switch Grid.Column="1" Grid.Row="5" />
+                            <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+                            <Switch IsToggled="{Binding IsAutocropChecked}" Grid.Column="1" Grid.Row="4" />
+                            <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+                            <Picker ItemsSource="{Binding AspectRatioOptions}" Grid.Column="1" Grid.Row="5" />
+                            <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+                            <Switch Grid.Column="1" Grid.Row="6" />
                         </Grid>
                     </StackLayout>
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="300"
+                       HeightRequest="330"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Audio"

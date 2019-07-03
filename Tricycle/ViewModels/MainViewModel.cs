@@ -14,6 +14,8 @@ namespace Tricycle.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        static readonly ListItem ORIGINAL_OPTION = new ListItem("Same as source", Guid.NewGuid());
+
         readonly IFileBrowser _fileBrowser;
         readonly IMediaInspector _mediaInspector;
         readonly ICropDetector _cropDetector;
@@ -32,6 +34,7 @@ namespace Tricycle.ViewModels
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
         ListItem _selectedSize;
+        bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
@@ -130,6 +133,17 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _selectedSize, value); }
         }
 
+        public bool IsAutocropChecked
+        {
+            get { return _isAutocropChecked; }
+            set
+            {
+                SetProperty(ref _isAutocropChecked, value);
+
+                PopulateAspectRatioOptions();
+            }
+        }
+
         public IList<ListItem> AspectRatioOptions
         {
             get { return _aspectRatioOptions; }
@@ -173,6 +187,8 @@ namespace Tricycle.ViewModels
                     SizeOptions = GetSizeOptions(videoStream.Dimensions);
 
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
+
+                    PopulateAspectRatioOptions();
                 }
             }
         }
@@ -211,9 +227,47 @@ namespace Tricycle.ViewModels
                                                    .Select(s => new ListItem(s.Key))
                                                    .ToList() ?? new List<ListItem>();
 
-            result.Insert(0, new ListItem("Same as source"));
+            result.Insert(0, ORIGINAL_OPTION);
 
             return result;
+        }
+
+        void PopulateAspectRatioOptions()
+        {
+            Dimensions? sourceDimensions = null;
+
+            if (_sourceInfo?.Streams != null)
+            {
+                var videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+
+                sourceDimensions = videoStream?.Dimensions;
+            }
+
+            if (sourceDimensions.HasValue && _cropParameters != null)
+            {
+                AspectRatioOptions =
+                    GetAspectRatioOptions(sourceDimensions.Value, _isAutocropChecked ? _cropParameters : null);
+            }
+        }
+
+        IList<ListItem> GetAspectRatioOptions(Dimensions sourceDimensions, CropParameters cropParameters)
+        {
+            var dimensions = cropParameters?.Size ?? sourceDimensions;
+            double aspectRatio = GetAspectRatio(dimensions);
+
+            IList<ListItem> result =
+                _tricycleConfig.Video?.AspectRatioPresets?.Where(p => GetAspectRatio(p.Value) <= aspectRatio)
+                                                          .Select(s => new ListItem(s.Key))
+                                                          .ToList() ?? new List<ListItem>();
+
+            result.Insert(0, ORIGINAL_OPTION);
+
+            return result;
+        }
+
+        double GetAspectRatio(Dimensions dimensions)
+        {
+            return (double)dimensions.Width / (double)dimensions.Height;
         }
     }
 }

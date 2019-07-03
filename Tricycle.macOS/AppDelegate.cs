@@ -27,7 +27,7 @@ namespace Tricycle.macOS
         public AppDelegate()
         {
             var style = NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
-            var rect = new CoreGraphics.CGRect(200, 200, 800, 460);
+            var rect = new CoreGraphics.CGRect(200, 200, 800, 490);
 
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false);
             MainWindow.Title = "Tricycle";
