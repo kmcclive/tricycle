@@ -184,10 +184,11 @@ namespace Tricycle.ViewModels
                     SourceSize = GetSizeName(videoStream.Dimensions);
                     IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
                     IsSourceInfoVisible = true;
-                    SizeOptions = GetSizeOptions(videoStream.Dimensions);
 
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
 
+                    IsHdrChecked = IsSourceHdr;
+                    SizeOptions = GetSizeOptions(videoStream.Dimensions);
                     PopulateAspectRatioOptions();
                 }
             }

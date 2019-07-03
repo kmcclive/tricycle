@@ -69,7 +69,10 @@
                                 </FlexLayout>
                             </StackLayout>
                             <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
-                            <Switch Grid.Column="1" Grid.Row="2" />
+                            <Switch IsEnabled="{Binding IsSourceHdr}"
+                                    IsToggled="{Binding IsHdrChecked}"
+                                    Grid.Column="1"
+                                    Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
                             <Picker ItemsSource="{Binding SizeOptions}" Grid.Column="1" Grid.Row="3" />
                             <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
@@ -77,7 +80,7 @@
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <Picker ItemsSource="{Binding AspectRatioOptions}" Grid.Column="1" Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
-                            <Switch Grid.Column="1" Grid.Row="6" />
+                            <Switch IsEnabled="false" Grid.Column="1" Grid.Row="6" />
                         </Grid>
                     </StackLayout>
                 </Frame>
