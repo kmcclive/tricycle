@@ -6,14 +6,16 @@
                 "qualityRange": {
                     "min": 22.0,
                     "max": 18.0
-                }
+                },
+                "qualitySteps": 4
             },
             {
                 "format": "hevc",
                 "qualityRange": {
                     "min": 22.0,
                     "max": 18.0
-                }
+                },
+                "qualitySteps": 4
             }
         ],
         "sizePresets": {

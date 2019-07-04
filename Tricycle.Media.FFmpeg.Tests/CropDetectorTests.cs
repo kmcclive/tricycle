@@ -16,7 +16,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public async Task TestDetect()
         {
-            const string ARG_PATTERN = "-hide_banner\\s+-ss\\s+{0}\\s+-i\\s+{1}\\s+-frames:vf\\s+2\\s+-vf\\s+cropdetect\\s+-f\\s+null\\s+-";
+            const string ARG_PATTERN = "-hide_banner\\s+-ss\\s+{0}\\s+-i\\s+{1}\\s+-frames:vf\\s+2\\s+-vf\\s+cropdetect(=\\d+:\\d+:\\d+)?\\s+-f\\s+null\\s+-";
 
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();

@@ -28,8 +28,9 @@ namespace Tricycle.ViewModels
         string _sourceName;
         IList<ListItem> _videoFormatOptions;
         ListItem _selectedVideoFormat;
-        double _qualityMin;
-        double _qualityMax;
+        double _qualityMin = 0;
+        double _qualityMax = 1;
+        double _quality = 0.5;
         bool _isHdrEnabled;
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
@@ -42,6 +43,9 @@ namespace Tricycle.ViewModels
 
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
+        int _qualityStepCount = 4;
+        bool _qualityTimerRunning;
+        DateTime _lastQualityChange;
 
         public MainViewModel(IFileBrowser fileBrowser,
                              IMediaInspector mediaInspector,
@@ -54,6 +58,18 @@ namespace Tricycle.ViewModels
             _tricycleConfig = tricycleConfig;
 
             SourceSelectCommand = new Command(async () => await SelectSource());
+            VideoFormatOptions = tricycleConfig.Video?.Codecs?.Select(f =>
+            {
+                switch (f.Format)
+                {
+                    case VideoFormat.Avc:
+                        return new ListItem("AVC", f.Format);
+                    case VideoFormat.Hevc:
+                        return new ListItem("HEVC", f.Format);
+                    default:
+                        return new ListItem("");
+                }
+            }).ToArray();
         }
 
         public bool IsSourceInfoVisible
@@ -95,7 +111,19 @@ namespace Tricycle.ViewModels
         public ListItem SelectedVideoFormat
         {
             get { return _selectedVideoFormat; }
-            set { SetProperty(ref _selectedVideoFormat, value); }
+            set
+            {
+                SetProperty(ref _selectedVideoFormat, value);
+
+                var steps =
+                    _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Equals(_selectedVideoFormat))?
+                                                  .QualitySteps ?? 4;
+
+                if (steps != _qualityStepCount)
+                {
+                    Quality = CalculateQualityStep((QualityMax - QualityMin) / 2, steps);
+                }
+            }
         }
 
         public double QualityMin
@@ -108,6 +136,37 @@ namespace Tricycle.ViewModels
         {
             get { return _qualityMax; }
             set { SetProperty(ref _qualityMax, value); }
+        }
+
+        public double Quality
+        {
+            get { return _quality; }
+            set
+            {
+                //debounce timer
+                var timeout = TimeSpan.FromMilliseconds(100);
+
+                _lastQualityChange = DateTime.Now;
+
+                if (!_qualityTimerRunning)
+                {
+                    _qualityTimerRunning = true;
+
+                    Device.StartTimer(timeout, () =>
+                    {
+                        if (DateTime.Now >= _lastQualityChange + timeout)
+                        {
+                            _qualityTimerRunning = false;
+                            SetProperty(ref _quality, CalculateQualityStep(_quality, _qualityStepCount));
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
+
+                SetProperty(ref _quality, value);
+            }
         }
 
         public bool IsHdrEnabled
@@ -288,6 +347,13 @@ namespace Tricycle.ViewModels
             }
 
             return false;
+        }
+
+        double CalculateQualityStep(double quality, int steps)
+        {
+            double stepAmount = (QualityMax - QualityMin) / steps;
+
+            return Math.Round(quality / stepAmount) * stepAmount + QualityMin;
         }
     }
 }

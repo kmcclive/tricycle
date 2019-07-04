@@ -58,10 +58,15 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                            <Picker Grid.Column="1" Grid.Row="0" />
+                            <Picker ItemsSource="{Binding VideoFormatOptions}"
+                                    SelectedItem="{Binding SelectedVideoFormat}"
+                                    Grid.Column="1"
+                                    Grid.Row="0" />
                             <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                             <StackLayout Grid.Column="1" Grid.Row="1">
-                                <Slider />
+                                <Slider Minimum="{Binding QualityMin}"
+                                        Maximum="{Binding QualityMax}"
+                                        Value="{Binding Quality}" />
                                 <FlexLayout JustifyContent="SpaceBetween" Margin="0, -5, 0, 0">
                                     <Label Text="Good" FontSize="Micro" />
                                     <Label Text="Better" FontSize="Micro" />
