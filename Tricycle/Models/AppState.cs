@@ -6,5 +6,6 @@ namespace Tricycle.Models
     {
         public static Container IocContainer { get; set; }
         public static TricycleConfig TricycleConfig { get; set; }
+        public static string DefaultDestinationDirectory { get; set; }
     }
 }

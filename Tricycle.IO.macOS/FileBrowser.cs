@@ -11,7 +11,7 @@ namespace Tricycle.IO.macOS
     {
         public Task<FileBrowserResult> BrowseToOpen()
         {
-            return BrowseToOpen(null, null);
+            return BrowseToOpen(null);
         }
 
         public Task<FileBrowserResult> BrowseToOpen(string defaultDirectory)
@@ -40,17 +40,30 @@ namespace Tricycle.IO.macOS
 
         public Task<FileBrowserResult> BrowseToSave()
         {
-            throw new NotImplementedException();
+            return BrowseToSave(null);
         }
 
         public Task<FileBrowserResult> BrowseToSave(string defaultDirectory)
         {
-            throw new NotImplementedException();
+            return BrowseToSave(defaultDirectory, null);
         }
 
-        public Task<FileBrowserResult> BrowseToSave(string defaultDirectory, IList<string> extensions)
+        public Task<FileBrowserResult> BrowseToSave(string defaultDirectory, string defaultFileName)
         {
-            throw new NotImplementedException();
+            var savePanel = new NSSavePanel()
+            {
+                CanCreateDirectories = true,
+                CanSelectHiddenExtension = true
+            };
+            var result = new FileBrowserResult();
+
+            if (savePanel.RunModal(defaultDirectory, defaultFileName) == 1)
+            {
+                result.Confirmed = true;
+                result.FileName = savePanel.Filename;
+            }
+
+            return Task.FromResult(result);
         }
     }
 }

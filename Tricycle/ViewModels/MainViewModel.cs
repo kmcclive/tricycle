@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -14,13 +15,21 @@ namespace Tricycle.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        #region Constants
+
         const int DEFAULT_STEP_COUNT = 4;
+        const string DEFAULT_EXTENSION = "mp4";
         static readonly ListItem ORIGINAL_OPTION = new ListItem("Same as source", Guid.NewGuid());
+
+        #endregion
+
+        #region Fields
 
         readonly IFileBrowser _fileBrowser;
         readonly IMediaInspector _mediaInspector;
         readonly ICropDetector _cropDetector;
         readonly TricycleConfig _tricycleConfig;
+        readonly string _defaultDestinationDirectory;
 
         bool _isSourceInfoVisible;
         string _sourceDuration;
@@ -42,21 +51,47 @@ namespace Tricycle.ViewModels
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
+        bool _isContainerFormatEnabled;
+        IList<ListItem> _containerFormatOptions;
+        ListItem _selectedContainerFormat;
+        string _destinationName;
 
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
+        string _defaultExtension = DEFAULT_EXTENSION;
+
+        #endregion
+
+        #region Constructors
 
         public MainViewModel(IFileBrowser fileBrowser,
                              IMediaInspector mediaInspector,
                              ICropDetector cropDetector,
-                             TricycleConfig tricycleConfig)
+                             TricycleConfig tricycleConfig,
+                             string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
             _mediaInspector = mediaInspector;
             _cropDetector = cropDetector;
             _tricycleConfig = tricycleConfig;
+            _defaultDestinationDirectory = defaultDestinationDirectory;
+            _defaultExtension = GetDefaultExtension(ContainerFormat.Mp4);
 
             SourceSelectCommand = new Command(async () => await SelectSource());
+            DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
+            StartCommand = new Command(async () => await StartTranscode(), () => _sourceInfo != null);
+            ContainerFormatOptions = Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
+            {
+                switch (f)
+                {
+                    case ContainerFormat.Mkv:
+                        return new ListItem("MKV", f);
+                    case ContainerFormat.Mp4:
+                        return new ListItem("MP4", f);
+                    default:
+                        return new ListItem(string.Empty);
+                }
+            }).ToArray();
             VideoFormatOptions = tricycleConfig.Video?.Codecs?.Select(f =>
             {
                 switch (f.Format)
@@ -66,12 +101,16 @@ namespace Tricycle.ViewModels
                     case VideoFormat.Hevc:
                         return new ListItem("HEVC", f.Format);
                     default:
-                        return new ListItem("");
+                        return new ListItem(string.Empty);
                 }
             }).ToArray();
             QualityStepCount =
                 tricycleConfig.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
         }
+
+        #endregion
+
+        #region Properties
 
         public bool IsSourceInfoVisible
         {
@@ -205,8 +244,49 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _isDenoiseChecked, value); }
         }
 
-        public ICommand SourceSelectCommand { get; }
+        public bool IsContainerFormatEnabled
+        {
+            get { return _isContainerFormatEnabled; }
+            set { SetProperty(ref _isContainerFormatEnabled, value); }
+        }
 
+        public IList<ListItem> ContainerFormatOptions
+        {
+            get { return _containerFormatOptions; }
+            set { SetProperty(ref _containerFormatOptions, value); }
+        }
+
+        public ListItem SelectedContainerFormat
+        {
+            get { return _selectedContainerFormat; }
+            set
+            {
+                SetProperty(ref _selectedContainerFormat, value);
+
+                _defaultExtension = GetDefaultExtension((ContainerFormat)value.Value);
+
+                if (!string.IsNullOrWhiteSpace(DestinationName))
+                {
+                    DestinationName = Path.ChangeExtension(DestinationName, _defaultExtension);
+                }
+            }
+        }
+
+        public string DestinationName
+        {
+            get { return _destinationName; }
+            set { SetProperty(ref _destinationName, value); }
+        }
+
+        public ICommand SourceSelectCommand { get; }
+        public ICommand DestinationSelectCommand { get; }
+        public ICommand StartCommand { get; }
+
+        #endregion
+
+        #region Methods
+
+        #region Command Actions
 
         async Task SelectSource()
         {
@@ -235,9 +315,42 @@ namespace Tricycle.ViewModels
                     IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
                     IsAutocropChecked = IsAutocropEnabled;
                     PopulateAspectRatioOptions();
+
+                    IsContainerFormatEnabled = true;
+                    DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
+                    ((Command)DestinationSelectCommand).ChangeCanExecute();
+                    ((Command)StartCommand).ChangeCanExecute();
                 }
             }
         }
+
+        async Task SelectDestination()
+        {
+            string directory = _defaultDestinationDirectory;
+            string fileName = null;
+
+            if (!string.IsNullOrWhiteSpace(DestinationName))
+            {
+                directory = Path.GetDirectoryName(DestinationName);
+                fileName = Path.GetFileName(DestinationName);
+            }
+
+            var result = await _fileBrowser.BrowseToSave(directory, fileName);
+
+            if (result.Confirmed)
+            {
+                DestinationName = result.FileName;
+            }
+        }
+
+        async Task StartTranscode()
+        {
+
+        }
+
+        #endregion
+
+        #region Helpers
 
         VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
         {
@@ -327,5 +440,45 @@ namespace Tricycle.ViewModels
 
             return false;
         }
+
+        string GetDefaultExtension(ContainerFormat format)
+        {
+            string result = DEFAULT_EXTENSION;
+
+            if ((_tricycleConfig.DefaultFileExtensions != null) &&
+                _tricycleConfig.DefaultFileExtensions.TryGetValue(format, out var extension))
+            {
+                result = extension;
+            }
+
+            return result;
+        }
+
+        string GetDefaultDestinationName(MediaInfo sourceInfo, string extension)
+        {
+            string fileName = "movie";
+
+            if (!string.IsNullOrWhiteSpace(sourceInfo.FileName))
+            {
+                fileName = Path.GetFileNameWithoutExtension(sourceInfo.FileName);
+            }
+
+            string result;
+            int count = 1;
+
+            do
+            {
+                string number = count > 1 ? $" {count}" : string.Empty;
+                result = Path.Combine(_defaultDestinationDirectory,
+                                     $"{fileName}{number}.{extension}");
+                count++;
+            } while (File.Exists(result));
+
+            return result;
+        }
+
+        #endregion
+
+        #endregion
     }
 }

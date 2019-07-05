@@ -20,7 +20,8 @@ namespace Tricycle
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
                 AppState.IocContainer.GetInstance<ICropDetector>(),
-                AppState.TricycleConfig);
+                AppState.TricycleConfig,
+                AppState.DefaultDestinationDirectory);
         }
     }
 }

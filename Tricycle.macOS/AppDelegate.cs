@@ -54,6 +54,8 @@ namespace Tricycle.macOS
                                                             ProcessUtility.Self));
             });
             AppState.TricycleConfig = ReadConfigFile(Path.Combine(configPath, "tricycle.json"));
+            AppState.DefaultDestinationDirectory =
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Movies");
 
             Forms.Init();
             LoadApplication(new App());

@@ -136,10 +136,20 @@
                     <RowDefinition Height="2" />
                 </Grid.RowDefinitions>
                 <Label Text="Destination" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                <Picker Grid.Column="1" Grid.Row="0" />
-                <Entry IsReadOnly="true" Grid.Column="2" Grid.Row="0" />
-                <controls:FramedImageButton Source="Images/folder-browse.png" Grid.Column="3" Grid.Row="0" />
-                <controls:FramedImageButton Source="Images/play.png" Grid.Column="4" Grid.Row="0" />
+                <Picker IsEnabled="{Binding IsContainerFormatEnabled}"
+                        ItemsSource="{Binding ContainerFormatOptions}"
+                        SelectedItem="{Binding SelectedContainerFormat}"
+                        Grid.Column="1"
+                        Grid.Row="0" />
+                <Entry IsReadOnly="true" Text="{Binding DestinationName}" Grid.Column="2" Grid.Row="0" />
+                <controls:FramedImageButton Source="Images/folder-browse.png"
+                                            Command="{Binding DestinationSelectCommand}"
+                                            Grid.Column="3"
+                                            Grid.Row="0" />
+                <controls:FramedImageButton Source="Images/play.png"
+                                            Command="{Binding StartCommand}"
+                                            Grid.Column="4"
+                                            Grid.Row="0" />
                 <ProgressBar Progress="0.15" Grid.Column="2" Grid.Row="1" />
                 <FlexLayout JustifyContent="SpaceBetween" Grid.Column="2" Grid.Row="2">
                     <Label FontSize="Micro" Text="0.225x (5.39 fps)" />

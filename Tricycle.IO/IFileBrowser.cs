@@ -11,6 +11,6 @@ namespace Tricycle.IO
         Task<FileBrowserResult> BrowseToOpen(string defaultDirectory, IList<string> extensions);
         Task<FileBrowserResult> BrowseToSave();
         Task<FileBrowserResult> BrowseToSave(string defaultDirectory);
-        Task<FileBrowserResult> BrowseToSave(string defaultDirectory, IList<string> extensions);
+        Task<FileBrowserResult> BrowseToSave(string defaultDirectory, string defaultFileName);
     }
 }
