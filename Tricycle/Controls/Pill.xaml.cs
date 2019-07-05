@@ -8,7 +8,7 @@ namespace Tricycle.Controls
     public partial class Pill : ContentView
     {
         public static readonly BindableProperty TextColorProperty = BindableProperty.Create(
-          nameof(BackgroundColor),
+          nameof(TextColor),
           typeof(Color),
           typeof(Pill));
 

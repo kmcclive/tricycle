@@ -14,6 +14,7 @@ namespace Tricycle.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        const int DEFAULT_STEP_COUNT = 4;
         static readonly ListItem ORIGINAL_OPTION = new ListItem("Same as source", Guid.NewGuid());
 
         readonly IFileBrowser _fileBrowser;
@@ -31,6 +32,7 @@ namespace Tricycle.ViewModels
         double _qualityMin = 0;
         double _qualityMax = 1;
         double _quality = 0.5;
+        int _qualityStepCount = DEFAULT_STEP_COUNT;
         bool _isHdrEnabled;
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
@@ -43,9 +45,6 @@ namespace Tricycle.ViewModels
 
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
-        int _qualityStepCount = 4;
-        bool _qualityTimerRunning;
-        DateTime _lastQualityChange;
 
         public MainViewModel(IFileBrowser fileBrowser,
                              IMediaInspector mediaInspector,
@@ -70,6 +69,8 @@ namespace Tricycle.ViewModels
                         return new ListItem("");
                 }
             }).ToArray();
+            QualityStepCount =
+                tricycleConfig.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
         }
 
         public bool IsSourceInfoVisible
@@ -115,14 +116,9 @@ namespace Tricycle.ViewModels
             {
                 SetProperty(ref _selectedVideoFormat, value);
 
-                var steps =
-                    _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Equals(_selectedVideoFormat))?
-                                                  .QualitySteps ?? 4;
-
-                if (steps != _qualityStepCount)
-                {
-                    Quality = CalculateQualityStep((QualityMax - QualityMin) / 2, steps);
-                }
+                QualityStepCount =
+                    _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Format.Equals(value.Value))?
+                                                  .QualitySteps ?? DEFAULT_STEP_COUNT;
             }
         }
 
@@ -141,32 +137,13 @@ namespace Tricycle.ViewModels
         public double Quality
         {
             get { return _quality; }
-            set
-            {
-                //debounce timer
-                var timeout = TimeSpan.FromMilliseconds(100);
+            set { SetProperty(ref _quality, value); }
+        }
 
-                _lastQualityChange = DateTime.Now;
-
-                if (!_qualityTimerRunning)
-                {
-                    _qualityTimerRunning = true;
-
-                    Device.StartTimer(timeout, () =>
-                    {
-                        if (DateTime.Now >= _lastQualityChange + timeout)
-                        {
-                            _qualityTimerRunning = false;
-                            SetProperty(ref _quality, CalculateQualityStep(_quality, _qualityStepCount));
-                            return false;
-                        }
-
-                        return true;
-                    });
-                }
-
-                SetProperty(ref _quality, value);
-            }
+        public int QualityStepCount
+        {
+            get { return _qualityStepCount; }
+            set { SetProperty(ref _qualityStepCount, value); }
         }
 
         public bool IsHdrEnabled
@@ -347,13 +324,6 @@ namespace Tricycle.ViewModels
             }
 
             return false;
-        }
-
-        double CalculateQualityStep(double quality, int steps)
-        {
-            double stepAmount = (QualityMax - QualityMin) / steps;
-
-            return Math.Round(quality / stepAmount) * stepAmount + QualityMin;
         }
     }
 }
