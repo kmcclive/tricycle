@@ -270,6 +270,7 @@ namespace Tricycle.ViewModels
             IList<ListItem> result =
                 _tricycleConfig.Video?.SizePresets?.Where(s => s.Value.Height <= sourceDimensions.Height ||
                                                                s.Value.Width <= sourceDimensions.Width)
+                                                   .OrderByDescending(s => s.Value.Width * s.Value.Height)
                                                    .Select(s => new ListItem(s.Key))
                                                    .ToList() ?? new List<ListItem>();
 
@@ -303,6 +304,7 @@ namespace Tricycle.ViewModels
 
             IList<ListItem> result =
                 _tricycleConfig.Video?.AspectRatioPresets?.Where(p => GetAspectRatio(p.Value) <= aspectRatio)
+                                                          .OrderByDescending(p => GetAspectRatio(p.Value))
                                                           .Select(s => new ListItem(s.Key))
                                                           .ToList() ?? new List<ListItem>();
 
