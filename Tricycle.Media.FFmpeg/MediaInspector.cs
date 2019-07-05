@@ -159,7 +159,8 @@ namespace Tricycle.Media.FFmpeg
                 case "audio":
                     result = new AudioStreamInfo()
                     {
-                        ChannelCount = GetInt(stream.Channels)
+                        ChannelCount = GetInt(stream.Channels),
+                        ProfileName = stream.Profile
                     };
                     break;
                 case "subtitle":

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
@@ -20,6 +21,7 @@ namespace Tricycle.ViewModels
         const int DEFAULT_STEP_COUNT = 4;
         const string DEFAULT_EXTENSION = "mp4";
         static readonly ListItem ORIGINAL_OPTION = new ListItem("Same as source", Guid.NewGuid());
+        static readonly ListItem NONE_OPTION = new ListItem("None", Guid.NewGuid());
 
         #endregion
 
@@ -51,6 +53,7 @@ namespace Tricycle.ViewModels
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
+        IList<ListItem> _audioTrackOptions;
         bool _isContainerFormatEnabled;
         IList<ListItem> _containerFormatOptions;
         ListItem _selectedContainerFormat;
@@ -80,18 +83,7 @@ namespace Tricycle.ViewModels
             SourceSelectCommand = new Command(async () => await SelectSource());
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
             StartCommand = new Command(async () => await StartTranscode(), () => _sourceInfo != null);
-            ContainerFormatOptions = Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
-            {
-                switch (f)
-                {
-                    case ContainerFormat.Mkv:
-                        return new ListItem("MKV", f);
-                    case ContainerFormat.Mp4:
-                        return new ListItem("MP4", f);
-                    default:
-                        return new ListItem(string.Empty);
-                }
-            }).ToArray();
+            
             VideoFormatOptions = tricycleConfig.Video?.Codecs?.Select(f =>
             {
                 switch (f.Format)
@@ -105,7 +97,19 @@ namespace Tricycle.ViewModels
                 }
             }).ToArray();
             QualityStepCount =
-                tricycleConfig.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
+                tricycleConfig.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;         
+            ContainerFormatOptions = Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
+            {
+                switch (f)
+                {
+                    case ContainerFormat.Mkv:
+                        return new ListItem("MKV", f);
+                    case ContainerFormat.Mp4:
+                        return new ListItem("MP4", f);
+                    default:
+                        return new ListItem(string.Empty);
+                }
+            }).ToArray();
         }
 
         #endregion
@@ -244,6 +248,12 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _isDenoiseChecked, value); }
         }
 
+        public IList<ListItem> AudioTrackOptions
+        {
+            get { return _audioTrackOptions; }
+            set { SetProperty(ref _audioTrackOptions, value); }
+        }
+
         public bool IsContainerFormatEnabled
         {
             get { return _isContainerFormatEnabled; }
@@ -315,6 +325,7 @@ namespace Tricycle.ViewModels
                     IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
                     IsAutocropChecked = IsAutocropEnabled;
                     PopulateAspectRatioOptions();
+                    AudioTrackOptions = GetAudioTrackOptions(_sourceInfo.Streams);
 
                     IsContainerFormatEnabled = true;
                     DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
@@ -439,6 +450,61 @@ namespace Tricycle.ViewModels
             }
 
             return false;
+        }
+
+        IList<ListItem> GetAudioTrackOptions(IList<StreamInfo> sourceStreams)
+        {
+            int index = 1;
+            IList<ListItem> result = sourceStreams?.OfType<AudioStreamInfo>()
+                                                   .Select(s => new ListItem(GetAudioTrackName(s, index++), s))
+                                                   .ToList() ?? new List<ListItem>();
+
+            result.Insert(0, NONE_OPTION);
+
+            return result;
+        }
+
+        string GetAudioTrackName(AudioStreamInfo audioStream, int index)
+        {
+            string mixdown = "Mono";
+
+            if (audioStream.ChannelCount > 7)
+            {
+                mixdown = "7.1";
+            }
+            else if (audioStream.ChannelCount > 5)
+            {
+                mixdown = "5.1";
+            }
+            else if (audioStream.ChannelCount > 1)
+            {
+                mixdown = "Stereo";
+            }
+
+            string format = audioStream.FormatName;
+
+            if (Regex.IsMatch(audioStream.FormatName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            {
+                format = "Dolby Digital";
+            }
+            else if (Regex.IsMatch(audioStream.FormatName, @"aac", RegexOptions.IgnoreCase))
+            {
+                format = "AAC";
+            }
+
+            if (!string.IsNullOrWhiteSpace(audioStream.ProfileName))
+            {
+                if (Regex.IsMatch(audioStream.ProfileName, format, RegexOptions.IgnoreCase))
+                {
+                    format = audioStream.ProfileName;
+                }
+                else
+                {
+                    format += $" {audioStream.ProfileName}";
+                }
+            }
+
+            return $"{index}: {format} {mixdown} ({audioStream.Language})";
         }
 
         string GetDefaultExtension(ContainerFormat format)

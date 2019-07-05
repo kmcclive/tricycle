@@ -113,10 +113,10 @@
                             <Label Text="Track" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
                             <Label Text="Mixdown" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
-                            <Picker Grid.Column="0" Grid.Row="1" />
+                            <Picker ItemsSource="{Binding AudioTrackOptions}" Grid.Column="0" Grid.Row="1" />
                             <Picker Grid.Column="1" Grid.Row="1" />
                             <Picker Grid.Column="2" Grid.Row="1" />
-                            <Picker Grid.Column="0" Grid.Row="2" />
+                            <Picker ItemsSource="{Binding AudioTrackOptions}" Grid.Column="0" Grid.Row="2" />
                             <Picker Grid.Column="1" Grid.Row="2" />
                             <Picker Grid.Column="2" Grid.Row="2" />
                         </Grid>
