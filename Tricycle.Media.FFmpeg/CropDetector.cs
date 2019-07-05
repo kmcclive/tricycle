@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
@@ -65,6 +66,13 @@ namespace Tricycle.Media.FFmpeg
                 if (!string.IsNullOrWhiteSpace(processResult.ErrorData))
                 {
                     result = Parse(processResult.ErrorData);
+
+                    var originalDimensions = mediaInfo.Streams?.OfType<VideoStreamInfo>().FirstOrDefault()?.Dimensions;
+
+                    if ((result != null) && (originalDimensions != null))
+                    {
+                        result = Correct(result, originalDimensions.Value);
+                    }
                 }
             }
             catch (ArgumentException ex)
@@ -112,6 +120,39 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return result;
+        }
+
+        // FFmpeg will crop to adjust the size to a number divisible by 16.
+        // That feature is supposed to be configurable, but modifying it seems to break the detection.
+        // This code is meant to correct that.
+        CropParameters Correct(CropParameters cropParameters, Dimensions originalDimensions)
+        {
+            const int THRESHOLD = 16;
+
+            int x = cropParameters.Start.X;
+            int y = cropParameters.Start.Y;
+            int width = cropParameters.Size.Width;
+            int height = cropParameters.Size.Height;
+            int widthDelta = originalDimensions.Width - cropParameters.Size.Width;
+            int heightDelta = originalDimensions.Height - cropParameters.Size.Height;
+
+            if ((widthDelta > 0) && (widthDelta < THRESHOLD))
+            {
+                x = 0;
+                width = originalDimensions.Width;
+            }
+
+            if ((heightDelta > 0) && (heightDelta < THRESHOLD))
+            {
+                y = 0;
+                height = originalDimensions.Height;
+            }
+
+            return new CropParameters()
+            {
+                Start = new Coordinate<int>(x, y),
+                Size = new Dimensions(width, height)
+            };
         }
     }
 }
