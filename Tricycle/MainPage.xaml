@@ -35,7 +35,7 @@
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="370"
+                       FlexLayout.Basis="290"
                        HeightRequest="330"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
@@ -95,7 +95,7 @@
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="370"
+                       FlexLayout.Basis="450"
                        HeightRequest="330"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
@@ -112,7 +112,7 @@
                                 <Grid Padding="0, 0, 0, 10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="1.25*" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Label Text="Track" VerticalOptions="Center" Grid.Column="0" />
@@ -126,7 +126,7 @@
                                         <Grid HeightRequest="25" Padding="0, 0, 0, 10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="2*" />
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="1.25*" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <Picker ItemsSource="{Binding TrackOptions}"
