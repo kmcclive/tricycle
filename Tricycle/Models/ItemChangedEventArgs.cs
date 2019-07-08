@@ -1,12 +1,12 @@
 ﻿using System;
 namespace Tricycle.Models
 {
-    public class ItemSelectedEventArgs : EventArgs
+    public class ItemChangedEventArgs : EventArgs
     {
         public ListItem OldItem { get; }
         public ListItem NewItem { get; }
 
-        public ItemSelectedEventArgs(ListItem oldItem, ListItem newItem)
+        public ItemChangedEventArgs(ListItem oldItem, ListItem newItem)
         {
             OldItem = oldItem;
             NewItem = newItem;

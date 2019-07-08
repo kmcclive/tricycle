@@ -26,9 +26,12 @@ namespace Tricycle.ViewModels
             {
                 var oldItem = _selectedTrack;
 
-                SetProperty(ref _selectedTrack, value);
+                if (!object.Equals(oldItem, value))
+                {
+                    SetProperty(ref _selectedTrack, value);
 
-                TrackSelected?.Invoke(this, new ItemSelectedEventArgs(oldItem, value));
+                    TrackSelected?.Invoke(this, new ItemChangedEventArgs(oldItem, value));
+                }
             }
         }
 
@@ -45,9 +48,12 @@ namespace Tricycle.ViewModels
             {
                 var oldItem = _selectedFormat;
 
-                SetProperty(ref _selectedFormat, value);
+                if (!object.Equals(oldItem, value))
+                {
+                    SetProperty(ref _selectedFormat, value);
 
-                FormatSelected?.Invoke(this, new ItemSelectedEventArgs(oldItem, value));
+                    FormatSelected?.Invoke(this, new ItemChangedEventArgs(oldItem, value));
+                }
             }
         }
 
@@ -63,7 +69,7 @@ namespace Tricycle.ViewModels
             set { SetProperty(ref _selectedMixdown, value); }
         }
 
-        public event EventHandler<ItemSelectedEventArgs> TrackSelected;
-        public event EventHandler<ItemSelectedEventArgs> FormatSelected;
+        public event EventHandler<ItemChangedEventArgs> TrackSelected;
+        public event EventHandler<ItemChangedEventArgs> FormatSelected;
     }
 }

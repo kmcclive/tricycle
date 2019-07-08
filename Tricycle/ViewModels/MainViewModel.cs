@@ -370,8 +370,16 @@ namespace Tricycle.ViewModels
                     PopulateAspectRatioOptions();
 
                     _audioTrackOptions = GetAudioTrackOptions(_sourceInfo.Streams);
+                    var audioOutput = CreateAudioOutput();
+
                     AudioOutputs.Clear();
-                    AudioOutputs.Add(CreateAudioOutput());
+                    AudioOutputs.Add(audioOutput);
+
+                    if (_audioTrackOptions.Count > 1)
+                    {
+                        //select the first audio track (that is not none)
+                        audioOutput.SelectedTrack = _audioTrackOptions[1];
+                    }
 
                     IsContainerFormatEnabled = true;
                     DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
@@ -593,7 +601,8 @@ namespace Tricycle.ViewModels
         {
             var result = new AudioOutputViewModel()
             {
-                TrackOptions = _audioTrackOptions
+                TrackOptions = _audioTrackOptions,
+                SelectedTrack = _audioTrackOptions.FirstOrDefault(),
             };
 
             result.TrackSelected += OnAudioTrackSelected;
@@ -634,7 +643,7 @@ namespace Tricycle.ViewModels
 
         #region Event Handlers
 
-        void OnAudioTrackSelected(object sender, ItemSelectedEventArgs args)
+        void OnAudioTrackSelected(object sender, ItemChangedEventArgs args)
         {
             if (sender is AudioOutputViewModel == false)
             {
@@ -665,14 +674,6 @@ namespace Tricycle.ViewModels
             {
                 model.FormatOptions = _audioFormatOptions;
                 model.SelectedFormat = _audioFormatOptions.FirstOrDefault();
-
-                if (model.SelectedFormat != null)
-                {
-                    var stream = (AudioStreamInfo)args.NewItem.Value;
-                    var format = (AudioFormat)model.SelectedFormat.Value;
-
-                    model.MixdownOptions = GetAudioMixdownOptions(stream, format);
-                }
             }
             else
             {
@@ -680,7 +681,7 @@ namespace Tricycle.ViewModels
             }
         }
 
-        void OnAudioFormatSelected(object sender, ItemSelectedEventArgs args)
+        void OnAudioFormatSelected(object sender, ItemChangedEventArgs args)
         {
             if (sender is AudioOutputViewModel == false)
             {
