@@ -35,7 +35,7 @@
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="290"
+                       FlexLayout.Basis="370"
                        HeightRequest="330"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
@@ -95,50 +95,61 @@
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="450"
+                       FlexLayout.Basis="370"
                        HeightRequest="330"
-                       Padding="20, 0, 20, 20">
+                       Padding="20, 0, 5, 20">
                     <StackLayout>
                         <Label Text="Audio"
                                TextColor="{StaticResource PanelTitleColor}"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
-                               Margin="0,5"/>
+                               Margin="0, 5, 0, 0" />
                         <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
                                   HasUnevenRows="true"
-                                  VerticalScrollBarVisibility="Never"
+                                  Margin="0, -5, 0, 0"
+                                  SelectionMode="None"
                                   ItemsSource="{Binding AudioOutputs}">
                             <ListView.Header>
-                                <Grid Padding="0, 0, 0, 10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="2*" />
-                                        <ColumnDefinition Width="1.25*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Label Text="Track" VerticalOptions="Center" Grid.Column="0" />
-                                    <Label Text="Format" VerticalOptions="Center" Grid.Column="1" />
-                                    <Label Text="Mixdown" VerticalOptions="Center" Grid.Column="2" />
-                                </Grid>
+                                <FlexLayout />
                             </ListView.Header>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>
-                                        <Grid HeightRequest="25" Padding="0, 0, 0, 10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="2*" />
-                                                <ColumnDefinition Width="1.25*" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <Picker ItemsSource="{Binding TrackOptions}"
-                                                    SelectedItem="{Binding SelectedTrack}"
-                                                    Grid.Column="0" />
-                                            <Picker ItemsSource="{Binding FormatOptions}"
-                                                    SelectedItem="{Binding SelectedFormat}"
-                                                    Grid.Column="1" />
-                                            <Picker ItemsSource="{Binding MixdownOptions}"
-                                                    SelectedItem="{Binding SelectedMixdown}"
-                                                    Grid.Column="2" />
-                                        </Grid>
+                                        <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
+                                               BorderColor="{StaticResource BorderColor}"
+                                               Margin="0, 0, 1, 5"
+                                               Padding="5">
+                                            <Grid RowSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Label Text="Track"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="0"
+                                                       Grid.Row="0" />
+                                                <Picker ItemsSource="{Binding TrackOptions}"
+                                                        SelectedItem="{Binding SelectedTrack}"
+                                                        Grid.Column="1"
+                                                        Grid.Row="0" />
+                                                <Label Text="Format"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="0"
+                                                       Grid.Row="1" />
+                                                <Picker ItemsSource="{Binding FormatOptions}"
+                                                        SelectedItem="{Binding SelectedFormat}"
+                                                        Grid.Column="1"
+                                                        Grid.Row="1" />
+                                                <Label Text="Mixdown"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="0"
+                                                       Grid.Row="2" />
+                                                <Picker ItemsSource="{Binding MixdownOptions}"
+                                                        SelectedItem="{Binding SelectedMixdown}"
+                                                        Grid.Column="1"
+                                                        Grid.Row="2" />
+                                            </Grid>
+                                        </Frame>
                                     </ViewCell>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
