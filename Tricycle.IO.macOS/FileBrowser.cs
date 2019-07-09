@@ -21,13 +21,12 @@ namespace Tricycle.IO.macOS
 
         public Task<FileBrowserResult> BrowseToOpen(string defaultDirectory, IList<string> extensions)
         {
-            var openPanel = new NSOpenPanel()
-            {
-                CanChooseDirectories = false,
-                CanChooseFiles = true,
-                CanCreateDirectories = false
-            };
+            var openPanel = NSOpenPanel.OpenPanel;
             var result = new FileBrowserResult();
+
+            openPanel.CanChooseDirectories = false;
+            openPanel.CanChooseFiles = true;
+            openPanel.CanCreateDirectories = false;
 
             if (openPanel.RunModal(defaultDirectory, null, extensions?.ToArray()) == 1)
             {
@@ -50,12 +49,11 @@ namespace Tricycle.IO.macOS
 
         public Task<FileBrowserResult> BrowseToSave(string defaultDirectory, string defaultFileName)
         {
-            var savePanel = new NSSavePanel()
-            {
-                CanCreateDirectories = true,
-                CanSelectHiddenExtension = true
-            };
+            var savePanel = NSSavePanel.SavePanel;
             var result = new FileBrowserResult();
+
+            savePanel.CanCreateDirectories = true;
+            savePanel.CanSelectHiddenExtension = true;
 
             if (savePanel.RunModal(defaultDirectory, defaultFileName) == 1)
             {
