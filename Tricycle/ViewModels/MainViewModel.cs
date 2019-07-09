@@ -293,6 +293,7 @@ namespace Tricycle.ViewModels
 
             if (result.Confirmed)
             {
+                SourceName = result.FileName;
                 _sourceInfo = await _mediaInspector.Inspect(result.FileName);
 
                 if (_sourceInfo != null)
@@ -452,8 +453,8 @@ namespace Tricycle.ViewModels
 
         VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
         {
-            return streams.OfType<VideoStreamInfo>()
-                          .FirstOrDefault();
+            return streams?.OfType<VideoStreamInfo>()
+                           .FirstOrDefault();
         }
 
         void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
@@ -462,7 +463,6 @@ namespace Tricycle.ViewModels
             {
                 TimeSpan duration = _sourceInfo.Duration;
 
-                SourceName = sourceInfo.FileName;
                 SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
                     duration.Hours, duration.Minutes, duration.Seconds);
                 SourceSize = GetSizeName(videoStream.Dimensions);
@@ -597,7 +597,13 @@ namespace Tricycle.ViewModels
         {
             ClearAudioOutputs();
 
-            _audioTrackOptions = GetAudioTrackOptions(sourceInfo.Streams);
+            _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams);
+
+            if (_audioTrackOptions.Count < 2) //only none
+            {
+                return;
+            }
+
             var audioOutput = CreateAudioOutput();
 
             AudioOutputs.Add(audioOutput);

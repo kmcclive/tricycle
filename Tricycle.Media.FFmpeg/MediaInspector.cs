@@ -63,7 +63,7 @@ namespace Tricycle.Media.FFmpeg
             MediaInfo result = null;
             var output = await RunFFprobe<Output>(fileName, "-show_format -show_streams");
 
-            if (output != null)
+            if ((output?.Format != null) && (output?.Streams != null))
             {
                 result = Map(fileName, output);
 
