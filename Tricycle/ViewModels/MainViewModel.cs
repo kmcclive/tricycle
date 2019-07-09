@@ -341,9 +341,11 @@ namespace Tricycle.ViewModels
         void ProcessConfig(TricycleConfig config)
         {
             VideoFormatOptions = GetVideoFormatOptions(config.Video?.Codecs);
+            SelectedVideoFormat = VideoFormatOptions?.FirstOrDefault();
             QualityStepCount =
                 config.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
             ContainerFormatOptions = GetContainerFormatOptions();
+            SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
 
             ProcessAudioCodecs(config.Audio?.Codecs);
         }
@@ -489,6 +491,7 @@ namespace Tricycle.ViewModels
             {
                 IsHdrChecked = videoStream.DynamicRange == DynamicRange.High;
                 SizeOptions = GetSizeOptions(videoStream.Dimensions);
+                SelectedSize = SizeOptions?.FirstOrDefault();
                 IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
                 IsAutocropChecked = IsAutocropEnabled;
             }
@@ -496,6 +499,7 @@ namespace Tricycle.ViewModels
             {
                 IsHdrChecked = false;
                 SizeOptions = null;
+                SelectedSize = null;
                 IsAutocropEnabled = false;
                 IsAutocropChecked = false;
             }
@@ -521,10 +525,16 @@ namespace Tricycle.ViewModels
         {
             Dimensions? sourceDimensions = videoStream?.Dimensions;
 
-            if (sourceDimensions.HasValue && _cropParameters != null)
+            if (sourceDimensions.HasValue)
             {
                 AspectRatioOptions =
                     GetAspectRatioOptions(sourceDimensions.Value, autoCrop ? cropParameters : null);
+                SelectedAspectRatio = AspectRatioOptions?.FirstOrDefault();
+            }
+            else
+            {
+                AspectRatioOptions = null;
+                SelectedAspectRatio = null;
             }
         }
 
@@ -581,8 +591,7 @@ namespace Tricycle.ViewModels
             {
                 var audioOutput = AudioOutputs[i];
 
-                audioOutput.FormatSelected -= OnAudioFormatSelected;
-                audioOutput.TrackSelected -= OnAudioTrackSelected;
+                UnsubscribeFromAudioOutputEvents(audioOutput);
 
                 AudioOutputs.RemoveAt(i);
             }
@@ -725,6 +734,12 @@ namespace Tricycle.ViewModels
             }
         }
 
+        void UnsubscribeFromAudioOutputEvents(AudioOutputViewModel audioOutput)
+        {
+            audioOutput.FormatSelected -= OnAudioFormatSelected;
+            audioOutput.TrackSelected -= OnAudioTrackSelected;
+        }
+
         #endregion
 
         #region Event Handlers
@@ -741,8 +756,7 @@ namespace Tricycle.ViewModels
             if (((args.NewItem == null) || object.Equals(args.NewItem, NONE_OPTION)) &&
                 (AudioOutputs.Count > 1))
             {
-                model.FormatSelected -= OnAudioFormatSelected;
-                model.TrackSelected -= OnAudioTrackSelected;
+                UnsubscribeFromAudioOutputEvents(model);
 
                 AudioOutputs.Remove(model);
 
@@ -788,6 +802,7 @@ namespace Tricycle.ViewModels
             }
 
             model.MixdownOptions = mixdownOptions;
+            model.SelectedMixdown = mixdownOptions?.FirstOrDefault();
         }
 
         #endregion
