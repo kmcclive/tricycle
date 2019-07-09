@@ -63,6 +63,7 @@ namespace Tricycle.ViewModels
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
         string _defaultExtension = DEFAULT_EXTENSION;
+        VideoStreamInfo _primaryVideoStream;
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
@@ -88,71 +89,7 @@ namespace Tricycle.ViewModels
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
             StartCommand = new Command(async () => await StartTranscode(), () => _sourceInfo != null);
             
-            VideoFormatOptions = tricycleConfig.Video?.Codecs?.Select(f =>
-            {
-                switch (f.Format)
-                {
-                    case VideoFormat.Avc:
-                        return new ListItem("AVC", f.Format);
-                    case VideoFormat.Hevc:
-                        return new ListItem("HEVC", f.Format);
-                    default:
-                        return new ListItem(string.Empty);
-                }
-            }).ToArray();
-            QualityStepCount =
-                tricycleConfig.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;         
-            ContainerFormatOptions = Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
-            {
-                switch (f)
-                {
-                    case ContainerFormat.Mkv:
-                        return new ListItem("MKV", f);
-                    case ContainerFormat.Mp4:
-                        return new ListItem("MP4", f);
-                    default:
-                        return new ListItem(string.Empty);
-                }
-            }).ToArray();
-
-            _audioFormatOptions = new List<ListItem>();
-            _audioMixdownOptionsByFormat = new Dictionary<AudioFormat, IList<ListItem>>();
-
-            foreach (var codec in tricycleConfig.Audio?.Codecs ?? Enumerable.Empty<AudioCodec>())
-            {
-                ListItem formatOption;
-
-                switch (codec.Format)
-                {
-                    case AudioFormat.Aac:
-                        formatOption = new ListItem("AAC", codec.Format);
-                        break;
-                    case AudioFormat.Ac3:
-                        formatOption = new ListItem("Dolby Digital", codec.Format);
-                        break;
-                    case AudioFormat.HeAac:
-                        formatOption = new ListItem("HE-AAC", codec.Format);
-                        break;
-                    default:
-                        continue;
-                }
-
-                _audioFormatOptions.Add(formatOption);
-                _audioMixdownOptionsByFormat[codec.Format] = codec.Presets?.Select(p =>
-                {
-                    switch (p.Mixdown)
-                    {
-                        case AudioMixdown.Mono:
-                            return new ListItem("Mono", p.Mixdown);
-                        case AudioMixdown.Stereo:
-                            return new ListItem("Stereo", p.Mixdown);
-                        case AudioMixdown.Surround5dot1:
-                            return new ListItem("Surround", p.Mixdown);
-                        default:
-                            return new ListItem(string.Empty);
-                    }
-                }).OrderByDescending(p => p.Name).ToArray();
-            }
+            ProcessConfig(tricycleConfig);
         }
 
         #endregion
@@ -269,7 +206,7 @@ namespace Tricycle.ViewModels
             {
                 SetProperty(ref _isAutocropChecked, value);
 
-                PopulateAspectRatioOptions();
+                PopulateAspectRatioOptions(_primaryVideoStream, _cropParameters, _isAutocropChecked);
             }
         }
 
@@ -351,41 +288,25 @@ namespace Tricycle.ViewModels
 
                 if (_sourceInfo != null)
                 {
-                    TimeSpan duration = _sourceInfo.Duration;
-                    VideoStreamInfo videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
-
-                    SourceName = result.FileName;
-                    SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
-                        duration.Hours, duration.Minutes, duration.Seconds);
-                    SourceSize = GetSizeName(videoStream.Dimensions);
-                    IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
-                    IsSourceInfoVisible = true;
-
+                    _primaryVideoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
-
-                    IsHdrChecked = IsSourceHdr;
-                    SizeOptions = GetSizeOptions(videoStream.Dimensions);
-                    IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
-                    IsAutocropChecked = IsAutocropEnabled;
-                    PopulateAspectRatioOptions();
-
-                    _audioTrackOptions = GetAudioTrackOptions(_sourceInfo.Streams);
-                    var audioOutput = CreateAudioOutput();
-
-                    AudioOutputs.Clear();
-                    AudioOutputs.Add(audioOutput);
-
-                    if (_audioTrackOptions.Count > 1)
-                    {
-                        //select the first audio track (that is not none)
-                        audioOutput.SelectedTrack = _audioTrackOptions[1];
-                    }
 
                     IsContainerFormatEnabled = true;
                     DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
-                    ((Command)DestinationSelectCommand).ChangeCanExecute();
-                    ((Command)StartCommand).ChangeCanExecute();
                 }
+                else
+                {
+                    _primaryVideoStream = null;
+                    _cropParameters = null;
+                    IsContainerFormatEnabled = false;
+                    DestinationName = null;
+                }
+
+                DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
+                PopulateVideoOptions(_primaryVideoStream, _cropParameters);
+                PopulateAudioOptions(_sourceInfo);
+                ((Command)DestinationSelectCommand).ChangeCanExecute();
+                ((Command)StartCommand).ChangeCanExecute();
             }
         }
 
@@ -417,10 +338,129 @@ namespace Tricycle.ViewModels
 
         #region Helpers
 
+        void ProcessConfig(TricycleConfig config)
+        {
+            VideoFormatOptions = GetVideoFormatOptions(config.Video?.Codecs);
+            QualityStepCount =
+                config.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
+            ContainerFormatOptions = GetContainerFormatOptions();
+
+            ProcessAudioCodecs(config.Audio?.Codecs);
+        }
+
+        IList<ListItem> GetVideoFormatOptions(IList<VideoCodec> codecs)
+        {
+            return codecs?.Select(f =>
+            {
+                switch (f.Format)
+                {
+                    case VideoFormat.Avc:
+                        return new ListItem("AVC", f.Format);
+                    case VideoFormat.Hevc:
+                        return new ListItem("HEVC", f.Format);
+                    default:
+                        return new ListItem(string.Empty);
+                }
+            }).ToArray();
+        }
+
+        IList<ListItem> GetContainerFormatOptions()
+        {
+            return Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
+            {
+                switch (f)
+                {
+                    case ContainerFormat.Mkv:
+                        return new ListItem("MKV", f);
+                    case ContainerFormat.Mp4:
+                        return new ListItem("MP4", f);
+                    default:
+                        return new ListItem(string.Empty);
+                }
+            }).ToArray();
+        }
+
+        void ProcessAudioCodecs(IList<AudioCodec> codecs)
+        {
+            _audioFormatOptions = new List<ListItem>();
+            _audioMixdownOptionsByFormat = new Dictionary<AudioFormat, IList<ListItem>>();
+
+            if (codecs?.Any() != true)
+            {
+                return;
+            }
+
+            foreach (var codec in codecs)
+            {
+                AudioFormat format = codec.Format;
+                string name = GetAudioFormatName(format);
+
+                if (name == null)
+                {
+                    continue;
+                }
+
+                _audioFormatOptions.Add(new ListItem(name, format));
+                _audioMixdownOptionsByFormat[format] = GetAudioMixdownOptions(codec.Presets);
+            }
+        }
+
+        string GetAudioFormatName(AudioFormat format)
+        {
+            switch (format)
+            {
+                case AudioFormat.Aac:
+                    return "AAC";
+                case AudioFormat.Ac3:
+                    return "Dolby Digital";
+                case AudioFormat.HeAac:
+                    return "HE-AAC";
+                default:
+                    return null;
+            }
+        }
+
+        IList<ListItem> GetAudioMixdownOptions(IList<AudioPreset> presets)
+        {
+            return presets?.Select(p =>
+            {
+                switch (p.Mixdown)
+                {
+                    case AudioMixdown.Mono:
+                        return new ListItem("Mono", p.Mixdown);
+                    case AudioMixdown.Stereo:
+                        return new ListItem("Stereo", p.Mixdown);
+                    case AudioMixdown.Surround5dot1:
+                        return new ListItem("Surround", p.Mixdown);
+                    default:
+                        return new ListItem(string.Empty);
+                }
+            }).OrderByDescending(p => p.Name).ToArray();
+        }
+
         VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
         {
             return streams.OfType<VideoStreamInfo>()
                           .FirstOrDefault();
+        }
+
+        void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
+        {
+            if (sourceInfo != null)
+            {
+                TimeSpan duration = _sourceInfo.Duration;
+
+                SourceName = sourceInfo.FileName;
+                SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
+                    duration.Hours, duration.Minutes, duration.Seconds);
+                SourceSize = GetSizeName(videoStream.Dimensions);
+                IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
+                IsSourceInfoVisible = true;
+            }
+            else
+            {
+                IsSourceInfoVisible = false;
+            }
         }
 
         string GetSizeName(Dimensions dimensions)
@@ -443,6 +483,26 @@ namespace Tricycle.ViewModels
             return "480p";
         }
 
+        void PopulateVideoOptions(VideoStreamInfo videoStream, CropParameters cropParameters)
+        {
+            if (videoStream != null)
+            {
+                IsHdrChecked = videoStream.DynamicRange == DynamicRange.High;
+                SizeOptions = GetSizeOptions(videoStream.Dimensions);
+                IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
+                IsAutocropChecked = IsAutocropEnabled;
+            }
+            else
+            {
+                IsHdrChecked = false;
+                SizeOptions = null;
+                IsAutocropEnabled = false;
+                IsAutocropChecked = false;
+            }
+
+            PopulateAspectRatioOptions(videoStream, cropParameters, IsAutocropChecked);
+        }
+
         IList<ListItem> GetSizeOptions(Dimensions sourceDimensions)
         {
             IList<ListItem> result =
@@ -457,21 +517,14 @@ namespace Tricycle.ViewModels
             return result;
         }
 
-        void PopulateAspectRatioOptions()
+        void PopulateAspectRatioOptions(VideoStreamInfo videoStream, CropParameters cropParameters, bool autoCrop)
         {
-            Dimensions? sourceDimensions = null;
-
-            if (_sourceInfo?.Streams != null)
-            {
-                var videoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
-
-                sourceDimensions = videoStream?.Dimensions;
-            }
+            Dimensions? sourceDimensions = videoStream?.Dimensions;
 
             if (sourceDimensions.HasValue && _cropParameters != null)
             {
                 AspectRatioOptions =
-                    GetAspectRatioOptions(sourceDimensions.Value, _isAutocropChecked ? _cropParameters : null);
+                    GetAspectRatioOptions(sourceDimensions.Value, autoCrop ? cropParameters : null);
             }
         }
 
@@ -504,6 +557,35 @@ namespace Tricycle.ViewModels
             }
 
             return false;
+        }
+
+        void PopulateAudioOptions(MediaInfo sourceInfo)
+        {
+            ClearAudioOutputs();
+
+            _audioTrackOptions = GetAudioTrackOptions(sourceInfo.Streams);
+            var audioOutput = CreateAudioOutput();
+
+            AudioOutputs.Add(audioOutput);
+
+            if (_audioTrackOptions.Count > 1)
+            {
+                //select the first audio track (that is not none)
+                audioOutput.SelectedTrack = _audioTrackOptions[1];
+            }
+        }
+
+        void ClearAudioOutputs()
+        {
+            for (int i = AudioOutputs.Count - 1; i >= 0; i--)
+            {
+                var audioOutput = AudioOutputs[i];
+
+                audioOutput.FormatSelected -= OnAudioFormatSelected;
+                audioOutput.TrackSelected -= OnAudioTrackSelected;
+
+                AudioOutputs.RemoveAt(i);
+            }
         }
 
         IList<ListItem> GetAudioTrackOptions(IList<StreamInfo> sourceStreams)
@@ -544,6 +626,10 @@ namespace Tricycle.ViewModels
             else if (Regex.IsMatch(audioStream.FormatName, @"aac", RegexOptions.IgnoreCase))
             {
                 format = "AAC";
+            }
+            else if (Regex.IsMatch(audioStream.FormatName, @"truehd", RegexOptions.IgnoreCase))
+            {
+                format = "Dolby TrueHD";
             }
 
             if (!string.IsNullOrWhiteSpace(audioStream.ProfileName))
