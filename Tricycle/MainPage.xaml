@@ -58,13 +58,15 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                            <Picker ItemsSource="{Binding VideoFormatOptions}"
+                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                    ItemsSource="{Binding VideoFormatOptions}"
                                     SelectedItem="{Binding SelectedVideoFormat}"
                                     Grid.Column="1"
                                     Grid.Row="0" />
                             <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                             <StackLayout Grid.Column="1" Grid.Row="1">
-                                <controls:SnappableSlider Minimum="{Binding QualityMin}"
+                                <controls:SnappableSlider IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          Minimum="{Binding QualityMin}"
                                                           Maximum="{Binding QualityMax}"
                                                           Value="{Binding Quality}"
                                                           StepCount="{Binding QualityStepCount}" />
@@ -80,14 +82,20 @@
                                     Grid.Column="1"
                                     Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-                            <Picker ItemsSource="{Binding SizeOptions}" Grid.Column="1" Grid.Row="3" />
+                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                    ItemsSource="{Binding SizeOptions}"
+                                    Grid.Column="1"
+                                    Grid.Row="3" />
                             <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
                             <Switch IsEnabled="{Binding IsAutocropEnabled}"
                                     IsToggled="{Binding IsAutocropChecked}"
                                     Grid.Column="1"
                                     Grid.Row="4" />
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-                            <Picker ItemsSource="{Binding AspectRatioOptions}" Grid.Column="1" Grid.Row="5" />
+                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                    ItemsSource="{Binding AspectRatioOptions}"
+                                    Grid.Column="1"
+                                    Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
                             <Switch IsEnabled="false" Grid.Column="1" Grid.Row="6" />
                         </Grid>

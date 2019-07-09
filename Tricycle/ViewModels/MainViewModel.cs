@@ -39,6 +39,7 @@ namespace Tricycle.ViewModels
         string _sourceSize;
         bool _isSourceHdr;
         string _sourceName;
+        bool _isVideoConfigEnabled;
         IList<ListItem> _videoFormatOptions;
         ListItem _selectedVideoFormat;
         double _qualityMin = 0;
@@ -124,6 +125,12 @@ namespace Tricycle.ViewModels
         {
             get { return _sourceName; }
             set { SetProperty(ref _sourceName, value); }
+        }
+
+        public bool IsVideoConfigEnabled
+        {
+            get { return _isVideoConfigEnabled; }
+            set { SetProperty(ref _isVideoConfigEnabled, value); }
         }
 
         public IList<ListItem> VideoFormatOptions
@@ -306,6 +313,7 @@ namespace Tricycle.ViewModels
 
                 DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
                 PopulateVideoOptions(_primaryVideoStream, _cropParameters);
+                IsVideoConfigEnabled = _sourceInfo != null;
                 PopulateAudioOptions(_sourceInfo);
                 ((Command)DestinationSelectCommand).ChangeCanExecute();
                 ((Command)StartCommand).ChangeCanExecute();
