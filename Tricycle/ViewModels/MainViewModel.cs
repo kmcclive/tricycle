@@ -139,6 +139,8 @@ namespace Tricycle.ViewModels
             {
                 SetProperty(ref _selectedVideoFormat, value);
 
+                IsHdrEnabled = IsHdrSupported(SelectedVideoFormat, _primaryVideoStream);
+                IsHdrChecked = IsHdrEnabled;
                 QualityStepCount =
                     _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Format.Equals(value.Value))?
                                                   .QualitySteps ?? DEFAULT_STEP_COUNT;
@@ -489,14 +491,22 @@ namespace Tricycle.ViewModels
         {
             if (videoStream != null)
             {
-                IsHdrChecked = videoStream.DynamicRange == DynamicRange.High;
+                IsHdrEnabled = videoStream.DynamicRange == DynamicRange.High;
+                IsHdrChecked = IsHdrEnabled;
                 SizeOptions = GetSizeOptions(videoStream.Dimensions);
                 SelectedSize = SizeOptions?.FirstOrDefault();
                 IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
                 IsAutocropChecked = IsAutocropEnabled;
+
+                if (IsHdrChecked)
+                {
+                    SelectedVideoFormat =
+                        _videoFormatOptions.FirstOrDefault(f => object.Equals(f.Value, VideoFormat.Hevc));
+                }
             }
             else
             {
+                IsHdrEnabled = false;
                 IsHdrChecked = false;
                 SizeOptions = null;
                 SelectedSize = null;
@@ -505,6 +515,12 @@ namespace Tricycle.ViewModels
             }
 
             PopulateAspectRatioOptions(videoStream, cropParameters, IsAutocropChecked);
+        }
+
+        bool IsHdrSupported(ListItem selectedFormat, VideoStreamInfo videoStream)
+        {
+            return object.Equals(selectedFormat.Value, VideoFormat.Hevc) &&
+                object.Equals(videoStream?.DynamicRange, DynamicRange.High);
         }
 
         IList<ListItem> GetSizeOptions(Dimensions sourceDimensions)

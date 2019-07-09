@@ -75,7 +75,7 @@
                                 </FlexLayout>
                             </StackLayout>
                             <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
-                            <Switch IsEnabled="{Binding IsSourceHdr}"
+                            <Switch IsEnabled="{Binding IsHdrEnabled}"
                                     IsToggled="{Binding IsHdrChecked}"
                                     Grid.Column="1"
                                     Grid.Row="2" />
