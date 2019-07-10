@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using AppKit;
@@ -24,10 +23,14 @@ namespace Tricycle.macOS
     [Register("AppDelegate")]
     public class AppDelegate : FormsApplicationDelegate
     {
+        const int WINDOW_WIDTH = 800;
+        const int WINDOW_HEIGHT = 490;
+
         public AppDelegate()
         {
+            var center = GetCenterCoordinate();
+            var rect = new CoreGraphics.CGRect(center.X, center.Y, WINDOW_WIDTH, WINDOW_HEIGHT);
             var style = NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
-            var rect = new CoreGraphics.CGRect(200, 200, 800, 490);
 
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false);
             MainWindow.Title = "Tricycle";
@@ -93,6 +96,15 @@ namespace Tricycle.macOS
             }
 
             return result ?? new TricycleConfig();
+        }
+
+        Coordinate<nfloat> GetCenterCoordinate()
+        {
+            var frame = NSScreen.MainScreen.VisibleFrame;
+            var x = frame.X + (frame.Width - WINDOW_WIDTH) / 2f;
+            var y = frame.Y + (frame.Height - WINDOW_HEIGHT) / 2f;
+
+            return new Coordinate<nfloat>(x, y);
         }
     }
 }
