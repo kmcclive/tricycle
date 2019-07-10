@@ -30,7 +30,7 @@ namespace Tricycle.UI.macOS
         {
             var center = GetCenterCoordinate();
             var rect = new CoreGraphics.CGRect(center.X, center.Y, WINDOW_WIDTH, WINDOW_HEIGHT);
-            var style = NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
+            var style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false);
             MainWindow.Title = "Tricycle";
