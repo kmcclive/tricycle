@@ -192,10 +192,13 @@
                                             Command="{Binding StartCommand}"
                                             Grid.Column="4"
                                             Grid.Row="0" />
-                <ProgressBar Progress="0.15" Grid.Column="2" Grid.Row="1" />
+                <ProgressBar IsVisible="{Binding IsProgressVisible}"
+                             Progress="{Binding Progress}"
+                             Grid.Column="2"
+                             Grid.Row="1" />
                 <FlexLayout JustifyContent="SpaceBetween" Grid.Column="2" Grid.Row="2">
-                    <Label FontSize="Micro" Text="0.225x (5.39 fps)" />
-                    <Label FontSize="Micro" Text="15%" />
+                    <Label FontSize="Micro" Text="{Binding RateText}" />
+                    <Label FontSize="Micro" Text="{Binding ProgressText}" />
                 </FlexLayout>
             </Grid>
         </StackLayout>

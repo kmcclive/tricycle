@@ -62,6 +62,10 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _containerFormatOptions;
         ListItem _selectedContainerFormat;
         string _destinationName;
+        bool _isProgressVisible;
+        double _progress;
+        string _progressText;
+        string _rateText;
 
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
@@ -277,6 +281,30 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _destinationName; }
             set { SetProperty(ref _destinationName, value); }
+        }
+
+        public bool IsProgressVisible
+        {
+            get { return _isProgressVisible; }
+            set { SetProperty(ref _isProgressVisible, value); }
+        }
+
+        public double Progress
+        {
+            get { return _progress; }
+            set { SetProperty(ref _progress, value); }
+        }
+
+        public string ProgressText
+        {
+            get { return _progressText; }
+            set { SetProperty(ref _progressText, value); }
+        }
+
+        public string RateText
+        {
+            get { return _rateText; }
+            set { SetProperty(ref _rateText, value); }
         }
 
         public ICommand SourceSelectCommand { get; }
