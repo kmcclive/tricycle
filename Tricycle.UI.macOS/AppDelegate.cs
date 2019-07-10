@@ -21,7 +21,7 @@ using Xamarin.Forms.Platform.MacOS;
 namespace Tricycle.UI.macOS
 {
     [Register("AppDelegate")]
-    public class AppDelegate : FormsApplicationDelegate
+    public sealed class AppDelegate : FormsApplicationDelegate
     {
         const int WINDOW_WIDTH = 800;
         const int WINDOW_HEIGHT = 490;
