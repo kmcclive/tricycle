@@ -15,6 +15,8 @@ using Xamarin.Forms;
 
 namespace Tricycle.ViewModels
 {
+    public delegate void AlertEventHandler(string title, string message);
+
     public class MainViewModel : ViewModelBase
     {
         #region Constants
@@ -283,6 +285,12 @@ namespace Tricycle.ViewModels
 
         #endregion
 
+        #region Events
+
+        public event AlertEventHandler Alert;
+
+        #endregion
+
         #region Methods
 
         #region Command Actions
@@ -305,12 +313,15 @@ namespace Tricycle.ViewModels
                     _primaryVideoStream = null;
                 }
 
+                bool isValid = false;
+
                 if (_primaryVideoStream != null)
                 {
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
 
                     IsContainerFormatEnabled = true;
                     DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
+                    isValid = true;
                 }
                 else
                 {
@@ -326,6 +337,11 @@ namespace Tricycle.ViewModels
                 PopulateAudioOptions(_sourceInfo);
                 ((Command)DestinationSelectCommand).ChangeCanExecute();
                 ((Command)StartCommand).ChangeCanExecute();
+
+                if (!isValid)
+                {
+                    Alert?.Invoke("Invalid Source", "The selected file could not be opened.");
+                }
             }
         }
 

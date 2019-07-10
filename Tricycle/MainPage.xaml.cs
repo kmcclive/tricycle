@@ -16,12 +16,21 @@ namespace Tricycle
         {
             InitializeComponent();
 
-            BindingContext = new MainViewModel(
+            var viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
                 AppState.IocContainer.GetInstance<ICropDetector>(),
                 AppState.TricycleConfig,
                 AppState.DefaultDestinationDirectory);
+
+            viewModel.Alert += OnAlert;
+
+            BindingContext = viewModel;
+        }
+
+        private void OnAlert(string title, string message)
+        {
+            DisplayAlert(title, message, "OK");
         }
     }
 }
