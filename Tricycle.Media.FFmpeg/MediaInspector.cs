@@ -63,12 +63,15 @@ namespace Tricycle.Media.FFmpeg
             MediaInfo result = null;
             var output = await RunFFprobe<Output>(fileName, "-show_format -show_streams");
 
-            if ((output?.Format != null) && (output?.Streams != null))
+            if (output != null)
             {
                 result = Map(fileName, output);
+            }
 
-                var hdrVideoStreams = result.Streams.Where(
-                    s => s is VideoStreamInfo && ((VideoStreamInfo)s).DynamicRange == DynamicRange.High);
+            if (result != null)
+            {
+                var hdrVideoStreams = result.Streams.OfType<VideoStreamInfo>()
+                                                    .Where(s => s.DynamicRange == DynamicRange.High);
 
                 foreach (VideoStreamInfo videoStream in hdrVideoStreams)
                 {
@@ -127,27 +130,24 @@ namespace Tricycle.Media.FFmpeg
 
         MediaInfo Map(string fileName, Output output)
         {
-            var result = new MediaInfo()
+            double seconds;
+
+            // ffprobe can identify lots of files that aren't even videos
+            // so we are doing some basic validation here
+            if (!double.TryParse(output.Format?.Duration, out seconds) ||
+                (seconds < 1) ||
+                (output.Streams?.Any() != true))
             {
-                FileName = fileName
+                return null;
+            }
+
+            return new MediaInfo()
+            {
+                FileName = fileName,
+                FormatName = output.Format.FormatLongName,
+                Duration = TimeSpan.FromSeconds(seconds),
+                Streams = output.Streams.Select(s => Map(s)).ToArray()
             };
-
-            if (output.Format != null)
-            {
-                result.FormatName = output.Format.FormatLongName;
-
-                if (double.TryParse(output.Format.Duration, out var seconds))
-                {
-                    result.Duration = TimeSpan.FromSeconds(seconds);
-                }
-            }
-
-            if (output.Streams != null)
-            {
-                result.Streams = output.Streams.Select(s => Map(s)).ToArray();
-            }
-
-            return result;
         }
 
         StreamInfo Map(Stream stream)

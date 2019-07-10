@@ -299,6 +299,14 @@ namespace Tricycle.ViewModels
                 if (_sourceInfo != null)
                 {
                     _primaryVideoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+                }
+                else
+                {
+                    _primaryVideoStream = null;
+                }
+
+                if (_primaryVideoStream != null)
+                {
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
 
                     IsContainerFormatEnabled = true;
@@ -306,7 +314,7 @@ namespace Tricycle.ViewModels
                 }
                 else
                 {
-                    _primaryVideoStream = null;
+                    _sourceInfo = null;
                     _cropParameters = null;
                     IsContainerFormatEnabled = false;
                     DestinationName = null;
