@@ -566,7 +566,7 @@ namespace Tricycle.UI.ViewModels
                 if (IsHdrChecked)
                 {
                     SelectedVideoFormat =
-                        _videoFormatOptions.FirstOrDefault(f => object.Equals(f.Value, VideoFormat.Hevc));
+                        _videoFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, VideoFormat.Hevc));
                 }
             }
             else

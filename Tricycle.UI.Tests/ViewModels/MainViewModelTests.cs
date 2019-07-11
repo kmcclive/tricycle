@@ -17,7 +17,10 @@ namespace Tricycle.UI.Tests
     {
         MainViewModel _viewModel;
         IFileBrowser _fileBrowser;
+        FileBrowserResult _fileBrowserResult;
         IMediaInspector _mediaInspector;
+        VideoStreamInfo _videoStream;
+        MediaInfo _mediaInfo;
         ICropDetector _cropDetector;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
@@ -35,6 +38,22 @@ namespace Tricycle.UI.Tests
                                            _cropDetector,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);
+            _fileBrowserResult = new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            };
+            _videoStream = new VideoStreamInfo();
+            _mediaInfo = new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    _videoStream
+                }
+            };
+
+            _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
         }
 
         [TestMethod]
@@ -90,7 +109,6 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SourceSelectionOpensFileBrowser()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult());
             _viewModel.SourceSelectCommand.Execute(null);
             _fileBrowser.Received().BrowseToOpen();
         }
@@ -98,10 +116,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void CancellingFileBrowserDoesNotReadSource()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = false
-            });
+            _fileBrowserResult.Confirmed = false;
             _viewModel.SourceSelectCommand.Execute(null);
             _mediaInspector.DidNotReceive().Inspect(Arg.Any<string>());
         }
@@ -111,11 +126,7 @@ namespace Tricycle.UI.Tests
         {
             string fileName = "test.mkv";
 
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = fileName
-            });
+            _fileBrowserResult.FileName = fileName;
             _viewModel.SourceSelectCommand.Execute(null);
             _mediaInspector.Received().Inspect(fileName);
         }
@@ -126,11 +137,6 @@ namespace Tricycle.UI.Tests
             string actualTitle = null;
             string actualMessage = null;
 
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
             _viewModel.Alert += (title, message) =>
             {
@@ -149,18 +155,7 @@ namespace Tricycle.UI.Tests
             string actualTitle = null;
             string actualMessage = null;
 
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new AudioStreamInfo()
-                }
-            });
+            _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
             _viewModel.Alert += (title, message) =>
             {
                 actualTitle = title;
@@ -175,18 +170,6 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ShowsSourceInfoWhenSourceIsValid()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                }
-            });
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.IsTrue(_viewModel.IsSourceInfoVisible);
@@ -197,19 +180,8 @@ namespace Tricycle.UI.Tests
         {
             var fileName = "test.mkv";
 
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = fileName
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                FileName = fileName,
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                }
-            });
+            _fileBrowserResult.FileName = fileName;
+            _mediaInfo.FileName = fileName;
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual(fileName, _viewModel.SourceName);
@@ -218,19 +190,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysCorrectSourceDuration()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Duration = new TimeSpan(1, 42, 17),
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                }
-            });
+            _mediaInfo.Duration = new TimeSpan(1, 42, 17);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("01:42:17", _viewModel.SourceDuration);
@@ -239,21 +199,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays4KSourceSizeFor3840Width()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(3840, 1646)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(3840, 1646);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("4K", _viewModel.SourceSize);
@@ -262,21 +208,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays4KSourceSizeFor2160Height()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(2880, 2160)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(2880, 2160);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("4K", _viewModel.SourceSize);
@@ -285,21 +217,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays1080pSourceSizeFor1920Width()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(1920, 822)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(1920, 822);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("1080p", _viewModel.SourceSize);
@@ -308,21 +226,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays1080pSourceSizeFor1080Height()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(1440, 1080)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(1440, 1080);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("1080p", _viewModel.SourceSize);
@@ -331,21 +235,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays720pSourceSizeFor1280Width()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(1280, 548)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(1280, 548);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("720p", _viewModel.SourceSize);
@@ -354,21 +244,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays720pSourceSizeFor720Height()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(960, 720)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(960, 720);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("720p", _viewModel.SourceSize);
@@ -377,21 +253,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays480pSourceSizeFor853Width()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(853, 366)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(853, 366);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
@@ -400,21 +262,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void Displays480pSourceSizeFor480Height()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(640, 480)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(640, 480);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
@@ -423,21 +271,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysCustomSourceSize()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        Dimensions = new Dimensions(568, 320)
-                    }
-                }
-            });
+            _videoStream.Dimensions = new Dimensions(568, 320);
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.AreEqual("320p", _viewModel.SourceSize);
@@ -446,21 +280,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ShowsHdrLabelForHdr()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        DynamicRange = DynamicRange.High
-                    }
-                }
-            });
+            _videoStream.DynamicRange = DynamicRange.High;
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.IsTrue(_viewModel.IsSourceHdr);
@@ -469,21 +289,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void HidesHdrLabelForSdr()
         {
-            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
-            {
-                Confirmed = true,
-                FileName = "test.mkv"
-            });
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
-            {
-                Streams = new StreamInfo[]
-                {
-                    new VideoStreamInfo()
-                    {
-                        DynamicRange = DynamicRange.Standard
-                    }
-                }
-            });
+            _videoStream.DynamicRange = DynamicRange.Standard;
             _viewModel.SourceSelectCommand.Execute(null);
 
             Assert.IsFalse(_viewModel.IsSourceHdr);
