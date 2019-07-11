@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -5,6 +6,7 @@ using NSubstitute;
 using Tricycle.IO;
 using Tricycle.IO.Models;
 using Tricycle.Media;
+using Tricycle.Media.Models;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 
@@ -91,6 +93,400 @@ namespace Tricycle.UI.Tests
             _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult());
             _viewModel.SourceSelectCommand.Execute(null);
             _fileBrowser.Received().BrowseToOpen();
+        }
+
+        [TestMethod]
+        public void CancellingFileBrowserDoesNotReadSource()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = false
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+            _mediaInspector.DidNotReceive().Inspect(Arg.Any<string>());
+        }
+
+        [TestMethod]
+        public void ConfirmingFileBrowserReadsCorrectSource()
+        {
+            string fileName = "test.mkv";
+
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+            _mediaInspector.Received().Inspect(fileName);
+        }
+
+        [TestMethod]
+        public void DisplaysAlertWhenSourceInfoIsNull()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("Invalid Source", actualTitle);
+            Assert.AreEqual("The selected file could not be opened.", actualMessage);
+        }
+
+        [TestMethod]
+        public void DisplaysAlertWhenSourceHasNoVideo()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new AudioStreamInfo()
+                }
+            });
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("Invalid Source", actualTitle);
+            Assert.AreEqual("The selected file could not be opened.", actualMessage);
+        }
+
+        [TestMethod]
+        public void ShowsSourceInfoWhenSourceIsValid()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.IsTrue(_viewModel.IsSourceInfoVisible);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectSourceName()
+        {
+            var fileName = "test.mkv";
+
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                FileName = fileName,
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual(fileName, _viewModel.SourceName);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectSourceDuration()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Duration = new TimeSpan(1, 42, 17),
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("01:42:17", _viewModel.SourceDuration);
+        }
+
+        [TestMethod]
+        public void Displays4KSourceSizeFor3840Width()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(3840, 1646)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("4K", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays4KSourceSizeFor2160Height()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(2880, 2160)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("4K", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays1080pSourceSizeFor1920Width()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(1920, 822)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("1080p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays1080pSourceSizeFor1080Height()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(1440, 1080)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("1080p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays720pSourceSizeFor1280Width()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(1280, 548)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("720p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays720pSourceSizeFor720Height()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(960, 720)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("720p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays480pSourceSizeFor853Width()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(853, 366)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("480p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays480pSourceSizeFor480Height()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(640, 480)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("480p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void DisplaysCustomSourceSize()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(568, 320)
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.AreEqual("320p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void ShowsHdrLabelForHdr()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        DynamicRange = DynamicRange.High
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.IsTrue(_viewModel.IsSourceHdr);
+        }
+
+        [TestMethod]
+        public void HidesHdrLabelForSdr()
+        {
+            _fileBrowser.BrowseToOpen().Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = "test.mkv"
+            });
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(new MediaInfo()
+            {
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        DynamicRange = DynamicRange.Standard
+                    }
+                }
+            });
+            _viewModel.SourceSelectCommand.Execute(null);
+
+            Assert.IsFalse(_viewModel.IsSourceHdr);
         }
     }
 }

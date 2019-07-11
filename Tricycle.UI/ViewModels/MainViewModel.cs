@@ -544,7 +544,12 @@ namespace Tricycle.UI.ViewModels
                 return "720p";
             }
 
-            return "480p";
+            if ((dimensions.Width >= 853) || (dimensions.Height >= 480))
+            {
+                return "480p";
+            }
+
+            return $"{dimensions.Height}p";
         }
 
         void PopulateVideoOptions(VideoStreamInfo videoStream, CropParameters cropParameters)
