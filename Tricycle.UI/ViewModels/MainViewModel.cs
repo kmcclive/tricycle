@@ -152,7 +152,7 @@ namespace Tricycle.UI.ViewModels
             {
                 SetProperty(ref _selectedVideoFormat, value);
 
-                IsHdrEnabled = IsHdrSupported(SelectedVideoFormat, _primaryVideoStream);
+                IsHdrEnabled = IsHdrSupported(_selectedVideoFormat, _primaryVideoStream);
                 IsHdrChecked = IsHdrEnabled;
                 QualityStepCount =
                     _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Format.Equals(value.Value))?
@@ -579,7 +579,7 @@ namespace Tricycle.UI.ViewModels
 
         bool IsHdrSupported(ListItem selectedFormat, VideoStreamInfo videoStream)
         {
-            return object.Equals(selectedFormat.Value, VideoFormat.Hevc) &&
+            return object.Equals(selectedFormat?.Value, VideoFormat.Hevc) &&
                 object.Equals(videoStream?.DynamicRange, DynamicRange.High);
         }
 
