@@ -73,6 +73,7 @@ namespace Tricycle.UI.ViewModels
         CropParameters _cropParameters;
         string _defaultExtension = DEFAULT_EXTENSION;
         VideoStreamInfo _primaryVideoStream;
+        IDictionary<VideoFormat, VideoCodec> _videoCodecsByFormat;
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
@@ -159,9 +160,10 @@ namespace Tricycle.UI.ViewModels
 
                 IsHdrEnabled = IsHdrSupported(_selectedVideoFormat, _primaryVideoStream);
                 IsHdrChecked = IsHdrEnabled;
-                QualityStepCount =
-                    _tricycleConfig.Video?.Codecs?.FirstOrDefault(f => f.Format.Equals(value.Value))?
-                                                  .QualitySteps ?? DEFAULT_STEP_COUNT;
+                QualityStepCount = (_selectedVideoFormat != null) &&
+                    _videoCodecsByFormat.TryGetValue((VideoFormat)_selectedVideoFormat.Value, out var codec)
+                    ? codec.QualitySteps
+                    : DEFAULT_STEP_COUNT;
             }
         }
 
@@ -411,28 +413,57 @@ namespace Tricycle.UI.ViewModels
         {
             _defaultExtension = GetDefaultExtension((ContainerFormat)SelectedContainerFormat.Value);
 
-            VideoFormatOptions = GetVideoFormatOptions(config.Video?.Codecs);
-            SelectedVideoFormat = VideoFormatOptions?.FirstOrDefault();
-            QualityStepCount =
-                config.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
-
+            ProcessVideoCodecs(config.Video?.Codecs);
             ProcessAudioCodecs(config.Audio?.Codecs);
         }
 
-        IList<ListItem> GetVideoFormatOptions(IList<VideoCodec> codecs)
+        void ProcessVideoCodecs(IList<VideoCodec> codecs)
         {
-            return codecs?.Select(f =>
+            var formatOptions = new List<ListItem>();
+            _videoCodecsByFormat = new Dictionary<VideoFormat, VideoCodec>();
+            int? qualitySteps = null;
+
+            foreach (var codec in codecs ?? Enumerable.Empty<VideoCodec>())
             {
-                switch (f.Format)
+                VideoFormat format = codec.Format;
+                string name = GetVideoFormatName(format);
+
+                if (name == null)
                 {
-                    case VideoFormat.Avc:
-                        return new ListItem("AVC", f.Format);
-                    case VideoFormat.Hevc:
-                        return new ListItem("HEVC", f.Format);
-                    default:
-                        return new ListItem(string.Empty);
+                    continue;
                 }
-            }).Distinct().ToArray();
+
+                var formatOption = new ListItem(name, format);
+
+                if (!formatOptions.Contains(formatOption))
+                {
+                    formatOptions.Add(formatOption);
+
+                    _videoCodecsByFormat[format] = codec;
+
+                    if (!qualitySteps.HasValue)
+                    {
+                        qualitySteps = codec.QualitySteps;
+                    }
+                }
+            }
+
+            VideoFormatOptions = formatOptions;
+            SelectedVideoFormat = formatOptions.FirstOrDefault();
+            QualityStepCount = qualitySteps ?? DEFAULT_STEP_COUNT;
+        }
+
+        string GetVideoFormatName(VideoFormat format)
+        {
+            switch (format)
+            {
+                case VideoFormat.Avc:
+                    return "AVC";
+                case VideoFormat.Hevc:
+                    return "HEVC";
+                default:
+                    return null;
+            }
         }
 
         IList<ListItem> GetContainerFormatOptions()
