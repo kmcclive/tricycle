@@ -472,11 +472,12 @@ namespace Tricycle.UI.ViewModels
                 }
 
                 var formatOption = new ListItem(name, format);
+                IList<ListItem> mixdownOptions = GetAudioMixdownOptions(codec.Presets);
 
-                if (!_audioFormatOptions.Contains(formatOption))
+                if (!_audioFormatOptions.Contains(formatOption) && (mixdownOptions?.Any() == true))
                 {
-                    _audioFormatOptions.Add(new ListItem(name, format));
-                    _audioMixdownOptionsByFormat[format] = GetAudioMixdownOptions(codec.Presets);
+                    _audioFormatOptions.Add(formatOption);
+                    _audioMixdownOptionsByFormat[format] = mixdownOptions;
                 }
             }
         }
@@ -665,6 +666,11 @@ namespace Tricycle.UI.ViewModels
         {
             ClearAudioOutputs();
 
+            if (_audioFormatOptions?.Any() != true)
+            {
+                return;
+            }
+
             _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams);
 
             if (_audioTrackOptions.Count < 2) //only none
@@ -699,12 +705,18 @@ namespace Tricycle.UI.ViewModels
         {
             int index = 1;
             IList<ListItem> result = sourceStreams?.OfType<AudioStreamInfo>()
+                                                   .Where(s => IsAudioTrackValid(s))
                                                    .Select(s => new ListItem(GetAudioTrackName(s, index++), s))
                                                    .ToList() ?? new List<ListItem>();
 
             result.Insert(0, NONE_OPTION);
 
             return result;
+        }
+
+        bool IsAudioTrackValid(AudioStreamInfo audioStream)
+        {
+            return !string.IsNullOrWhiteSpace(audioStream.FormatName) && (audioStream.ChannelCount > 0);
         }
 
         string GetAudioTrackName(AudioStreamInfo audioStream, int index)
@@ -751,7 +763,14 @@ namespace Tricycle.UI.ViewModels
                 }
             }
 
-            return $"{index}: {format} {mixdown} ({audioStream.Language})";
+            string result = $"{index}: {format} {mixdown}";
+
+            if (!string.IsNullOrWhiteSpace(audioStream.Language))
+            {
+                result += $" ({audioStream.Language})";
+            }
+
+            return result;
         }
 
         string GetDefaultExtension(ContainerFormat format)
