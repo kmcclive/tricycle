@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -125,14 +126,14 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void SourceSelectionOpensFileBrowser()
+        public void OpensFileBrowserWhenSelectingSource()
         {
             SelectSource();
             _fileBrowser.Received().BrowseToOpen();
         }
 
         [TestMethod]
-        public void CancellingFileBrowserDoesNotReadSource()
+        public void DoesNotReadSourceForCancelledFileBrowser()
         {
             _fileBrowserResult.Confirmed = false;
             SelectSource();
@@ -140,7 +141,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void ConfirmingFileBrowserReadsCorrectSource()
+        public void ReadsCorrectSourceForConfirmedFileBrowser()
         {
             string fileName = "test.mkv";
 
@@ -336,11 +337,15 @@ namespace Tricycle.UI.Tests
         {
             var fileName = Path.Combine("Volumes", "Media", "test.mkv");
 
+            _tricycleConfig.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+            {
+                { ContainerFormat.Mp4, "m4v" }
+            };
             _fileBrowserResult.FileName = fileName;
             _mediaInfo.FileName = fileName;
             SelectSource();
 
-            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test.mp4"), _viewModel.DestinationName);
+            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test.m4v"), _viewModel.DestinationName);
         }
 
         [TestMethod]
@@ -348,13 +353,34 @@ namespace Tricycle.UI.Tests
         {
             var sourceFileName = Path.Combine("Volumes", "Media", "test.mkv");
 
+            _tricycleConfig.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+            {
+                { ContainerFormat.Mp4, "m4v" }
+            };
             _fileBrowserResult.FileName = sourceFileName;
             _mediaInfo.FileName = sourceFileName;
-            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test.mp4")).Returns(true);
-            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test 2.mp4")).Returns(true);
+            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test.m4v")).Returns(true);
+            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test 2.m4v")).Returns(true);
             SelectSource();
 
-            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test 3.mp4"), _viewModel.DestinationName);
+            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test 3.m4v"), _viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void UpdatesDestinationExtensionWhenContainerFormatChanges()
+        {
+            var sourceFileName = Path.Combine("Volumes", "Media", "test.m2ts");
+
+            _tricycleConfig.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+            {
+                { ContainerFormat.Mkv, "mkv" }
+            };
+            _fileBrowserResult.FileName = sourceFileName;
+            _mediaInfo.FileName = sourceFileName;
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem("MKV", ContainerFormat.Mkv);
+
+            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test.mkv"), _viewModel.DestinationName);
         }
 
         [TestMethod]
@@ -366,7 +392,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DestinationSelectionOpensFileBrowser()
+        public void OpensFileBrowserWhenSelectingDestination()
         {
             SelectSource();
             _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult());
@@ -376,7 +402,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DestinationSelectionSetsDefaultLocationForFileBrowser()
+        public void SetsDefaultLocationForDestinationFileBrowser()
         {
             var fileName = Path.Combine("Volumes", "Media", "test.mkv");
 
@@ -387,6 +413,38 @@ namespace Tricycle.UI.Tests
             SelectDestination();
 
             _fileBrowser.Received().BrowseToSave(_defaultDestinationDirectory, "test.mp4");
+        }
+
+        [TestMethod]
+        public void DoesNotChangeDestinationNameForCancelledFileBrowser()
+        {
+            SelectSource();
+
+            var oldDestination = _viewModel.DestinationName;
+
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult()
+            {
+                Confirmed = false
+            });
+            SelectDestination();
+
+            Assert.AreEqual(oldDestination, _viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void UpdatesDestinationNameForConfirmedFileBrowser()
+        {
+            var fileName = Path.Combine("Volumes", "Media", "test.m4v");
+
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            SelectDestination();
+
+            Assert.AreEqual(fileName, _viewModel.DestinationName);
         }
 
         [TestMethod]

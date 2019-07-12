@@ -94,13 +94,13 @@ namespace Tricycle.UI.ViewModels
             _fileSystem = fileSystem;
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
-            _defaultExtension = GetDefaultExtension(ContainerFormat.Mp4);
 
             SourceSelectCommand = new Command(async () => await SelectSource());
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
             StartCommand = new Command(async () => await StartTranscode(), () => _sourceInfo != null);
-            
-            ProcessConfig(tricycleConfig);
+
+            ContainerFormatOptions = GetContainerFormatOptions();
+            SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
         }
 
         #endregion
@@ -351,6 +351,7 @@ namespace Tricycle.UI.ViewModels
                 {
                     _cropParameters = await _cropDetector.Detect(_sourceInfo);
 
+                    ProcessConfig(_tricycleConfig); //this is done here to improve testability
                     IsContainerFormatEnabled = true;
                     DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
                     isValid = true;
@@ -407,12 +408,12 @@ namespace Tricycle.UI.ViewModels
 
         void ProcessConfig(TricycleConfig config)
         {
+            _defaultExtension = GetDefaultExtension((ContainerFormat)SelectedContainerFormat.Value);
+
             VideoFormatOptions = GetVideoFormatOptions(config.Video?.Codecs);
             SelectedVideoFormat = VideoFormatOptions?.FirstOrDefault();
             QualityStepCount =
                 config.Video?.Codecs?.FirstOrDefault()?.QualitySteps ?? DEFAULT_STEP_COUNT;
-            ContainerFormatOptions = GetContainerFormatOptions();
-            SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
 
             ProcessAudioCodecs(config.Audio?.Codecs);
         }
