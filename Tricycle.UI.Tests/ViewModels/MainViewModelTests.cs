@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -22,6 +23,8 @@ namespace Tricycle.UI.Tests
         VideoStreamInfo _videoStream;
         MediaInfo _mediaInfo;
         ICropDetector _cropDetector;
+        IFileSystem _fileSystem;
+        IFile _file;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
 
@@ -31,11 +34,13 @@ namespace Tricycle.UI.Tests
             _fileBrowser = Substitute.For<IFileBrowser>();
             _mediaInspector = Substitute.For<IMediaInspector>();
             _cropDetector = Substitute.For<ICropDetector>();
+            _fileSystem = Substitute.For<IFileSystem>();
             _tricycleConfig = new TricycleConfig();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
                                            _cropDetector,
+                                           _fileSystem,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);
             _fileBrowserResult = new FileBrowserResult()
@@ -51,9 +56,11 @@ namespace Tricycle.UI.Tests
                     _videoStream
                 }
             };
+            _file = Substitute.For<IFile>();
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
+            _fileSystem.File.Returns(_file);
         }
 
         [TestMethod]

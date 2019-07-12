@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace Tricycle.UI.ViewModels
         readonly IFileBrowser _fileBrowser;
         readonly IMediaInspector _mediaInspector;
         readonly ICropDetector _cropDetector;
+        readonly IFileSystem _fileSystem;
         readonly TricycleConfig _tricycleConfig;
         readonly string _defaultDestinationDirectory;
 
@@ -82,12 +84,14 @@ namespace Tricycle.UI.ViewModels
         public MainViewModel(IFileBrowser fileBrowser,
                              IMediaInspector mediaInspector,
                              ICropDetector cropDetector,
+                             IFileSystem fileSystem,
                              TricycleConfig tricycleConfig,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
             _mediaInspector = mediaInspector;
             _cropDetector = cropDetector;
+            _fileSystem = fileSystem;
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
             _defaultExtension = GetDefaultExtension(ContainerFormat.Mp4);
@@ -774,7 +778,7 @@ namespace Tricycle.UI.ViewModels
                 result = Path.Combine(_defaultDestinationDirectory,
                                      $"{fileName}{number}.{extension}");
                 count++;
-            } while (File.Exists(result));
+            } while (_fileSystem.File.Exists(result));
 
             return result;
         }

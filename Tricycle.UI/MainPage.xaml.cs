@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.IO.Abstractions;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.UI.Models;
@@ -20,6 +21,7 @@ namespace Tricycle.UI
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
                 AppState.IocContainer.GetInstance<ICropDetector>(),
+                AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.TricycleConfig,
                 AppState.DefaultDestinationDirectory);
 

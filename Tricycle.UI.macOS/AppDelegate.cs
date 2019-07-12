@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using AppKit;
 using Foundation;
 using Newtonsoft.Json;
@@ -55,6 +56,7 @@ namespace Tricycle.UI.macOS
                 _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
                                                             processRunner,
                                                             ProcessUtility.Self));
+                _.For<IFileSystem>().Use<FileSystem>();
             });
             AppState.TricycleConfig = ReadConfigFile(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =
