@@ -736,7 +736,7 @@ namespace Tricycle.UI.ViewModels
         {
             int index = 1;
             IList<ListItem> result = sourceStreams?.OfType<AudioStreamInfo>()
-                                                   .Where(s => IsAudioTrackValid(s))
+                                                   .Where(s => IsAudioTrackSupported(s))
                                                    .Select(s => new ListItem(GetAudioTrackName(s, index++), s))
                                                    .ToList() ?? new List<ListItem>();
 
@@ -745,9 +745,11 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        bool IsAudioTrackValid(AudioStreamInfo audioStream)
+        bool IsAudioTrackSupported(AudioStreamInfo audioStream)
         {
-            return !string.IsNullOrWhiteSpace(audioStream.FormatName) && (audioStream.ChannelCount > 0);
+            return !string.IsNullOrWhiteSpace(audioStream.FormatName) &&
+                (audioStream.ChannelCount > 0) &&
+                GetAudioFormatOptions(audioStream).Any();
         }
 
         string GetAudioTrackName(AudioStreamInfo audioStream, int index)
@@ -854,17 +856,23 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        IList<ListItem> GetAudioMixdownOptions(AudioStreamInfo stream, AudioFormat format)
+        IEnumerable<ListItem> GetAudioFormatOptions(AudioStreamInfo stream)
         {
-            IList<ListItem> result = null;
+            return _audioFormatOptions?.Where(f =>
+                GetAudioMixdownOptions(stream, (AudioFormat)f.Value).Any())
+                ?? Enumerable.Empty<ListItem>();
+        }
+
+        IEnumerable<ListItem> GetAudioMixdownOptions(AudioStreamInfo stream, AudioFormat format)
+        {
+            IEnumerable<ListItem> result = null;
 
             if (_audioMixdownOptionsByFormat.TryGetValue(format, out var allOptions))
             {
-                result = allOptions.Where(o => GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount)
-                                   .ToArray();
+                result = allOptions.Where(o => GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount);
             }
 
-            return result;
+            return result ?? Enumerable.Empty<ListItem>();
         }
 
         int GetChannelCount(AudioMixdown mixdown)
@@ -920,8 +928,8 @@ namespace Tricycle.UI.ViewModels
             if ((args.NewItem != null) &&
                 !args.NewItem.Equals(NONE_OPTION))
             {
-                model.FormatOptions = _audioFormatOptions;
-                model.SelectedFormat = _audioFormatOptions.FirstOrDefault();
+                model.FormatOptions = GetAudioFormatOptions((AudioStreamInfo)args.NewItem.Value).ToArray();
+                model.SelectedFormat = model.FormatOptions.FirstOrDefault();
             }
             else
             {
@@ -946,7 +954,7 @@ namespace Tricycle.UI.ViewModels
                 var stream = (AudioStreamInfo)model.SelectedTrack.Value;
                 var format = (AudioFormat)args.NewItem.Value;
 
-                mixdownOptions = GetAudioMixdownOptions(stream, format);
+                mixdownOptions = GetAudioMixdownOptions(stream, format).ToArray();
             }
 
             model.MixdownOptions = mixdownOptions;
