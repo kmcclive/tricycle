@@ -16,6 +16,8 @@ namespace Tricycle.UI.Tests
     [TestClass]
     public class MainViewModelTests
     {
+        #region Fields
+
         MainViewModel _viewModel;
         IFileBrowser _fileBrowser;
         FileBrowserResult _fileBrowserResult;
@@ -24,9 +26,13 @@ namespace Tricycle.UI.Tests
         MediaInfo _mediaInfo;
         ICropDetector _cropDetector;
         IFileSystem _fileSystem;
-        IFile _file;
+        IFile _fileService;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
+
+        #endregion
+
+        #region Test Setup
 
         [TestInitialize]
         public void Setup()
@@ -56,12 +62,17 @@ namespace Tricycle.UI.Tests
                     _videoStream
                 }
             };
-            _file = Substitute.For<IFile>();
+            _fileService = Substitute.For<IFile>();
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
-            _fileSystem.File.Returns(_file);
+            _fileSystem.File.Returns(_fileService);
+            _fileService.Exists(Arg.Any<string>()).Returns(false);
         }
+
+        #endregion
+
+        #region Test Methods
 
         [TestMethod]
         public void DisablesVideoConfigInitially()
@@ -116,7 +127,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SourceSelectionOpensFileBrowser()
         {
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
             _fileBrowser.Received().BrowseToOpen();
         }
 
@@ -124,7 +135,7 @@ namespace Tricycle.UI.Tests
         public void CancellingFileBrowserDoesNotReadSource()
         {
             _fileBrowserResult.Confirmed = false;
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
             _mediaInspector.DidNotReceive().Inspect(Arg.Any<string>());
         }
 
@@ -134,7 +145,7 @@ namespace Tricycle.UI.Tests
             string fileName = "test.mkv";
 
             _fileBrowserResult.FileName = fileName;
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
             _mediaInspector.Received().Inspect(fileName);
         }
 
@@ -150,7 +161,7 @@ namespace Tricycle.UI.Tests
                 actualTitle = title;
                 actualMessage = message;
             };
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("Invalid Source", actualTitle);
             Assert.AreEqual("The selected file could not be opened.", actualMessage);
@@ -168,7 +179,7 @@ namespace Tricycle.UI.Tests
                 actualTitle = title;
                 actualMessage = message;
             };
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("Invalid Source", actualTitle);
             Assert.AreEqual("The selected file could not be opened.", actualMessage);
@@ -177,7 +188,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ShowsSourceInfoWhenSourceIsValid()
         {
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.IsTrue(_viewModel.IsSourceInfoVisible);
         }
@@ -189,7 +200,7 @@ namespace Tricycle.UI.Tests
 
             _fileBrowserResult.FileName = fileName;
             _mediaInfo.FileName = fileName;
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual(fileName, _viewModel.SourceName);
         }
@@ -198,7 +209,7 @@ namespace Tricycle.UI.Tests
         public void DisplaysCorrectSourceDuration()
         {
             _mediaInfo.Duration = new TimeSpan(1, 42, 17);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("01:42:17", _viewModel.SourceDuration);
         }
@@ -207,7 +218,7 @@ namespace Tricycle.UI.Tests
         public void Displays4KSourceSizeFor3840Width()
         {
             _videoStream.Dimensions = new Dimensions(3840, 1646);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("4K", _viewModel.SourceSize);
         }
@@ -216,7 +227,7 @@ namespace Tricycle.UI.Tests
         public void Displays4KSourceSizeFor2160Height()
         {
             _videoStream.Dimensions = new Dimensions(2880, 2160);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("4K", _viewModel.SourceSize);
         }
@@ -225,7 +236,7 @@ namespace Tricycle.UI.Tests
         public void Displays1080pSourceSizeFor1920Width()
         {
             _videoStream.Dimensions = new Dimensions(1920, 822);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("1080p", _viewModel.SourceSize);
         }
@@ -234,7 +245,7 @@ namespace Tricycle.UI.Tests
         public void Displays1080pSourceSizeFor1080Height()
         {
             _videoStream.Dimensions = new Dimensions(1440, 1080);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("1080p", _viewModel.SourceSize);
         }
@@ -243,7 +254,7 @@ namespace Tricycle.UI.Tests
         public void Displays720pSourceSizeFor1280Width()
         {
             _videoStream.Dimensions = new Dimensions(1280, 548);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("720p", _viewModel.SourceSize);
         }
@@ -252,7 +263,7 @@ namespace Tricycle.UI.Tests
         public void Displays720pSourceSizeFor720Height()
         {
             _videoStream.Dimensions = new Dimensions(960, 720);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("720p", _viewModel.SourceSize);
         }
@@ -261,7 +272,7 @@ namespace Tricycle.UI.Tests
         public void Displays480pSourceSizeFor853Width()
         {
             _videoStream.Dimensions = new Dimensions(853, 366);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
         }
@@ -270,7 +281,7 @@ namespace Tricycle.UI.Tests
         public void Displays480pSourceSizeFor480Height()
         {
             _videoStream.Dimensions = new Dimensions(640, 480);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
         }
@@ -279,7 +290,7 @@ namespace Tricycle.UI.Tests
         public void DisplaysCustomSourceSize()
         {
             _videoStream.Dimensions = new Dimensions(568, 320);
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.AreEqual("320p", _viewModel.SourceSize);
         }
@@ -288,7 +299,7 @@ namespace Tricycle.UI.Tests
         public void ShowsHdrLabelForHdr()
         {
             _videoStream.DynamicRange = DynamicRange.High;
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.IsTrue(_viewModel.IsSourceHdr);
         }
@@ -297,9 +308,109 @@ namespace Tricycle.UI.Tests
         public void HidesHdrLabelForSdr()
         {
             _videoStream.DynamicRange = DynamicRange.Standard;
-            _viewModel.SourceSelectCommand.Execute(null);
+            SelectSource();
 
             Assert.IsFalse(_viewModel.IsSourceHdr);
         }
+
+        [TestMethod]
+        public void PopulatesContainerFormatOptions()
+        {
+            SelectSource();
+
+            Assert.AreEqual(2, _viewModel.ContainerFormatOptions?.Count);
+            Assert.AreEqual("MP4", _viewModel.ContainerFormatOptions[0].Name);
+            Assert.AreEqual("MKV", _viewModel.ContainerFormatOptions[1].Name);
+        }
+
+        [TestMethod]
+        public void SelectsMp4ContainerFormatByDefault()
+        {
+            SelectSource();
+
+            Assert.AreEqual("MP4", _viewModel.SelectedContainerFormat.Name);
+        }
+
+        [TestMethod]
+        public void SetsDefaultDestinationName()
+        {
+            var fileName = Path.Combine("Volumes", "Media", "test.mkv");
+
+            _fileBrowserResult.FileName = fileName;
+            _mediaInfo.FileName = fileName;
+            SelectSource();
+
+            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test.mp4"), _viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void IncrementsDestinationNameWhenFileExists()
+        {
+            var sourceFileName = Path.Combine("Volumes", "Media", "test.mkv");
+
+            _fileBrowserResult.FileName = sourceFileName;
+            _mediaInfo.FileName = sourceFileName;
+            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test.mp4")).Returns(true);
+            _fileService.Exists(Path.Combine(_defaultDestinationDirectory, "test 2.mp4")).Returns(true);
+            SelectSource();
+
+            Assert.AreEqual(Path.Combine(_defaultDestinationDirectory, "test 3.mp4"), _viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void EnablesDestinationSelectionWhenSourceIsValid()
+        {
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.DestinationSelectCommand.CanExecute(null));
+        }
+
+        [TestMethod]
+        public void DestinationSelectionOpensFileBrowser()
+        {
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult());
+            SelectDestination();
+
+            _fileBrowser.Received().BrowseToSave(Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [TestMethod]
+        public void DestinationSelectionSetsDefaultLocationForFileBrowser()
+        {
+            var fileName = Path.Combine("Volumes", "Media", "test.mkv");
+
+            _fileBrowserResult.FileName = fileName;
+            _mediaInfo.FileName = fileName;
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult());
+            SelectDestination();
+
+            _fileBrowser.Received().BrowseToSave(_defaultDestinationDirectory, "test.mp4");
+        }
+
+        [TestMethod]
+        public void EnablesStartWhenSourceIsValid()
+        {
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.StartCommand.CanExecute(null));
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        void SelectSource()
+        {
+            _viewModel.SourceSelectCommand.Execute(null);
+        }
+
+        void SelectDestination()
+        {
+            _viewModel.DestinationSelectCommand.Execute(null);
+        }
+
+        #endregion
     }
 }
