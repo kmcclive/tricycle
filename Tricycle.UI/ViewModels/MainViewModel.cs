@@ -97,7 +97,8 @@ namespace Tricycle.UI.ViewModels
 
             SourceSelectCommand = new Command(async () => await SelectSource());
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
-            StartCommand = new Command(async () => await StartTranscode(), () => _sourceInfo != null);
+            StartCommand = new Command(async () => await StartTranscode(),
+                                       () => _sourceInfo != null && (_videoFormatOptions?.Any() == true));
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -431,7 +432,7 @@ namespace Tricycle.UI.ViewModels
                     default:
                         return new ListItem(string.Empty);
                 }
-            }).ToArray();
+            }).Distinct().ToArray();
         }
 
         IList<ListItem> GetContainerFormatOptions()
@@ -470,8 +471,13 @@ namespace Tricycle.UI.ViewModels
                     continue;
                 }
 
-                _audioFormatOptions.Add(new ListItem(name, format));
-                _audioMixdownOptionsByFormat[format] = GetAudioMixdownOptions(codec.Presets);
+                var formatOption = new ListItem(name, format);
+
+                if (!_audioFormatOptions.Contains(formatOption))
+                {
+                    _audioFormatOptions.Add(new ListItem(name, format));
+                    _audioMixdownOptionsByFormat[format] = GetAudioMixdownOptions(codec.Presets);
+                }
             }
         }
 

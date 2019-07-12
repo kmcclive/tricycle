@@ -26,6 +26,7 @@ namespace Tricycle.UI.Tests
         VideoStreamInfo _videoStream;
         MediaInfo _mediaInfo;
         ICropDetector _cropDetector;
+        CropParameters _cropParameters;
         IFileSystem _fileSystem;
         IFile _fileService;
         TricycleConfig _tricycleConfig;
@@ -42,7 +43,23 @@ namespace Tricycle.UI.Tests
             _mediaInspector = Substitute.For<IMediaInspector>();
             _cropDetector = Substitute.For<ICropDetector>();
             _fileSystem = Substitute.For<IFileSystem>();
-            _tricycleConfig = new TricycleConfig();
+            _tricycleConfig = new TricycleConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    Codecs = new VideoCodec[]
+                    {
+                        new VideoCodec()
+                        {
+                            Format = VideoFormat.Avc
+                        },
+                        new VideoCodec()
+                        {
+                            Format = VideoFormat.Hevc
+                        }
+                    }
+                }
+            };
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
@@ -50,6 +67,7 @@ namespace Tricycle.UI.Tests
                                            _fileSystem,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);
+
             _fileBrowserResult = new FileBrowserResult()
             {
                 Confirmed = true,
@@ -63,10 +81,12 @@ namespace Tricycle.UI.Tests
                     _videoStream
                 }
             };
+            _cropParameters = new CropParameters();
             _fileService = Substitute.For<IFile>();
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
+            _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(_cropParameters);
             _fileSystem.File.Returns(_fileService);
             _fileService.Exists(Arg.Any<string>()).Returns(false);
         }
@@ -141,13 +161,20 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void ReadsCorrectSourceForConfirmedFileBrowser()
+        public void InspectsCorrectSourceForConfirmedFileBrowser()
         {
             string fileName = "test.mkv";
 
             _fileBrowserResult.FileName = fileName;
             SelectSource();
             _mediaInspector.Received().Inspect(fileName);
+        }
+
+        [TestMethod]
+        public void DetectsCorrectSourceForConfirmedFileBrowser()
+        {
+            SelectSource();
+            _cropDetector.Received().Detect(_mediaInfo);
         }
 
         [TestMethod]
@@ -320,8 +347,8 @@ namespace Tricycle.UI.Tests
             SelectSource();
 
             Assert.AreEqual(2, _viewModel.ContainerFormatOptions?.Count);
-            Assert.AreEqual("MP4", _viewModel.ContainerFormatOptions[0].Name);
-            Assert.AreEqual("MKV", _viewModel.ContainerFormatOptions[1].Name);
+            Assert.AreEqual("MP4", _viewModel.ContainerFormatOptions[0]?.Name);
+            Assert.AreEqual("MKV", _viewModel.ContainerFormatOptions[1]?.Name);
         }
 
         [TestMethod]
@@ -448,11 +475,344 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void EnablesStartWhenSourceIsValid()
+        public void EnablesStartForValidSource()
         {
             SelectSource();
 
             Assert.IsTrue(_viewModel.StartCommand.CanExecute(null));
+        }
+
+        [TestMethod]
+        public void DisablesStartForNoConfiguredVideoFormats()
+        {
+            _tricycleConfig.Video = new VideoConfig()
+            {
+                Codecs = new VideoCodec[0]
+            };
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.StartCommand.CanExecute(null));
+        }
+
+        [TestMethod]
+        public void EnablesVideoConfigForValidSource()
+        {
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsVideoConfigEnabled);
+        }
+
+        [TestMethod]
+        public void DisablesVideoConfigForInvalidSource()
+        {
+            SelectSource();
+
+            _mediaInfo.Streams = new StreamInfo[0];
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsVideoConfigEnabled);
+        }
+
+        [TestMethod]
+        public void PopulatesOnlyConfiguredVideoFormats()
+        {
+            _tricycleConfig.Video = new VideoConfig()
+            {
+                Codecs = new VideoCodec[]
+                {
+                    new VideoCodec()
+                    {
+                        Format = VideoFormat.Hevc
+                    }
+                }
+            };
+            SelectSource();
+
+            Assert.AreEqual(1, _viewModel.VideoFormatOptions?.Count);
+            Assert.AreEqual("HEVC", _viewModel.VideoFormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void SelectsADefaultVideoFormat()
+        {
+            SelectSource();
+
+            Assert.AreEqual("AVC", _viewModel.SelectedVideoFormat?.Name);
+        }
+
+        [TestMethod]
+        public void SelectsHevcVideoFormatForHdrSource()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+
+            Assert.AreEqual("HEVC", _viewModel.SelectedVideoFormat?.Name);
+        }
+
+        [TestMethod]
+        public void DisablesHdrWhenAvcVideoFormatIsSelected()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem("AVC", VideoFormat.Avc);
+
+            Assert.IsFalse(_viewModel.IsHdrEnabled);
+        }
+
+        [TestMethod]
+        public void EnablesHdrWhenHevcVideoFormatIsSelected()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem("AVC", VideoFormat.Avc);
+            _viewModel.SelectedVideoFormat = new ListItem("HEVC", VideoFormat.Hevc);
+
+            Assert.IsTrue(_viewModel.IsHdrEnabled);
+        }
+
+        [TestMethod]
+        public void SetsQualityStepCountWhenSourceIsSelected()
+        {
+            var stepCount = 6;
+
+            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Avc).QualitySteps = stepCount;
+            SelectSource();
+
+            Assert.AreEqual(6, _viewModel.QualityStepCount);
+        }
+
+        [TestMethod]
+        public void SetsQualityStepCountWhenVideoFormatIsChanged()
+        {
+            var stepCount = 6;
+
+            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Hevc).QualitySteps = stepCount;
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem("HEVC", VideoFormat.Hevc);
+
+            Assert.AreEqual(6, _viewModel.QualityStepCount);
+        }
+
+        [TestMethod]
+        public void SetsQualityToMedianByDefault()
+        {
+            var stepCount = 4;
+
+            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Avc).QualitySteps = stepCount;
+            SelectSource();
+
+            Assert.AreEqual(0.5, _viewModel.Quality);
+        }
+
+        [TestMethod]
+        public void DisablesHdrForSdrSource()
+        {
+            _videoStream.DynamicRange = DynamicRange.Standard;
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsHdrEnabled);
+            Assert.IsFalse(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void UnchecksHdrForSdrSource()
+        {
+            _videoStream.DynamicRange = DynamicRange.Standard;
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void ChecksHdrByDefaultForHdrSource()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void SelectsOriginalSizeByDefault()
+        {
+            SelectSource();
+
+            Assert.AreEqual("Same as source", _viewModel.SelectedSize?.Name);
+        }
+
+        [TestMethod]
+        public void PopulatesSizeOptionsInOrder()
+        {
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", new Dimensions(1280, 720) },
+                { "1080p", new Dimensions(1920, 1080) }
+            };
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.SizeOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.SizeOptions[0]?.Name);
+            Assert.AreEqual("1080p", _viewModel.SizeOptions[1]?.Name);
+            Assert.AreEqual("720p", _viewModel.SizeOptions[2]?.Name);
+        }
+
+        [TestMethod]
+        public void LimitsSizeOptionsBasedOnSourceWidth()
+        {
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "4K", new Dimensions(3840, 2160) },
+                { "1080p", new Dimensions(1920, 1080) },
+                { "720p", new Dimensions(1280, 720) }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 800);
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.SizeOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.SizeOptions[0]?.Name);
+            Assert.AreEqual("1080p", _viewModel.SizeOptions[1]?.Name);
+            Assert.AreEqual("720p", _viewModel.SizeOptions[2]?.Name);
+        }
+
+        [TestMethod]
+        public void LimitsSizeOptionsBasedOnSourceHeight()
+        {
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "4K", new Dimensions(3840, 2160) },
+                { "1080p", new Dimensions(1920, 1080) },
+                { "720p", new Dimensions(1280, 720) }
+            };
+            _videoStream.Dimensions = new Dimensions(1440, 1080);
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.SizeOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.SizeOptions[0]?.Name);
+            Assert.AreEqual("1080p", _viewModel.SizeOptions[1]?.Name);
+            Assert.AreEqual("720p", _viewModel.SizeOptions[2]?.Name);
+        }
+
+        [TestMethod]
+        public void DisablesAutocropByDefault()
+        {
+            _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(default(CropParameters));
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsAutocropEnabled);
+        }
+
+        [TestMethod]
+        public void UnchecksAutocropByDefault()
+        {
+            _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(default(CropParameters));
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void DisablesAutocropWhenNoBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsAutocropEnabled);
+        }
+
+        [TestMethod]
+        public void UnchecksAutocropWhenNoBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsAutocropEnabled);
+        }
+
+        [TestMethod]
+        public void EnablesAutocropWhenBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = new Dimensions(3840, 1632);
+            _cropParameters.Start = new Coordinate<int>(0, 264);
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsAutocropEnabled);
+        }
+
+        [TestMethod]
+        public void ChecksAutocropByDefaultWhenBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = new Dimensions(3840, 1632);
+            _cropParameters.Start = new Coordinate<int>(0, 264);
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void SelectsOriginalAspectRatioByDefault()
+        {
+            SelectSource();
+
+            Assert.AreEqual("Same as source", _viewModel.SelectedAspectRatio?.Name);
+        }
+
+        [TestMethod]
+        public void PopulatesAspectRatioOptionsInOrder()
+        {
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "4:3", new Dimensions(4, 3) },
+                { "16:9", new Dimensions(16, 9) }
+            };
+            _videoStream.Dimensions = new Dimensions(3840, 1632);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.AspectRatioOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
+            Assert.AreEqual("16:9", _viewModel.AspectRatioOptions[1]?.Name);
+            Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[2]?.Name);
+        }
+
+        [TestMethod]
+        public void LimitAspectRatioOptionsBasedOnSource()
+        {
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "21:9", new Dimensions(21, 9) },
+                { "16:9", new Dimensions(16, 9) },
+                { "4:3", new Dimensions(4, 3) }
+            };
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.AspectRatioOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
+            Assert.AreEqual("16:9", _viewModel.AspectRatioOptions[1]?.Name);
+            Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[2]?.Name);
+        }
+
+        [TestMethod]
+        public void LimitAspectRatioOptionsBasedOnBars()
+        {
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "16:9", new Dimensions(16, 9) },
+                { "4:3", new Dimensions(4, 3) }
+            };
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = new Dimensions(2880, 2160);
+            SelectSource();
+
+            Assert.AreEqual(2, _viewModel.AspectRatioOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
+            Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[1]?.Name);
         }
 
         #endregion
