@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.UI.Tests", "Tricyc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Models", "Tricycle.Models\Tricycle.Models.csproj", "{D8C74968-42BE-4884-BD81-352A9113231D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Utilities", "Tricycle.Utilities\Tricycle.Utilities.csproj", "{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -73,17 +75,13 @@ Global
 		{9A6A95C9-6B4D-4F61-9984-8D5DF3E3995E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A6A95C9-6B4D-4F61-9984-8D5DF3E3995E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A6A95C9-6B4D-4F61-9984-8D5DF3E3995E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|iPhone.Build.0 = Release|Any CPU
 		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D8C74968-42BE-4884-BD81-352A9113231D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8C74968-42BE-4884-BD81-352A9113231D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

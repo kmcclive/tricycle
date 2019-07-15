@@ -13,6 +13,7 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Media;
 using Tricycle.UI.Models;
+using Tricycle.Utilities;
 using Xamarin.Forms;
 
 namespace Tricycle.UI.ViewModels
@@ -610,7 +611,7 @@ namespace Tricycle.UI.ViewModels
                 if (IsHdrChecked)
                 {
                     SelectedVideoFormat =
-                        _videoFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, VideoFormat.Hevc));
+                        _videoFormatOptions?.FirstOrDefault(f => VideoUtility.SupportsHdr((VideoFormat)f.Value));
                 }
             }
             else
@@ -628,7 +629,8 @@ namespace Tricycle.UI.ViewModels
 
         bool IsHdrSupported(ListItem selectedFormat, VideoStreamInfo videoStream)
         {
-            return object.Equals(selectedFormat?.Value, VideoFormat.Hevc) &&
+            return (selectedFormat != null) &&
+                VideoUtility.SupportsHdr((VideoFormat)selectedFormat.Value) &&
                 object.Equals(videoStream?.DynamicRange, DynamicRange.High);
         }
 
@@ -870,25 +872,10 @@ namespace Tricycle.UI.ViewModels
 
             if (_audioMixdownOptionsByFormat.TryGetValue(format, out var allOptions))
             {
-                result = allOptions.Where(o => GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount);
+                result = allOptions.Where(o => AudioUtility.GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount);
             }
 
             return result ?? Enumerable.Empty<ListItem>();
-        }
-
-        int GetChannelCount(AudioMixdown mixdown)
-        {
-            switch (mixdown)
-            {
-                case AudioMixdown.Mono:
-                    return 1;
-                case AudioMixdown.Stereo:
-                    return 2;
-                case AudioMixdown.Surround5dot1:
-                    return 6;
-                default:
-                    return 0;
-            }
         }
 
         void UnsubscribeFromAudioOutputEvents(AudioOutputViewModel audioOutput)
