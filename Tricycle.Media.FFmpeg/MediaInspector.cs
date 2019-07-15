@@ -7,7 +7,8 @@ using Newtonsoft.Json;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.Media.FFmpeg.Models.FFprobe;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media.FFmpeg
 {

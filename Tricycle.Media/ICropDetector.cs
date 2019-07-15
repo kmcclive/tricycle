@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media
 {

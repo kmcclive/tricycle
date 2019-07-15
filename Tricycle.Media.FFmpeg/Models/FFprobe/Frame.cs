@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Tricycle.Media.FFmpeg.Serialization;
 
 namespace Tricycle.Media.FFmpeg.Models.FFprobe
 {

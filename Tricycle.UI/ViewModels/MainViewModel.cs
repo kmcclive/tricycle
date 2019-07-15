@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -10,7 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Config;
+using Tricycle.Models.Media;
 using Tricycle.UI.Models;
 using Xamarin.Forms;
 

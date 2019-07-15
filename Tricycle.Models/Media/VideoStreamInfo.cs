@@ -1,12 +1,5 @@
-﻿using System;
-namespace Tricycle.Media.Models
+﻿namespace Tricycle.Models.Media
 {
-    public enum DynamicRange
-    {
-        Standard,
-        High
-    }
-
     public class VideoStreamInfo : StreamInfo
     {
         public Dimensions Dimensions { get; set; }

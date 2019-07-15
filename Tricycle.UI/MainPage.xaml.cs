@@ -2,7 +2,7 @@
 using System.IO.Abstractions;
 using Tricycle.IO;
 using Tricycle.Media;
-using Tricycle.UI.Models;
+using Tricycle.Models;
 using Tricycle.UI.ViewModels;
 using Xamarin.Forms;
 

@@ -14,8 +14,8 @@ using Tricycle.IO;
 using Tricycle.IO.macOS;
 using Tricycle.Media;
 using Tricycle.Media.FFmpeg;
-using Tricycle.Media.Models;
-using Tricycle.UI.Models;
+using Tricycle.Models;
+using Tricycle.Models.Config;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 

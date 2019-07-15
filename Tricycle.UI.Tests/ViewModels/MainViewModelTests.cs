@@ -8,7 +8,9 @@ using NSubstitute;
 using Tricycle.IO;
 using Tricycle.IO.Models;
 using Tricycle.Media;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Config;
+using Tricycle.Models.Media;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 

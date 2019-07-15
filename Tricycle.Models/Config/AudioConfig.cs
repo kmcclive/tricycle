@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Tricycle.UI.Models
+namespace Tricycle.Models.Config
 {
     public class AudioConfig
     {

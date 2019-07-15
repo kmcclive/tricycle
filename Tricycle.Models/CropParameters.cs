@@ -1,5 +1,4 @@
-﻿using System;
-namespace Tricycle.Media.Models
+﻿namespace Tricycle.Models
 {
     public class CropParameters
     {

@@ -1,14 +1,5 @@
-﻿using System;
-namespace Tricycle.Media.Models
+﻿namespace Tricycle.Models.Media
 {
-    public enum StreamType
-    {
-        Other,
-        Audio,
-        Video,
-        Subtitle
-    }
-
     public class StreamInfo
     {
         public int Index { get; set; }

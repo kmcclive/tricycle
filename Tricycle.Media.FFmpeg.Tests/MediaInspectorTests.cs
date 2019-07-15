@@ -6,7 +6,8 @@ using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media.FFmpeg.Tests
 {

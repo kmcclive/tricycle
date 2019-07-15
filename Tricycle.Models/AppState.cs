@@ -1,6 +1,7 @@
 ﻿using StructureMap;
+using Tricycle.Models.Config;
 
-namespace Tricycle.UI.Models
+namespace Tricycle.Models
 {
     public static class AppState
     {

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Tricycle.UI.Models
+namespace Tricycle.Models.Config
 {
-    public enum ContainerFormat
-    {
-        Mp4,
-        Mkv
-    }
-
     public class TricycleConfig
     {
         public VideoConfig Video { get; set; }

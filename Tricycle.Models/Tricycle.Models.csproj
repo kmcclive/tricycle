@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="Config.cs" />
+    <Compile Remove="Media\HDRProperties.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Media\" />
+    <Folder Include="Jobs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StructureMap" Version="4.7.1" />
+  </ItemGroup>
+</Project>

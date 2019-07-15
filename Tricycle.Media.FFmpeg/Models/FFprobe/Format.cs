@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Tricycle.Media.FFmpeg.Serialization;
 
 namespace Tricycle.Media.FFmpeg.Models.FFprobe
 {

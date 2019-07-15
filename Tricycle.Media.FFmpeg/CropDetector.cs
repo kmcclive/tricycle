@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
-using Tricycle.Media.Models;
+using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media.FFmpeg
 {

@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Class1.cs" />
     <Compile Remove="Models\HDRProperties.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
   </ItemGroup>
 </Project>

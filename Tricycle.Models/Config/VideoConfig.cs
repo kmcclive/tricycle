@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Tricycle.Media.Models;
+﻿using System.Collections.Generic;
 
-namespace Tricycle.UI.Models
+namespace Tricycle.Models.Config
 {
     public class VideoConfig
     {

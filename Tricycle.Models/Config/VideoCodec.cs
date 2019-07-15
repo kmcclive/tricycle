@@ -1,14 +1,5 @@
-﻿using System;
-using Tricycle.Media.Models;
-
-namespace Tricycle.UI.Models
+﻿namespace Tricycle.Models.Config
 {
-    public enum VideoFormat
-    {
-        Avc,
-        Hevc
-    }
-
     public class VideoCodec
     {
         public VideoFormat Format { get; set; }

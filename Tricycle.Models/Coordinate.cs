@@ -1,4 +1,4 @@
-﻿namespace Tricycle.Media.Models
+﻿namespace Tricycle.Models
 {
     public struct Coordinate<T> where T : struct
     {
