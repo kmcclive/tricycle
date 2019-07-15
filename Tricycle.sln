@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Models", "Tricycle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Utilities", "Tricycle.Utilities\Tricycle.Utilities.csproj", "{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Utilities.Tests", "Tricycle.Utilities.Tests\Tricycle.Utilities.Tests.csproj", "{13545FE5-B979-48C8-8DDE-E1F353A8929D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -83,5 +85,9 @@ Global
 		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13545FE5-B979-48C8-8DDE-E1F353A8929D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13545FE5-B979-48C8-8DDE-E1F353A8929D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13545FE5-B979-48C8-8DDE-E1F353A8929D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13545FE5-B979-48C8-8DDE-E1F353A8929D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
