@@ -16,5 +16,14 @@ namespace Tricycle.Utilities
                                                CropParameters autocropParameters,
                                                double aspectRatio,
                                                int divisor);
+
+        /// <summary>
+        /// Calculates dimensions to use for scaling that preserve aspect ratio.
+        /// </summary>
+        /// <param name="sourceDimensions">The dimensions of the source.</param>
+        /// <param name="targetDimensions">The desired dimensions of the destination.</param>
+        /// <param name="divisor">The number that height and width should be divisible by.</param>
+        /// <returns>The calculated scaled dimensions.</returns>
+        Dimensions CalculateScaledDimensions(Dimensions sourceDimensions, Dimensions targetDimensions, int divisor);
     }
 }

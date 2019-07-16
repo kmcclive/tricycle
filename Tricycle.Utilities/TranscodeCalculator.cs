@@ -24,7 +24,7 @@ namespace Tricycle.Utilities
                 actualY += (int)Math.Ceiling((targetHeight - actualHeight) / 2d);
             }
 
-            var targetWidth = (int)Math.Round(actualHeight * aspectRatio);
+            var targetWidth = GetWidth(actualHeight, aspectRatio);
             int actualWidth = GetClosestValue(targetWidth, divisor);
 
             if (actualWidth < size.Width)
@@ -39,6 +39,28 @@ namespace Tricycle.Utilities
             };
         }
 
+        public Dimensions CalculateScaledDimensions(Dimensions sourceDimensions, Dimensions targetDimensions, int divisor)
+        {
+            double sourceAspectRatio = GetAspectRatio(sourceDimensions);
+            double targetAspectRatio = GetAspectRatio(targetDimensions);
+            int targetHeight, targetWidth, actualHeight, actualWidth;
+
+            if (targetAspectRatio < sourceAspectRatio)
+            {
+                actualWidth = GetClosestValue(targetDimensions.Width, divisor);
+                targetHeight = GetHeight(actualWidth, sourceAspectRatio);
+                actualHeight = GetClosestValue(targetHeight, divisor);
+            }
+            else
+            {
+                actualHeight = GetClosestValue(targetDimensions.Height, divisor);
+                targetWidth = GetWidth(actualHeight, sourceAspectRatio);
+                actualWidth = GetClosestValue(targetWidth, divisor);
+            }
+
+            return new Dimensions(actualWidth, actualHeight);
+        }
+
         int GetClosestValue(int targetValue, int divisor)
         {
             int result = targetValue;
@@ -51,6 +73,26 @@ namespace Tricycle.Utilities
             }
 
             return result;
+        }
+
+        int GetWidth(int height, double aspectRatio)
+        {
+            return (int)Math.Round(height * aspectRatio);
+        }
+
+        int GetHeight(int width, double aspectRatio)
+        {
+            return (int)Math.Round(width / aspectRatio);
+        }
+
+        double GetAspectRatio(Dimensions dimensions)
+        {
+            return GetAspectRatio(dimensions.Width, dimensions.Height);
+        }
+
+        double GetAspectRatio(int width, int height)
+        {
+            return width / (double)height;
         }
     }
 }

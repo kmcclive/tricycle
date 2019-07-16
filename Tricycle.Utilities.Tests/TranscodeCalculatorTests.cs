@@ -75,5 +75,29 @@ namespace Tricycle.Utilities.Tests
             Assert.AreEqual(autocropParameters.Size, result.Size);
             Assert.AreEqual(autocropParameters.Start, result.Start);
         }
+
+        [TestMethod]
+        public void CalculatesScaledDimensionsForWideAspectRatio()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(3840, 1632);
+            var targetDimensions = new Dimensions(1920, 1080);
+
+            Dimensions result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 8);
+
+            Assert.AreEqual(new Dimensions(1920, 816), result);
+        }
+
+        [TestMethod]
+        public void CalculatesScaledDimensionsForNarrowAspectRatio()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(1440, 1080);
+            var targetDimensions = new Dimensions(1280, 720);
+
+            Dimensions result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 16);
+
+            Assert.AreEqual(new Dimensions(960, 720), result);
+        }
     }
 }
