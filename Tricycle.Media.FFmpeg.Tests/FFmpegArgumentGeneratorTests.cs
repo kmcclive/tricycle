@@ -300,6 +300,72 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void GenerateArgumentsRespectsConfig()
+        {
+            _config.Video = new VideoConfig()
+            {
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                {
+                    { VideoFormat.Avc, new VideoCodec("slow") }
+                }
+            };
+            _config.Audio = new AudioConfig()
+            {
+                Codecs = new Dictionary<AudioFormat, AudioCodec>()
+                {
+                    { AudioFormat.Aac, new AudioCodec("libfdk_aac", "-profile:a aac_low") }
+                }
+            };
+
+            var job = new TranscodeJob()
+            {
+                Format = ContainerFormat.Mp4,
+                OutputFileName = "output.m4v",
+                SourceInfo = new MediaInfo()
+                {
+                    FileName = "input.mkv",
+                    Streams = new StreamInfo[]
+                    {
+                        new VideoStreamInfo()
+                        {
+                            Index = 0,
+                            Dimensions = new Dimensions(1920, 1080)
+                        },
+                        new AudioStreamInfo()
+                        {
+                            Index = 1,
+                            ChannelCount = 6
+                        }
+                    }
+                },
+                Streams = new OutputStream[]
+                {
+                    new VideoOutputStream()
+                    {
+                        SourceStreamIndex = 0,
+                        Format = VideoFormat.Avc,
+                        Quality = 22
+                    },
+                    new AudioOutputStream()
+                    {
+                        SourceStreamIndex = 1,
+                        Format = AudioFormat.Aac,
+                        Quality = 80,
+                        Mixdown = AudioMixdown.Stereo
+                    }
+                }
+            };
+
+            var actual = _generator.GenerateArguments(job);
+            string expected = "-hide_banner -y -i \"input.mkv\" -f mp4 " +
+                "-map 0:0 -c:v:0 libx264 -preset slow -crf 22 " +
+                "-map 0:1 -c:a:0 libfdk_aac -profile:a aac_low -ac:a:0 2 -b:a:0 80k " +
+                "\"output.m4v\"";
+
+            Assert.AreEqual(expected, actual);
+        }
+
         #endregion
 
         #region Helper Methods
