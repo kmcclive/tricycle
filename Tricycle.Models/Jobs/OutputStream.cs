@@ -1,4 +1,6 @@
-﻿namespace Tricycle.Models.Jobs
+﻿using Tricycle.Models.Media;
+
+namespace Tricycle.Models.Jobs
 {
     public class OutputStream
     {
