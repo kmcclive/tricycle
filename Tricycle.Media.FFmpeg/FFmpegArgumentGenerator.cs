@@ -154,7 +154,7 @@ namespace Tricycle.Media.FFmpeg
                     throw new NotSupportedException($"The container format {format} is not supported.");
             }
 
-            builder.Append($"-f ${container}");
+            builder.Append($"-f {container}");
         }
 
         void AppendStreamMap(StringBuilder builder, MediaInfo sourceInfo, IList<OutputStream> streams)
@@ -364,13 +364,21 @@ namespace Tricycle.Media.FFmpeg
             if (outputStream.ScaledDimensions.HasValue &&
                 !outputStream.ScaledDimensions.Equals(sourceStream.Dimensions))
             {
-                AppendListDelimiter(filterBuilder);
+                if (filterBuilder.Length > 0)
+                {
+                    AppendListDelimiter(filterBuilder);
+                }
+
                 AppendVideoScaleFilter(filterBuilder, outputStream.ScaledDimensions.Value);
             }
 
             if (outputStream.Tonemap)
             {
-                AppendListDelimiter(filterBuilder);
+                if (filterBuilder.Length > 0)
+                {
+                    AppendListDelimiter(filterBuilder);
+                }
+
                 AppendVideoTonemapFilter(filterBuilder);
             }
 
@@ -398,7 +406,7 @@ namespace Tricycle.Media.FFmpeg
 
         void AppendVideoQuality(StringBuilder builder, decimal quality)
         {
-            builder.Append($"-crf {Math.Round(quality, 2):0.00}");
+            builder.Append($"-crf {Math.Round(quality, 2):0.##}");
         }
 
         void AppendVideoHdr(StringBuilder builder)
@@ -416,12 +424,13 @@ namespace Tricycle.Media.FFmpeg
         {
             AppendOption(builder,
                          "master-display",
-                         string.Format("\"G{0}B{1}R{2}WP{3}L{4}\"",
+                         string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
                                        properties.Green,
                                        properties.Blue,
                                        properties.Red,
                                        properties.WhitePoint,
-                                       properties.Luminance));
+                                       properties.Luminance.Max,
+                                       properties.Luminance.Min));
         }
 
         void AppendVideoLightLevelProperties(StringBuilder builder, LightLevelProperties properties)
