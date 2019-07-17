@@ -48,7 +48,7 @@ namespace Tricycle.UI.macOS
             string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
             var processRunner = new ProcessRunner(processCreator);
-            var ffmpegConfig = new FFmpegConfig();
+            var ffmpegConfig = ReadConfigFile<FFmpegConfig>(Path.Combine(configPath, "ffmpeg.json"));
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfig);
 
             AppState.IocContainer = new Container(_ =>
@@ -66,7 +66,7 @@ namespace Tricycle.UI.macOS
                                                                   processCreator,
                                                                   ffmpegArgumentGenerator));
             });
-            AppState.TricycleConfig = ReadConfigFile(Path.Combine(configPath, "tricycle.json"));
+            AppState.TricycleConfig = ReadConfigFile<TricycleConfig>(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Movies");
 
@@ -81,9 +81,9 @@ namespace Tricycle.UI.macOS
             // Insert code here to tear down your application
         }
 
-        TricycleConfig ReadConfigFile(string fileName)
+        T ReadConfigFile<T>(string fileName) where T : class, new()
         {
-            TricycleConfig result = null;
+            T result = null;
             var serializerSettings = new JsonSerializerSettings
             {
                 Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
@@ -94,7 +94,7 @@ namespace Tricycle.UI.macOS
             {
                 string json = File.ReadAllText(fileName);
 
-                result = JsonConvert.DeserializeObject<TricycleConfig>(json, serializerSettings);
+                result = JsonConvert.DeserializeObject<T>(json, serializerSettings);
             }
             catch (IOException ex)
             {
@@ -105,7 +105,7 @@ namespace Tricycle.UI.macOS
                 Debug.WriteLine(ex);
             }
 
-            return result ?? new TricycleConfig();
+            return result ?? new T();
         }
 
         Coordinate<nfloat> GetCenterCoordinate()
