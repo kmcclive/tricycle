@@ -8,11 +8,17 @@ namespace Tricycle.Media.FFmpeg
 {
     public class MediaTranscoder : IMediaTranscoder
     {
+        #region Fields
+
         readonly string _ffmpegFileName;
         readonly Func<IProcess> _processCreator;
         readonly IFFmpegArgumentGenerator _argumentGenerator;
         IProcess _process;
         string _lastError;
+
+        #endregion
+
+        #region Constructors
 
         public MediaTranscoder(string ffmpegFileName,
                                Func<IProcess> processCreator,
@@ -23,11 +29,25 @@ namespace Tricycle.Media.FFmpeg
             _argumentGenerator = argumentGenerator;
         }
 
+        #endregion
+
+        #region Properties
+
         public bool IsRunning => _process != null && !_process.HasExited;
+
+        #endregion
+
+        #region Events
 
         public event Action<TranscodeStatus> StatusChanged;
         public event Action Completed;
         public event Action<string> Failed;
+
+        #endregion
+
+        #region Methods
+
+        #region Public
 
         public void Start(TranscodeJob job)
         {
@@ -70,7 +90,13 @@ namespace Tricycle.Media.FFmpeg
 
             _process.Kill();
             _process.Dispose();
+
+            _process = null;
         }
+
+        #endregion
+
+        #region Private
 
         void SubscribeToEvents(IProcess process)
         {
@@ -105,7 +131,8 @@ namespace Tricycle.Media.FFmpeg
                 {
                     Time = time,
                     FramesPerSecond = fps,
-                    Speed = speed
+                    Speed = speed,
+                    Size = ParseSize(match.Groups["size"].Value)
                 });
             }
         }
@@ -115,8 +142,12 @@ namespace Tricycle.Media.FFmpeg
             _lastError = data;
         }
 
-        private void OnExited()
+        void OnExited()
         {
+            // This is a workaround for a bug in the .NET code.
+            // See https://stackoverflow.com/a/25772586/9090758 for more details.
+            _process.WaitForExit();
+
             if (_process.ExitCode == 0)
             {
                 Completed?.Invoke();
@@ -125,6 +156,48 @@ namespace Tricycle.Media.FFmpeg
             {
                 Failed?.Invoke(_lastError);
             }
+  
+            _process.Dispose();
+
+            _process = null;
         }
+
+        long ParseSize(string size)
+        {
+            long result = 0;
+
+            if (!string.IsNullOrWhiteSpace(size))
+            {
+                var match = Regex.Match(size, @"(?<amount>\d+(\.\d+)?)(?<unit>\w+)");
+
+                if (match.Success &&
+                    double.TryParse(match.Groups["amount"].Value, out var amount))
+                {
+                    string unit = match.Groups["unit"].Value;
+                    int factor = 1;
+
+                    switch (unit?.ToLower())
+                    {
+                        case "kb":
+                            factor = 1000;
+                            break;
+                        case "mb":
+                            factor = 1000000;
+                            break;
+                        case "gb":
+                            factor = 1000000000;
+                            break;
+                    }
+
+                    result = (long)Math.Round(amount * factor);
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #endregion
     }
 }
