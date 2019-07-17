@@ -8,5 +8,10 @@ namespace Tricycle.Utilities
         {
             return format == VideoFormat.Hevc;
         }
+
+        public static double GetAspectRatio(Dimensions dimensions)
+        {
+            return dimensions.Width / (double)dimensions.Height;
+        }
     }
 }

@@ -13,6 +13,7 @@ using Tricycle.Models.Config;
 using Tricycle.Models.Media;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
+using Tricycle.Utilities;
 
 namespace Tricycle.UI.Tests
 {
@@ -28,8 +29,10 @@ namespace Tricycle.UI.Tests
         VideoStreamInfo _videoStream;
         AudioStreamInfo _audioStream;
         MediaInfo _mediaInfo;
+        IMediaTranscoder _mediaTranscoder;
         ICropDetector _cropDetector;
         CropParameters _cropParameters;
+        ITranscodeCalculator _transcodeCalculator;
         IFileSystem _fileSystem;
         IFile _fileService;
         TricycleConfig _tricycleConfig;
@@ -44,13 +47,17 @@ namespace Tricycle.UI.Tests
         {
             _fileBrowser = Substitute.For<IFileBrowser>();
             _mediaInspector = Substitute.For<IMediaInspector>();
+            _mediaTranscoder = Substitute.For<IMediaTranscoder>();
             _cropDetector = Substitute.For<ICropDetector>();
+            _transcodeCalculator = Substitute.For<ITranscodeCalculator>();
             _fileSystem = Substitute.For<IFileSystem>();
             _tricycleConfig = CreateDefaultTricycleConfig();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
+                                           _mediaTranscoder,
                                            _cropDetector,
+                                           _transcodeCalculator,
                                            _fileSystem,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);

@@ -41,8 +41,8 @@ namespace Tricycle.Utilities
 
         public Dimensions CalculateScaledDimensions(Dimensions sourceDimensions, Dimensions targetDimensions, int divisor)
         {
-            double sourceAspectRatio = GetAspectRatio(sourceDimensions);
-            double targetAspectRatio = GetAspectRatio(targetDimensions);
+            double sourceAspectRatio = VideoUtility.GetAspectRatio(sourceDimensions);
+            double targetAspectRatio = VideoUtility.GetAspectRatio(targetDimensions);
             int targetHeight, targetWidth, actualHeight, actualWidth;
 
             if (targetAspectRatio < sourceAspectRatio)
@@ -83,16 +83,6 @@ namespace Tricycle.Utilities
         int GetHeight(int width, double aspectRatio)
         {
             return (int)Math.Round(width / aspectRatio);
-        }
-
-        double GetAspectRatio(Dimensions dimensions)
-        {
-            return GetAspectRatio(dimensions.Width, dimensions.Height);
-        }
-
-        double GetAspectRatio(int width, int height)
-        {
-            return width / (double)height;
         }
     }
 }

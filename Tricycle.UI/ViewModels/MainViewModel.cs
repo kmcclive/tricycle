@@ -11,6 +11,7 @@ using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
@@ -35,7 +36,9 @@ namespace Tricycle.UI.ViewModels
 
         readonly IFileBrowser _fileBrowser;
         readonly IMediaInspector _mediaInspector;
+        readonly IMediaTranscoder _mediaTranscoder;
         readonly ICropDetector _cropDetector;
+        readonly ITranscodeCalculator _transcodeCalculator;
         readonly IFileSystem _fileSystem;
         readonly TricycleConfig _tricycleConfig;
         readonly string _defaultDestinationDirectory;
@@ -86,21 +89,25 @@ namespace Tricycle.UI.ViewModels
 
         public MainViewModel(IFileBrowser fileBrowser,
                              IMediaInspector mediaInspector,
+                             IMediaTranscoder mediaTranscoder,
                              ICropDetector cropDetector,
+                             ITranscodeCalculator transcodeCalculator,
                              IFileSystem fileSystem,
                              TricycleConfig tricycleConfig,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
             _mediaInspector = mediaInspector;
+            _mediaTranscoder = mediaTranscoder;
             _cropDetector = cropDetector;
+            _transcodeCalculator = transcodeCalculator;
             _fileSystem = fileSystem;
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             SourceSelectCommand = new Command(async () => await SelectSource());
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
-            StartCommand = new Command(async () => await StartTranscode(),
+            StartCommand = new Command(() => StartTranscode(),
                                        () => _sourceInfo != null && (_videoFormatOptions?.Any() == true));
 
             ContainerFormatOptions = GetContainerFormatOptions();
@@ -402,9 +409,17 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        async Task StartTranscode()
+        void StartTranscode()
         {
+            var job = CreateJob();
 
+            try
+            {
+                _mediaTranscoder.Start(job);
+            }
+            catch (ArgumentException) { }
+            catch (NotSupportedException) { }
+            catch (InvalidOperationException) { }
         }
 
         #endregion
@@ -640,7 +655,7 @@ namespace Tricycle.UI.ViewModels
                 _tricycleConfig.Video?.SizePresets?.Where(s => s.Value.Height <= sourceDimensions.Height ||
                                                                s.Value.Width <= sourceDimensions.Width)
                                                    .OrderByDescending(s => s.Value.Width * s.Value.Height)
-                                                   .Select(s => new ListItem(s.Key))
+                                                   .Select(s => new ListItem(s.Key, s.Value))
                                                    .ToList() ?? new List<ListItem>();
 
             result.Insert(0, ORIGINAL_OPTION);
@@ -668,22 +683,17 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> GetAspectRatioOptions(Dimensions sourceDimensions, CropParameters cropParameters)
         {
             var dimensions = cropParameters?.Size ?? sourceDimensions;
-            double aspectRatio = GetAspectRatio(dimensions);
+            double aspectRatio = VideoUtility.GetAspectRatio(dimensions);
 
             IList<ListItem> result =
-                _tricycleConfig.Video?.AspectRatioPresets?.Where(p => GetAspectRatio(p.Value) <= aspectRatio)
-                                                          .OrderByDescending(p => GetAspectRatio(p.Value))
-                                                          .Select(s => new ListItem(s.Key))
+                _tricycleConfig.Video?.AspectRatioPresets?.Where(p => VideoUtility.GetAspectRatio(p.Value) <= aspectRatio)
+                                                          .OrderByDescending(p => VideoUtility.GetAspectRatio(p.Value))
+                                                          .Select(s => new ListItem(s.Key, s.Value))
                                                           .ToList() ?? new List<ListItem>();
 
             result.Insert(0, ORIGINAL_OPTION);
 
             return result;
-        }
-
-        double GetAspectRatio(Dimensions dimensions)
-        {
-            return (double)dimensions.Width / (double)dimensions.Height;
         }
 
         bool HasBars(Dimensions dimensions, CropParameters cropParameters)
@@ -773,21 +783,17 @@ namespace Tricycle.UI.ViewModels
             }
 
             string format = audioStream.FormatName;
+            AudioFormat? knownFormat = AudioUtility.GetAudioFormat(audioStream);
 
-            if (Regex.IsMatch(audioStream.FormatName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            if (knownFormat.HasValue)
             {
-                format = "Dolby Digital";
-            }
-            else if (Regex.IsMatch(audioStream.FormatName, @"aac", RegexOptions.IgnoreCase))
-            {
-                format = "AAC";
+                format = GetAudioFormatName(knownFormat.Value);
             }
             else if (Regex.IsMatch(audioStream.FormatName, @"truehd", RegexOptions.IgnoreCase))
             {
                 format = "Dolby TrueHD";
             }
-
-            if (!string.IsNullOrWhiteSpace(audioStream.ProfileName))
+            else if (!string.IsNullOrWhiteSpace(audioStream.ProfileName))
             {
                 if (Regex.IsMatch(audioStream.ProfileName, format, RegexOptions.IgnoreCase))
                 {
@@ -882,6 +888,168 @@ namespace Tricycle.UI.ViewModels
         {
             audioOutput.FormatSelected -= OnAudioFormatSelected;
             audioOutput.TrackSelected -= OnAudioTrackSelected;
+        }
+
+        TranscodeJob CreateJob()
+        {
+            return new TranscodeJob()
+            {
+                SourceInfo = _sourceInfo,
+                OutputFileName = DestinationName,
+                Format = (ContainerFormat)SelectedContainerFormat.Value,
+                Streams = GetOutputStreams()
+            };
+        }
+
+        IList<OutputStream> GetOutputStreams()
+        {
+            var result = GetAudioOutputStreams();
+            
+            result.Insert(0, GetVideoOutput());
+
+            return result;
+        }
+
+        VideoOutputStream GetVideoOutput()
+        {
+            var format = (VideoFormat)SelectedVideoFormat.Value;
+            int divisor = 8;
+
+            if (_tricycleConfig.Video?.SizeDivisor > 0)
+            {
+                divisor = _tricycleConfig.Video.SizeDivisor;
+            }
+
+            CropParameters cropParameters = GetJobCropParameters(divisor);
+
+            return new VideoOutputStream()
+            {
+                SourceStreamIndex = _primaryVideoStream.Index,
+                Format = format,
+                Quality = CalculateQuality(format, (decimal)Quality),
+                CropParameters = cropParameters,
+                ScaledDimensions = GetScaledDimensions(cropParameters, divisor),
+                DynamicRange = IsHdrChecked ? DynamicRange.High : DynamicRange.Standard,
+                CopyHdrMetadata = IsHdrChecked,
+                Tonemap = IsSourceHdr && !IsHdrChecked
+            };
+        }
+
+        decimal CalculateQuality(VideoFormat format, decimal quality)
+        {
+            decimal result = 20;
+
+            if (_videoCodecsByFormat.TryGetValue(format, out var codec))
+            {
+                decimal min = codec.QualityRange.Min ?? 22;
+                decimal max = codec.QualityRange.Max ?? 18;
+
+                result = (max - min) * quality + min;
+            }
+
+            return result;
+        }
+
+        CropParameters GetJobCropParameters(int divisor)
+        {
+            if (!IsAutocropChecked && (SelectedAspectRatio == ORIGINAL_OPTION))
+            {
+                return null;
+            }
+
+            var autocropParameters = IsAutocropChecked ? _cropParameters : new CropParameters();
+            double aspectRatio = VideoUtility.GetAspectRatio(_primaryVideoStream.Dimensions);
+
+            if (SelectedAspectRatio != ORIGINAL_OPTION)
+            {
+                aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+            }
+
+            return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
+                                                                autocropParameters,
+                                                                aspectRatio,
+                                                                divisor);
+        }
+
+        Dimensions? GetScaledDimensions(CropParameters cropParameters, int divisor)
+        {
+            if (SelectedSize == ORIGINAL_OPTION)
+            {
+                return null;
+            }
+
+            Dimensions sourceDimensions = cropParameters?.Size ?? _primaryVideoStream.Dimensions;
+            var targetDimensions = (Dimensions)SelectedSize.Value;
+
+            return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
+        }
+
+        IList<OutputStream> GetAudioOutputStreams()
+        {
+            IList<OutputStream> result = new List<OutputStream>();
+
+            if (AudioOutputs?.Any() != true)
+            {
+                return result;
+            }
+
+            foreach (var viewModel in AudioOutputs)
+            {
+                AudioStreamInfo sourceStream = GetStream(viewModel);
+
+                if (sourceStream == null)
+                {
+                    continue;
+                }
+
+                var output = Map(viewModel);
+
+                if ((_tricycleConfig.Audio?.PassthruMatchingTracks == true) &&
+                    Match(sourceStream, output))
+                {
+                    result.Add(new OutputStream()
+                    {
+                        SourceStreamIndex = output.SourceStreamIndex
+                    });
+                }
+                else
+                {
+                    result.Add(output);
+                }
+            }
+
+            return result;
+        }
+
+        AudioStreamInfo GetStream(AudioOutputViewModel viewModel)
+        {
+            return viewModel.SelectedTrack.Value as AudioStreamInfo;
+        }
+
+        AudioOutputStream Map(AudioOutputViewModel viewModel)
+        {
+            var result = new AudioOutputStream()
+            {
+                SourceStreamIndex = GetStream(viewModel).Index,
+                Format = (AudioFormat)viewModel.SelectedFormat.Value,
+                Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value
+            };
+
+            AudioCodec codec = _tricycleConfig.Audio?.Codecs?.FirstOrDefault(c => c.Format == result.Format);
+            AudioPreset preset = codec?.Presets.FirstOrDefault(p => p.Mixdown == result.Mixdown);
+
+            if (preset != null)
+            {
+                result.Quality = preset.Quality;
+            }
+
+            return result;
+        }
+
+        bool Match(AudioStreamInfo sourceStream, AudioOutputStream outputStream)
+        {
+            return outputStream.Format == AudioUtility.GetAudioFormat(sourceStream) &&
+                AudioUtility.GetChannelCount(outputStream.Mixdown ?? AudioMixdown.Mono) == sourceStream.ChannelCount;
         }
 
         #endregion

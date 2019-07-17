@@ -149,6 +149,10 @@
       <Project>{D8C74968-42BE-4884-BD81-352A9113231D}</Project>
       <Name>Tricycle.Models</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj">
+      <Project>{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}</Project>
+      <Name>Tricycle.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Images\folder-browse.png" />

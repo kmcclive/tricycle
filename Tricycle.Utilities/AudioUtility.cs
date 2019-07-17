@@ -1,4 +1,6 @@
-﻿using Tricycle.Models;
+﻿using System.Text.RegularExpressions;
+using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Utilities
 {
@@ -16,6 +18,35 @@ namespace Tricycle.Utilities
                 default:
                     return 1;
             }
+        }
+
+        public static AudioFormat? GetAudioFormat(AudioStreamInfo stream)
+        {
+            if (string.IsNullOrWhiteSpace(stream?.FormatName))
+            {
+                return null;
+            }
+
+            AudioFormat? result = null;
+
+            if (Regex.IsMatch(stream.FormatName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            {
+                result = AudioFormat.Ac3;
+            }
+            else if (Regex.IsMatch(stream.FormatName, @"aac", RegexOptions.IgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(stream.ProfileName) &&
+                    Regex.IsMatch(stream.ProfileName, "HE", RegexOptions.IgnoreCase))
+                {
+                    result = AudioFormat.HeAac;
+                }
+                else
+                {
+                    result = AudioFormat.Aac;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -14,8 +14,10 @@ using Tricycle.IO;
 using Tricycle.IO.macOS;
 using Tricycle.Media;
 using Tricycle.Media.FFmpeg;
+using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
 
@@ -46,6 +48,8 @@ namespace Tricycle.UI.macOS
             string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
             var processRunner = new ProcessRunner(processCreator);
+            var ffmpegConfig = new FFmpegConfig();
+            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfig);
 
             AppState.IocContainer = new Container(_ =>
             {
@@ -57,6 +61,10 @@ namespace Tricycle.UI.macOS
                                                             processRunner,
                                                             ProcessUtility.Self));
                 _.For<IFileSystem>().Use<FileSystem>();
+                _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
+                _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
+                                                                  processCreator,
+                                                                  ffmpegArgumentGenerator));
             });
             AppState.TricycleConfig = ReadConfigFile(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =

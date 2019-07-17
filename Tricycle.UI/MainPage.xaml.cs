@@ -4,6 +4,7 @@ using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.UI.ViewModels;
+using Tricycle.Utilities;
 using Xamarin.Forms;
 
 namespace Tricycle.UI
@@ -20,7 +21,9 @@ namespace Tricycle.UI
             var viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
+                AppState.IocContainer.GetInstance<IMediaTranscoder>(),
                 AppState.IocContainer.GetInstance<ICropDetector>(),
+                AppState.IocContainer.GetInstance<ITranscodeCalculator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.TricycleConfig,
                 AppState.DefaultDestinationDirectory);
