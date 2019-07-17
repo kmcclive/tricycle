@@ -10,6 +10,7 @@ using Tricycle.IO.Models;
 using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
@@ -37,6 +38,7 @@ namespace Tricycle.UI.Tests
         IFile _fileService;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
+        TranscodeJob _transcodeJob;
 
         #endregion
 
@@ -86,6 +88,7 @@ namespace Tricycle.UI.Tests
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
+            _mediaTranscoder.When(x => x.Start(Arg.Any<TranscodeJob>())).Do(x => _transcodeJob = (TranscodeJob)x[0]);
             _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(_cropParameters);
             _fileSystem.File.Returns(_fileService);
             _fileService.Exists(Arg.Any<string>()).Returns(false);
@@ -1271,6 +1274,65 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual("Mono", audioOutput?.SelectedMixdown?.Name);
         }
 
+        [TestMethod]
+        public void CallsTranscoderForStartCommand()
+        {
+            SelectSource();
+            Start();
+
+            _mediaTranscoder.Received().Start(Arg.Any<TranscodeJob>());
+        }
+
+        [TestMethod]
+        public void SetsSourceInfoForJob()
+        {
+            SelectSource();
+            Start();
+
+            Assert.AreEqual(_mediaInfo, _transcodeJob?.SourceInfo);
+        }
+
+        [TestMethod]
+        public void SetsOutputFileNameForJob()
+        {
+            var fileName = Path.Combine("Volumes", "Media", "test.m4v");
+
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            SelectDestination();
+            Start();
+
+            Assert.AreEqual(fileName, _transcodeJob?.OutputFileName);
+        }
+
+        [TestMethod]
+        public void SetsFormatForJob()
+        {
+            var format = ContainerFormat.Mkv;
+
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(string.Empty, format);
+            Start();
+
+            Assert.AreEqual(format, _transcodeJob?.Format);
+        }
+
+        [TestMethod]
+        public void SetsVideoSourceStreamIndexForJob()
+        {
+            _videoStream.Index = 2;
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(videoOutput?.SourceStreamIndex, _videoStream.Index);
+        }
+
         #endregion
 
         #region Helper Methods
@@ -1321,6 +1383,11 @@ namespace Tricycle.UI.Tests
         void SelectDestination()
         {
             _viewModel.DestinationSelectCommand.Execute(null);
+        }
+
+        void Start()
+        {
+            _viewModel.StartCommand.Execute(null);
         }
 
         #endregion
