@@ -33,15 +33,20 @@ namespace Tricycle.Media
         /// <exception cref="ArgumentException"><paramref name="job"/> is incomplete or invalid.</exception>
         /// <exception cref="NotSupportedException"><paramref name="job"/> contains unsupported options.</exception>
         /// <exception cref="InvalidOperationException">
-        /// An error occurred starting the job
+        /// A job is already running
         /// OR
-        /// a job is already running.
+        /// an error occurred starting the job.
         /// </exception>
         void Start(TranscodeJob job);
 
         /// <summary>
         /// Stops the currently-running job.
         /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// No job is running
+        /// OR
+        /// an error occurred stopping the job.
+        /// </exception>
         void Stop();
     }
 }
