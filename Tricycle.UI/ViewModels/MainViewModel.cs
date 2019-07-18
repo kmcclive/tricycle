@@ -952,13 +952,7 @@ namespace Tricycle.UI.ViewModels
 
         CropParameters GetJobCropParameters(int divisor)
         {
-            if (!IsAutocropChecked && (SelectedAspectRatio == ORIGINAL_OPTION))
-            {
-                return null;
-            }
-
-            var autocropParameters = IsAutocropChecked ? _cropParameters : null;
-            double aspectRatio = VideoUtility.GetAspectRatio(_primaryVideoStream.Dimensions);
+            double aspectRatio;
 
             if (SelectedAspectRatio != ORIGINAL_OPTION)
             {
@@ -968,6 +962,12 @@ namespace Tricycle.UI.ViewModels
             {
                 aspectRatio = VideoUtility.GetAspectRatio(_cropParameters.Size);
             }
+            else
+            {
+                return null;
+            }
+
+            var autocropParameters = IsAutocropChecked ? _cropParameters : null;
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
                                                                 autocropParameters,

@@ -1453,7 +1453,71 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void CallsCalculatorForCropJob()
+        public void CallsCalculateCropParametersForCropJob()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectSourceDimensionsToCalculateCropParametersForCropJob()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
+                                                                    Arg.Any<CropParameters>(),
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectCropParametersToCalculateCropParametersForCropJob()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    _cropParameters,
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectAspectRatioToCalculateCropParametersForCropJob()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
+                                                                    2.4,
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectDivisorToCalculateCropParameters()
         {
             int divisor = 4;
 
@@ -1465,16 +1529,17 @@ namespace Tricycle.UI.Tests
             _viewModel.IsAutocropChecked = true;
             Start();
 
-            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions, _cropParameters, 2.4, divisor);
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
+                                                                    Arg.Any<double>(),
+                                                                    divisor);
         }
 
         [TestMethod]
-        public void CallsCalculatorForCustomAspectRatioJob()
+        public void CallsCalculateCropParametersForAspectRatioJob()
         {
-            int divisor = 4;
             var aspectRatio = new Dimensions(4, 3);
 
-            _tricycleConfig.Video.SizeDivisor = divisor;
             _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
             {
                 { "4:3", aspectRatio }
@@ -1485,11 +1550,165 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
             Start();
 
-            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions, null, 4 / 3d, divisor);
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
         }
 
         [TestMethod]
-        public void CallsCalculatorForCustomSizeJob()
+        public void PassesCorrectSourceDimensionsToCalculateCropParametersForAspectRatioJob()
+        {
+            var aspectRatio = new Dimensions(4, 3);
+
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "4:3", aspectRatio }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
+                                                                    Arg.Any<CropParameters>(),
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectCropParametersToCalculateCropParametersForAspectRatioJob()
+        {
+            var aspectRatio = new Dimensions(4, 3);
+
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "4:3", aspectRatio }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    null,
+                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectAspectRatioToCalculateCropParametersForAspectRatioJob()
+        {
+            var aspectRatio = new Dimensions(4, 3);
+
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "4:3", aspectRatio }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
+                                                                    4 / 3d,
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void CallsCalculateScaledDimensionsForCustomSizeJob()
+        {
+            var size = new Dimensions(1280, 720);
+
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", size }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedSize = new ListItem(size);
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(Arg.Any<Dimensions>(),
+                                                                      Arg.Any<Dimensions>(),
+                                                                      Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectSourceDimensionsToCalculateScaledDimensionsForCustomSizeJob()
+        {
+            var size = new Dimensions(1280, 720);
+
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", size }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedSize = new ListItem(size);
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(_videoStream.Dimensions,
+                                                                      Arg.Any<Dimensions>(),
+                                                                      Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectSourceDimensionsToCalculateScaledDimensionsForCropJob()
+        {
+            var sourceDimensions = new Dimensions(1920, 800);
+            var size = new Dimensions(1280, 720);
+
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", size }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 804);
+            _cropParameters.Start = new Coordinate<int>(0, 138);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            _viewModel.SelectedSize = new ListItem(size);
+            _transcodeCalculator.CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                         Arg.Any<CropParameters>(),
+                                                         Arg.Any<double>(),
+                                                         Arg.Any<int>())
+                                .Returns(new CropParameters() { Size = sourceDimensions });
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(sourceDimensions,
+                                                                      Arg.Any<Dimensions>(),
+                                                                      Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectTargetDimensionsToCalculateScaledDimensionsForCustomSizeJob()
+        {
+            var size = new Dimensions(1280, 720);
+
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", size }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedSize = new ListItem(size);
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(Arg.Any<Dimensions>(),
+                                                                      size,
+                                                                      Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectDivisorToCalculateScaledDimensions()
         {
             int divisor = 4;
             var size = new Dimensions(1280, 720);
@@ -1505,7 +1724,9 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSize = new ListItem(size);
             Start();
 
-            _transcodeCalculator.Received().CalculateScaledDimensions(_videoStream.Dimensions, size, divisor);
+            _transcodeCalculator.Received().CalculateScaledDimensions(Arg.Any<Dimensions>(),
+                                                                      Arg.Any<Dimensions>(),
+                                                                      divisor);
         }
 
         #endregion
