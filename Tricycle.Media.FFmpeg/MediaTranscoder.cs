@@ -119,9 +119,9 @@ namespace Tricycle.Media.FFmpeg
         void OnErrorDataReceived(string data)
         {
             const string PATTERN =
-                @"frame\s*=\s*(?<frame>\d+)\s+fps\s*=\s*(?<fps>\d+(\.\d+)?)\s+q\s*=\s*(?<q>\-\d+(\.\d+)?)\s+" +
-                @"size\s*=\s*(?<size>\w+)\s+time\s*=\s*(?<time>\d{2}\:\d{2}\:\d{2}(\.\d{2})?)\s+" +
-                @"bitrate=(?<bitrate>\d+(.\d+)?\s*\w+/\w)\s+speed\s*=\s*(?<speed>\d+(.\d+)?)x";
+                @"frame\s*=\s*(?<frame>\d+)\s+fps\s*=\s*(?<fps>\d+(\.\d+)?)\s+q\s*=\s*(?<q>(\-)?\d+(\.\d+)?)\s+" +
+                @"size\s*=\s*(?<size>\w+)\s+time\s*=\s*(?<time>\d{2}\:\d{2}\:\d{2}(\.\d+)?)\s+" +
+                @"bitrate\s*=\s*(?<bitrate>\d+(.\d+)?\s*\w+/\w)\s+speed\s*=\s*(?<speed>\d+(.\d+)?)x";
 
             var match = Regex.Match(data, PATTERN, RegexOptions.IgnoreCase);
 
