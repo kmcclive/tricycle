@@ -28,8 +28,16 @@ namespace Tricycle.Diagnostics
             };
 
             _process.Exited += (sender, e) => Exited?.Invoke();
-            _process.ErrorDataReceived += (sender, e) => ErrorDataReceived?.Invoke(e?.Data);
-            _process.OutputDataReceived += (sender, e) => OutputDataReceived?.Invoke(e?.Data);
+            _process.ErrorDataReceived += (sender, e) =>
+            {
+                Debug.WriteLine(e?.Data);
+                ErrorDataReceived?.Invoke(e?.Data);
+            };
+            _process.OutputDataReceived += (sender, e) =>
+            {
+                Debug.WriteLine(e?.Data);
+                OutputDataReceived?.Invoke(e?.Data);
+            };
         }
 
         public void Dispose()
@@ -57,7 +65,14 @@ namespace Tricycle.Diagnostics
 
         public bool Start(ProcessStartInfo startInfo)
         {
+            if (startInfo == null)
+            {
+                throw new ArgumentNullException(nameof(startInfo));
+            }
+
             _process.StartInfo = startInfo;
+
+            Debug.WriteLine($"Starting process: {startInfo.FileName} {startInfo.Arguments}");
 
             try
             {

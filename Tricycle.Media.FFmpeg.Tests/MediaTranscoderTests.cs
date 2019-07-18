@@ -164,9 +164,9 @@ namespace Tricycle.Media.FFmpeg.Tests
             });
             _transcoder.StatusChanged += s => status = s;
 
-            _process.OutputDataReceived += Raise.Event<Action<string>>(
+            _process.ErrorDataReceived += Raise.Event<Action<string>>(
                 "frame= 1439 fps=3.3 q=-0.0 size=  119516kB time=01:02:47.61 " +
-                "bitrate=16315.1kbits/s dup=1 drop=0 speed=0.139x");
+                "bitrate=16315.1kbits/s speed=0.139x");
 
             Assert.IsNotNull(status);
             Assert.AreEqual(0.75, status.Percent);

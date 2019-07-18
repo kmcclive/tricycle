@@ -50,16 +50,8 @@ namespace Tricycle.Diagnostics
                     var outputBuilder = new StringBuilder();
                     var errorBuilder = new StringBuilder();
 
-                    process.OutputDataReceived += (data) =>
-                    {
-                        Debug.WriteLine(data);
-                        outputBuilder.AppendLine(data);
-                    };
-                    process.ErrorDataReceived += (data) =>
-                    {
-                        Debug.WriteLine(data);
-                        errorBuilder.AppendLine(data);
-                    };
+                    process.OutputDataReceived += data => outputBuilder.AppendLine(data);
+                    process.ErrorDataReceived += data => errorBuilder.AppendLine(data);
 
                     process.Start(startInfo);
 

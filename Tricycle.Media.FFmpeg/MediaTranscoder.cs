@@ -106,30 +106,32 @@ namespace Tricycle.Media.FFmpeg
 
         void SubscribeToEvents(IProcess process)
         {
-            process.OutputDataReceived += OnOutputDataReceived;
             process.ErrorDataReceived += OnErrorDataReceived;
             process.Exited += OnExited;
         }
 
         void UnsubscribeFromEvents(IProcess process)
         {
-            process.OutputDataReceived -= OnOutputDataReceived;
             process.ErrorDataReceived -= OnErrorDataReceived;
             process.Exited -= OnExited;
         }
 
-        void OnOutputDataReceived(string data)
+        void OnErrorDataReceived(string data)
         {
             const string PATTERN =
                 @"frame\s*=\s*(?<frame>\d+)\s+fps\s*=\s*(?<fps>\d+(\.\d+)?)\s+q\s*=\s*(?<q>\-\d+(\.\d+)?)\s+" +
                 @"size\s*=\s*(?<size>\w+)\s+time\s*=\s*(?<time>\d{2}\:\d{2}\:\d{2}(\.\d{2})?)\s+" +
-                @"bitrate=(?<bitrate>\d+(.\d+)?\s*\w+/\w)\s+dup\s*=\s*(?<dup>\d+)\s+drop\s*=\s*(?<drop>\d+)\s+" +
-                @"speed\s*=\s*(?<speed>\d+(.\d+)?)x";
+                @"bitrate=(?<bitrate>\d+(.\d+)?\s*\w+/\w)\s+speed\s*=\s*(?<speed>\d+(.\d+)?)x";
 
             var match = Regex.Match(data, PATTERN, RegexOptions.IgnoreCase);
 
-            if (match.Success &&
-                TimeSpan.TryParse(match.Groups["time"].Value, out var time) &&
+            if (!match.Success)
+            {
+                _lastError = data;
+                return;
+            }
+
+            if (TimeSpan.TryParse(match.Groups["time"].Value, out var time) &&
                 double.TryParse(match.Groups["fps"].Value, out var fps) &&
                 double.TryParse(match.Groups["speed"].Value, out var speed))
             {
@@ -149,11 +151,6 @@ namespace Tricycle.Media.FFmpeg
                     Size = ParseSize(match.Groups["size"].Value)
                 });
             }
-        }
-
-        void OnErrorDataReceived(string data)
-        {
-            _lastError = data;
         }
 
         void OnExited()
