@@ -13,6 +13,12 @@ namespace Tricycle.UI.Models
 
         }
 
+        public ListItem(object value)
+            : this(value?.ToString(), value)
+        {
+
+        }
+
         public ListItem(string name, object value)
         {
             Name = name;

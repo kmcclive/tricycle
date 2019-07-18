@@ -957,12 +957,16 @@ namespace Tricycle.UI.ViewModels
                 return null;
             }
 
-            var autocropParameters = IsAutocropChecked ? _cropParameters : new CropParameters();
+            var autocropParameters = IsAutocropChecked ? _cropParameters : null;
             double aspectRatio = VideoUtility.GetAspectRatio(_primaryVideoStream.Dimensions);
 
             if (SelectedAspectRatio != ORIGINAL_OPTION)
             {
                 aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+            }
+            else if (IsAutocropChecked && (_cropParameters != null))
+            {
+                aspectRatio = VideoUtility.GetAspectRatio(_cropParameters.Size);
             }
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,

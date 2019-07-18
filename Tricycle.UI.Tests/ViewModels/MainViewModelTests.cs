@@ -881,7 +881,7 @@ namespace Tricycle.UI.Tests
         public void AddsPlaceholderAudioOutputWhenAnotherTrackIsSelected()
         {
             SelectSource();
-            _viewModel.AudioOutputs.LastOrDefault().SelectedTrack = new ListItem(string.Empty, _audioStream);
+            _viewModel.AudioOutputs.LastOrDefault().SelectedTrack = new ListItem(_audioStream);
 
             Assert.AreEqual(3, _viewModel.AudioOutputs?.Count);
             Assert.AreEqual("None", _viewModel.AudioOutputs.LastOrDefault().SelectedTrack?.Name);
@@ -1243,7 +1243,7 @@ namespace Tricycle.UI.Tests
 
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
-            audioOutput.SelectedFormat = new ListItem(string.Empty, AudioFormat.Ac3);
+            audioOutput.SelectedFormat = new ListItem(AudioFormat.Ac3);
 
             Assert.AreEqual(2, audioOutput?.MixdownOptions?.Count);
             Assert.AreEqual("Surround", audioOutput.MixdownOptions[0]?.Name);
@@ -1315,7 +1315,7 @@ namespace Tricycle.UI.Tests
             var format = ContainerFormat.Mkv;
 
             SelectSource();
-            _viewModel.SelectedContainerFormat = new ListItem(string.Empty, format);
+            _viewModel.SelectedContainerFormat = new ListItem(format);
             Start();
 
             Assert.AreEqual(format, _transcodeJob?.Format);
@@ -1330,7 +1330,182 @@ namespace Tricycle.UI.Tests
 
             var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
 
-            Assert.AreEqual(videoOutput?.SourceStreamIndex, _videoStream.Index);
+            Assert.AreEqual(_videoStream.Index, videoOutput?.SourceStreamIndex);
+        }
+
+        [TestMethod]
+        public void SetsVideoFormatForJob()
+        {
+            var format = VideoFormat.Hevc;
+
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(format);
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(format, videoOutput?.Format);
+        }
+
+        [TestMethod]
+        public void SetsVideoQualityForJob()
+        {
+            var format = VideoFormat.Hevc;
+
+            _tricycleConfig.Video = new VideoConfig()
+            {
+                Codecs = new VideoCodec[]
+                {
+                    new VideoCodec()
+                    {
+                        Format = format,
+                        QualityRange = new Range<decimal>(25, 15),
+                        QualitySteps = 4
+                    }
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(format);
+            _viewModel.Quality = 0.75;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(17.5M, videoOutput?.Quality);
+        }
+
+        [TestMethod]
+        public void SetsVideoDynamicRangeForHdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = true;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(DynamicRange.High, videoOutput?.DynamicRange);
+        }
+
+        [TestMethod]
+        public void SetsVideoDynamicRangeForSdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = false;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(DynamicRange.Standard, videoOutput?.DynamicRange);
+        }
+
+        [TestMethod]
+        public void SetsVideoCopyHdrMetadataForHdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = true;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(true, videoOutput?.CopyHdrMetadata);
+        }
+
+        [TestMethod]
+        public void SetsVideoCopyHdrMetadataForSdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = false;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(false, videoOutput?.CopyHdrMetadata);
+        }
+
+        [TestMethod]
+        public void SetsVideoTonemapForHdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = true;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(false, videoOutput?.Tonemap);
+        }
+
+        [TestMethod]
+        public void SetsVideoTonemapForSdrJob()
+        {
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.IsHdrChecked = false;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(true, videoOutput?.Tonemap);
+        }
+
+        [TestMethod]
+        public void CallsCalculatorForCropJob()
+        {
+            int divisor = 4;
+
+            _tricycleConfig.Video.SizeDivisor = divisor;
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = true;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions, _cropParameters, 2.4, divisor);
+        }
+
+        [TestMethod]
+        public void CallsCalculatorForCustomAspectRatioJob()
+        {
+            int divisor = 4;
+            var aspectRatio = new Dimensions(4, 3);
+
+            _tricycleConfig.Video.SizeDivisor = divisor;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "4:3", aspectRatio }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions, null, 4 / 3d, divisor);
+        }
+
+        [TestMethod]
+        public void CallsCalculatorForCustomSizeJob()
+        {
+            int divisor = 4;
+            var size = new Dimensions(1280, 720);
+
+            _tricycleConfig.Video.SizeDivisor = divisor;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { "720p", size }
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            _viewModel.SelectedSize = new ListItem(size);
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(_videoStream.Dimensions, size, divisor);
         }
 
         #endregion
