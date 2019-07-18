@@ -1729,6 +1729,165 @@ namespace Tricycle.UI.Tests
                                                                       divisor);
         }
 
+        [TestMethod]
+        public void SetsCorrectNumberOfAudioOutputsForJob()
+        {
+            SelectSource();
+
+            var audioViewModel = _viewModel.AudioOutputs.Last();
+
+            audioViewModel.SelectedTrack = audioViewModel.TrackOptions.LastOrDefault();
+            Start();
+
+            Assert.AreEqual(2, _transcodeJob?.Streams?.Count(s => s is AudioOutputStream));
+        }
+
+        [TestMethod]
+        public void SetsAudioSourceStreamIndexForJob()
+        {
+            _audioStream.Index = 2;
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
+
+            Assert.AreEqual(_audioStream.Index, audioOutput?.SourceStreamIndex);
+        }
+
+        [TestMethod]
+        public void PassesThruAudioWhenConfiguredTo()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            {
+                new AudioCodec()
+                {
+                    Format = AudioFormat.Ac3,
+                    Presets = new AudioPreset[]
+                    {
+                        new AudioPreset()
+                        {
+                            Mixdown = AudioMixdown.Surround5dot1
+                        }
+                    }
+                }
+            };
+            _audioStream.FormatName = "ac-3";
+            _audioStream.ChannelCount = 6;
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.LastOrDefault();
+
+            Assert.AreEqual(typeof(OutputStream), audioOutput?.GetType());
+        }
+
+        [TestMethod]
+        public void DoesNotPassThruAudioWhenConfiguredNotTo()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = false;
+            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            {
+                new AudioCodec()
+                {
+                    Format = AudioFormat.Ac3,
+                    Presets = new AudioPreset[]
+                    {
+                        new AudioPreset()
+                        {
+                            Mixdown = AudioMixdown.Surround5dot1
+                        }
+                    }
+                }
+            };
+            _audioStream.FormatName = "ac-3";
+            _audioStream.ChannelCount = 6;
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.LastOrDefault();
+
+            Assert.AreEqual(typeof(AudioOutputStream), audioOutput?.GetType());
+        }
+
+        [TestMethod]
+        public void SetsAudioFormatForJob()
+        {
+            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            {
+                new AudioCodec()
+                {
+                    Format = AudioFormat.Ac3,
+                    Presets = new AudioPreset[]
+                    {
+                        new AudioPreset()
+                        {
+                            Mixdown = AudioMixdown.Mono
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
+
+            Assert.AreEqual(AudioFormat.Ac3, audioOutput?.Format);
+        }
+
+        [TestMethod]
+        public void SetsAudioMixdownForJob()
+        {
+            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            {
+                new AudioCodec()
+                {
+                    Format = AudioFormat.Ac3,
+                    Presets = new AudioPreset[]
+                    {
+                        new AudioPreset()
+                        {
+                            Mixdown = AudioMixdown.Mono
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
+
+            Assert.AreEqual(AudioMixdown.Mono, audioOutput?.Mixdown);
+        }
+
+        [TestMethod]
+        public void SetsAudioQualityForJob()
+        {
+            decimal quality = 100;
+
+            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            {
+                new AudioCodec()
+                {
+                    Format = AudioFormat.Ac3,
+                    Presets = new AudioPreset[]
+                    {
+                        new AudioPreset()
+                        {
+                            Mixdown = AudioMixdown.Mono,
+                            Quality = quality
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
+
+            Assert.AreEqual(quality, audioOutput?.Quality);
+        }
+
         #endregion
 
         #region Helper Methods
