@@ -116,10 +116,12 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.Failed += OnTranscodeFailed;
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
-            SourceSelectCommand = new Command(async () => await SelectSource());
-            DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
+            SourceSelectCommand = new Command(async () => await SelectSource(),
+                                              () => !_isRunning);
+            DestinationSelectCommand = new Command(async () => await SelectDestination(),
+                                                   () => (_sourceInfo != null) && !_isRunning);
             StartCommand = new Command(() => ToggleRunning(),
-                                       () => _sourceInfo != null && (_videoFormatOptions?.Any() == true));
+                                       () => (_sourceInfo != null) && (_videoFormatOptions?.Any() == true));
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -362,48 +364,7 @@ namespace Tricycle.UI.ViewModels
 
             if (result.Confirmed)
             {
-                SourceName = result.FileName;
-                _sourceInfo = await _mediaInspector.Inspect(result.FileName);
-
-                if (_sourceInfo != null)
-                {
-                    _primaryVideoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
-                }
-                else
-                {
-                    _primaryVideoStream = null;
-                }
-
-                bool isValid = false;
-
-                if (_primaryVideoStream != null)
-                {
-                    _cropParameters = await _cropDetector.Detect(_sourceInfo);
-
-                    ProcessConfig(_tricycleConfig); //this is done here to improve testability
-                    IsContainerFormatEnabled = true;
-                    DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
-                    isValid = true;
-                }
-                else
-                {
-                    _sourceInfo = null;
-                    _cropParameters = null;
-                    IsContainerFormatEnabled = false;
-                    DestinationName = null;
-                }
-
-                DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
-                PopulateVideoOptions(_primaryVideoStream, _cropParameters);
-                IsVideoConfigEnabled = _sourceInfo != null;
-                PopulateAudioOptions(_sourceInfo);
-                ((Command)DestinationSelectCommand).ChangeCanExecute();
-                ((Command)StartCommand).ChangeCanExecute();
-
-                if (!isValid)
-                {
-                    Alert?.Invoke("Invalid Source", "The selected file could not be opened.");
-                }
+                await OpenSource(result.FileName);
             }
         }
 
@@ -583,6 +544,52 @@ namespace Tricycle.UI.ViewModels
         {
             return streams?.OfType<VideoStreamInfo>()
                            .FirstOrDefault();
+        }
+
+        async Task OpenSource(string fileName)
+        {
+            SourceName = fileName;
+            _sourceInfo = await _mediaInspector.Inspect(fileName);
+
+            if (_sourceInfo != null)
+            {
+                _primaryVideoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+            }
+            else
+            {
+                _primaryVideoStream = null;
+            }
+
+            bool isValid = false;
+
+            if (_primaryVideoStream != null)
+            {
+                _cropParameters = await _cropDetector.Detect(_sourceInfo);
+
+                ProcessConfig(_tricycleConfig); //this is done here to improve testability
+                IsContainerFormatEnabled = true;
+                DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
+                isValid = true;
+            }
+            else
+            {
+                _sourceInfo = null;
+                _cropParameters = null;
+                IsContainerFormatEnabled = false;
+                DestinationName = null;
+            }
+
+            DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
+            PopulateVideoOptions(_primaryVideoStream, _cropParameters);
+            IsVideoConfigEnabled = _sourceInfo != null;
+            PopulateAudioOptions(_sourceInfo);
+            ((Command)DestinationSelectCommand).ChangeCanExecute();
+            ((Command)StartCommand).ChangeCanExecute();
+
+            if (!isValid)
+            {
+                Alert?.Invoke("Invalid Source", "The selected file could not be opened.");
+            }
         }
 
         void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
@@ -917,6 +924,9 @@ namespace Tricycle.UI.ViewModels
                 _isRunning = true;
                 IsProgressVisible = true;
                 ToggleStartImage = STOP_IMAGE;
+
+                ((Command)SourceSelectCommand).ChangeCanExecute();
+                ((Command)DestinationSelectCommand).ChangeCanExecute();
             }
             catch (ArgumentException) { }
             catch (NotSupportedException) { }
@@ -948,6 +958,8 @@ namespace Tricycle.UI.ViewModels
             ToggleStartImage = PLAY_IMAGE;
 
             ResetProgress();
+            ((Command)SourceSelectCommand).ChangeCanExecute();
+            ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
 
         void ResetProgress()
