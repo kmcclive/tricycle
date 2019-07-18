@@ -7,5 +7,6 @@ namespace Tricycle.Models.Config
         public VideoConfig Video { get; set; }
         public AudioConfig Audio { get; set; }
         public IDictionary<ContainerFormat, string> DefaultFileExtensions { get; set; }
+        public bool CompletionAlert { get; set; }
     }
 }

@@ -27,6 +27,8 @@ namespace Tricycle.UI.ViewModels
 
         const int DEFAULT_STEP_COUNT = 4;
         const string DEFAULT_EXTENSION = "mp4";
+        const string PLAY_IMAGE = "Images/play.png";
+        const string STOP_IMAGE = "Images/stop.png";
         static readonly ListItem ORIGINAL_OPTION = new ListItem("Same as source", Guid.NewGuid());
         static readonly ListItem NONE_OPTION = new ListItem("None", Guid.NewGuid());
 
@@ -73,6 +75,7 @@ namespace Tricycle.UI.ViewModels
         double _progress;
         string _progressText;
         string _rateText;
+        string _toggleStartImage = PLAY_IMAGE;
 
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
@@ -82,6 +85,7 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
+        bool _isRunning = false;
 
         #endregion
 
@@ -105,9 +109,13 @@ namespace Tricycle.UI.ViewModels
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
+            _mediaTranscoder.Completed += OnTranscodeCompleted;
+            _mediaTranscoder.Failed += OnTranscodeFailed;
+            _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
+
             SourceSelectCommand = new Command(async () => await SelectSource());
             DestinationSelectCommand = new Command(async () => await SelectDestination(), () => _sourceInfo != null);
-            StartCommand = new Command(() => StartTranscode(),
+            StartCommand = new Command(() => ToggleRunning(),
                                        () => _sourceInfo != null && (_videoFormatOptions?.Any() == true));
 
             ContainerFormatOptions = GetContainerFormatOptions();
@@ -323,6 +331,12 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _rateText, value); }
         }
 
+        public string ToggleStartImage
+        {
+            get { return _toggleStartImage; }
+            set { SetProperty(ref _toggleStartImage, value); }
+        }
+
         public ICommand SourceSelectCommand { get; }
         public ICommand DestinationSelectCommand { get; }
         public ICommand StartCommand { get; }
@@ -409,17 +423,16 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        void StartTranscode()
+        void ToggleRunning()
         {
-            var job = CreateJob();
-
-            try
+            if (_isRunning)
             {
-                _mediaTranscoder.Start(job);
+                StopTranscode();
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (InvalidOperationException) { }
+            else
+            {
+                StartTranscode();
+            }
         }
 
         #endregion
@@ -890,6 +903,58 @@ namespace Tricycle.UI.ViewModels
             audioOutput.TrackSelected -= OnAudioTrackSelected;
         }
 
+        void StartTranscode()
+        {
+            var job = CreateJob();
+
+            try
+            {
+                _mediaTranscoder.Start(job);
+
+                _isRunning = true;
+                IsProgressVisible = true;
+                ToggleStartImage = STOP_IMAGE;
+            }
+            catch (ArgumentException) { }
+            catch (NotSupportedException) { }
+            catch (InvalidOperationException) { }
+        }
+
+        void StopTranscode()
+        {
+            try
+            {
+                _mediaTranscoder.Stop();
+                ResetJobState();
+
+                if (_fileSystem.File.Exists(DestinationName))
+                {
+                    _fileSystem.File.Delete(DestinationName);
+                }
+            }
+            catch (ArgumentException) { }
+            catch (NotSupportedException) { }
+            catch (InvalidOperationException) { }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        void ResetJobState()
+        {
+            _isRunning = false;
+            ToggleStartImage = PLAY_IMAGE;
+
+            ResetProgress();
+        }
+
+        void ResetProgress()
+        {
+            IsProgressVisible = false;
+            Progress = 0;
+            ProgressText = string.Empty;
+            RateText = string.Empty;
+        }
+
         TranscodeJob CreateJob()
         {
             return new TranscodeJob()
@@ -1119,6 +1184,35 @@ namespace Tricycle.UI.ViewModels
 
             model.MixdownOptions = mixdownOptions;
             model.SelectedMixdown = mixdownOptions?.FirstOrDefault();
+        }
+
+        void OnTranscodeStatusChanged(TranscodeStatus status)
+        {
+            if (!_isRunning || (status == null))
+            {
+                return;
+            }
+
+            Progress = status.Percent;
+            RateText = $"{status.Speed:0.###}x ({status.FramesPerSecond:0.##} fps)";
+            ProgressText = $"{status.Percent:0.##}%";
+        }
+
+        void OnTranscodeCompleted()
+        {
+            ResetJobState();
+
+            if (_tricycleConfig.CompletionAlert)
+            {
+                Alert?.Invoke("Transcode Complete", "Congratulations! Your shiny new video is ready.");
+            }
+        }
+
+        void OnTranscodeFailed(string error)
+        {
+            ResetJobState();
+
+            Alert?.Invoke("Transcode Failed", error);
         }
 
         #endregion

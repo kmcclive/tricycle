@@ -111,5 +111,6 @@
     "defaultFileExtensions": {
         "mp4": "m4v",
         "mkv": "mkv"
-    }
+    },
+    "completionAlert": true
 }
