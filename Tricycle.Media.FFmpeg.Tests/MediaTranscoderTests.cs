@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Models.Jobs;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media.FFmpeg.Tests
 {
@@ -154,7 +155,13 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             TranscodeStatus status = null;
 
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(new TranscodeJob()
+            {
+                SourceInfo = new MediaInfo()
+                {
+                    Duration = new TimeSpan(0, 1, 23, 43, 480)
+                }
+            });
             _transcoder.StatusChanged += s => status = s;
 
             _process.OutputDataReceived += Raise.Event<Action<string>>(
@@ -162,6 +169,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 "bitrate=16315.1kbits/s dup=1 drop=0 speed=0.139x");
 
             Assert.IsNotNull(status);
+            Assert.AreEqual(0.75, status.Percent);
             Assert.AreEqual(3.3, status.FramesPerSecond);
             Assert.AreEqual(119516000, status.Size);
             Assert.AreEqual(0.139, status.Speed);

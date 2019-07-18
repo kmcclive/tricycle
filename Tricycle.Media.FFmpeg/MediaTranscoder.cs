@@ -13,6 +13,7 @@ namespace Tricycle.Media.FFmpeg
         readonly string _ffmpegFileName;
         readonly Func<IProcess> _processCreator;
         readonly IFFmpegArgumentGenerator _argumentGenerator;
+        TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
 
@@ -75,8 +76,12 @@ namespace Tricycle.Media.FFmpeg
             _process = _processCreator.Invoke();
 
             SubscribeToEvents(_process);
-
             _process.Start(startInfo);
+
+            if (job.SourceInfo != null)
+            {
+                _sourceDuration = job.SourceInfo.Duration;
+            }
         }
 
         public void Stop()
@@ -92,6 +97,7 @@ namespace Tricycle.Media.FFmpeg
             _process.Dispose();
 
             _process = null;
+            _sourceDuration = TimeSpan.Zero;
         }
 
         #endregion
@@ -127,8 +133,16 @@ namespace Tricycle.Media.FFmpeg
                 double.TryParse(match.Groups["fps"].Value, out var fps) &&
                 double.TryParse(match.Groups["speed"].Value, out var speed))
             {
+                double percent = 0;
+
+                if (_sourceDuration > TimeSpan.Zero)
+                {
+                    percent = time.TotalMilliseconds / _sourceDuration.TotalMilliseconds;
+                }
+
                 StatusChanged?.Invoke(new TranscodeStatus()
                 {
+                    Percent = percent,
                     Time = time,
                     FramesPerSecond = fps,
                     Speed = speed,
@@ -160,6 +174,7 @@ namespace Tricycle.Media.FFmpeg
             _process.Dispose();
 
             _process = null;
+            _sourceDuration = TimeSpan.Zero;
         }
 
         long ParseSize(string size)
