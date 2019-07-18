@@ -42,6 +42,7 @@ namespace Tricycle.UI.ViewModels
         readonly ICropDetector _cropDetector;
         readonly ITranscodeCalculator _transcodeCalculator;
         readonly IFileSystem _fileSystem;
+        readonly IDevice _device;
         readonly TricycleConfig _tricycleConfig;
         readonly string _defaultDestinationDirectory;
 
@@ -97,6 +98,7 @@ namespace Tricycle.UI.ViewModels
                              ICropDetector cropDetector,
                              ITranscodeCalculator transcodeCalculator,
                              IFileSystem fileSystem,
+                             IDevice device,
                              TricycleConfig tricycleConfig,
                              string defaultDestinationDirectory)
         {
@@ -106,6 +108,7 @@ namespace Tricycle.UI.ViewModels
             _cropDetector = cropDetector;
             _transcodeCalculator = transcodeCalculator;
             _fileSystem = fileSystem;
+            _device = device;
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
@@ -1193,26 +1196,35 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
-            Progress = status.Percent;
-            RateText = $"{status.Speed:0.###}x ({status.FramesPerSecond:0.##} fps)";
-            ProgressText = $"{status.Percent:0.##}%";
+            _device.BeginInvokeOnMainThread(() =>
+            {
+                Progress = status.Percent;
+                RateText = $"{status.Speed:0.###}x ({status.FramesPerSecond:0.##} fps)";
+                ProgressText = $"{status.Percent * 100:0.##}%";
+            });
         }
 
         void OnTranscodeCompleted()
         {
-            ResetJobState();
-
-            if (_tricycleConfig.CompletionAlert)
+            _device.BeginInvokeOnMainThread(() =>
             {
-                Alert?.Invoke("Transcode Complete", "Congratulations! Your shiny new video is ready.");
-            }
+                ResetJobState();
+
+                if (_tricycleConfig.CompletionAlert)
+                {
+                    Alert?.Invoke("Transcode Complete", "Good news! Your shiny new video is ready.");
+                }
+            });
         }
 
         void OnTranscodeFailed(string error)
         {
-            ResetJobState();
+            _device.BeginInvokeOnMainThread(() =>
+            {
+                ResetJobState();
 
-            Alert?.Invoke("Transcode Failed", error);
+                Alert?.Invoke("Transcode Failed", error);
+            });
         }
 
         #endregion

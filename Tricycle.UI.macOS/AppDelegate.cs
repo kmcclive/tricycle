@@ -65,6 +65,7 @@ namespace Tricycle.UI.macOS
                 _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
                                                                   processCreator,
                                                                   ffmpegArgumentGenerator));
+                _.For<IDevice>().Use(DeviceWrapper.Self);
             });
             AppState.TricycleConfig = ReadConfigFile<TricycleConfig>(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =

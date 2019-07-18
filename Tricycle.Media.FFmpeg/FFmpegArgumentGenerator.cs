@@ -406,7 +406,7 @@ namespace Tricycle.Media.FFmpeg
 
         void AppendVideoQuality(StringBuilder builder, decimal quality)
         {
-            builder.Append($"-crf {Math.Round(quality, 2):0.##}");
+            builder.Append($"-crf {quality:0.##}");
         }
 
         void AppendVideoHdr(StringBuilder builder)

@@ -25,6 +25,7 @@ namespace Tricycle.UI
                 AppState.IocContainer.GetInstance<ICropDetector>(),
                 AppState.IocContainer.GetInstance<ITranscodeCalculator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
+                AppState.IocContainer.GetInstance<IDevice>(),
                 AppState.TricycleConfig,
                 AppState.DefaultDestinationDirectory);
 

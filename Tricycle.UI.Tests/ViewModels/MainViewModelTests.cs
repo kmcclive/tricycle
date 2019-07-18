@@ -61,6 +61,7 @@ namespace Tricycle.UI.Tests
                                            _cropDetector,
                                            _transcodeCalculator,
                                            _fileSystem,
+                                           MockDevice.Self,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);
 
@@ -1275,7 +1276,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void CallsTranscoderForStartCommand()
+        public void CallsTranscoderStartForStartCommand()
         {
             SelectSource();
             Start();
@@ -1888,6 +1889,240 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(quality, audioOutput?.Quality);
         }
 
+        [TestMethod]
+        public void DisplaysCorrectButtonImageInitially()
+        {
+            SelectSource();
+
+            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectButtonImageWhenRunning()
+        {
+            SelectSource();
+            Start();
+
+            Assert.AreEqual("Images/stop.png", _viewModel.ToggleStartImage);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectButtonImageWhenStopped()
+        {
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectButtonImageWhenJobCompletes()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+        }
+
+        [TestMethod]
+        public void DisplaysCorrectButtonImageWhenJobFails()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+        }
+
+        [TestMethod]
+        public void DisplaysProgress()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+
+            Assert.AreEqual(status.Percent, _viewModel.Progress);
+        }
+
+        [TestMethod]
+        public void DisplaysProgressText()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.34567,
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+
+            Assert.AreEqual("34.57%", _viewModel.ProgressText);
+        }
+
+        [TestMethod]
+        public void DisplaysRateText()
+        {
+            var status = new TranscodeStatus()
+            {
+                Speed = 0.225,
+                FramesPerSecond = 5.39
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+
+            Assert.AreEqual("0.225x (5.39 fps)", _viewModel.RateText);
+        }
+
+        [TestMethod]
+        public void ResetsProgressWhenJobCompletes()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225,
+                FramesPerSecond = 5.39
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsFalse(_viewModel.IsProgressVisible);
+            Assert.AreEqual(0, _viewModel.Progress);
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+        }
+
+        [TestMethod]
+        public void ResetsProgressWhenJobFails()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225,
+                FramesPerSecond = 5.39
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsFalse(_viewModel.IsProgressVisible);
+            Assert.AreEqual(0, _viewModel.Progress);
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+        }
+
+        [TestMethod]
+        public void ResetsProgressWhenJobIsStopped()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225,
+                FramesPerSecond = 5.39
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            Stop();
+
+            Assert.IsFalse(_viewModel.IsProgressVisible);
+            Assert.AreEqual(0, _viewModel.Progress);
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+        }
+
+        [TestMethod]
+        public void CallsTranscodeStopForStartCommandWhenRunning()
+        {
+            SelectSource();
+            Start();
+            Stop();
+
+            _mediaTranscoder.Received().Stop();
+        }
+
+        [TestMethod]
+        public void DeletesDestinationWhenJobIsStopped()
+        {
+            SelectSource();
+            _fileService.Exists(_viewModel.DestinationName).Returns(true);
+            Start();
+            Stop();
+
+            _fileService.Received().Delete(_viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void DisplaysAlertWhenJobFails()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+            string expectedMessage = "Encountered bad sector";
+
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            SelectSource();
+            Start();
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(expectedMessage);
+
+            Assert.AreEqual("Transcode Failed", actualTitle);
+            Assert.AreEqual(expectedMessage, actualMessage);
+        }
+
+        [TestMethod]
+        public void DisplaysAlertWhenJobCompletes()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _tricycleConfig.CompletionAlert = true;
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.AreEqual("Transcode Complete", actualTitle);
+            Assert.AreEqual("Good news! Your shiny new video is ready.", actualMessage);
+        }
+
+        [TestMethod]
+        public void DoesNotDisplayAlertWhenJobCompletesIfDisabled()
+        {
+            bool alerted = false;
+
+            _tricycleConfig.CompletionAlert = false;
+            _viewModel.Alert += (title, message) =>
+            {
+                alerted = true;
+            };
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsFalse(alerted);
+        }
+
         #endregion
 
         #region Helper Methods
@@ -1941,6 +2176,11 @@ namespace Tricycle.UI.Tests
         }
 
         void Start()
+        {
+            _viewModel.StartCommand.Execute(null);
+        }
+
+        void Stop()
         {
             _viewModel.StartCommand.Execute(null);
         }
