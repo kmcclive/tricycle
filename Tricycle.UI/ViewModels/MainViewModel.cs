@@ -87,6 +87,7 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
         bool _isRunning = false;
+        DateTime _jobStartTime;
 
         #endregion
 
@@ -928,6 +929,7 @@ namespace Tricycle.UI.ViewModels
                 _mediaTranscoder.Start(job);
 
                 _isRunning = true;
+                _jobStartTime = DateTime.Now;
                 IsProgressVisible = true;
                 ToggleStartImage = STOP_IMAGE;
 
@@ -1252,10 +1254,21 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
+            string eta = null;
+
+            if (status.Percent > 0)
+            {
+                TimeSpan elapsed = DateTime.Now - _jobStartTime;
+                double totalTimeMs = elapsed.TotalMilliseconds / status.Percent;
+                TimeSpan remainingTime = TimeSpan.FromMilliseconds(totalTimeMs * (1 - status.Percent));
+
+                eta = $"{remainingTime.TotalHours:00}:{remainingTime.Minutes:00}:{remainingTime.Seconds:00}";
+            }
+
             _device.BeginInvokeOnMainThread(() =>
             {
                 Progress = status.Percent;
-                RateText = $"{status.Speed:0.###}x ({status.FramesPerSecond:0.##} fps)";
+                RateText = string.IsNullOrEmpty(eta) ? $"{status.Speed:0.###}x" : $"ETA {eta} ({status.Speed:0.###}x)";
                 ProgressText = $"{status.Percent * 100:0.##}%";
             });
         }

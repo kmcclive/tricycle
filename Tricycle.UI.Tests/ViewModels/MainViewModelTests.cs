@@ -2075,15 +2075,14 @@ namespace Tricycle.UI.Tests
         {
             var status = new TranscodeStatus()
             {
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("0.225x (5.39 fps)", _viewModel.RateText);
+            Assert.AreEqual("0.225x", _viewModel.RateText);
         }
 
         [TestMethod]
