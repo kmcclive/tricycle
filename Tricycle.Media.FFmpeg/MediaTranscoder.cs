@@ -118,6 +118,11 @@ namespace Tricycle.Media.FFmpeg
 
         void OnErrorDataReceived(string data)
         {
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return;
+            }
+
             const string PATTERN =
                 @"frame\s*=\s*(?<frame>\d+)\s+fps\s*=\s*(?<fps>\d+(\.\d+)?)\s+q\s*=\s*(?<q>(\-)?\d+(\.\d+)?)\s+" +
                 @"size\s*=\s*(?<size>\w+)\s+time\s*=\s*(?<time>\d{2}\:\d{2}\:\d{2}(\.\d+)?)\s+" +
