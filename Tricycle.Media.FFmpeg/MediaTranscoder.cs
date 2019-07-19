@@ -16,6 +16,9 @@ namespace Tricycle.Media.FFmpeg
         TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
+        DateTime _jobStartTime;
+        double? _estTotalJobSeconds;
+        long _sampleSize;
 
         #endregion
 
@@ -82,6 +85,8 @@ namespace Tricycle.Media.FFmpeg
             {
                 _sourceDuration = job.SourceInfo.Duration;
             }
+
+            _jobStartTime = DateTime.Now;
         }
 
         public void Stop()
@@ -141,10 +146,12 @@ namespace Tricycle.Media.FFmpeg
                 double.TryParse(match.Groups["speed"].Value, out var speed))
             {
                 double percent = 0;
+                TimeSpan eta = TimeSpan.Zero;
 
                 if (_sourceDuration > TimeSpan.Zero)
                 {
                     percent = time.TotalMilliseconds / _sourceDuration.TotalMilliseconds;
+                    eta = CalculateEta(percent);
                 }
 
                 StatusChanged?.Invoke(new TranscodeStatus()
@@ -153,7 +160,8 @@ namespace Tricycle.Media.FFmpeg
                     Time = time,
                     FramesPerSecond = fps,
                     Speed = speed,
-                    Size = ParseSize(match.Groups["size"].Value)
+                    Size = ParseSize(match.Groups["size"].Value),
+                    Eta = eta
                 });
             }
         }
@@ -211,6 +219,25 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return result;
+        }
+
+        TimeSpan CalculateEta(double percent)
+        {
+            _sampleSize++;
+
+            TimeSpan elapsed = DateTime.Now - _jobStartTime;
+            double totalSeconds = elapsed.TotalSeconds / percent;
+
+            if (_estTotalJobSeconds.HasValue)
+            {
+                _estTotalJobSeconds = _estTotalJobSeconds.Value + (totalSeconds - _estTotalJobSeconds.Value) / _sampleSize;
+            }
+            else
+            {
+                _estTotalJobSeconds = totalSeconds;
+            }
+
+            return TimeSpan.FromSeconds(_estTotalJobSeconds.Value * (1 - percent));
         }
 
         #endregion
