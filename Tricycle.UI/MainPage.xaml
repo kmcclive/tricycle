@@ -58,7 +58,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
+                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                     ItemsSource="{Binding VideoFormatOptions}"
                                     SelectedItem="{Binding SelectedVideoFormat}"
                                     Grid.Column="1"
@@ -82,20 +82,20 @@
                                     Grid.Column="1"
                                     Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                    ItemsSource="{Binding SizeOptions}"
-                                    Grid.Column="1"
-                                    Grid.Row="3" />
+                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                     ItemsSource="{Binding SizeOptions}"
+                                                     Grid.Column="1"
+                                                     Grid.Row="3" />
                             <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
                             <Switch IsEnabled="{Binding IsAutocropEnabled}"
                                     IsToggled="{Binding IsAutocropChecked}"
                                     Grid.Column="1"
                                     Grid.Row="4" />
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-                            <Picker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                    ItemsSource="{Binding AspectRatioOptions}"
-                                    Grid.Column="1"
-                                    Grid.Row="5" />
+                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                     ItemsSource="{Binding AspectRatioOptions}"
+                                                     Grid.Column="1"
+                                                     Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
                             <Switch IsEnabled="false" Grid.Column="1" Grid.Row="6" />
                         </Grid>
@@ -136,29 +136,29 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="0" />
-                                                <Picker IsEnabled="{Binding IsEnabled}"
-                                                        ItemsSource="{Binding TrackOptions}"
-                                                        SelectedItem="{Binding SelectedTrack}"
-                                                        Grid.Column="1"
-                                                        Grid.Row="0" />
+                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                         ItemsSource="{Binding TrackOptions}"
+                                                                         SelectedItem="{Binding SelectedTrack}"
+                                                                         Grid.Column="1"
+                                                                         Grid.Row="0" />
                                                 <Label Text="Format"
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="1" />
-                                                <Picker IsEnabled="{Binding IsEnabled}"
-                                                        ItemsSource="{Binding FormatOptions}"
-                                                        SelectedItem="{Binding SelectedFormat}"
-                                                        Grid.Column="1"
-                                                        Grid.Row="1" />
+                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                         ItemsSource="{Binding FormatOptions}"
+                                                                         SelectedItem="{Binding SelectedFormat}"
+                                                                         Grid.Column="1"
+                                                                         Grid.Row="1" />
                                                 <Label Text="Mixdown"
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="2" />
-                                                <Picker IsEnabled="{Binding IsEnabled}"
-                                                        ItemsSource="{Binding MixdownOptions}"
-                                                        SelectedItem="{Binding SelectedMixdown}"
-                                                        Grid.Column="1"
-                                                        Grid.Row="2" />
+                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                         ItemsSource="{Binding MixdownOptions}"
+                                                                         SelectedItem="{Binding SelectedMixdown}"
+                                                                         Grid.Column="1"
+                                                                         Grid.Row="2" />
                                             </Grid>
                                         </Frame>
                                     </ViewCell>
@@ -181,11 +181,11 @@
                     <RowDefinition Height="2" />
                 </Grid.RowDefinitions>
                 <Label Text="Destination" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                <Picker IsEnabled="{Binding IsContainerFormatEnabled}"
-                        ItemsSource="{Binding ContainerFormatOptions}"
-                        SelectedItem="{Binding SelectedContainerFormat}"
-                        Grid.Column="1"
-                        Grid.Row="0" />
+                <controls:BindablePicker IsEnabled="{Binding IsContainerFormatEnabled}"
+                                         ItemsSource="{Binding ContainerFormatOptions}"
+                                         SelectedItem="{Binding SelectedContainerFormat}"
+                                         Grid.Column="1"
+                                         Grid.Row="0" />
                 <Entry IsReadOnly="true" Text="{Binding DestinationName}" Grid.Column="2" Grid.Row="0" />
                 <controls:FramedImageButton Source="Images/folder-browse.png"
                                             Command="{Binding DestinationSelectCommand}"
