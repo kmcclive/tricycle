@@ -136,7 +136,8 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="0" />
-                                                <Picker ItemsSource="{Binding TrackOptions}"
+                                                <Picker IsEnabled="{Binding IsEnabled}"
+                                                        ItemsSource="{Binding TrackOptions}"
                                                         SelectedItem="{Binding SelectedTrack}"
                                                         Grid.Column="1"
                                                         Grid.Row="0" />
@@ -144,7 +145,8 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="1" />
-                                                <Picker ItemsSource="{Binding FormatOptions}"
+                                                <Picker IsEnabled="{Binding IsEnabled}"
+                                                        ItemsSource="{Binding FormatOptions}"
                                                         SelectedItem="{Binding SelectedFormat}"
                                                         Grid.Column="1"
                                                         Grid.Row="1" />
@@ -152,7 +154,8 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="2" />
-                                                <Picker ItemsSource="{Binding MixdownOptions}"
+                                                <Picker IsEnabled="{Binding IsEnabled}"
+                                                        ItemsSource="{Binding MixdownOptions}"
                                                         SelectedItem="{Binding SelectedMixdown}"
                                                         Grid.Column="1"
                                                         Grid.Row="2" />

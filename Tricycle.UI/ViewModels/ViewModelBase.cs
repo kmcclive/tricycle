@@ -8,10 +8,15 @@ namespace Tricycle.UI.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             field = value;
 
+            RaisePropertyChanged(propertyName);
+        }
+
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        {
             if (propertyName != null)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

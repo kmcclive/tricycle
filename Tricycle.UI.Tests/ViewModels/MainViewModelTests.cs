@@ -1937,6 +1937,110 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void DisablesControlsWhenRunning()
+        {
+            SelectSource();
+            Start();
+
+            Assert.IsFalse(_viewModel.IsVideoConfigEnabled);
+            Assert.IsFalse(_viewModel.IsContainerFormatEnabled);
+
+            foreach (var audio in _viewModel.AudioOutputs)
+            {
+                Assert.IsFalse(audio.IsEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void EnablesControlsWhenStopped()
+        {
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.IsTrue(_viewModel.IsVideoConfigEnabled);
+            Assert.IsTrue(_viewModel.IsContainerFormatEnabled);
+
+            foreach (var audio in _viewModel.AudioOutputs)
+            {
+                Assert.IsTrue(audio.IsEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void EnablesControlsWhenJobCompletes()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsTrue(_viewModel.IsVideoConfigEnabled);
+            Assert.IsTrue(_viewModel.IsContainerFormatEnabled);
+
+            foreach (var audio in _viewModel.AudioOutputs)
+            {
+                Assert.IsTrue(audio.IsEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void EnablesControlsWhenJobFails()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsTrue(_viewModel.IsVideoConfigEnabled);
+            Assert.IsTrue(_viewModel.IsContainerFormatEnabled);
+
+            foreach (var audio in _viewModel.AudioOutputs)
+            {
+                Assert.IsTrue(audio.IsEnabled);
+            }
+        }
+
+        [TestMethod]
+        public void DisplaysAlerWhenJobFailsToStart()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            _mediaTranscoder.When(x => x.Start(Arg.Any<TranscodeJob>()))
+                            .Do(x => throw new NotSupportedException());
+            SelectSource();
+            Start();
+
+            Assert.AreEqual("Job Error", actualTitle);
+            Assert.AreEqual(@"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯", actualMessage);
+        }
+
+        [TestMethod]
+        public void DisplaysAlerWhenJobFailsToStop()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _viewModel.Alert += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+            };
+            _mediaTranscoder.When(x => x.Stop())
+                            .Do(x => throw new NotSupportedException());
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.AreEqual("Job Error", actualTitle);
+            Assert.AreEqual(@"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯", actualMessage);
+        }
+
+        [TestMethod]
         public void DisplaysProgress()
         {
             var status = new TranscodeStatus()
@@ -2064,6 +2168,20 @@ namespace Tricycle.UI.Tests
             Stop();
 
             _fileService.Received().Delete(_viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void DeletesDestinationWhenJobFails()
+        {
+            SelectSource();
+            _fileService.Exists(_viewModel.DestinationName).Returns(true);
+            Start();
+
+            var destinationName = _viewModel.DestinationName;
+
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            _fileService.Received().Delete(destinationName);
         }
 
         [TestMethod]

@@ -6,12 +6,19 @@ namespace Tricycle.UI.ViewModels
 {
     public class AudioOutputViewModel : ViewModelBase
     {
+        bool _isEnabled = true;
         IList<ListItem> _trackOptions;
         ListItem _selectedTrack;
         IList<ListItem> _formatOptions;
         ListItem _selectedFormat;
         IList<ListItem> _mixdownOptions;
         ListItem _selectedMixdown;
+
+        public bool IsEnabled
+        {
+            get { return _isEnabled; }
+            set { SetProperty(ref _isEnabled, value); }
+        }
 
         public IList<ListItem> TrackOptions
         {

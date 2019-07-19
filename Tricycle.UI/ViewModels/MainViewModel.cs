@@ -164,7 +164,12 @@ namespace Tricycle.UI.ViewModels
         public bool IsVideoConfigEnabled
         {
             get { return _isVideoConfigEnabled; }
-            set { SetProperty(ref _isVideoConfigEnabled, value); }
+            set
+            {
+                SetProperty(ref _isVideoConfigEnabled, value);
+                RaisePropertyChanged(nameof(IsHdrEnabled));
+                RaisePropertyChanged(nameof(IsAutocropEnabled));
+            }
         }
 
         public IList<ListItem> VideoFormatOptions
@@ -181,7 +186,7 @@ namespace Tricycle.UI.ViewModels
                 SetProperty(ref _selectedVideoFormat, value);
 
                 IsHdrEnabled = IsHdrSupported(_selectedVideoFormat, _primaryVideoStream);
-                IsHdrChecked = IsHdrEnabled;
+                IsHdrChecked = _isHdrEnabled;
                 QualityStepCount = (_selectedVideoFormat != null) &&
                     _videoCodecsByFormat.TryGetValue((VideoFormat)_selectedVideoFormat.Value, out var codec)
                     ? codec.QualitySteps
@@ -215,7 +220,7 @@ namespace Tricycle.UI.ViewModels
 
         public bool IsHdrEnabled
         {
-            get { return _isHdrEnabled; }
+            get { return _isHdrEnabled && _isVideoConfigEnabled; }
             set { SetProperty(ref _isHdrEnabled, value); }
         }
 
@@ -239,7 +244,7 @@ namespace Tricycle.UI.ViewModels
 
         public bool IsAutocropEnabled
         {
-            get { return _isAutocropEnabled; }
+            get { return _isAutocropEnabled && _isVideoConfigEnabled; }
             set { SetProperty(ref _isAutocropEnabled, value); }
         }
 
@@ -640,11 +645,11 @@ namespace Tricycle.UI.ViewModels
             if (videoStream != null)
             {
                 IsHdrEnabled = videoStream.DynamicRange == DynamicRange.High;
-                IsHdrChecked = IsHdrEnabled;
+                IsHdrChecked = _isHdrEnabled;
                 SizeOptions = GetSizeOptions(videoStream.Dimensions);
                 SelectedSize = SizeOptions?.FirstOrDefault();
                 IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
-                IsAutocropChecked = IsAutocropEnabled;
+                IsAutocropChecked = _isAutocropEnabled;
 
                 if (IsHdrChecked)
                 {
@@ -916,6 +921,7 @@ namespace Tricycle.UI.ViewModels
         void StartTranscode()
         {
             var job = CreateJob();
+            bool success = false;
 
             try
             {
@@ -925,31 +931,42 @@ namespace Tricycle.UI.ViewModels
                 IsProgressVisible = true;
                 ToggleStartImage = STOP_IMAGE;
 
+                EnableControls(false);
                 ((Command)SourceSelectCommand).ChangeCanExecute();
                 ((Command)DestinationSelectCommand).ChangeCanExecute();
+
+                success = true;
             }
             catch (ArgumentException) { }
             catch (NotSupportedException) { }
             catch (InvalidOperationException) { }
+
+            if (!success)
+            {
+                Alert?.Invoke("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
+            }
         }
 
         void StopTranscode()
         {
+            bool success = false;
+
             try
             {
                 _mediaTranscoder.Stop();
                 ResetJobState();
+                DeleteDestination();
 
-                if (_fileSystem.File.Exists(DestinationName))
-                {
-                    _fileSystem.File.Delete(DestinationName);
-                }
+                success = true;
             }
             catch (ArgumentException) { }
             catch (NotSupportedException) { }
             catch (InvalidOperationException) { }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
+
+            if (!success)
+            {
+                Alert?.Invoke("Job Error", @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯");
+            }
         }
 
         void ResetJobState()
@@ -958,6 +975,7 @@ namespace Tricycle.UI.ViewModels
             ToggleStartImage = PLAY_IMAGE;
 
             ResetProgress();
+            EnableControls(true);
             ((Command)SourceSelectCommand).ChangeCanExecute();
             ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
@@ -968,6 +986,21 @@ namespace Tricycle.UI.ViewModels
             Progress = 0;
             ProgressText = string.Empty;
             RateText = string.Empty;
+        }
+
+        void DeleteDestination()
+        {
+            try
+            {
+                if (_fileSystem.File.Exists(DestinationName))
+                {
+                    _fileSystem.File.Delete(DestinationName);
+                }
+            }
+            catch (ArgumentException) { }
+            catch (NotSupportedException) { }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
 
         TranscodeJob CreateJob()
@@ -1136,6 +1169,17 @@ namespace Tricycle.UI.ViewModels
                 AudioUtility.GetChannelCount(outputStream.Mixdown ?? AudioMixdown.Mono) == sourceStream.ChannelCount;
         }
 
+        void EnableControls(bool isEnabled)
+        {
+            IsVideoConfigEnabled = isEnabled;
+            IsContainerFormatEnabled = isEnabled;
+
+            foreach (var audio in AudioOutputs ?? Enumerable.Empty<AudioOutputViewModel>())
+            {
+                audio.IsEnabled = isEnabled;
+            }
+        }
+
         #endregion
 
         #region Event Handlers
@@ -1218,24 +1262,26 @@ namespace Tricycle.UI.ViewModels
 
         void OnTranscodeCompleted()
         {
-            _device.BeginInvokeOnMainThread(() =>
+            _device.BeginInvokeOnMainThread(async () =>
             {
-                ResetJobState();
-
                 if (_tricycleConfig.CompletionAlert)
                 {
                     Alert?.Invoke("Transcode Complete", "Good news! Your shiny new video is ready.");
                 }
+
+                ResetJobState();
+                await OpenSource(SourceName);
             });
         }
 
         void OnTranscodeFailed(string error)
         {
-            _device.BeginInvokeOnMainThread(() =>
+            _device.BeginInvokeOnMainThread(async () =>
             {
-                ResetJobState();
-
                 Alert?.Invoke("Transcode Failed", error);
+                DeleteDestination();
+                ResetJobState();
+                await OpenSource(SourceName);
             });
         }
 
