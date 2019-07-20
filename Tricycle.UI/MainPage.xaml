@@ -84,6 +84,7 @@
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
                             <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                                      ItemsSource="{Binding SizeOptions}"
+                                                     SelectedItem="{Binding SelectedSize}"
                                                      Grid.Column="1"
                                                      Grid.Row="3" />
                             <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
@@ -94,6 +95,7 @@
                             <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                                      ItemsSource="{Binding AspectRatioOptions}"
+                                                     SelectedItem="{Binding SelectedAspectRatio}"
                                                      Grid.Column="1"
                                                      Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
