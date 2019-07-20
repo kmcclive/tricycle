@@ -225,7 +225,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 "-map 0:0 -c:v:0 libx265 -preset medium -crf 18 -x265-params " +
                 "colorprim=bt2020:colormatrix=bt2020nc:transfer=smpte2084:" +
                 "master-display=\"G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1)\":max-cll=\"1000,400\" " +
-                "-vf crop=3840:1632:0:264 " +
+                "-vf crop=3840:1632:0:264,setsar=1:1 " +
                 "-map 0:1 -c:a:0 copy " +
                 "-map 0:1 -c:a:1 libfdk_aac -profile:a aac_he -ac:a:1 2 -b:a:1 80k " +
                 "\"output.mkv\"";
@@ -291,7 +291,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             var actual = _generator.GenerateArguments(job);
             string expected = "-hide_banner -y -i \"input.mkv\" -f mp4 " +
                 "-map 0:0 -c:v:0 libx264 -preset medium -crf 20.33 " +
-                "-vf scale=1920:1080,zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709," +
+                "-vf scale=1920:1080,setsar=1:1,zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709," +
                 "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p " +
                 "-map 0:1 -c:a:0 aac -ac:a:0 2 -b:a:0 160k " +
                 "-map 0:1 -c:a:1 ac3 -ac:a:1 6 -b:a:1 640k " +

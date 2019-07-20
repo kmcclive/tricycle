@@ -372,6 +372,12 @@ namespace Tricycle.Media.FFmpeg
                 AppendVideoScaleFilter(filterBuilder, outputStream.ScaledDimensions.Value);
             }
 
+            if (filterBuilder.Length > 0)
+            {
+                AppendListDelimiter(filterBuilder);
+                AppendVideoSampleAspectRatioFilter(filterBuilder);
+            }
+
             if (outputStream.Tonemap)
             {
                 if (filterBuilder.Length > 0)
@@ -461,6 +467,14 @@ namespace Tricycle.Media.FFmpeg
             builder.Append(dimensions.Width);
             AppendOptionDelimiter(builder);
             builder.Append(dimensions.Height);
+        }
+
+        void AppendVideoSampleAspectRatioFilter(StringBuilder builder)
+        {
+            AppendVideoFilterStart(builder, "setsar");
+            builder.Append("1");
+            AppendOptionDelimiter(builder);
+            builder.Append("1");
         }
 
         void AppendVideoTonemapFilter(StringBuilder builder)
