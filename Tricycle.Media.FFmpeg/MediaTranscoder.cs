@@ -16,8 +16,7 @@ namespace Tricycle.Media.FFmpeg
         TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
-        DateTime _jobStartTime;
-        double? _estTotalJobSeconds;
+        double _avgSpeed;
         long _sampleSize;
 
         #endregion
@@ -85,8 +84,6 @@ namespace Tricycle.Media.FFmpeg
             {
                 _sourceDuration = job.SourceInfo.Duration;
             }
-
-            _jobStartTime = DateTime.Now;
         }
 
         public void Stop()
@@ -151,7 +148,11 @@ namespace Tricycle.Media.FFmpeg
                 if (_sourceDuration > TimeSpan.Zero)
                 {
                     percent = time.TotalMilliseconds / _sourceDuration.TotalMilliseconds;
-                    eta = CalculateEta(percent);
+
+                    if (speed > 0)
+                    {
+                        eta = CalculateEta(time, _sourceDuration, speed);
+                    }
                 }
 
                 StatusChanged?.Invoke(new TranscodeStatus()
@@ -221,23 +222,20 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
-        TimeSpan CalculateEta(double percent)
+        TimeSpan CalculateEta(TimeSpan timeComplete, TimeSpan totalTime, double speed)
         {
             _sampleSize++;
 
-            TimeSpan elapsed = DateTime.Now - _jobStartTime;
-            double totalSeconds = elapsed.TotalSeconds / percent;
-
-            if (_estTotalJobSeconds.HasValue)
+            if (_avgSpeed > 0)
             {
-                _estTotalJobSeconds = _estTotalJobSeconds.Value + (totalSeconds - _estTotalJobSeconds.Value) / _sampleSize;
+                _avgSpeed = _avgSpeed + (speed - _avgSpeed) / _sampleSize;
             }
             else
             {
-                _estTotalJobSeconds = totalSeconds;
+                _avgSpeed = speed;
             }
 
-            return TimeSpan.FromSeconds(_estTotalJobSeconds.Value * (1 - percent));
+            return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / speed);
         }
 
         #endregion
