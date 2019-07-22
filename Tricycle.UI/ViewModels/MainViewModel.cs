@@ -1256,7 +1256,7 @@ namespace Tricycle.UI.ViewModels
 
             if (status.Eta > TimeSpan.Zero)
             {
-                eta = $"{status.Eta.TotalHours:00}:{status.Eta.Minutes:00}:{status.Eta.Seconds:00}";
+                eta = $"{Math.Floor(status.Eta.TotalHours):00}:{status.Eta.Minutes:00}:{status.Eta.Seconds:00}";
             }
 
             _device.BeginInvokeOnMainThread(() =>
