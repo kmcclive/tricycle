@@ -14,6 +14,7 @@ namespace Tricycle.Media.FFmpeg
 {
     public class CropDetector : ICropDetector
     {
+        const int SAMPLE_COUNT = 5;
         static readonly TimeSpan MAX_SEEK_TIME = TimeSpan.FromMinutes(5);
 
         readonly string _ffmpegFileName;
@@ -50,8 +51,12 @@ namespace Tricycle.Media.FFmpeg
             {
                 throw new ArgumentException($"{nameof(mediaInfo)}.FileName must not be empty or whitespace.", nameof(mediaInfo));
             }
+            if (mediaInfo.Duration <= TimeSpan.Zero)
+			{
+				throw new ArgumentException($"{nameof(mediaInfo)}.Duration is invalid.", nameof(mediaInfo));
+			}
 
-            CropParameters result = null;
+			CropParameters result = null;
             IEnumerable<double> positions = GetSeekSeconds(mediaInfo.Duration);
             var escapedFileName = _processUtility.EscapeFilePath(mediaInfo.FileName);
             var lockTarget = new object();
@@ -122,7 +127,7 @@ namespace Tricycle.Media.FFmpeg
                 seconds = MAX_SEEK_TIME.TotalSeconds;
             }
 
-            return Enumerable.Range(1, 5).Select(x => seconds * 0.2 * x);
+            return Enumerable.Range(1, SAMPLE_COUNT).Select(x => seconds / SAMPLE_COUNT * x);
         }
 
         CropParameters Parse(string outputData)

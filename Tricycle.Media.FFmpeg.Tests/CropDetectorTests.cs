@@ -17,7 +17,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public async Task TestDetect()
         {
-            const string ARG_PATTERN = "-hide_banner\\s+-ss\\s+{0}\\s+-i\\s+{1}\\s+-frames:vf\\s+2\\s+-vf\\s+cropdetect(=\\d+:\\d+:\\d+)?\\s+-f\\s+null\\s+-";
+            const string ARG_PATTERN = @"-hide_banner\s+-ss\s+\d+(\.\d+)?\s+-i\s+{0}\s+-frames:vf\s+2\s+-vf\s+cropdetect(=\d+:\d+:\d+)?\s+-f\s+null\s+-";
 
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
@@ -40,30 +40,27 @@ namespace Tricycle.Media.FFmpeg.Tests
                 Duration = TimeSpan.FromMinutes(104)
             };
             var escapedFileName = "escaped file";
-            var output = @"
-                Stream #0:0(eng): Video: hevc (Main 10), yuv420p10le(tv, bt2020nc/bt2020/smpte2084), 3840x2160 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn, 23.98 tbc
-                Metadata:
-                    BPS-eng         : 75334576
-                    DURATION-eng    : 01:44:06.114875000
-                    NUMBER_OF_FRAMES-eng: 149757
-                    NUMBER_OF_BYTES-eng: 58818544507
-                    SOURCE_ID-eng   : 001011
-                    _STATISTICS_WRITING_DATE_UTC-eng: 2019-05-25 18:22:35
-                    _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
-                [Parsed_cropdetect_0 @ 0x7faf2dc72f00] x1:0 x2:3839 y1:263 y2:1896 w:3840 h:1632 x:0 y:264 pts:91 t:0.091000 crop=3840:1632:0:264
-                frame=    2 fps=0.0 q=-0.0 Lsize=N/A time=00:00:00.74 bitrate=N/A speed=0.802x";
+            var outputs = new string[]
+            {
+                "[Parsed_cropdetect_0 @ 0x7fce49600000] x1:0 x2:3839 y1:277 y2:1882 w:3840 h:1600 x:0 y:280 pts:102 t:0.102000 crop=3840:1600:0:280",
+                "[Parsed_cropdetect_0 @ 0x7f8bf045da80] x1:859 x2:3839 y1:277 y2:1882 w:2976 h:1600 x:862 y:280 pts:120 t:0.120000 crop=2976:1600:862:280",
+                "[Parsed_cropdetect_0 @ 0x7f9437704a00] x1:0 x2:3821 y1:277 y2:1774 w:3808 h:1488 x:8 y:282 pts:97 t:0.097000 crop=3808:1488:8:282",
+                "[Parsed_cropdetect_0 @ 0x7f9032448880] x1:0 x2:3423 y1:277 y2:1882 w:3424 h:1600 x:0 y:280 pts:115 t:0.115000 crop=3424:1600:0:280",
+                "[Parsed_cropdetect_0 @ 0x7ff79975be00] x1:1055 x2:3839 y1:277 y2:1882 w:2784 h:1600 x:1056 y:280 pts:91 t:0.091000 crop=2784:1600:1056:280"
+            };
+            int i = 0;
 
             processUtility.EscapeFilePath(mediaInfo.FileName).Returns(escapedFileName);
             processRunner.Run(ffmpegFileName,
-                              Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, 300, escapedFileName))),
+                              Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, escapedFileName))),
                               timeout)
-                         .Returns(new ProcessResult() { ErrorData = output });
+                         .Returns(new ProcessResult() { ErrorData = outputs[i++] });
 
             CropParameters parameters = await detector.Detect(mediaInfo);
 
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(new Coordinate<int>(0, 264), parameters.Start);
-            Assert.AreEqual(new Dimensions(3840, 1632), parameters.Size);
+            Assert.AreEqual(new Coordinate<int>(0, 280), parameters.Start);
+            Assert.AreEqual(new Dimensions(3840, 1600), parameters.Size);
 
             #endregion
 
@@ -75,7 +72,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 Duration = TimeSpan.FromMinutes(1)
             };
             escapedFileName = "escaped file 2";
-            output = @"
+            var output = @"
                 Stream #0:0(eng): Video: hevc (Main 10), yuv420p10le(tv, bt2020nc/bt2020/smpte2084), 3840x2160 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn, 23.98 tbc
                 Metadata:
                   BPS-eng         : 42940118
@@ -90,7 +87,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             processUtility.EscapeFilePath(mediaInfo.FileName).Returns(escapedFileName);
             processRunner.Run(ffmpegFileName,
-                              Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, 30, escapedFileName))),
+                              Arg.Is<string>(s => Regex.IsMatch(s, string.Format(ARG_PATTERN, escapedFileName))),
                               timeout)
                          .Returns(new ProcessResult() { ErrorData = output });
 
