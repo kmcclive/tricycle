@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -48,56 +50,79 @@ namespace Tricycle.Media.FFmpeg
             {
                 throw new ArgumentException($"{nameof(mediaInfo)}.FileName must not be empty or whitespace.", nameof(mediaInfo));
             }
-            if (mediaInfo.Duration.TotalSeconds < 2)
-            {
-                throw new ArgumentException($"{nameof(mediaInfo)}.Duration is invalid.", nameof(mediaInfo));
-            }
 
             CropParameters result = null;
-            int seconds = GetSeekSeconds(mediaInfo.Duration);
-
+            IEnumerable<double> positions = GetSeekSeconds(mediaInfo.Duration);
             var escapedFileName = _processUtility.EscapeFilePath(mediaInfo.FileName);
-            var arguments = $"-hide_banner -ss {seconds} -i {escapedFileName} -frames:vf 2 -vf cropdetect -f null -";
+            var lockTarget = new object();
+            int? minX = null, minY = null, maxWidth = null, maxHeight = null;
 
-            try
+            var tasks = positions.Select(async seconds =>
             {
-                var processResult = await _processRunner.Run(_ffmpegFileName, arguments, _timeout);
+                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect -f null -";
 
-                //The crop detection data is written to standard error.
-                if (!string.IsNullOrWhiteSpace(processResult.ErrorData))
+                try
                 {
-                    result = Parse(processResult.ErrorData);
+                    var processResult = await _processRunner.Run(_ffmpegFileName, arguments, _timeout);
 
-                    var originalDimensions = mediaInfo.Streams?.OfType<VideoStreamInfo>().FirstOrDefault()?.Dimensions;
-
-                    if ((result != null) && (originalDimensions != null))
+                    //The crop detection data is written to standard error.
+                    if (!string.IsNullOrWhiteSpace(processResult.ErrorData))
                     {
-                        result = Correct(result, originalDimensions.Value);
+                        var crop = Parse(processResult.ErrorData);
+
+                        if (crop != null)
+                        {
+                            lock (crop)
+                            {
+                                minX = minX.HasValue ? Math.Min(crop.Start.X, minX.Value) : crop.Start.X;
+                                minY = minY.HasValue ? Math.Min(crop.Start.Y, minY.Value) : crop.Start.Y;
+                                maxWidth = maxWidth.HasValue ? Math.Max(crop.Size.Width, maxWidth.Value) : crop.Size.Width;
+                                maxHeight = maxHeight.HasValue ? Math.Max(crop.Size.Height, maxHeight.Value) : crop.Size.Height;
+                            }
+                        }
                     }
                 }
-            }
-            catch (ArgumentException ex)
+                catch (ArgumentException ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+            });
+
+            await Task.WhenAll(tasks);
+
+            if (minX.HasValue && minY.HasValue && maxWidth.HasValue && maxHeight.HasValue)
             {
-                Debug.WriteLine(ex);
+                result = new CropParameters()
+                {
+                    Start = new Coordinate<int>(minX.Value, minY.Value),
+                    Size = new Dimensions(maxWidth.Value, maxHeight.Value)
+                };
             }
-            catch (InvalidOperationException ex)
+
+            var originalDimensions = mediaInfo.Streams?.OfType<VideoStreamInfo>().FirstOrDefault()?.Dimensions;
+
+            if ((result != null) && (originalDimensions != null))
             {
-                Debug.WriteLine(ex);
+                result = Correct(result, originalDimensions.Value);
             }
 
             return result;
         }
 
-        int GetSeekSeconds(TimeSpan duration)
+        IEnumerable<double> GetSeekSeconds(TimeSpan duration)
         {
-            int seconds = (int)Math.Round(duration.TotalSeconds / 2);
+            double seconds = duration.TotalSeconds / 2;
 
             if (TimeSpan.FromSeconds(seconds) > MAX_SEEK_TIME)
             {
-                seconds = (int)Math.Round(MAX_SEEK_TIME.TotalSeconds);
+                seconds = MAX_SEEK_TIME.TotalSeconds;
             }
 
-            return seconds;
+            return Enumerable.Range(1, 5).Select(x => seconds * 0.2 * x);
         }
 
         CropParameters Parse(string outputData)
