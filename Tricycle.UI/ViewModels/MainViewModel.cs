@@ -87,6 +87,9 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
         bool _isRunning = false;
+        bool _isSourceSelectionEnabled = true;
+        bool _isDestinationSelectionEnabled = false;
+        bool _isStartEnabled = false;
 
         #endregion
 
@@ -117,11 +120,11 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
             SourceSelectCommand = new Command(async () => await SelectSource(),
-                                              () => !_isRunning);
+                                              () => _isSourceSelectionEnabled);
             DestinationSelectCommand = new Command(async () => await SelectDestination(),
-                                                   () => (_sourceInfo != null) && !_isRunning);
+                                                   () => _isDestinationSelectionEnabled);
             StartCommand = new Command(() => ToggleRunning(),
-                                       () => (_sourceInfo != null) && (_videoFormatOptions?.Any() == true));
+                                       () => _isStartEnabled);
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -553,6 +556,12 @@ namespace Tricycle.UI.ViewModels
 
         async Task OpenSource(string fileName)
         {
+            Command startCommand = ((Command)StartCommand);
+            _isStartEnabled = false;
+
+            EnableControls(false);
+            startCommand.ChangeCanExecute();
+
             SourceName = fileName;
             _sourceInfo = await _mediaInspector.Inspect(fileName);
 
@@ -588,13 +597,24 @@ namespace Tricycle.UI.ViewModels
             PopulateVideoOptions(_primaryVideoStream, _cropParameters);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
-            ((Command)DestinationSelectCommand).ChangeCanExecute();
-            ((Command)StartCommand).ChangeCanExecute();
 
-            if (!isValid)
+            if (isValid)
+            {
+                EnableControls(true);
+
+                _isStartEnabled = _videoFormatOptions?.Any() == true;
+            }
+            else
             {
                 Alert?.Invoke("Invalid Source", "The selected file could not be opened.");
+
+                _isSourceSelectionEnabled = true;
+                _isStartEnabled = false;
+
+                ((Command)SourceSelectCommand).ChangeCanExecute();
             }
+
+            startCommand.ChangeCanExecute();
         }
 
         void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
@@ -932,8 +952,6 @@ namespace Tricycle.UI.ViewModels
                 ToggleStartImage = STOP_IMAGE;
 
                 EnableControls(false);
-                ((Command)SourceSelectCommand).ChangeCanExecute();
-                ((Command)DestinationSelectCommand).ChangeCanExecute();
 
                 success = true;
             }
@@ -976,8 +994,6 @@ namespace Tricycle.UI.ViewModels
 
             ResetProgress();
             EnableControls(true);
-            ((Command)SourceSelectCommand).ChangeCanExecute();
-            ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
 
         void ResetProgress()
@@ -1178,6 +1194,12 @@ namespace Tricycle.UI.ViewModels
             {
                 audio.IsEnabled = isEnabled;
             }
+
+            _isSourceSelectionEnabled = isEnabled;
+            _isDestinationSelectionEnabled = isEnabled;
+
+            ((Command)SourceSelectCommand).ChangeCanExecute();
+            ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
 
         #endregion
