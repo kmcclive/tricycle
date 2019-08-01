@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.IO;
@@ -2000,7 +2001,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DisplaysAlerWhenJobFailsToStart()
+        public void DisplaysAlertWhenJobFailsToStart()
         {
             string actualTitle = null;
             string actualMessage = null;
@@ -2020,7 +2021,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DisplaysAlerWhenJobFailsToStop()
+        public void DisplaysAlertWhenJobFailsToStop()
         {
             string actualTitle = null;
             string actualMessage = null;
@@ -2238,6 +2239,49 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
             Assert.IsFalse(alerted);
+        }
+
+        [TestMethod]
+        public void ConfirmsBeforeJobIsStopped()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _viewModel.Confirm += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+
+                return Task.FromResult(false);
+            };
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.AreEqual("Stop Transcode", actualTitle);
+            Assert.AreEqual(@"Whoa... Are you sure you want to stop and lose your progress?", actualMessage);
+        }
+
+        [TestMethod]
+        public void StopsTranscodeWhenJobIsStoppedAndConfirmed()
+        {
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            SelectSource();
+            Start();
+            Stop();
+
+            _mediaTranscoder.Received().Stop();
+        }
+
+        [TestMethod]
+        public void DoesNotStopTranscodeWhenJobIsStoppedButNotConfirmed()
+        {
+            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            SelectSource();
+            Start();
+            Stop();
+
+            _mediaTranscoder.DidNotReceive().Stop();
         }
 
         #endregion
