@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
@@ -30,6 +31,7 @@ namespace Tricycle.UI
                 AppState.DefaultDestinationDirectory);
 
             viewModel.Alert += OnAlert;
+            viewModel.Confirm += OnConfirm;
 
             BindingContext = viewModel;
         }
@@ -37,6 +39,11 @@ namespace Tricycle.UI
         private void OnAlert(string title, string message)
         {
             DisplayAlert(title, message, "OK");
+        }
+
+        private Task<bool> OnConfirm(string title, string message)
+        {
+            return DisplayAlert(title, message, "OK", "Cancel");
         }
     }
 }

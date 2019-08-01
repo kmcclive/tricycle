@@ -20,6 +20,7 @@ using Xamarin.Forms;
 namespace Tricycle.UI.ViewModels
 {
     public delegate void AlertEventHandler(string title, string message);
+    public delegate Task<bool> ConfirmEventHandler(string title, string message);
 
     public class MainViewModel : ViewModelBase
     {
@@ -123,7 +124,7 @@ namespace Tricycle.UI.ViewModels
                                               () => _isSourceSelectionEnabled);
             DestinationSelectCommand = new Command(async () => await SelectDestination(),
                                                    () => _isDestinationSelectionEnabled);
-            StartCommand = new Command(() => ToggleRunning(),
+            StartCommand = new Command(async () => await ToggleRunning(),
                                        () => _isStartEnabled);
 
             ContainerFormatOptions = GetContainerFormatOptions();
@@ -359,6 +360,7 @@ namespace Tricycle.UI.ViewModels
         #region Events
 
         public event AlertEventHandler Alert;
+        public event ConfirmEventHandler Confirm;
 
         #endregion
 
@@ -395,11 +397,21 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        void ToggleRunning()
+        async Task ToggleRunning()
         {
             if (_isRunning)
             {
-                StopTranscode();
+                bool proceed = true;
+
+                if (Confirm != null)
+                {
+                    proceed = await Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
+                }
+
+                if (proceed)
+                {
+                    StopTranscode();
+                }
             }
             else
             {
