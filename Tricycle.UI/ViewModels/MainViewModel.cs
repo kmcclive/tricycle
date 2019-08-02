@@ -1324,7 +1324,7 @@ namespace Tricycle.UI.ViewModels
             {
                 if (_tricycleConfig.CompletionAlert)
                 {
-                    Alert?.Invoke("Transcode Complete", "Good news! Your shiny new video is ready.");
+                    Alert?.Invoke("Transcode Complete", "Good news! Your shiny, new video is ready.");
                 }
 
                 ResetJobState();

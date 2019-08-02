@@ -2253,7 +2253,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
             Assert.AreEqual("Transcode Complete", actualTitle);
-            Assert.AreEqual("Good news! Your shiny new video is ready.", actualMessage);
+            Assert.AreEqual("Good news! Your shiny, new video is ready.", actualMessage);
         }
 
         [TestMethod]

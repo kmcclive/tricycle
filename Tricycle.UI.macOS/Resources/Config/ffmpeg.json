@@ -7,7 +7,8 @@
             "hevc": {
                 "preset": "medium"
             }
-        }
+        },
+        "tonemapOptions": "hable:desat=0"
     },
     "audio": {
         "codecs": {

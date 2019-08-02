@@ -479,6 +479,13 @@ namespace Tricycle.Media.FFmpeg
 
         void AppendVideoTonemapFilter(StringBuilder builder)
         {
+            string options = _config.Video?.TonemapOptions;
+
+            if (string.IsNullOrWhiteSpace(options))
+            {
+                options = "hable:desat=0";
+            }
+
             AppendVideoFilterStart(builder, "zscale");
             AppendOption(builder, "t", "linear");
             AppendOptionDelimiter(builder);
@@ -489,9 +496,8 @@ namespace Tricycle.Media.FFmpeg
             AppendVideoFilterStart(builder, "zscale");
             AppendOption(builder, "p", "bt709");
             AppendListDelimiter(builder);
-            AppendOption(builder, "tonemap", "hable");
-            AppendOptionDelimiter(builder);
-            AppendOption(builder, "desat", "0");
+            AppendVideoFilterStart(builder, "tonemap");
+            builder.Append(options);
             AppendListDelimiter(builder);
             AppendVideoFilterStart(builder, "zscale");
             AppendOption(builder, "t", "bt709");
