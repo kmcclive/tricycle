@@ -8,5 +8,6 @@ namespace Tricycle.Models.Config
         public AudioConfig Audio { get; set; }
         public IDictionary<ContainerFormat, string> DefaultFileExtensions { get; set; }
         public bool CompletionAlert { get; set; }
+        public bool DeleteIncompleteFiles { get; set; }
     }
 }

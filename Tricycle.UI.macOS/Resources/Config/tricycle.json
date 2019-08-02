@@ -112,5 +112,6 @@
         "mp4": "m4v",
         "mkv": "mkv"
     },
-    "completionAlert": true
+    "completionAlert": true,
+    "deleteIncompleteFiles": true
 }

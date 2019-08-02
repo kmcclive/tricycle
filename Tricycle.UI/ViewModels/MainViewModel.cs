@@ -1030,6 +1030,11 @@ namespace Tricycle.UI.ViewModels
 
         void DeleteDestination()
         {
+            if (!_tricycleConfig.DeleteIncompleteFiles)
+            {
+                return;
+            }
+
             try
             {
                 if (_fileSystem.File.Exists(DestinationName))

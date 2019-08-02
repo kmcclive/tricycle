@@ -2165,6 +2165,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DeletesDestinationWhenJobIsStopped()
         {
+            _tricycleConfig.DeleteIncompleteFiles = true;
             SelectSource();
             _fileService.Exists(_viewModel.DestinationName).Returns(true);
             Start();
@@ -2174,8 +2175,21 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void DoesNotDeleteDestinationWhenJobIsStoppedIfDisabled()
+        {
+            _tricycleConfig.DeleteIncompleteFiles = false;
+            SelectSource();
+            _fileService.Exists(_viewModel.DestinationName).Returns(true);
+            Start();
+            Stop();
+
+            _fileService.DidNotReceive().Delete(_viewModel.DestinationName);
+        }
+
+        [TestMethod]
         public void DeletesDestinationWhenJobFails()
         {
+            _tricycleConfig.DeleteIncompleteFiles = true;
             SelectSource();
             _fileService.Exists(_viewModel.DestinationName).Returns(true);
             Start();
@@ -2185,6 +2199,21 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
 
             _fileService.Received().Delete(destinationName);
+        }
+
+        [TestMethod]
+        public void DoesNotDeleteDestinationWhenJobFailsIfDisabled()
+        {
+            _tricycleConfig.DeleteIncompleteFiles = false;
+            SelectSource();
+            _fileService.Exists(_viewModel.DestinationName).Returns(true);
+            Start();
+
+            var destinationName = _viewModel.DestinationName;
+
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            _fileService.DidNotReceive().Delete(destinationName);
         }
 
         [TestMethod]
