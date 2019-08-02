@@ -8,7 +8,7 @@ using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 
-namespace Tricycle.UI
+namespace Tricycle.UI.Views
 {
     // Learn more about making custom code visible in the Xamarin.Forms previewer
     // by visiting https://aka.ms/xamarinforms-previewer

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI"
              xmlns:controls="clr-namespace:Tricycle.UI.Controls"
-             x:Class="Tricycle.UI.MainPage"
+             x:Class="Tricycle.UI.Views.MainPage"
              BackgroundColor="{StaticResource BackgroundColor}">
     <ScrollView>
         <StackLayout>

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Tricycle.UI.Views;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace Tricycle.UI
 {
