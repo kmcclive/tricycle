@@ -29,14 +29,19 @@ namespace Tricycle.UI.macOS
         const int WINDOW_WIDTH = 800;
         const int WINDOW_HEIGHT = 490;
 
+        MainWindowDelegate _mainWindowDelegate = new MainWindowDelegate();
+
         public AppDelegate()
         {
             var center = GetCenterCoordinate();
             var rect = new CoreGraphics.CGRect(center.X, center.Y, WINDOW_WIDTH, WINDOW_HEIGHT);
             var style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 
-            MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false);
-            MainWindow.Title = "Tricycle";
+            MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
+            {
+                Title = "Tricycle",
+                Delegate = _mainWindowDelegate
+            };
         }
 
         public override NSWindow MainWindow { get; }
@@ -66,6 +71,7 @@ namespace Tricycle.UI.macOS
                                                                   processCreator,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
+                _.For<IAppManager>().Use(_mainWindowDelegate);
             });
             AppState.TricycleConfig = ReadConfigFile<TricycleConfig>(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =
@@ -76,6 +82,11 @@ namespace Tricycle.UI.macOS
 
             base.DidFinishLaunching(notification);
         }
+
+        public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender) => true;
+
+        public override NSApplicationTerminateReply ApplicationShouldTerminate(NSApplication sender) =>
+            _mainWindowDelegate.WindowShouldClose(this) ? NSApplicationTerminateReply.Now : NSApplicationTerminateReply.Cancel;
 
         public override void WillTerminate(NSNotification notification)
         {

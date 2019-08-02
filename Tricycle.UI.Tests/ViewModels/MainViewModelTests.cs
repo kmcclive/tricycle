@@ -37,6 +37,7 @@ namespace Tricycle.UI.Tests
         ITranscodeCalculator _transcodeCalculator;
         IFileSystem _fileSystem;
         IFile _fileService;
+        IAppManager _appManager;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
@@ -54,6 +55,7 @@ namespace Tricycle.UI.Tests
             _cropDetector = Substitute.For<ICropDetector>();
             _transcodeCalculator = Substitute.For<ITranscodeCalculator>();
             _fileSystem = Substitute.For<IFileSystem>();
+            _appManager = Substitute.For<IAppManager>();
             _tricycleConfig = CreateDefaultTricycleConfig();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
@@ -63,6 +65,7 @@ namespace Tricycle.UI.Tests
                                            _transcodeCalculator,
                                            _fileSystem,
                                            MockDevice.Self,
+                                           _appManager,
                                            _tricycleConfig,
                                            _defaultDestinationDirectory);
 
@@ -2282,6 +2285,55 @@ namespace Tricycle.UI.Tests
             Stop();
 
             _mediaTranscoder.DidNotReceive().Stop();
+        }
+
+        [TestMethod]
+        public void ConfirmsWhenJobIsRunningAndAppIsQuit()
+        {
+            string actualTitle = null;
+            string actualMessage = null;
+
+            _viewModel.Confirm += (title, message) =>
+            {
+                actualTitle = title;
+                actualMessage = message;
+
+                return Task.FromResult(false);
+            };
+            SelectSource();
+            Start();
+            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(new CancellationArgs());
+
+            Assert.AreEqual("Stop Transcode", actualTitle);
+            Assert.AreEqual(@"Whoa... Are you sure you want to stop and lose your progress?", actualMessage);
+        }
+
+        [TestMethod]
+        public void StopsTranscodeWhenAppIsQuitAndConfirmed()
+        {
+            var cancellation = new CancellationArgs();
+
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            SelectSource();
+            Start();
+            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(cancellation);
+
+            _mediaTranscoder.Received().Stop();
+            Assert.IsFalse(cancellation.Cancel);
+        }
+
+        [TestMethod]
+        public void DoesNotStopTranscodeWhenAppIsQuitButNotConfirmed()
+        {
+            var cancellation = new CancellationArgs();
+
+            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            SelectSource();
+            Start();
+            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(cancellation);
+
+            _mediaTranscoder.DidNotReceive().Stop();
+            Assert.IsTrue(cancellation.Cancel);
         }
 
         #endregion

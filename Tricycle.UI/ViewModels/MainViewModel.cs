@@ -44,6 +44,7 @@ namespace Tricycle.UI.ViewModels
         readonly ITranscodeCalculator _transcodeCalculator;
         readonly IFileSystem _fileSystem;
         readonly IDevice _device;
+        readonly IAppManager _appManager;
         readonly TricycleConfig _tricycleConfig;
         readonly string _defaultDestinationDirectory;
 
@@ -103,6 +104,7 @@ namespace Tricycle.UI.ViewModels
                              ITranscodeCalculator transcodeCalculator,
                              IFileSystem fileSystem,
                              IDevice device,
+                             IAppManager appManager,
                              TricycleConfig tricycleConfig,
                              string defaultDestinationDirectory)
         {
@@ -113,12 +115,15 @@ namespace Tricycle.UI.ViewModels
             _transcodeCalculator = transcodeCalculator;
             _fileSystem = fileSystem;
             _device = device;
+            _appManager = appManager;
             _tricycleConfig = tricycleConfig;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
             _mediaTranscoder.Failed += OnTranscodeFailed;
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
+
+            _appManager.Quitting += OnAppQuitting;
 
             SourceSelectCommand = new Command(async () => await SelectSource(),
                                               () => _isSourceSelectionEnabled);
@@ -401,17 +406,7 @@ namespace Tricycle.UI.ViewModels
         {
             if (_isRunning)
             {
-                bool proceed = true;
-
-                if (Confirm != null)
-                {
-                    proceed = await Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
-                }
-
-                if (proceed)
-                {
-                    StopTranscode();
-                }
+                await ConfirmStopTranscode();
             }
             else
             {
@@ -977,6 +972,23 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
+        async Task<bool> ConfirmStopTranscode()
+        {
+            bool proceed = true;
+
+            if (Confirm != null)
+            {
+                proceed = await Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
+            }
+
+            if (proceed)
+            {
+                StopTranscode();
+            }
+
+            return proceed;
+        }
+
         void StopTranscode()
         {
             bool success = false;
@@ -1324,6 +1336,11 @@ namespace Tricycle.UI.ViewModels
                 ResetJobState();
                 await OpenSource(SourceName);
             });
+        }
+
+        private void OnAppQuitting(CancellationArgs args)
+        {
+            args.Cancel = _isRunning && !ConfirmStopTranscode().GetAwaiter().GetResult();
         }
 
         #endregion

@@ -27,6 +27,7 @@ namespace Tricycle.UI
                 AppState.IocContainer.GetInstance<ITranscodeCalculator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.IocContainer.GetInstance<IDevice>(),
+                AppState.IocContainer.GetInstance<IAppManager>(),
                 AppState.TricycleConfig,
                 AppState.DefaultDestinationDirectory);
 
