@@ -99,7 +99,10 @@
                                                      Grid.Column="1"
                                                      Grid.Row="5" />
                             <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
-                            <Switch IsEnabled="false" Grid.Column="1" Grid.Row="6" />
+                            <Switch IsEnabled="{Binding IsVideoConfigEnabled}"
+                                    IsToggled="{Binding IsDenoiseChecked}"
+                                    Grid.Column="1"
+                                    Grid.Row="6" />
                         </Grid>
                     </StackLayout>
                 </Frame>

@@ -1458,6 +1458,30 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsVideoDenoiseForJobWhenChecked()
+        {
+            SelectSource();
+            _viewModel.IsDenoiseChecked = true;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(true, videoOutput?.Denoise);
+        }
+
+        [TestMethod]
+        public void SetsVideoDenoiseForJobWhenUnchecked()
+        {
+            SelectSource();
+            _viewModel.IsDenoiseChecked = false;
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(false, videoOutput?.Denoise);
+        }
+
+        [TestMethod]
         public void CallsCalculateCropParametersForCropJob()
         {
             _videoStream.Dimensions = new Dimensions(1920, 1080);

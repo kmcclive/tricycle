@@ -378,6 +378,16 @@ namespace Tricycle.Media.FFmpeg
                 AppendVideoSampleAspectRatioFilter(filterBuilder);
             }
 
+            if (outputStream.Denoise)
+            {
+                if (filterBuilder.Length > 0)
+                {
+                    AppendListDelimiter(filterBuilder);
+                }
+
+                AppendVideoDenoiseFilter(filterBuilder);
+            }
+
             if (outputStream.Tonemap)
             {
                 if (filterBuilder.Length > 0)
@@ -475,6 +485,18 @@ namespace Tricycle.Media.FFmpeg
             builder.Append("1");
             AppendOptionDelimiter(builder);
             builder.Append("1");
+        }
+
+        void AppendVideoDenoiseFilter(StringBuilder builder)
+        {
+            string options = _config.Video?.DenoiseOptions;
+
+            if (string.IsNullOrWhiteSpace(options))
+            {
+                options = "hqdn3d=4:4:3:3";
+            }
+
+            builder.Append(options);
         }
 
         void AppendVideoTonemapFilter(StringBuilder builder)

@@ -204,7 +204,8 @@ namespace Tricycle.Media.FFmpeg.Tests
                             Size = new Dimensions(3840, 1632),
                             Start = new Coordinate<int>(0, 264)
                         },
-                        CopyHdrMetadata = true
+                        CopyHdrMetadata = true,
+                        Denoise = true,
                     },
                     new OutputStream()
                     {
@@ -225,7 +226,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 "-map 0:0 -c:v:0 libx265 -preset medium -crf 18 -x265-params " +
                 "colorprim=bt2020:colormatrix=bt2020nc:transfer=smpte2084:" +
                 "master-display=\"G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1)\":max-cll=\"1000,400\" " +
-                "-vf crop=3840:1632:0:264,setsar=1:1 " +
+                "-vf crop=3840:1632:0:264,setsar=1:1,hqdn3d=4:4:3:3 " +
                 "-map 0:1 -c:a:0 copy " +
                 "-map 0:1 -c:a:1 libfdk_aac -profile:a aac_he -ac:a:1 2 -b:a:1 80k " +
                 "\"output.mkv\"";

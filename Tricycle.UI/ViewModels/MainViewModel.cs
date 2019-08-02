@@ -1089,6 +1089,7 @@ namespace Tricycle.UI.ViewModels
                 ScaledDimensions = GetScaledDimensions(cropParameters, divisor),
                 DynamicRange = IsHdrChecked ? DynamicRange.High : DynamicRange.Standard,
                 CopyHdrMetadata = IsHdrChecked,
+                Denoise = IsDenoiseChecked,
                 Tonemap = IsSourceHdr && !IsHdrChecked
             };
         }
