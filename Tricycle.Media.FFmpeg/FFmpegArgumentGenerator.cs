@@ -70,10 +70,40 @@ namespace Tricycle.Media.FFmpeg
                 throw new ArgumentException($"{nameof(job)}.{nameof(job.Streams)} is null or empty.", nameof(job));
             }
 
+            var videoStream = job.SourceInfo.Streams.OfType<VideoStreamInfo>().FirstOrDefault();
+
+            if (videoStream == null)
+            {
+                throw new NotSupportedException($"{nameof(job)}.{nameof(job.SourceInfo)} must have a video stream.");
+            }
+
             var argBuilder = new StringBuilder();
 
             AppendUniversalArguments(argBuilder);
             AppendDelimiter(argBuilder);
+
+            int? subtitlesIndex = null;
+
+            if (job.Subtitles != null)
+            {
+                subtitlesIndex = GetRelativeSubtitlesIndex(job.SourceInfo.Streams, job.Subtitles.SourceStreamIndex);
+
+                if (!subtitlesIndex.HasValue)
+                {
+                    throw new ArgumentException(
+                        $"{nameof(job)}.{nameof(job.Subtitles)} contains an invalid index.", nameof(job));
+                }
+
+                if (job.Subtitles.ForcedOnly)
+                {
+                    AppendForcedSubtitles(argBuilder);
+                    AppendDelimiter(argBuilder);
+                }
+
+                AppendCanvasSize(argBuilder, videoStream.Dimensions);
+                AppendDelimiter(argBuilder);
+            }
+
             AppendInput(argBuilder, job.SourceInfo.FileName);
             AppendDelimiter(argBuilder);
             AppendFormat(argBuilder, job.Format);
@@ -81,7 +111,7 @@ namespace Tricycle.Media.FFmpeg
 
             try
             {
-                AppendStreamMap(argBuilder, job.SourceInfo, job.Streams);
+                AppendStreamMap(argBuilder, job.SourceInfo, job.Streams, subtitlesIndex);
             }
             catch (ArgumentException ex)
             {
@@ -102,6 +132,25 @@ namespace Tricycle.Media.FFmpeg
         #region Private
 
         #region Universal
+
+        int? GetRelativeSubtitlesIndex(IList<StreamInfo> sourceStreams, int index)
+        {
+            int i = 0;
+            int? result = null;
+
+            foreach (var stream in sourceStreams.Where(s => s.StreamType == StreamType.Subtitle))
+            {
+                if (stream.Index == index)
+                {
+                    result = i;
+                    break;
+                }
+
+                i++;
+            }
+
+            return result;
+        }
 
         void AppendUniversalArguments(StringBuilder builder)
         {
@@ -126,6 +175,16 @@ namespace Tricycle.Media.FFmpeg
         void AppendListDelimiter(StringBuilder builder)
         {
             builder.Append(",");
+        }
+
+        void AppendForcedSubtitles(StringBuilder builder)
+        {
+            builder.Append("-forced_subs_only 1");
+        }
+
+        void AppendCanvasSize(StringBuilder builder, Dimensions dimensions)
+        {
+            builder.Append($"-canvas_size {dimensions}");
         }
 
         void AppendInput(StringBuilder builder, string fileName)
@@ -157,7 +216,10 @@ namespace Tricycle.Media.FFmpeg
             builder.Append($"-f {container}");
         }
 
-        void AppendStreamMap(StringBuilder builder, MediaInfo sourceInfo, IList<OutputStream> streams)
+        void AppendStreamMap(StringBuilder builder,
+                             MediaInfo sourceInfo,
+                             IList<OutputStream> streams,
+                             int? subtitlesIndex)
         {
             IDictionary<int, StreamInfo> sourceStreamsByIndex = sourceInfo.Streams.ToDictionary(s => s.Index);
             int audioIndex = 0;
@@ -196,14 +258,15 @@ namespace Tricycle.Media.FFmpeg
                         throw new NotSupportedException($"The stream type {sourceStream.StreamType} is not supported.");
                 }
 
-                AppendStream(builder, sourceStream, outputStream, relativeIndex);
+                AppendStream(builder, sourceStream, outputStream, relativeIndex, subtitlesIndex);
             }
         }
 
         void AppendStream(StringBuilder builder,
                           StreamInfo sourceStream,
                           OutputStream outputStream,
-                          int relativeIndex)
+                          int relativeIndex,
+                          int? subtitlesIndex)
         {
             builder.Append($"-map 0:{sourceStream.Index}");
             AppendDelimiter(builder);
@@ -215,7 +278,7 @@ namespace Tricycle.Media.FFmpeg
                 case VideoOutputStream video:
                     if (sourceStream is VideoStreamInfo videoSource)
                     {
-                        AppendVideoStream(builder, videoSource, video, streamSpecifier);
+                        AppendVideoStream(builder, videoSource, video, streamSpecifier, subtitlesIndex);
                     }
                     else
                     {
@@ -320,7 +383,8 @@ namespace Tricycle.Media.FFmpeg
         void AppendVideoStream(StringBuilder builder,
                                VideoStreamInfo sourceStream,
                                VideoOutputStream outputStream,
-                               string streamSpecifier)
+                               string streamSpecifier,
+                               int? subtitlesIndex)
         {
             AppendVideoFormat(builder, streamSpecifier, outputStream.Format);
             AppendDelimiter(builder);
@@ -354,10 +418,20 @@ namespace Tricycle.Media.FFmpeg
 
             var filterBuilder = new StringBuilder();
 
+            if (subtitlesIndex.HasValue)
+            {
+                AppendVideoOverlayFilter(filterBuilder);
+            }
+
             if ((outputStream.CropParameters != null) &&
                 ((outputStream.CropParameters.Size.Width < sourceStream.Dimensions.Width) ||
                  (outputStream.CropParameters.Size.Height < sourceStream.Dimensions.Height)))
             {
+                if (filterBuilder.Length > 0)
+                {
+                    AppendListDelimiter(filterBuilder);
+                }
+
                 AppendVideoCropFilter(filterBuilder, outputStream.CropParameters);
             }
 
@@ -401,7 +475,16 @@ namespace Tricycle.Media.FFmpeg
             if (filterBuilder.Length > 0)
             {
                 AppendDelimiter(builder);
-                builder.Append($"-vf {filterBuilder}");
+                builder.Append($"-filter_complex");
+                AppendDelimiter(builder);
+                builder.Append($"[0:v:0]");
+
+                if (subtitlesIndex.HasValue)
+                {
+                    builder.Append($"[0:s:{subtitlesIndex}]");
+                }
+
+                builder.Append(filterBuilder);
             }
         }
 
@@ -457,6 +540,11 @@ namespace Tricycle.Media.FFmpeg
         void AppendVideoFilterStart(StringBuilder builder, string filter)
         {
             AppendOption(builder, filter, string.Empty);
+        }
+
+        void AppendVideoOverlayFilter(StringBuilder builder)
+        {
+            builder.Append("'scale2ref[sub][ref];[ref][sub]overlay'");
         }
 
         void AppendVideoCropFilter(StringBuilder builder, CropParameters cropParameters)

@@ -108,6 +108,7 @@
         ],
         "passthruMatchingTracks": true
     },
+    "forcedSubtitlesOnly": true,
     "defaultFileExtensions": {
         "mp4": "m4v",
         "mkv": "mkv"
