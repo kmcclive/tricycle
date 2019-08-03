@@ -27,7 +27,7 @@ namespace Tricycle.UI.macOS
     public sealed class AppDelegate : FormsApplicationDelegate
     {
         const int WINDOW_WIDTH = 800;
-        const int WINDOW_HEIGHT = 490;
+        const int WINDOW_HEIGHT = 540;
 
         MainWindowDelegate _mainWindowDelegate = new MainWindowDelegate();
 

@@ -69,6 +69,8 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
         bool _isDenoiseChecked;
+        IList<ListItem> _subtitleOptions;
+        ListItem _selectedSubtitle;
         IList<AudioOutputViewModel> _audioOutputs = new ObservableCollection<AudioOutputViewModel>();
         bool _isContainerFormatEnabled;
         IList<ListItem> _containerFormatOptions;
@@ -284,6 +286,18 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _isDenoiseChecked; }
             set { SetProperty(ref _isDenoiseChecked, value); }
+        }
+
+        public IList<ListItem> SubtitleOptions
+        {
+            get { return _subtitleOptions; }
+            set { SetProperty(ref _subtitleOptions, value); }
+        }
+
+        public ListItem SelectedSubtitle
+        {
+            get { return _selectedSubtitle; }
+            set { SetProperty(ref _selectedSubtitle, value); }
         }
 
         public IList<AudioOutputViewModel> AudioOutputs
@@ -602,6 +616,7 @@ namespace Tricycle.UI.ViewModels
 
             DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
             PopulateVideoOptions(_primaryVideoStream, _cropParameters);
+            PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
 
@@ -759,6 +774,34 @@ namespace Tricycle.UI.ViewModels
             }
 
             return false;
+        }
+
+        void PopulateSubtitleOptions(MediaInfo sourceInfo)
+        {
+            SubtitleOptions = GetSubtitleOptions(sourceInfo);
+            SelectedSubtitle = SubtitleOptions?.FirstOrDefault();
+        }
+
+        IList<ListItem> GetSubtitleOptions(MediaInfo sourceInfo)
+        {
+            int i = 1;
+
+            IList<ListItem> result = sourceInfo?.Streams?.Where(s => s.StreamType == StreamType.Subtitle)
+                                                         .Select(s => new ListItem(GetSubtitleName(s, i), s))
+                                                         .ToList() ?? new List<ListItem>();
+
+            result.Insert(0, NONE_OPTION);
+
+            return result;
+        }
+
+        string GetSubtitleName(StreamInfo stream, int index)
+        {
+            string format = Regex.IsMatch(stream.FormatName, "(pgs|graphic|bitmap)", RegexOptions.IgnoreCase)
+                ? "Graphic"
+                : "Text";
+
+            return $"{index}: {format} ({stream.Language})";
         }
 
         void PopulateAudioOptions(MediaInfo sourceInfo)
@@ -1055,7 +1098,8 @@ namespace Tricycle.UI.ViewModels
                 SourceInfo = _sourceInfo,
                 OutputFileName = DestinationName,
                 Format = (ContainerFormat)SelectedContainerFormat.Value,
-                Streams = GetOutputStreams()
+                Streams = GetOutputStreams(),
+                Subtitles = GetSubtitles()
             };
         }
 
@@ -1145,6 +1189,20 @@ namespace Tricycle.UI.ViewModels
             var targetDimensions = (Dimensions)SelectedSize.Value;
 
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
+        }
+
+        SubtitlesConfig GetSubtitles()
+        {
+            if (SelectedSubtitle == NONE_OPTION)
+            {
+                return null;
+            }
+
+            return new SubtitlesConfig()
+            {
+                SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
+                ForcedOnly = _tricycleConfig.ForcedSubtitlesOnly
+            };
         }
 
         IList<OutputStream> GetAudioOutputStreams()

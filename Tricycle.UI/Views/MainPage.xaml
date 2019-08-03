@@ -36,7 +36,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="330"
+                       HeightRequest="380"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Video"
@@ -50,10 +50,6 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
@@ -103,13 +99,19 @@
                                     IsToggled="{Binding IsDenoiseChecked}"
                                     Grid.Column="1"
                                     Grid.Row="6" />
+                            <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
+                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                     ItemsSource="{Binding SubtitleOptions}"
+                                                     SelectedItem="{Binding SelectedSubtitle}"
+                                                     Grid.Column="1"
+                                                     Grid.Row="7" />
                         </Grid>
                     </StackLayout>
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="330"
+                       HeightRequest="380"
                        Padding="20, 0, 5, 20">
                     <StackLayout>
                         <Label Text="Audio"
@@ -131,7 +133,7 @@
                                         <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                                                BorderColor="{StaticResource BorderColor}"
                                                Margin="0, 0, 3, 5"
-                                               Padding="5, 8">
+                                               Padding="5, 10">
                                             <Grid RowSpacing="5">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />

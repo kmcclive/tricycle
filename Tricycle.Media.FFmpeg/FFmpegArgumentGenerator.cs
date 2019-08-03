@@ -477,13 +477,13 @@ namespace Tricycle.Media.FFmpeg
                 AppendDelimiter(builder);
                 builder.Append($"-filter_complex");
                 AppendDelimiter(builder);
-                builder.Append($"[0:v:0]");
 
                 if (subtitlesIndex.HasValue)
                 {
                     builder.Append($"[0:s:{subtitlesIndex}]");
                 }
 
+                builder.Append($"[0:v:0]");
                 builder.Append(filterBuilder);
             }
         }
