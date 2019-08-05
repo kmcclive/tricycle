@@ -94,7 +94,7 @@
                                                      SelectedItem="{Binding SelectedAspectRatio}"
                                                      Grid.Column="1"
                                                      Grid.Row="5" />
-                            <Label Text="Denoise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+                            <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
                             <Switch IsEnabled="{Binding IsVideoConfigEnabled}"
                                     IsToggled="{Binding IsDenoiseChecked}"
                                     Grid.Column="1"

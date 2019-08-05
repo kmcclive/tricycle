@@ -787,7 +787,7 @@ namespace Tricycle.UI.ViewModels
             int i = 1;
 
             IList<ListItem> result = sourceInfo?.Streams?.Where(s => s.StreamType == StreamType.Subtitle)
-                                                         .Select(s => new ListItem(GetSubtitleName(s, i), s))
+                                                         .Select(s => new ListItem(GetSubtitleName(s, i++), s))
                                                          .ToList() ?? new List<ListItem>();
 
             result.Insert(0, NONE_OPTION);
@@ -797,11 +797,7 @@ namespace Tricycle.UI.ViewModels
 
         string GetSubtitleName(StreamInfo stream, int index)
         {
-            string format = Regex.IsMatch(stream.FormatName, "(pgs|graphic|bitmap)", RegexOptions.IgnoreCase)
-                ? "Graphic"
-                : "Text";
-
-            return $"{index}: {format} ({stream.Language})";
+            return $"{index}: {Iso639.Language.FromPart2(stream.Language)?.Name ?? stream.Language}";
         }
 
         void PopulateAudioOptions(MediaInfo sourceInfo)
