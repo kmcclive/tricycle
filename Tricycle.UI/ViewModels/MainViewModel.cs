@@ -90,7 +90,7 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
-        bool _isRunning = false;
+        volatile bool _isRunning = false;
         bool _isSourceSelectionEnabled = true;
         bool _isDestinationSelectionEnabled = false;
         bool _isStartEnabled = false;
@@ -1371,6 +1371,11 @@ namespace Tricycle.UI.ViewModels
 
             _device.BeginInvokeOnMainThread(() =>
             {
+                if (!_isRunning)
+                {
+                    return;
+                }
+
                 Progress = status.Percent;
                 RateText = string.IsNullOrEmpty(eta) ? $"{status.Speed:0.###}x" : $"ETA {eta} ({status.Speed:0.###}x)";
                 ProgressText = $"{status.Percent * 100:0.##}%";
