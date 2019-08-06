@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Iso639;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
@@ -797,7 +798,12 @@ namespace Tricycle.UI.ViewModels
 
         string GetSubtitleName(StreamInfo stream, int index)
         {
-            return $"{index}: {Iso639.Language.FromPart2(stream.Language)?.Name ?? stream.Language}";
+            if (string.IsNullOrWhiteSpace(stream.Language))
+            {
+                return index.ToString();
+            }
+
+            return $"{index}: {Language.FromPart2(stream.Language)?.Name ?? stream.Language}";
         }
 
         void PopulateAudioOptions(MediaInfo sourceInfo)
@@ -903,7 +909,7 @@ namespace Tricycle.UI.ViewModels
 
             if (!string.IsNullOrWhiteSpace(audioStream.Language))
             {
-                result += $" ({audioStream.Language})";
+                result += $" ({Language.FromPart2(audioStream.Language)?.Name ?? audioStream.Language})";
             }
 
             return result;

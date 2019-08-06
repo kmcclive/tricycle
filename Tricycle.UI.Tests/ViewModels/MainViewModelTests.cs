@@ -788,7 +788,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void LimitAspectRatioOptionsBasedOnSource()
+        public void LimitsAspectRatioOptionsBasedOnSource()
         {
             _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
             {
@@ -807,7 +807,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void LimitAspectRatioOptionsBasedOnBars()
+        public void LimitsAspectRatioOptionsBasedOnBars()
         {
             _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
             {
@@ -821,6 +821,31 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(2, _viewModel.AspectRatioOptions?.Count);
             Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
             Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[1]?.Name);
+        }
+
+        [TestMethod]
+        public void PopulatesSubtitleOptions()
+        {
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "eng"
+                },
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "spa"
+                }
+            };
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.SubtitleOptions?.Count);
+            Assert.AreEqual("None", _viewModel.SubtitleOptions[0]?.Name);
+            Assert.AreEqual("1: English", _viewModel.SubtitleOptions[1]?.Name);
+            Assert.AreEqual("2: Spanish", _viewModel.SubtitleOptions[2]?.Name);
         }
 
         [TestMethod]
@@ -1003,11 +1028,12 @@ namespace Tricycle.UI.Tests
         {
             _audioStream.FormatName = "ac-3";
             _audioStream.ChannelCount = 6;
+            _audioStream.Language = "eng";
             SelectSource();
 
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
-            Assert.AreEqual("1: Dolby Digital 5.1", audioOutput?.SelectedTrack?.Name);
+            Assert.AreEqual("1: Dolby Digital 5.1 (English)", audioOutput?.SelectedTrack?.Name);
         }
 
         [TestMethod]
@@ -1756,6 +1782,98 @@ namespace Tricycle.UI.Tests
             _transcodeCalculator.Received().CalculateScaledDimensions(Arg.Any<Dimensions>(),
                                                                       Arg.Any<Dimensions>(),
                                                                       divisor);
+        }
+
+        [TestMethod]
+        public void SetsSubtitlesForJobWhenSelected()
+        {
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.Subtitles);
+            Assert.AreEqual(2, _transcodeJob.Subtitles.SourceStreamIndex);
+        }
+
+        [TestMethod]
+        public void DoesNotSetSubtitlesForJobWhenNotSelected()
+        {
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            Start();
+
+            Assert.IsNull(_transcodeJob.Subtitles);
+        }
+
+        [TestMethod]
+        public void SetsForcedSubtitlesForJobWhenEnabled()
+        {         
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _tricycleConfig.ForcedSubtitlesOnly = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.Subtitles);
+            Assert.AreEqual(true, _transcodeJob.Subtitles.ForcedOnly);
+        }
+
+        [TestMethod]
+        public void DoesNotSetForcedSubtitlesForJobWhenDisabled()
+        {
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _tricycleConfig.ForcedSubtitlesOnly = false;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.Subtitles);
+            Assert.AreEqual(false, _transcodeJob.Subtitles.ForcedOnly);
         }
 
         [TestMethod]
