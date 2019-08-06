@@ -6,15 +6,20 @@ using Tricycle.UI.Models;
 
 namespace Tricycle.UI.macOS
 {
-    public class MainWindowDelegate : NSWindowDelegate, IAppManager
+    public class MainWindowDelegate : NSWindowDelegate
     {
-        public event Action<CancellationArgs> Quitting;
+        IAppManager _appManager;
+
+        public MainWindowDelegate(IAppManager appManager)
+        {
+            _appManager = appManager;
+        }
 
         public override bool WindowShouldClose(NSObject sender)
         {
             var cancellation = new CancellationArgs();
 
-            Quitting?.Invoke(cancellation);
+            _appManager.RaiseQuitting(cancellation);
 
             return !cancellation.Cancel;
         }

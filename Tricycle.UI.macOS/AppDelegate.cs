@@ -29,13 +29,24 @@ namespace Tricycle.UI.macOS
         const int WINDOW_WIDTH = 800;
         const int WINDOW_HEIGHT = 540;
 
-        MainWindowDelegate _mainWindowDelegate = new MainWindowDelegate();
+        IAppManager _appManager;
+        MainWindowDelegate _mainWindowDelegate;
 
         public AppDelegate()
         {
             var center = GetCenterCoordinate();
             var rect = new CoreGraphics.CGRect(center.X, center.Y, WINDOW_WIDTH, WINDOW_HEIGHT);
             var style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
+
+            _appManager = new AppManager();
+            _mainWindowDelegate = new MainWindowDelegate(_appManager);
+
+            _appManager.FileOpened += fileName =>
+            {
+                var url = new NSUrl($"file://{Uri.EscapeUriString(fileName)}");
+
+                NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
+            };
 
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
@@ -71,7 +82,7 @@ namespace Tricycle.UI.macOS
                                                                   processCreator,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
-                _.For<IAppManager>().Use(_mainWindowDelegate);
+                _.For<IAppManager>().Use(_appManager);
             });
             AppState.TricycleConfig = ReadConfigFile<TricycleConfig>(Path.Combine(configPath, "tricycle.json"));
             AppState.DefaultDestinationDirectory =
@@ -91,6 +102,24 @@ namespace Tricycle.UI.macOS
         public override void WillTerminate(NSNotification notification)
         {
             // Insert code here to tear down your application
+        }
+
+        public override bool OpenFile(NSApplication sender, string filename)
+        {
+            _appManager.RaiseFileOpened(filename);
+            return true;
+        }
+
+        [Export("openDocument:")]
+        void OpenFile(NSObject sender)
+        {
+            var browser = new FileBrowser();
+            var result = browser.BrowseToOpen().GetAwaiter().GetResult();
+
+            if (result.Confirmed)
+            {
+                _appManager.RaiseFileOpened(result.FileName);
+            }
         }
 
         T ReadConfigFile<T>(string fileName) where T : class, new()

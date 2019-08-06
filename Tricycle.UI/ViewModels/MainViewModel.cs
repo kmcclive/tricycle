@@ -126,6 +126,7 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.Failed += OnTranscodeFailed;
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
+            _appManager.FileOpened += async fileName => await OpenSource(fileName);
             _appManager.Quitting += OnAppQuitting;
 
             SourceSelectCommand = new Command(async () => await SelectSource(),
@@ -394,6 +395,7 @@ namespace Tricycle.UI.ViewModels
 
             if (result.Confirmed)
             {
+                _appManager.RaiseFileOpened(result.FileName);
                 await OpenSource(result.FileName);
             }
         }
