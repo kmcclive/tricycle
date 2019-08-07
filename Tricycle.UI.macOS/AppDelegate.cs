@@ -106,6 +106,11 @@ namespace Tricycle.UI.macOS
 
         public override bool OpenFile(NSApplication sender, string filename)
         {
+            if (!File.Exists(filename))
+            {
+                return false;
+            }
+
             _appManager.RaiseFileOpened(filename);
             return true;
         }

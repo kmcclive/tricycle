@@ -2507,6 +2507,27 @@ namespace Tricycle.UI.Tests
             Assert.IsTrue(cancellation.Cancel);
         }
 
+        [TestMethod]
+        public void ReadsSourceWhenFileOpenedEventIsRaised()
+        {
+            string fileName = "/Users/fred/Movies/test.mkv";
+
+            _appManager.FileOpened += Raise.Event<Action<string>>(fileName);
+
+            _mediaInspector.Received().Inspect(fileName);
+        }
+
+        [TestMethod]
+        public void RaisesFileOpenedEventWhenSourceIsSelected()
+        {
+            string fileName = "/Users/fred/Movies/test.mkv";
+
+            _fileBrowserResult.FileName = fileName;
+            SelectSource();
+
+            _appManager.Received().RaiseFileOpened(fileName);
+        }
+
         #endregion
 
         #region Helper Methods
