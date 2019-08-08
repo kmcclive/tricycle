@@ -31,6 +31,7 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         MainWindowDelegate _mainWindowDelegate;
+        bool _isBusy = false;
 
         public AppDelegate()
         {
@@ -41,6 +42,14 @@ namespace Tricycle.UI.macOS
             _appManager = new AppManager();
             _mainWindowDelegate = new MainWindowDelegate(_appManager);
 
+            _appManager.Busy += () =>
+            {
+                _isBusy = true;
+            };
+            _appManager.Ready += () =>
+            {
+                _isBusy = false;
+            };
             _appManager.FileOpened += fileName =>
             {
                 var url = new NSUrl($"file://{Uri.EscapeUriString(fileName)}");
@@ -113,6 +122,21 @@ namespace Tricycle.UI.macOS
 
             _appManager.RaiseFileOpened(filename);
             return true;
+        }
+
+        [Action("validateMenuItem:")]
+        public bool ValidateMenuItem(NSMenuItem item)
+        {
+            Debug.WriteLine($"{item.Identifier}: {item.Title}");
+
+            switch(item.Identifier)
+            {
+                case "IAo-SY-fd9":
+                case "tXI-mr-wws":
+                    return !_isBusy;
+                default:
+                    return true;
+            }
         }
 
         [Export("openDocument:")]

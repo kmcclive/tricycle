@@ -583,6 +583,7 @@ namespace Tricycle.UI.ViewModels
             Command startCommand = ((Command)StartCommand);
             _isStartEnabled = false;
 
+            _appManager.RaiseBusy();
             EnableControls(false);
             startCommand.ChangeCanExecute();
 
@@ -640,6 +641,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             startCommand.ChangeCanExecute();
+            _appManager.RaiseReady();
         }
 
         void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
@@ -1005,6 +1007,7 @@ namespace Tricycle.UI.ViewModels
                 IsProgressVisible = true;
                 ToggleStartImage = STOP_IMAGE;
 
+                _appManager.RaiseBusy();
                 EnableControls(false);
 
                 success = true;
@@ -1065,6 +1068,7 @@ namespace Tricycle.UI.ViewModels
 
             ResetProgress();
             EnableControls(true);
+            _appManager.RaiseReady();
         }
 
         void ResetProgress()
