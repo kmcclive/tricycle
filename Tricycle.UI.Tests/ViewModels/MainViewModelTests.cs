@@ -2528,6 +2528,43 @@ namespace Tricycle.UI.Tests
             _appManager.Received().RaiseFileOpened(fileName);
         }
 
+        [TestMethod]
+        public void RaisesBusyEventWhenSourceIsSelected()
+        {
+            SelectSource();
+
+            _appManager.Received().RaiseBusy();
+        }
+
+        [TestMethod]
+        public void RaisesReadyEventAfterSourceIsRead()
+        {
+            SelectSource();
+
+            _appManager.Received().RaiseReady();
+        }
+
+        [TestMethod]
+        public void RaisesBusyEventWhenJobIsStarted()
+        {
+            SelectSource();
+            _appManager.ClearReceivedCalls();
+            Start();
+
+            _appManager.Received().RaiseBusy();
+        }
+
+        [TestMethod]
+        public void RaisesReadyEventWhenJobIsStopped()
+        {
+            SelectSource();
+            Start();
+            _appManager.ClearReceivedCalls();
+            Stop();
+
+            _appManager.Received().RaiseReady();
+        }
+
         #endregion
 
         #region Helper Methods

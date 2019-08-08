@@ -31,7 +31,8 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         MainWindowDelegate _mainWindowDelegate;
-        bool _isBusy = false;
+        NSDocumentController _documentController;
+        volatile bool _isBusy = false;
 
         public AppDelegate()
         {
@@ -56,7 +57,7 @@ namespace Tricycle.UI.macOS
 
                 NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
             };
-
+            
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
                 Title = "Tricycle",
@@ -65,6 +66,11 @@ namespace Tricycle.UI.macOS
         }
 
         public override NSWindow MainWindow { get; }
+
+        public override void WillFinishLaunching(NSNotification notification)
+        {
+            _documentController = new AppDocumentController(_appManager);
+        }
 
         public override void DidFinishLaunching(NSNotification notification)
         {
@@ -127,12 +133,9 @@ namespace Tricycle.UI.macOS
         [Action("validateMenuItem:")]
         public bool ValidateMenuItem(NSMenuItem item)
         {
-            Debug.WriteLine($"{item.Identifier}: {item.Title}");
-
-            switch(item.Identifier)
+            switch(item.Title)
             {
-                case "IAo-SY-fd9":
-                case "tXI-mr-wws":
+                case "Open…":
                     return !_isBusy;
                 default:
                     return true;
