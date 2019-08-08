@@ -2232,6 +2232,22 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void DisplaysEtaText()
+        {
+            var status = new TranscodeStatus()
+            {
+                Eta = new TimeSpan(0, 2, 30, 35, 36),
+                Speed = 0.139
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+
+            Assert.AreEqual("ETA 02:30:35 (0.139x)", _viewModel.RateText);
+        }
+
+        [TestMethod]
         public void ResetsProgressWhenJobCompletes()
         {
             var status = new TranscodeStatus()
