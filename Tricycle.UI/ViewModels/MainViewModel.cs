@@ -396,7 +396,6 @@ namespace Tricycle.UI.ViewModels
             if (result.Confirmed)
             {
                 _appManager.RaiseFileOpened(result.FileName);
-                await OpenSource(result.FileName);
             }
         }
 

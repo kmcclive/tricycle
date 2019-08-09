@@ -96,6 +96,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.When(x => x.Start(Arg.Any<TranscodeJob>())).Do(x => _transcodeJob = (TranscodeJob)x[0]);
             _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(_cropParameters);
             _fileSystem.File.Returns(_fileService);
+            _appManager.When(x => x.RaiseFileOpened(Arg.Any<string>())).Do(x => _appManager.FileOpened += Raise.Event<Action<string>>(x[0]));
             _fileService.Exists(Arg.Any<string>()).Returns(false);
         }
 
