@@ -86,13 +86,13 @@ namespace Tricycle.Media.FFmpeg
 
             if (job.Subtitles != null)
             {
-                subtitlesIndex = GetRelativeSubtitlesIndex(job.SourceInfo.Streams, job.Subtitles.SourceStreamIndex);
-
-                if (!subtitlesIndex.HasValue)
+                if (!job.SourceInfo.Streams.Any(s => s.StreamType == StreamType.Subtitle))
                 {
                     throw new ArgumentException(
                         $"{nameof(job)}.{nameof(job.Subtitles)} contains an invalid index.", nameof(job));
                 }
+
+                subtitlesIndex = job.Subtitles.SourceStreamIndex;
 
                 if (job.Subtitles.ForcedOnly)
                 {
@@ -132,25 +132,6 @@ namespace Tricycle.Media.FFmpeg
         #region Private
 
         #region Universal
-
-        int? GetRelativeSubtitlesIndex(IList<StreamInfo> sourceStreams, int index)
-        {
-            int i = 0;
-            int? result = null;
-
-            foreach (var stream in sourceStreams.Where(s => s.StreamType == StreamType.Subtitle))
-            {
-                if (stream.Index == index)
-                {
-                    result = i;
-                    break;
-                }
-
-                i++;
-            }
-
-            return result;
-        }
 
         void AppendUniversalArguments(StringBuilder builder)
         {
@@ -480,10 +461,10 @@ namespace Tricycle.Media.FFmpeg
 
                 if (subtitlesIndex.HasValue)
                 {
-                    builder.Append($"[0:s:{subtitlesIndex}]");
+                    builder.Append($"[0:{subtitlesIndex}]");
                 }
 
-                builder.Append($"[0:v:0]");
+                builder.Append($"[0:{sourceStream.Index}]");
                 builder.Append(filterBuilder);
             }
         }
