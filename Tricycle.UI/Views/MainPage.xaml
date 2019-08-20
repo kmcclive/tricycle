@@ -100,11 +100,16 @@
                                     Grid.Column="1"
                                     Grid.Row="6" />
                             <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
-                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                     ItemsSource="{Binding SubtitleOptions}"
-                                                     SelectedItem="{Binding SelectedSubtitle}"
-                                                     Grid.Column="1"
-                                                     Grid.Row="7" />
+                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="7">
+                                <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                         ItemsSource="{Binding SubtitleOptions}"
+                                                         SelectedItem="{Binding SelectedSubtitle}"
+                                                         FlexLayout.Grow="1" />
+                                <Label Text="Forced Only" FontSize="Micro" Margin="10, 0, 0, 0" />
+                                <Switch IsEnabled="{Binding IsForcedSubtitlesEnabled}"
+                                        IsToggled="{Binding IsForcedSubtitlesChecked}" />
+                            </FlexLayout>
+                            
                         </Grid>
                     </StackLayout>
                 </Frame>

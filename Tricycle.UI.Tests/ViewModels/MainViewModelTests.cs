@@ -851,6 +851,86 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ChecksForcedSubtitlesWhenEnabled()
+        {
+            _tricycleConfig.ForcedSubtitlesOnly = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "eng"
+                }
+            };
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsForcedSubtitlesChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckForcedSubtitlesWhenDisabled()
+        {
+            _tricycleConfig.ForcedSubtitlesOnly = false;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "eng"
+                }
+            };
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsForcedSubtitlesChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckForcedSubtitlesWhenNoSubtitlesExist()
+        {
+            _tricycleConfig.ForcedSubtitlesOnly = true;
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsForcedSubtitlesChecked);
+        }
+
+        [TestMethod]
+        public void DisablesForcedSubtitlesBeforeSubtitleSelection()
+        {
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "eng"
+                }
+            };
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsForcedSubtitlesEnabled);
+        }
+
+        [TestMethod]
+        public void EnablesForcedSubtitlesForSelectedSubtitle()
+        {
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new StreamInfo()
+                {
+                    StreamType = StreamType.Subtitle,
+                    Language = "eng"
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(_mediaInfo.Streams.Last());
+
+            Assert.IsTrue(_viewModel.IsForcedSubtitlesEnabled);
+        }
+
+        [TestMethod]
         public void ListsNoAudioOutputsWhenSourceHasNoTracks()
         {
             _mediaInfo.Streams = new StreamInfo[]
@@ -1840,7 +1920,6 @@ namespace Tricycle.UI.Tests
                 Language = "eng"
             };
 
-            _tricycleConfig.ForcedSubtitlesOnly = true;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
@@ -1848,6 +1927,7 @@ namespace Tricycle.UI.Tests
             };
             SelectSource();
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            _viewModel.IsForcedSubtitlesChecked = true;
             Start();
 
             Assert.IsNotNull(_transcodeJob.Subtitles);
@@ -1864,7 +1944,6 @@ namespace Tricycle.UI.Tests
                 Language = "eng"
             };
 
-            _tricycleConfig.ForcedSubtitlesOnly = false;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
@@ -1872,6 +1951,7 @@ namespace Tricycle.UI.Tests
             };
             SelectSource();
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            _viewModel.IsForcedSubtitlesChecked = false;
             Start();
 
             Assert.IsNotNull(_transcodeJob.Subtitles);

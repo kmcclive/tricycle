@@ -72,6 +72,8 @@ namespace Tricycle.UI.ViewModels
         bool _isDenoiseChecked;
         IList<ListItem> _subtitleOptions;
         ListItem _selectedSubtitle;
+        bool _isForcedSubtitlesEnabled;
+        bool _isForcedSubtitlesChecked;
         IList<AudioOutputViewModel> _audioOutputs = new ObservableCollection<AudioOutputViewModel>();
         bool _isContainerFormatEnabled;
         IList<ListItem> _containerFormatOptions;
@@ -299,7 +301,24 @@ namespace Tricycle.UI.ViewModels
         public ListItem SelectedSubtitle
         {
             get { return _selectedSubtitle; }
-            set { SetProperty(ref _selectedSubtitle, value); }
+            set
+            {
+                SetProperty(ref _selectedSubtitle, value);
+
+                IsForcedSubtitlesEnabled = value != NONE_OPTION;
+            }
+        }
+
+        public bool IsForcedSubtitlesEnabled
+        {
+            get { return _isForcedSubtitlesEnabled && _isVideoConfigEnabled; }
+            set { SetProperty(ref _isForcedSubtitlesEnabled, value); }
+        }
+
+        public bool IsForcedSubtitlesChecked
+        {
+            get { return _isForcedSubtitlesChecked; }
+            set { SetProperty(ref _isForcedSubtitlesChecked, value); }
         }
 
         public IList<AudioOutputViewModel> AudioOutputs
@@ -784,6 +803,7 @@ namespace Tricycle.UI.ViewModels
         {
             SubtitleOptions = GetSubtitleOptions(sourceInfo);
             SelectedSubtitle = SubtitleOptions?.FirstOrDefault();
+            IsForcedSubtitlesChecked = SubtitleOptions?.Count() > 1 && _tricycleConfig.ForcedSubtitlesOnly;
         }
 
         IList<ListItem> GetSubtitleOptions(MediaInfo sourceInfo)
@@ -1208,7 +1228,7 @@ namespace Tricycle.UI.ViewModels
             return new SubtitlesConfig()
             {
                 SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
-                ForcedOnly = _tricycleConfig.ForcedSubtitlesOnly
+                ForcedOnly = IsForcedSubtitlesChecked
             };
         }
 
