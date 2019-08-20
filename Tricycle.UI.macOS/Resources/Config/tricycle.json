@@ -72,23 +72,6 @@
                 ]
             },
             {
-                "format": "heAac",
-                "presets": [
-                    {
-                        "mixdown": "mono",
-                        "quality": 40.0
-                    },
-                    {
-                        "mixdown": "stereo",
-                        "quality": 80.0
-                    },
-                    {
-                        "mixdown": "surround5dot1",
-                        "quality": 192.0
-                    }
-                ]
-            },
-            {
                 "format": "ac3",
                 "presets": [
                     {
