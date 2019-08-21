@@ -1,0 +1,14 @@
+{
+  "title": "Tricycle",
+  "background": "background.png",
+  "contents": [
+    { "x": 410, "y": 344, "type": "link", "path": "/Applications" },
+    { "x": 155, "y": 344, "type": "file", "path": "../bin/Release/Tricycle.app" }
+  ],
+  "window": {
+  	"size": {
+  		"width": 570,
+  		"height": 480
+  	}
+  }
+}

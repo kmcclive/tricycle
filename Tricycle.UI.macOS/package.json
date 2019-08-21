@@ -1,0 +1,16 @@
+{
+  "name": "tricycle.ui.macos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "appdmg": "^0.6.0"
+  },
+  "scripts": {
+    "appdmg": "node_modules/.bin/appdmg",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

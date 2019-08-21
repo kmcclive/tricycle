@@ -51,6 +51,25 @@
     <HttpClientHandler>HttpClientHandler</HttpClientHandler>
     <XamMacArch></XamMacArch>
     <AOTMode>None</AOTMode>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>npm i</command>
+          <workingdir>${ProjectDir}</workingdir>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>rm -f Tricycle.dmg</command>
+          <workingdir>${TargetDir}</workingdir>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>npm run appdmg dmg/config.json bin/Release/Tricycle.dmg</command>
+          <workingdir>${ProjectDir}</workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard" />
