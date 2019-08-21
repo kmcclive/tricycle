@@ -18,10 +18,6 @@
             },
             "ac3": {
                 "name": "ac3"
-            },
-            "heAac": {
-                "name": "libfdk_aac",
-                "options": "-profile:a aac_he"
             }
         }
     }
