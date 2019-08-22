@@ -1,23 +1,21 @@
 ﻿{
     "video": {
-        "codecs": [
-            {
-                "format": "avc",
+        "codecs": {
+            "avc": {
                 "qualityRange": {
                     "min": 22.0,
                     "max": 18.0
                 },
                 "qualitySteps": 4
             },
-            {
-                "format": "hevc",
+            "hevc": {
                 "qualityRange": {
                     "min": 22.0,
                     "max": 18.0
                 },
                 "qualitySteps": 4
             }
-        ],
+        },
         "sizePresets": {
             "480p": {
                 "width": 854,
@@ -53,9 +51,8 @@
         "sizeDivisor": 8
     },
     "audio": {
-        "codecs": [
-            {
-                "format": "aac",
+        "codecs": {
+            "aac": {
                 "presets": [
                     {
                         "mixdown": "mono",
@@ -71,8 +68,7 @@
                     }
                 ]
             },
-            {
-                "format": "ac3",
+            "ac3": {
                 "presets": [
                     {
                         "mixdown": "mono",
@@ -88,7 +84,7 @@
                     }
                 ]
             }
-        ],
+        },
         "passthruMatchingTracks": true
     },
     "forcedSubtitlesOnly": true,

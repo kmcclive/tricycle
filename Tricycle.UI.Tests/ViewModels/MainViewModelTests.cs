@@ -497,7 +497,7 @@ namespace Tricycle.UI.Tests
         {
             _tricycleConfig.Video = new VideoConfig()
             {
-                Codecs = new VideoCodec[0]
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
             };
             SelectSource();
 
@@ -528,12 +528,9 @@ namespace Tricycle.UI.Tests
         {
             _tricycleConfig.Video = new VideoConfig()
             {
-                Codecs = new VideoCodec[]
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
                 {
-                    new VideoCodec()
-                    {
-                        Format = VideoFormat.Hevc
-                    }
+                    { VideoFormat.Hevc, new VideoCodec() }
                 }
             };
             SelectSource();
@@ -585,7 +582,7 @@ namespace Tricycle.UI.Tests
         {
             var stepCount = 6;
 
-            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Avc).QualitySteps = stepCount;
+            _tricycleConfig.Video.Codecs[VideoFormat.Avc].QualitySteps = stepCount;
             SelectSource();
 
             Assert.AreEqual(6, _viewModel.QualityStepCount);
@@ -596,7 +593,7 @@ namespace Tricycle.UI.Tests
         {
             var stepCount = 6;
 
-            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Hevc).QualitySteps = stepCount;
+            _tricycleConfig.Video.Codecs[VideoFormat.Hevc].QualitySteps = stepCount;
             SelectSource();
             _viewModel.SelectedVideoFormat = new ListItem("HEVC", VideoFormat.Hevc);
 
@@ -608,7 +605,7 @@ namespace Tricycle.UI.Tests
         {
             var stepCount = 4;
 
-            _tricycleConfig.Video.Codecs.First(c => c.Format == VideoFormat.Avc).QualitySteps = stepCount;
+            _tricycleConfig.Video.Codecs[VideoFormat.Avc].QualitySteps = stepCount;
             SelectSource();
 
             Assert.AreEqual(0.5, _viewModel.Quality);
@@ -945,7 +942,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ListsNoAudioOutputsWhenNoCodecsAreConfigured()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[0];
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>();
             SelectSource();
 
             Assert.IsTrue(_viewModel.AudioOutputs?.Any() != true);
@@ -954,12 +951,14 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ListsNoAudioOutputsWhenNoCodecsHavePresets()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[0]
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[0]
+                    }
                 }
             };
             SelectSource();
@@ -1038,16 +1037,18 @@ namespace Tricycle.UI.Tests
                 ChannelCount = 2
             };
 
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -1133,41 +1134,47 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PopulatesAudioFormatOptions()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
                 },
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
                 },
-                new AudioCodec()
                 {
-                    Format = AudioFormat.HeAac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.HeAac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
-                },
+                }
             };
             SelectSource();
 
@@ -1182,27 +1189,31 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void LimitsAudioFormatOptionsByConfiguredCodecs()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Stereo
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            }
                         }
                     }
                 },
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -1227,19 +1238,21 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SelectsAudioFormatByDefault()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
-                },
+                }
             };
             SelectSource();
 
@@ -1252,24 +1265,26 @@ namespace Tricycle.UI.Tests
         public void PopulatesAudioMixdownOptionsInOrder()
         {
             _audioStream.ChannelCount = 8;
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
-                        },
-                        new AudioPreset()
-                        {
-                            Mixdown = AudioMixdown.Stereo
-                        },
-                        new AudioPreset()
-                        {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            },
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            },
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -1288,24 +1303,26 @@ namespace Tricycle.UI.Tests
         public void LimitsAudioMixdownOptionsByTrack()
         {
             _audioStream.ChannelCount = 2;
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
-                        },
-                        new AudioPreset()
-                        {
-                            Mixdown = AudioMixdown.Stereo
-                        },
-                        new AudioPreset()
-                        {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            },
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            },
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -1323,31 +1340,35 @@ namespace Tricycle.UI.Tests
         public void ChangesAudioMixdownOptionsWhenFormatChanges()
         {
             _audioStream.ChannelCount = 8;
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
                 },
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Stereo
-                        },
-                        new AudioPreset()
-                        {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            },
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -1366,19 +1387,21 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SelectsAudioMixdownByDefault()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Aac,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Aac,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
-                },
+                }
             };
             SelectSource();
 
@@ -1467,13 +1490,15 @@ namespace Tricycle.UI.Tests
 
             _tricycleConfig.Video = new VideoConfig()
             {
-                Codecs = new VideoCodec[]
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
                 {
-                    new VideoCodec()
                     {
-                        Format = format,
-                        QualityRange = new Range<decimal>(25, 15),
-                        QualitySteps = 4
+                        format,
+                        new VideoCodec()
+                        {
+                            QualityRange = new Range<decimal>(25, 15),
+                            QualitySteps = 4
+                        }
                     }
                 }
             };
@@ -1987,16 +2012,18 @@ namespace Tricycle.UI.Tests
         public void PassesThruAudioWhenConfiguredTo()
         {
             _tricycleConfig.Audio.PassthruMatchingTracks = true;
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -2015,16 +2042,18 @@ namespace Tricycle.UI.Tests
         public void DoesNotPassThruAudioWhenConfiguredNotTo()
         {
             _tricycleConfig.Audio.PassthruMatchingTracks = false;
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Surround5dot1
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
                         }
                     }
                 }
@@ -2042,16 +2071,18 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SetsAudioFormatForJob()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
                 }
@@ -2067,16 +2098,18 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void SetsAudioMixdownForJob()
         {
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
                         }
                     }
                 }
@@ -2094,17 +2127,19 @@ namespace Tricycle.UI.Tests
         {
             decimal quality = 100;
 
-            _tricycleConfig.Audio.Codecs = new AudioCodec[]
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
-                new AudioCodec()
                 {
-                    Format = AudioFormat.Ac3,
-                    Presets = new AudioPreset[]
+                    AudioFormat.Ac3,
+                    new AudioCodec()
                     {
-                        new AudioPreset()
+                        Presets = new AudioPreset[]
                         {
-                            Mixdown = AudioMixdown.Mono,
-                            Quality = quality
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono,
+                                Quality = quality
+                            }
                         }
                     }
                 }
@@ -2673,30 +2708,26 @@ namespace Tricycle.UI.Tests
             {
                 Video = new VideoConfig()
                 {
-                    Codecs = new VideoCodec[]
+                    Codecs = new Dictionary<VideoFormat, VideoCodec>()
                     {
-                        new VideoCodec()
-                        {
-                            Format = VideoFormat.Avc
-                        },
-                        new VideoCodec()
-                        {
-                            Format = VideoFormat.Hevc
-                        }
+                        { VideoFormat.Avc, new VideoCodec() },
+                        { VideoFormat.Hevc, new VideoCodec() }
                     }
                 },
                 Audio = new AudioConfig()
                 {
-                    Codecs = new AudioCodec[]
+                    Codecs = new Dictionary<AudioFormat, AudioCodec>()
                     {
-                        new AudioCodec()
                         {
-                            Format = AudioFormat.Aac,
-                            Presets = new AudioPreset[]
+                            AudioFormat.Aac,
+                            new AudioCodec()
                             {
-                                new AudioPreset()
+                                Presets = new AudioPreset[]
                                 {
-                                    Mixdown = AudioMixdown.Mono
+                                    new AudioPreset()
+                                    {
+                                        Mixdown = AudioMixdown.Mono
+                                    }
                                 }
                             }
                         }

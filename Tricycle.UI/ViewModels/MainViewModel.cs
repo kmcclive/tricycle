@@ -89,7 +89,6 @@ namespace Tricycle.UI.ViewModels
         CropParameters _cropParameters;
         string _defaultExtension = DEFAULT_EXTENSION;
         VideoStreamInfo _primaryVideoStream;
-        IDictionary<VideoFormat, VideoCodec> _videoCodecsByFormat;
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioTrackOptions;
         IDictionary<AudioFormat, IList<ListItem>> _audioMixdownOptionsByFormat;
@@ -202,8 +201,8 @@ namespace Tricycle.UI.ViewModels
 
                 IsHdrEnabled = IsHdrSupported(_selectedVideoFormat, _primaryVideoStream);
                 IsHdrChecked = _isHdrEnabled;
-                QualityStepCount = (_selectedVideoFormat != null) &&
-                    _videoCodecsByFormat.TryGetValue((VideoFormat)_selectedVideoFormat.Value, out var codec)
+                QualityStepCount = (_selectedVideoFormat != null) && (_tricycleConfig.Video?.Codecs != null) &&
+                    _tricycleConfig.Video.Codecs.TryGetValue((VideoFormat)_selectedVideoFormat.Value, out var codec)
                     ? codec.QualitySteps
                     : DEFAULT_STEP_COUNT;
             }
@@ -461,15 +460,14 @@ namespace Tricycle.UI.ViewModels
             ProcessAudioCodecs(config.Audio?.Codecs);
         }
 
-        void ProcessVideoCodecs(IList<VideoCodec> codecs)
+        void ProcessVideoCodecs(IDictionary<VideoFormat, VideoCodec> codecs)
         {
             var formatOptions = new List<ListItem>();
-            _videoCodecsByFormat = new Dictionary<VideoFormat, VideoCodec>();
             int? qualitySteps = null;
 
-            foreach (var codec in codecs ?? Enumerable.Empty<VideoCodec>())
+            foreach (var codec in codecs ?? Enumerable.Empty<KeyValuePair<VideoFormat, VideoCodec>>())
             {
-                VideoFormat format = codec.Format;
+                VideoFormat format = codec.Key;
                 string name = GetVideoFormatName(format);
 
                 if (name == null)
@@ -483,11 +481,9 @@ namespace Tricycle.UI.ViewModels
                 {
                     formatOptions.Add(formatOption);
 
-                    _videoCodecsByFormat[format] = codec;
-
                     if (!qualitySteps.HasValue)
                     {
-                        qualitySteps = codec.QualitySteps;
+                        qualitySteps = codec.Value.QualitySteps;
                     }
                 }
             }
@@ -526,7 +522,7 @@ namespace Tricycle.UI.ViewModels
             }).ToArray();
         }
 
-        void ProcessAudioCodecs(IList<AudioCodec> codecs)
+        void ProcessAudioCodecs(IDictionary<AudioFormat, AudioCodec> codecs)
         {
             _audioFormatOptions = new List<ListItem>();
             _audioMixdownOptionsByFormat = new Dictionary<AudioFormat, IList<ListItem>>();
@@ -538,7 +534,7 @@ namespace Tricycle.UI.ViewModels
 
             foreach (var codec in codecs)
             {
-                AudioFormat format = codec.Format;
+                AudioFormat format = codec.Key;
                 string name = GetAudioFormatName(format);
 
                 if (name == null)
@@ -547,7 +543,7 @@ namespace Tricycle.UI.ViewModels
                 }
 
                 var formatOption = new ListItem(name, format);
-                IList<ListItem> mixdownOptions = GetAudioMixdownOptions(codec.Presets);
+                IList<ListItem> mixdownOptions = GetAudioMixdownOptions(codec.Value.Presets);
 
                 if (!_audioFormatOptions.Contains(formatOption) && (mixdownOptions?.Any() == true))
                 {
@@ -1169,7 +1165,7 @@ namespace Tricycle.UI.ViewModels
         {
             decimal result = 20;
 
-            if (_videoCodecsByFormat.TryGetValue(format, out var codec))
+            if ((_tricycleConfig.Video?.Codecs != null) && _tricycleConfig.Video.Codecs.TryGetValue(format, out var codec))
             {
                 decimal min = codec.QualityRange.Min ?? 22;
                 decimal max = codec.QualityRange.Max ?? 18;
@@ -1283,7 +1279,10 @@ namespace Tricycle.UI.ViewModels
                 Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value
             };
 
-            AudioCodec codec = _tricycleConfig.Audio?.Codecs?.FirstOrDefault(c => c.Format == result.Format);
+            AudioCodec codec = null;
+
+            _tricycleConfig.Audio?.Codecs?.TryGetValue(result.Format, out codec);
+
             AudioPreset preset = codec?.Presets.FirstOrDefault(p => p.Mixdown == result.Mixdown);
 
             if (preset != null)

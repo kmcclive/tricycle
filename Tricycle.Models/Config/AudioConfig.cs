@@ -4,7 +4,7 @@ namespace Tricycle.Models.Config
 {
     public class AudioConfig
     {
-        public IList<AudioCodec> Codecs { get; set; }
+        public IDictionary<AudioFormat, AudioCodec> Codecs { get; set; }
         public bool PassthruMatchingTracks { get; set; }
     }
 }
