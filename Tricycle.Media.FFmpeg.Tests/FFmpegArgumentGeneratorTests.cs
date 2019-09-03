@@ -333,6 +333,57 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void GeneratesArgumentsForMkvSubtitleJob()
+        {
+            var job = new TranscodeJob()
+            {
+                Format = ContainerFormat.Mkv,
+                OutputFileName = "output.mkv",
+                SourceInfo = new MediaInfo()
+                {
+                    FileName = "input.m4v",
+                    Duration = new TimeSpan(0, 1, 42, 37, 610),
+                    Streams = new StreamInfo[]
+                    {
+                        new VideoStreamInfo()
+                        {
+                            Index = 0,
+                            Dimensions = new Dimensions(3840, 2160),
+                            DynamicRange = DynamicRange.Standard
+                        },
+                        new StreamInfo()
+                        {
+                            Index = 1,
+                            StreamType = StreamType.Subtitle
+                        }
+                    }
+                },
+                Streams = new OutputStream[]
+                {
+                    new VideoOutputStream()
+                    {
+                        SourceStreamIndex = 0,
+                        Format = VideoFormat.Avc,
+                        DynamicRange = DynamicRange.Standard,
+                        Quality = 20
+                    }
+                },
+                Subtitles = new SubtitlesConfig()
+                {
+                    SourceStreamIndex = 1
+                }
+            };
+
+            var actual = _generator.GenerateArguments(job);
+            string expected = "-hide_banner -y -canvas_size 3840x2160 -i \"input.m4v\" -f matroska -t 1:42:37.610 " +
+                "-map 0:0 -c:v:0 libx264 -preset medium -crf 20 " +
+                "-filter_complex [0:1][0:0]'scale2ref[sub][ref];[ref][sub]overlay' " +
+                "\"output.mkv\"";
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void GenerateArgumentsRespectsConfig()
         {
             _config.Video = new VideoConfig()

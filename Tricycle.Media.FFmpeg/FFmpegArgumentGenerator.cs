@@ -109,6 +109,13 @@ namespace Tricycle.Media.FFmpeg
             AppendFormat(argBuilder, job.Format);
             AppendDelimiter(argBuilder);
 
+            // This is a workaround for subtitle overlays with MKV reporting an incorrect duration
+            if (job.Format == ContainerFormat.Mkv && subtitlesIndex.HasValue)
+            {
+                AppendDuration(argBuilder, job.SourceInfo.Duration);
+                AppendDelimiter(argBuilder);
+            }
+
             try
             {
                 AppendStreamMap(argBuilder, job.SourceInfo, job.Streams, subtitlesIndex);
@@ -195,6 +202,11 @@ namespace Tricycle.Media.FFmpeg
             }
 
             builder.Append($"-f {container}");
+        }
+
+        void AppendDuration(StringBuilder builder, TimeSpan duration)
+        {
+            builder.Append($"-t {duration:h':'mm':'ss'.'fff}");
         }
 
         void AppendStreamMap(StringBuilder builder,
@@ -404,6 +416,8 @@ namespace Tricycle.Media.FFmpeg
                 AppendVideoOverlayFilter(filterBuilder);
             }
 
+            bool setSampleAspectRatio = false;
+
             if ((outputStream.CropParameters != null) &&
                 ((outputStream.CropParameters.Size.Width < sourceStream.Dimensions.Width) ||
                  (outputStream.CropParameters.Size.Height < sourceStream.Dimensions.Height)))
@@ -414,6 +428,8 @@ namespace Tricycle.Media.FFmpeg
                 }
 
                 AppendVideoCropFilter(filterBuilder, outputStream.CropParameters);
+
+                setSampleAspectRatio = true;
             }
 
             if (outputStream.ScaledDimensions.HasValue &&
@@ -425,9 +441,11 @@ namespace Tricycle.Media.FFmpeg
                 }
 
                 AppendVideoScaleFilter(filterBuilder, outputStream.ScaledDimensions.Value);
+
+                setSampleAspectRatio = true;
             }
 
-            if (filterBuilder.Length > 0)
+            if (setSampleAspectRatio)
             {
                 AppendListDelimiter(filterBuilder);
                 AppendVideoSampleAspectRatioFilter(filterBuilder);
