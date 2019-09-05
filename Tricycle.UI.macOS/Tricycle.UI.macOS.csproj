@@ -129,6 +129,7 @@
     <Folder Include="Resources\Tools\" />
     <Folder Include="Resources\Tools\FFmpeg\" />
     <Folder Include="Resources\Config\" />
+    <Folder Include="Resources\Tools\FFmpeg\Source\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -184,10 +185,23 @@
     <BundleResource Include="Resources\Images\play.png" />
     <BundleResource Include="Resources\Images\stop.png" />
     <BundleResource Include="Resources\Tools\FFmpeg\ffprobe" />
-    <BundleResource Include="Resources\Tools\FFmpeg\License.txt" />
     <BundleResource Include="Resources\Tools\FFmpeg\ffmpeg" />
     <BundleResource Include="Resources\Config\tricycle.json" />
     <BundleResource Include="Resources\Config\ffmpeg.json" />
+    <BundleResource Include="..\COPYING.txt">
+      <Link>Resources\COPYING.txt</Link>
+    </BundleResource>
+    <BundleResource Include="..\LICENSE.txt">
+      <Link>Resources\LICENSE.txt</Link>
+    </BundleResource>
+    <BundleResource Include="Resources\Tools\FFmpeg\Source\ffmpeg.tar.gz" />
+    <BundleResource Include="Resources\Tools\FFmpeg\Source\x264.tar.bz2" />
+    <BundleResource Include="Resources\Tools\FFmpeg\Source\x265.tar.bz2" />
+    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.GPLv2" />
+    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.GPLv3" />
+    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.LGPLv2.1" />
+    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.LGPLv3" />
+    <BundleResource Include="Resources\Tools\FFmpeg\LICENSE.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets')" />

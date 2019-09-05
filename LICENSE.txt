@@ -1,0 +1,9 @@
+Tricycle License
+
+Most files in Tricycle are under the GNU General Public License version 2
+(GPLv2); read the file COPYING.txt for details.
+
+Some files are under the GNU General Public License version 2 or later
+version (GPLv2+), the GNU Lesser General Public License Version 2.1 or later
+version (LGPLv2.1+), or BSD/MIT/X11-style licenses. In combination, the GPLv2
+license applies to Tricycle.

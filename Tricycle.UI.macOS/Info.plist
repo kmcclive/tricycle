@@ -23,7 +23,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2019 Tricycle Team
 GPLv2 License
-This software uses libraries from the FFmpeg project under the LGPLv2.1
+This software uses executables from the FFmpeg project under the LGPLv2.1
 	</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
