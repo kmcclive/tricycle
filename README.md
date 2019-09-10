@@ -5,15 +5,16 @@ Tricycle is an open-source video transcoder for macOS.  It takes the guesswork o
 
 ## Features
 * Reads/decodes most video and audio formats
-* Container formats:
-  * MP4
-  * MKV
-* Video formats:
-  * AVC (H.264)
-  * HEVC (H.265)
-* Audio formats:
-  * AAC
-  * Dolby Digital (AC-3)
+* Writes/encodes to the following formats
+  * Container formats:
+    * MP4
+    * MKV
+  * Video formats:
+    * AVC (H.264)
+    * HEVC (H.265)
+  * Audio formats:
+    * AAC
+    * Dolby Digital (AC-3)
 * Supports 4K resolution and HDR (HDR10)
 * Tonemaps HDR to SDR
 * Scales video to standard resolutions
