@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 
@@ -20,12 +21,14 @@ namespace Tricycle.Media.FFmpeg
         readonly string _ffmpegFileName;
         readonly IProcessRunner _processRunner;
         readonly IProcessUtility _processUtility;
+        readonly FFmpegConfig _config;
         readonly TimeSpan _timeout;
 
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
-                            IProcessUtility processUtility)
-            : this(ffmpegFileName, processRunner, processUtility, TimeSpan.FromSeconds(30))
+                            IProcessUtility processUtility,
+                            FFmpegConfig config)
+            : this(ffmpegFileName, processRunner, processUtility, config, TimeSpan.FromSeconds(30))
         {
 
         }
@@ -33,11 +36,13 @@ namespace Tricycle.Media.FFmpeg
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
                             IProcessUtility processUtility,
+                            FFmpegConfig config,
                             TimeSpan timeout)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;
             _processUtility = processUtility;
+            _config = config;
             _timeout = timeout;
         }
 
@@ -64,7 +69,14 @@ namespace Tricycle.Media.FFmpeg
 
             var tasks = positions.Select(async seconds =>
             {
-                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect -f null -";
+                string options = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(_config.Video?.CropDetectOptions))
+                {
+                    options = "=" + _config.Video.CropDetectOptions;
+                }
+
+                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect{options} -f null -";
 
                 try
                 {
