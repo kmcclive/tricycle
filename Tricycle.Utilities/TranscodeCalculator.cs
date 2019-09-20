@@ -31,7 +31,17 @@ namespace Tricycle.Utilities
                 actualY += (int)Math.Ceiling((targetHeight - actualHeight) / 2d);
             }
 
-            var targetWidth = GetWidth(actualHeight, aspectRatio ?? ((double)size.Width / actualHeight));
+            int targetWidth;
+
+            if (aspectRatio.HasValue)
+            {
+                targetWidth = VideoUtility.GetWidth(actualHeight, aspectRatio.Value);
+            }
+            else
+            {
+                targetWidth = size.Width;
+            }
+
             var widthMethod = !aspectRatio.HasValue  && size.Width < sourceDimensions.Width
                 ? EstimationMethod.Floor
                 : EstimationMethod.Round;
@@ -63,13 +73,13 @@ namespace Tricycle.Utilities
             if (targetAspectRatio < sourceAspectRatio)
             {
                 actualWidth = GetClosestValue(targetDimensions.Width, divisor, EstimationMethod.Round);
-                targetHeight = GetHeight(actualWidth, sourceAspectRatio);
+                targetHeight = VideoUtility.GetHeight(actualWidth, sourceAspectRatio);
                 actualHeight = GetClosestValue(targetHeight, divisor, EstimationMethod.Round);
             }
             else
             {
                 actualHeight = GetClosestValue(targetDimensions.Height, divisor, EstimationMethod.Round);
-                targetWidth = GetWidth(actualHeight, sourceAspectRatio);
+                targetWidth = VideoUtility.GetWidth(actualHeight, sourceAspectRatio);
                 actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Round);
             }
 
@@ -97,16 +107,6 @@ namespace Tricycle.Utilities
             }
 
             return result;
-        }
-
-        int GetWidth(int height, double aspectRatio)
-        {
-            return (int)Math.Round(height * aspectRatio);
-        }
-
-        int GetHeight(int width, double aspectRatio)
-        {
-            return (int)Math.Round(width / aspectRatio);
         }
     }
 }
