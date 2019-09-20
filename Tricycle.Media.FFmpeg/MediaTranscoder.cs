@@ -134,7 +134,11 @@ namespace Tricycle.Media.FFmpeg
 
             if (!match.Success)
             {
-                _lastError = data;
+                if (!Regex.IsMatch(data, @"conversion\s+failed", RegexOptions.IgnoreCase) || (_lastError == null))
+                {
+                    _lastError = data;
+                }
+                
                 return;
             }
 
