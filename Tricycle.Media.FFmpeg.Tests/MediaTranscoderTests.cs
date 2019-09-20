@@ -202,6 +202,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             _process.ExitCode.Returns(1);
 
             _process.ErrorDataReceived += Raise.Event<Action<string>>(expected);
+            _process.ErrorDataReceived += Raise.Event<Action<string>>("Conversion failed!");
             _process.Exited += Raise.Event<Action>();
 
             Assert.AreEqual(expected, actual);
