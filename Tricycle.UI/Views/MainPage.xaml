@@ -36,7 +36,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="425"
+                       HeightRequest="400"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Video"
@@ -50,6 +50,9 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
@@ -83,29 +86,43 @@
                                                      SelectedItem="{Binding SelectedSize}"
                                                      Grid.Column="1"
                                                      Grid.Row="3" />
-                            <Label Text="Crop" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                     Grid.Column="1"
-                                                     Grid.Row="4" />
-                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="5">
-                                <Label Text="Remove Bars" FontSize="Micro" VerticalOptions="Center" />
+                            <Label Text="Crop" VerticalOptions="Start" Grid.Column="0" Grid.Row="4" />
+                            <Grid RowSpacing="10" Grid.Column="1" Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                         Grid.Column="0"
+                                                         Grid.Row="0"
+                                                         Grid.ColumnSpan="2"/>
+                                <Label Text="Remove Bars"
+                                       FontSize="Micro"
+                                       VerticalOptions="Center"
+                                       Grid.Column="0"
+                                       Grid.Row="1" />
                                 <Switch IsEnabled="{Binding IsAutocropEnabled}"
-                                        IsToggled="{Binding IsAutocropChecked}" />
-                            </FlexLayout>
-                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="6">
-                                <Label Text="Aspect Ratio" FontSize="Micro" VerticalOptions="Center" />
+                                        IsToggled="{Binding IsAutocropChecked}"
+                                        Grid.Column="1"
+                                        Grid.Row="1" />
+                                <Label Text="Aspect Ratio"
+                                       FontSize="Micro"
+                                       VerticalOptions="Center"
+                                       Grid.Column="0"
+                                       Grid.Row="2" />
                                 <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                                          ItemsSource="{Binding AspectRatioOptions}"
                                                          SelectedItem="{Binding SelectedAspectRatio}"
-                                                         FlexLayout.Grow="1" />
-                            </FlexLayout>
-                            <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
+                                                         Grid.Column="1"
+                                                         Grid.Row="2" />
+                            </Grid>
+                            <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <Switch IsEnabled="{Binding IsVideoConfigEnabled}"
                                     IsToggled="{Binding IsDenoiseChecked}"
                                     Grid.Column="1"
-                                    Grid.Row="7" />
-                            <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="8" />
-                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="8">
+                                    Grid.Row="5" />
+                            <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="6">
                                 <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                                          ItemsSource="{Binding SubtitleOptions}"
                                                          SelectedItem="{Binding SelectedSubtitle}"
@@ -121,7 +138,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="425"
+                       HeightRequest="400"
                        Padding="20, 0, 5, 20">
                     <StackLayout>
                         <Label Text="Audio"
