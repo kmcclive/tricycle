@@ -77,6 +77,43 @@ namespace Tricycle.Utilities.Tests
         }
 
         [TestMethod]
+        public void CalculateCropParametersDoesNotExceedSourceDimensions()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(3840, 2160);
+            var autocropParameters = new CropParameters()
+            {
+                Size = new Dimensions(3840, 1606),
+                Start = new Coordinate<int>(0, 278)
+            };
+
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, autocropParameters, null, 8);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(new Dimensions(3840, 1600), result.Size);
+            Assert.AreEqual(new Coordinate<int>(0, 281), result.Start);
+        }
+
+        [TestMethod]
+        public void CalculatesCropParametersFor3x2WithVerticalBars()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(1920, 1080);
+            var autocropParameters = new CropParameters()
+            {
+                Size = new Dimensions(1620, 1080),
+                Start = new Coordinate<int>(148, 0)
+            };
+
+            CropParameters result = calculator.CalculateCropParameters(sourceDimensions, autocropParameters, null, 8);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(new Dimensions(1616, 1080), result.Size);
+            Assert.AreEqual(new Coordinate<int>(150, 0), result.Start);
+        }
+
+        [TestMethod]
         public void CalculatesScaledDimensionsForWideAspectRatio()
         {
             var calculator = new TranscodeCalculator();

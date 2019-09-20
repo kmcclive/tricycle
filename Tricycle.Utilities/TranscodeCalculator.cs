@@ -5,9 +5,15 @@ namespace Tricycle.Utilities
 {
     public class TranscodeCalculator : ITranscodeCalculator
     {
+        enum EstimationMethod
+        {
+            Round,
+            Floor
+        }
+
         public CropParameters CalculateCropParameters(Dimensions sourceDimensions,
                                                       CropParameters autocropParameters,
-                                                      double aspectRatio,
+                                                      double? aspectRatio,
                                                       int divisor)
         {
             var start = autocropParameters?.Start ?? new Coordinate<int>(0, 0);
@@ -17,15 +23,24 @@ namespace Tricycle.Utilities
             int actualY = targetY;
             Dimensions size = autocropParameters?.Size ?? sourceDimensions;
             int targetHeight = size.Height;
-            int actualHeight = GetClosestValue(targetHeight, divisor);
+            var heightMethod = targetHeight < sourceDimensions.Height ? EstimationMethod.Floor : EstimationMethod.Round;
+            int actualHeight = GetClosestValue(targetHeight, divisor, heightMethod);
 
             if (actualHeight < targetHeight)
             {
                 actualY += (int)Math.Ceiling((targetHeight - actualHeight) / 2d);
             }
 
-            var targetWidth = GetWidth(actualHeight, aspectRatio);
-            int actualWidth = GetClosestValue(targetWidth, divisor);
+            var targetWidth = GetWidth(actualHeight, aspectRatio ?? ((double)size.Width / actualHeight));
+            var widthMethod = !aspectRatio.HasValue  && size.Width < sourceDimensions.Width
+                ? EstimationMethod.Floor
+                : EstimationMethod.Round;
+            int actualWidth = GetClosestValue(targetWidth, divisor, widthMethod);
+
+            if (actualWidth > size.Width)
+            {
+                actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Floor);
+            }
 
             if (actualWidth < size.Width)
             {
@@ -47,27 +62,36 @@ namespace Tricycle.Utilities
 
             if (targetAspectRatio < sourceAspectRatio)
             {
-                actualWidth = GetClosestValue(targetDimensions.Width, divisor);
+                actualWidth = GetClosestValue(targetDimensions.Width, divisor, EstimationMethod.Round);
                 targetHeight = GetHeight(actualWidth, sourceAspectRatio);
-                actualHeight = GetClosestValue(targetHeight, divisor);
+                actualHeight = GetClosestValue(targetHeight, divisor, EstimationMethod.Round);
             }
             else
             {
-                actualHeight = GetClosestValue(targetDimensions.Height, divisor);
+                actualHeight = GetClosestValue(targetDimensions.Height, divisor, EstimationMethod.Round);
                 targetWidth = GetWidth(actualHeight, sourceAspectRatio);
-                actualWidth = GetClosestValue(targetWidth, divisor);
+                actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Round);
             }
 
             return new Dimensions(actualWidth, actualHeight);
         }
 
-        int GetClosestValue(int targetValue, int divisor)
+        int GetClosestValue(int targetValue, int divisor, EstimationMethod method)
         {
             int result = targetValue;
 
             if (targetValue % divisor != 0)
             {
-                var factor = (int)Math.Round((double)targetValue / divisor);
+                int factor;
+
+                if (method == EstimationMethod.Floor)
+                {
+                    factor = (int)Math.Floor((double)targetValue / divisor);
+                }
+                else
+                {
+                    factor = (int)Math.Round((double)targetValue / divisor);
+                }
 
                 result = divisor * factor;
             }
