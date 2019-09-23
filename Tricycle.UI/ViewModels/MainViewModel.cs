@@ -25,6 +25,16 @@ namespace Tricycle.UI.ViewModels
 
     public class MainViewModel : ViewModelBase
     {
+        #region Nested Types
+
+        enum CropOption
+        {
+            Auto,
+            Manual
+        }
+
+        #endregion
+
         #region Constants
 
         const int DEFAULT_STEP_COUNT = 4;
@@ -65,6 +75,8 @@ namespace Tricycle.UI.ViewModels
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
         ListItem _selectedSize;
+        IList<ListItem> _cropOptions;
+        ListItem _selectedCropOption;
         bool _isAutocropEnabled;
         bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
@@ -139,6 +151,9 @@ namespace Tricycle.UI.ViewModels
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
+
+            CropOptions = GetCropOptions();
+            SelectedCropOption = CropOptions?.FirstOrDefault();
         }
 
         #endregion
@@ -254,6 +269,18 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _selectedSize; }
             set { SetProperty(ref _selectedSize, value); }
+        }
+
+        public IList<ListItem> CropOptions
+        {
+            get { return _cropOptions; }
+            set { SetProperty(ref _cropOptions, value); }
+        }
+
+        public ListItem SelectedCropOption
+        {
+            get { return _selectedCropOption; }
+            set { SetProperty(ref _selectedCropOption, value); }
         }
 
         public bool IsAutocropEnabled
@@ -520,6 +547,11 @@ namespace Tricycle.UI.ViewModels
                         return new ListItem(string.Empty);
                 }
             }).ToArray();
+        }
+
+        IList<ListItem> GetCropOptions()
+        {
+            return Enum.GetValues(typeof(CropOption)).Cast<CropOption>().Select(o => new ListItem(o)).ToArray();
         }
 
         void ProcessAudioCodecs(IDictionary<AudioFormat, AudioCodec> codecs)

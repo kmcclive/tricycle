@@ -93,6 +93,8 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                         ItemsSource="{Binding CropOptions}"
+                                                         SelectedItem="{Binding SelectedCropOption}"
                                                          Grid.Column="0"
                                                          Grid.Row="0"
                                                          Grid.ColumnSpan="2"/>
