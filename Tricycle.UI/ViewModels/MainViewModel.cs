@@ -77,6 +77,8 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedSize;
         IList<ListItem> _cropOptions;
         ListItem _selectedCropOption;
+        bool _isAutoCropControlVisible;
+        bool _isManualCropControlVisible;
         bool _isAutocropEnabled;
         bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
@@ -280,7 +282,25 @@ namespace Tricycle.UI.ViewModels
         public ListItem SelectedCropOption
         {
             get { return _selectedCropOption; }
-            set { SetProperty(ref _selectedCropOption, value); }
+            set
+            {
+                SetProperty(ref _selectedCropOption, value);
+
+                IsManualCropControlVisible = object.Equals(_selectedCropOption?.Value, CropOption.Manual);
+                IsAutoCropControlVisible = !IsManualCropControlVisible;
+            }
+        }
+
+        public bool IsAutoCropControlVisible
+        {
+            get { return _isAutoCropControlVisible; }
+            set { SetProperty(ref _isAutoCropControlVisible, value); }
+        }
+
+        public bool IsManualCropControlVisible
+        {
+            get { return _isManualCropControlVisible; }
+            set { SetProperty(ref _isManualCropControlVisible, value); }
         }
 
         public bool IsAutocropEnabled
