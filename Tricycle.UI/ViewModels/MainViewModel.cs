@@ -83,6 +83,10 @@ namespace Tricycle.UI.ViewModels
         bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
+        string _cropTop;
+        string _cropBottom;
+        string _cropLeft;
+        string _cropRight;
         bool _isDenoiseChecked;
         IList<ListItem> _subtitleOptions;
         ListItem _selectedSubtitle;
@@ -330,6 +334,30 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _selectedAspectRatio; }
             set { SetProperty(ref _selectedAspectRatio, value); }
+        }
+
+        public string CropTop
+        {
+            get { return _cropTop; }
+            set { SetProperty(ref _cropTop, value); }
+        }
+
+        public string CropBottom
+        {
+            get { return _cropBottom; }
+            set { SetProperty(ref _cropBottom, value); }
+        }
+
+        public string CropLeft
+        {
+            get { return _cropLeft; }
+            set { SetProperty(ref _cropLeft, value); }
+        }
+
+        public string CropRight
+        {
+            get { return _cropRight; }
+            set { SetProperty(ref _cropRight, value); }
         }
 
         public bool IsDenoiseChecked
@@ -689,6 +717,7 @@ namespace Tricycle.UI.ViewModels
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
+            UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
 
             if (isValid)
             {
@@ -845,6 +874,24 @@ namespace Tricycle.UI.ViewModels
             }
 
             return false;
+        }
+
+        void UpdateManualCropCoordinates(Dimensions sourceDimensions, CropParameters cropParameters)
+        {
+            if (cropParameters != null)
+            {
+                CropTop = cropParameters.Start.Y.ToString();
+                CropBottom = (sourceDimensions.Height - cropParameters.Size.Height - cropParameters.Start.Y).ToString();
+                CropLeft = cropParameters.Start.X.ToString();
+                CropRight = (sourceDimensions.Width - cropParameters.Size.Width - cropParameters.Start.X).ToString();
+            }
+            else
+            {
+                CropTop = "0";
+                CropBottom = "0";
+                CropLeft = "0";
+                CropRight = "0";
+            }
         }
 
         void PopulateSubtitleOptions(MediaInfo sourceInfo)

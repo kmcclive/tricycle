@@ -134,25 +134,25 @@
                                            VerticalOptions="Center"
                                            Grid.Column="0"
                                            Grid.Row="0" />
-                                    <Entry Keyboard="Numeric" Grid.Column="1" Grid.Row="0" />
+                                    <Entry Text="{Binding CropTop}" Grid.Column="1" Grid.Row="0" />
                                     <Label Text="Bottom"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="2"
                                            Grid.Row="0" />
-                                    <Entry Keyboard="Numeric" Grid.Column="3" Grid.Row="0" />
+                                    <Entry Text="{Binding CropBottom}" Grid.Column="3" Grid.Row="0" />
                                     <Label Text="Left"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="0"
                                            Grid.Row="1" />
-                                    <Entry Keyboard="Numeric" Grid.Column="1" Grid.Row="1" />
+                                    <Entry Text="{Binding CropLeft}" Grid.Column="1" Grid.Row="1" />
                                     <Label Text="Right"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="2"
                                            Grid.Row="1" />
-                                    <Entry Keyboard="Numeric" Grid.Column="3" Grid.Row="1" />
+                                    <Entry Text="{Binding CropRight}" Grid.Column="3" Grid.Row="1" />
                                 </Grid>
                             </StackLayout>
                             <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
