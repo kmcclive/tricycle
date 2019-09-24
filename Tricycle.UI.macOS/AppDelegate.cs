@@ -17,6 +17,7 @@ using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -30,7 +31,6 @@ namespace Tricycle.UI.macOS
         const int WINDOW_HEIGHT = 560;
 
         IAppManager _appManager;
-        MainWindowDelegate _mainWindowDelegate;
         NSDocumentController _documentController;
         volatile bool _isBusy = false;
 
@@ -41,7 +41,6 @@ namespace Tricycle.UI.macOS
             var style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 
             _appManager = new AppManager();
-            _mainWindowDelegate = new MainWindowDelegate(_appManager);
 
             _appManager.Busy += () =>
             {
@@ -60,9 +59,9 @@ namespace Tricycle.UI.macOS
             
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
-                Title = "Tricycle",
-                Delegate = _mainWindowDelegate
+                Title = "Tricycle"
             };
+            MainWindow.WindowShouldClose += sender => ShouldClose();
         }
 
         public override NSWindow MainWindow { get; }
@@ -113,7 +112,7 @@ namespace Tricycle.UI.macOS
         public override bool ApplicationShouldTerminateAfterLastWindowClosed(NSApplication sender) => true;
 
         public override NSApplicationTerminateReply ApplicationShouldTerminate(NSApplication sender) =>
-            _mainWindowDelegate.WindowShouldClose(this) ? NSApplicationTerminateReply.Now : NSApplicationTerminateReply.Cancel;
+            ShouldClose() ? NSApplicationTerminateReply.Now : NSApplicationTerminateReply.Cancel;
 
         public override void WillTerminate(NSNotification notification)
         {
@@ -189,6 +188,15 @@ namespace Tricycle.UI.macOS
             var y = frame.Y + (frame.Height - WINDOW_HEIGHT) / 2f;
 
             return new Coordinate<nfloat>(x, y);
+        }
+
+        bool ShouldClose()
+        {
+            var cancellation = new CancellationArgs();
+
+            _appManager.RaiseQuitting(cancellation);
+
+            return !cancellation.Cancel;
         }
     }
 }
