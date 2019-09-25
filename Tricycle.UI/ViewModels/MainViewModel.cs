@@ -1278,25 +1278,43 @@ namespace Tricycle.UI.ViewModels
         CropParameters GetJobCropParameters(int divisor)
         {
             double? aspectRatio = null;
-            CropParameters autocropParameters = null;
+            CropParameters cropParameters = null;
 
-            if (SelectedAspectRatio != ORIGINAL_OPTION)
+            if (object.Equals(SelectedCropOption?.Value, CropOption.Manual))
             {
-                aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+                int value;
+                var top = int.TryParse(CropTop, out value) ? value : 0;
+                var bottom = int.TryParse(CropBottom, out value) ? value : 0;
+                var left = int.TryParse(CropLeft, out value) ? value : 0;
+                var right = int.TryParse(CropRight, out value) ? value : 0;
+
+                cropParameters = new CropParameters()
+                {
+                    Start = new Coordinate<int>(left, top),
+                    Size = new Dimensions(_primaryVideoStream.Dimensions.Width - left - right,
+                                          _primaryVideoStream.Dimensions.Height - top - bottom)
+                };
+            }
+            else
+            {
+                if (SelectedAspectRatio != ORIGINAL_OPTION)
+                {
+                    aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+                }
+
+                if (IsAutocropChecked)
+                {
+                    cropParameters = _cropParameters;
+                }
             }
 
-            if (IsAutocropChecked)
-            {
-                autocropParameters = _cropParameters;
-            }
-
-            if (!aspectRatio.HasValue && (autocropParameters == null))
+            if (!aspectRatio.HasValue && (cropParameters == null))
             {
                 return null;
             }
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
-                                                                autocropParameters,
+                                                                cropParameters,
                                                                 aspectRatio,
                                                                 divisor);
         }
