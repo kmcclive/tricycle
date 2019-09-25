@@ -25,16 +25,6 @@ namespace Tricycle.UI.ViewModels
 
     public class MainViewModel : ViewModelBase
     {
-        #region Nested Types
-
-        enum CropOption
-        {
-            Auto,
-            Manual
-        }
-
-        #endregion
-
         #region Constants
 
         const int DEFAULT_STEP_COUNT = 4;

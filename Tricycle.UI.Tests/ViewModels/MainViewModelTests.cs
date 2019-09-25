@@ -701,6 +701,69 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SelectsAutoCropOptionByDefault()
+        {
+            SelectSource();
+            Assert.AreEqual(_viewModel.SelectedCropOption?.Value, CropOption.Auto);
+        }
+
+        [TestMethod]
+        public void ShowsAutoCropControlsByDefault()
+        {
+            SelectSource();
+            Assert.IsTrue(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesManualCropControlsByDefault()
+        {
+            SelectSource();
+            Assert.IsFalse(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
+        public void ShowsManualCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+
+            Assert.IsTrue(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesAutoCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+
+            Assert.IsFalse(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void ShowsAutoCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Auto);
+
+            Assert.IsTrue(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesManualCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Auto);
+
+            Assert.IsFalse(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
         public void DisablesAutocropByDefault()
         {
             _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(default(CropParameters));
