@@ -886,6 +886,47 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ZeroesOutManualCropControlsWhenNoBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.AreEqual("0", _viewModel.CropTop);
+            Assert.AreEqual("0", _viewModel.CropBottom);
+            Assert.AreEqual("0", _viewModel.CropLeft);
+            Assert.AreEqual("0", _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void PopulatesManualCropControlsWhenHorizontalBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = new Dimensions(3840, 1606);
+            _cropParameters.Start = new Coordinate<int>(0, 278);
+            SelectSource();
+
+            Assert.AreEqual("278", _viewModel.CropTop);
+            Assert.AreEqual("276", _viewModel.CropBottom);
+            Assert.AreEqual("0", _viewModel.CropLeft);
+            Assert.AreEqual("0", _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void PopulatesManualCropControlsWhenVerticalBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1440, 1080);
+            _cropParameters.Start = new Coordinate<int>(242, 0);
+            SelectSource();
+
+            Assert.AreEqual("0", _viewModel.CropTop);
+            Assert.AreEqual("0", _viewModel.CropBottom);
+            Assert.AreEqual("242", _viewModel.CropLeft);
+            Assert.AreEqual("238", _viewModel.CropRight);
+        }
+
+        [TestMethod]
         public void PopulatesSubtitleOptions()
         {
             _mediaInfo.Streams = new StreamInfo[]
