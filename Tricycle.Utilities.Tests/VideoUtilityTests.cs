@@ -21,5 +21,21 @@ namespace Tricycle.Utilities.Tests
             Assert.AreEqual(1.778, VideoUtility.GetAspectRatio(new Dimensions(3840, 2160)), 0.001);
             Assert.AreEqual(1.333, VideoUtility.GetAspectRatio(new Dimensions(640, 480)), 0.001);
         }
+
+        [TestMethod]
+        public void TestGetWidth()
+        {
+            Assert.AreEqual(1920, VideoUtility.GetWidth(800, 2.4));
+            Assert.AreEqual(3840, VideoUtility.GetWidth(2160, 16 / 9d));
+            Assert.AreEqual(640, VideoUtility.GetWidth(480, 4 / 3d));
+        }
+
+        [TestMethod]
+        public void TestGetHeight()
+        {
+            Assert.AreEqual(800, VideoUtility.GetHeight(1920, 2.4));
+            Assert.AreEqual(2160, VideoUtility.GetHeight(3840, 16 / 9d));
+            Assert.AreEqual(480, VideoUtility.GetHeight(640, 4 / 3d));
+        }
     }
 }

@@ -6,6 +6,7 @@ using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 
@@ -17,13 +18,14 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public async Task TestDetect()
         {
-            const string ARG_PATTERN = @"-hide_banner\s+-ss\s+\d+(\.\d+)?\s+-i\s+{0}\s+-frames:vf\s+2\s+-vf\s+cropdetect(=\d+:\d+:\d+)?\s+-f\s+null\s+-";
+            const string ARG_PATTERN = @"-hide_banner\s+-ss\s+\d+(\.\d+)?\s+-i\s+{0}\s+-frames:vf\s+2\s+-vf\s+cropdetect(=(?<options>\d+:\d+:\d+))?\s+-f\s+null\s+-";
 
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
             var timeout = TimeSpan.FromMilliseconds(10);
             var ffmpegFileName = "/usr/sbin/ffmpeg";
-            var detector = new CropDetector(ffmpegFileName, processRunner, processUtility, timeout);
+            var config = new FFmpegConfig();
+            var detector = new CropDetector(ffmpegFileName, processRunner, processUtility, config, timeout);
 
             #region Test Exceptions
 
@@ -98,6 +100,30 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(new Dimensions(3840, 2160), parameters.Size);
 
             #endregion
+
+            #region Test that config is used
+
+            config.Video = new VideoConfig()
+            {
+                CropDetectOptions = "24:16:0"
+            };
+            Match match = null;
+
+            processRunner.Run(ffmpegFileName,
+                              Arg.Is<string>(s => IsMatch(s, string.Format(ARG_PATTERN, escapedFileName), out match)),
+                              timeout)
+                         .Returns(new ProcessResult() { ErrorData = output });
+            parameters = await detector.Detect(mediaInfo);
+
+            Assert.AreEqual(config.Video.CropDetectOptions, match?.Groups["options"]?.Value);
+
+            #endregion
+        }
+
+        bool IsMatch(string input, string pattern, out Match match)
+        {
+            match = Regex.Match(input, pattern);
+            return match.Success;
         }
     }
 }

@@ -1178,22 +1178,23 @@ namespace Tricycle.UI.ViewModels
 
         CropParameters GetJobCropParameters(int divisor)
         {
-            double aspectRatio;
+            double? aspectRatio = null;
+            CropParameters autocropParameters = null;
 
             if (SelectedAspectRatio != ORIGINAL_OPTION)
             {
                 aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
             }
-            else if (IsAutocropChecked && (_cropParameters != null))
+
+            if (IsAutocropChecked)
             {
-                aspectRatio = VideoUtility.GetAspectRatio(_cropParameters.Size);
+                autocropParameters = _cropParameters;
             }
-            else
+
+            if (!aspectRatio.HasValue && (autocropParameters == null))
             {
                 return null;
             }
-
-            var autocropParameters = IsAutocropChecked ? _cropParameters : null;
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
                                                                 autocropParameters,

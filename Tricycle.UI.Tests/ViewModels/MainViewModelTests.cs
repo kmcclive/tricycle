@@ -1626,7 +1626,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1642,7 +1642,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
                                                                     Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1658,7 +1658,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     _cropParameters,
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1674,7 +1674,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     Arg.Any<CropParameters>(),
-                                                                    2.4,
+                                                                    null,
                                                                     Arg.Any<int>());
         }
 
@@ -1693,7 +1693,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     divisor);
         }
 
@@ -1714,7 +1714,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1735,7 +1735,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
                                                                     Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1756,7 +1756,7 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     null,
-                                                                    Arg.Any<double>(),
+                                                                    Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
 
@@ -1831,7 +1831,7 @@ namespace Tricycle.UI.Tests
             {
                 { "720p", size }
             };
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.Dimensions = sourceDimensions;
             _cropParameters.Size = new Dimensions(1920, 804);
             _cropParameters.Start = new Coordinate<int>(0, 138);
             SelectSource();
@@ -1839,7 +1839,7 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSize = new ListItem(size);
             _transcodeCalculator.CalculateCropParameters(Arg.Any<Dimensions>(),
                                                          Arg.Any<CropParameters>(),
-                                                         Arg.Any<double>(),
+                                                         Arg.Any<double?>(),
                                                          Arg.Any<int>())
                                 .Returns(new CropParameters() { Size = sourceDimensions });
             Start();

@@ -5,9 +5,15 @@ namespace Tricycle.Utilities
 {
     public class TranscodeCalculator : ITranscodeCalculator
     {
+        enum EstimationMethod
+        {
+            Round,
+            Floor
+        }
+
         public CropParameters CalculateCropParameters(Dimensions sourceDimensions,
                                                       CropParameters autocropParameters,
-                                                      double aspectRatio,
+                                                      double? aspectRatio,
                                                       int divisor)
         {
             var start = autocropParameters?.Start ?? new Coordinate<int>(0, 0);
@@ -17,15 +23,30 @@ namespace Tricycle.Utilities
             int actualY = targetY;
             Dimensions size = autocropParameters?.Size ?? sourceDimensions;
             int targetHeight = size.Height;
-            int actualHeight = GetClosestValue(targetHeight, divisor);
+            var heightMethod = targetHeight < sourceDimensions.Height ? EstimationMethod.Floor : EstimationMethod.Round;
+            int actualHeight = GetClosestValue(targetHeight, divisor, heightMethod);
 
             if (actualHeight < targetHeight)
             {
                 actualY += (int)Math.Ceiling((targetHeight - actualHeight) / 2d);
             }
 
-            var targetWidth = GetWidth(actualHeight, aspectRatio);
-            int actualWidth = GetClosestValue(targetWidth, divisor);
+            int targetWidth = size.Width;
+
+            if (aspectRatio.HasValue)
+            {
+                targetWidth = VideoUtility.GetWidth(actualHeight, aspectRatio.Value);
+            }
+
+            var widthMethod = !aspectRatio.HasValue  && size.Width < sourceDimensions.Width
+                ? EstimationMethod.Floor
+                : EstimationMethod.Round;
+            int actualWidth = GetClosestValue(targetWidth, divisor, widthMethod);
+
+            if (actualWidth > size.Width)
+            {
+                actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Floor);
+            }
 
             if (actualWidth < size.Width)
             {
@@ -47,42 +68,42 @@ namespace Tricycle.Utilities
 
             if (targetAspectRatio < sourceAspectRatio)
             {
-                actualWidth = GetClosestValue(targetDimensions.Width, divisor);
-                targetHeight = GetHeight(actualWidth, sourceAspectRatio);
-                actualHeight = GetClosestValue(targetHeight, divisor);
+                actualWidth = GetClosestValue(targetDimensions.Width, divisor, EstimationMethod.Round);
+                targetHeight = VideoUtility.GetHeight(actualWidth, sourceAspectRatio);
+                actualHeight = GetClosestValue(targetHeight, divisor, EstimationMethod.Round);
             }
             else
             {
-                actualHeight = GetClosestValue(targetDimensions.Height, divisor);
-                targetWidth = GetWidth(actualHeight, sourceAspectRatio);
-                actualWidth = GetClosestValue(targetWidth, divisor);
+                actualHeight = GetClosestValue(targetDimensions.Height, divisor, EstimationMethod.Round);
+                targetWidth = VideoUtility.GetWidth(actualHeight, sourceAspectRatio);
+                actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Round);
             }
 
             return new Dimensions(actualWidth, actualHeight);
         }
 
-        int GetClosestValue(int targetValue, int divisor)
+        int GetClosestValue(int targetValue, int divisor, EstimationMethod method)
         {
             int result = targetValue;
 
             if (targetValue % divisor != 0)
             {
-                var factor = (int)Math.Round((double)targetValue / divisor);
+                var factor = (double)targetValue / divisor;
+                int roundedFactor;
 
-                result = divisor * factor;
+                if (method == EstimationMethod.Floor)
+                {
+                    roundedFactor = (int)Math.Floor(factor);
+                }
+                else
+                {
+                    roundedFactor = (int)Math.Round(factor);
+                }
+
+                result = divisor * roundedFactor;
             }
 
             return result;
-        }
-
-        int GetWidth(int height, double aspectRatio)
-        {
-            return (int)Math.Round(height * aspectRatio);
-        }
-
-        int GetHeight(int width, double aspectRatio)
-        {
-            return (int)Math.Round(width / aspectRatio);
         }
     }
 }

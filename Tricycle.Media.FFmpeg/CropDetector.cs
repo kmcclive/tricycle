@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 
@@ -20,12 +21,14 @@ namespace Tricycle.Media.FFmpeg
         readonly string _ffmpegFileName;
         readonly IProcessRunner _processRunner;
         readonly IProcessUtility _processUtility;
+        readonly FFmpegConfig _config;
         readonly TimeSpan _timeout;
 
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
-                            IProcessUtility processUtility)
-            : this(ffmpegFileName, processRunner, processUtility, TimeSpan.FromSeconds(30))
+                            IProcessUtility processUtility,
+                            FFmpegConfig config)
+            : this(ffmpegFileName, processRunner, processUtility, config, TimeSpan.FromSeconds(30))
         {
 
         }
@@ -33,11 +36,13 @@ namespace Tricycle.Media.FFmpeg
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
                             IProcessUtility processUtility,
+                            FFmpegConfig config,
                             TimeSpan timeout)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;
             _processUtility = processUtility;
+            _config = config;
             _timeout = timeout;
         }
 
@@ -64,7 +69,14 @@ namespace Tricycle.Media.FFmpeg
 
             var tasks = positions.Select(async seconds =>
             {
-                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect -f null -";
+                string options = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(_config.Video?.CropDetectOptions))
+                {
+                    options = "=" + _config.Video.CropDetectOptions;
+                }
+
+                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect{options} -f null -";
 
                 try
                 {
@@ -108,13 +120,6 @@ namespace Tricycle.Media.FFmpeg
                 };
             }
 
-            var originalDimensions = mediaInfo.Streams?.OfType<VideoStreamInfo>().FirstOrDefault()?.Dimensions;
-
-            if ((result != null) && (originalDimensions != null))
-            {
-                result = Correct(result, originalDimensions.Value);
-            }
-
             return result;
         }
 
@@ -151,39 +156,6 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return result;
-        }
-
-        // FFmpeg will crop to adjust the size to a number divisible by 16.
-        // That feature is supposed to be configurable, but modifying it seems to break the detection.
-        // This code is meant to correct that.
-        CropParameters Correct(CropParameters cropParameters, Dimensions originalDimensions)
-        {
-            const int THRESHOLD = 16;
-
-            int x = cropParameters.Start.X;
-            int y = cropParameters.Start.Y;
-            int width = cropParameters.Size.Width;
-            int height = cropParameters.Size.Height;
-            int widthDelta = originalDimensions.Width - cropParameters.Size.Width;
-            int heightDelta = originalDimensions.Height - cropParameters.Size.Height;
-
-            if ((widthDelta > 0) && (widthDelta < THRESHOLD))
-            {
-                x = 0;
-                width = originalDimensions.Width;
-            }
-
-            if ((heightDelta > 0) && (heightDelta < THRESHOLD))
-            {
-                y = 0;
-                height = originalDimensions.Height;
-            }
-
-            return new CropParameters()
-            {
-                Start = new Coordinate<int>(x, y),
-                Size = new Dimensions(width, height)
-            };
         }
     }
 }
