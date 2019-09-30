@@ -31,15 +31,11 @@ namespace Tricycle.Utilities
                 actualY += (int)Math.Ceiling((targetHeight - actualHeight) / 2d);
             }
 
-            int targetWidth;
+            int targetWidth = size.Width;
 
             if (aspectRatio.HasValue)
             {
                 targetWidth = VideoUtility.GetWidth(actualHeight, aspectRatio.Value);
-            }
-            else
-            {
-                targetWidth = size.Width;
             }
 
             var widthMethod = !aspectRatio.HasValue  && size.Width < sourceDimensions.Width
@@ -92,18 +88,19 @@ namespace Tricycle.Utilities
 
             if (targetValue % divisor != 0)
             {
-                int factor;
+                var factor = (double)targetValue / divisor;
+                int roundedFactor;
 
                 if (method == EstimationMethod.Floor)
                 {
-                    factor = (int)Math.Floor((double)targetValue / divisor);
+                    roundedFactor = (int)Math.Floor(factor);
                 }
                 else
                 {
-                    factor = (int)Math.Round((double)targetValue / divisor);
+                    roundedFactor = (int)Math.Round(factor);
                 }
 
-                result = divisor * factor;
+                result = divisor * roundedFactor;
             }
 
             return result;
