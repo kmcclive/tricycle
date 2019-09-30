@@ -8,6 +8,7 @@ namespace Tricycle.Models.Jobs
         public double FramesPerSecond { get; set; }
         public double Speed { get; set; }
         public long Size { get; set; }
+        public long EstimatedTotalSize { get; set; }
         public TimeSpan Eta { get; set; }
     }
 }

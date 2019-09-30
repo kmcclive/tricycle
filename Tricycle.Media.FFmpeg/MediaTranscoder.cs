@@ -17,6 +17,7 @@ namespace Tricycle.Media.FFmpeg
         IProcess _process;
         string _lastError;
         double _avgSpeed;
+        long _avgTotalSize;
         long _sampleSize;
 
         #endregion
@@ -79,6 +80,7 @@ namespace Tricycle.Media.FFmpeg
 
             SubscribeToEvents(_process);
             _process.Start(startInfo);
+            ResetStatistics();
 
             if (job.SourceInfo != null)
             {
@@ -144,8 +146,10 @@ namespace Tricycle.Media.FFmpeg
 
             if (TimeSpan.TryParse(match.Groups["time"].Value, out var time) &&
                 double.TryParse(match.Groups["fps"].Value, out var fps) &&
-                double.TryParse(match.Groups["speed"].Value, out var speed))
+                double.TryParse(match.Groups["speed"].Value, out var speed) &&
+                TryParseSize(match.Groups["size"].Value, out var size))
             {
+                _sampleSize++;
                 double percent = 0;
                 TimeSpan eta = TimeSpan.Zero;
 
@@ -159,13 +163,21 @@ namespace Tricycle.Media.FFmpeg
                     }
                 }
 
+                long totalSize = 0;
+
+                if ((percent > 0) && (size > 0))
+                {
+                    totalSize = CalculateEstimatedTotalSize(percent, size);
+                }
+
                 StatusChanged?.Invoke(new TranscodeStatus()
                 {
                     Percent = percent,
                     Time = time,
                     FramesPerSecond = fps,
                     Speed = speed,
-                    Size = ParseSize(match.Groups["size"].Value),
+                    Size = size,
+                    EstimatedTotalSize = totalSize,
                     Eta = eta
                 });
             }
@@ -192,9 +204,10 @@ namespace Tricycle.Media.FFmpeg
             _sourceDuration = TimeSpan.Zero;
         }
 
-        long ParseSize(string size)
+        bool TryParseSize(string size, out long result)
         {
-            long result = 0;
+            bool success = false;
+            result = 0;
 
             if (!string.IsNullOrWhiteSpace(size))
             {
@@ -220,16 +233,15 @@ namespace Tricycle.Media.FFmpeg
                     }
 
                     result = (long)Math.Round(amount * factor);
+                    success = true;
                 }
             }
 
-            return result;
+            return success;
         }
 
         TimeSpan CalculateEta(TimeSpan timeComplete, TimeSpan totalTime, double speed)
         {
-            _sampleSize++;
-
             if (_avgSpeed > 0)
             {
                 _avgSpeed = _avgSpeed + (speed - _avgSpeed) / _sampleSize;
@@ -240,6 +252,29 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / speed);
+        }
+
+        long CalculateEstimatedTotalSize(double percent, long size)
+        {
+            var totalSize = (long)Math.Round(size / percent);
+
+            if (_avgTotalSize > 0)
+            {
+                _avgTotalSize = _avgTotalSize + (totalSize - _avgTotalSize) / _sampleSize;
+            }
+            else
+            {
+                _avgTotalSize = totalSize;
+            }
+
+            return _avgTotalSize;
+        }
+
+        void ResetStatistics()
+        {
+            _avgSpeed = 0;
+            _avgTotalSize = 0;
+            _sampleSize = 0;
         }
 
         #endregion
