@@ -78,9 +78,9 @@ namespace Tricycle.Media.FFmpeg
 
             _process = _processCreator.Invoke();
 
+            ResetStatistics();
             SubscribeToEvents(_process);
             _process.Start(startInfo);
-            ResetStatistics();
 
             if (job.SourceInfo != null)
             {
