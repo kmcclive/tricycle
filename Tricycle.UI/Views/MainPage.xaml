@@ -3,8 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI"
              xmlns:controls="clr-namespace:Tricycle.UI.Controls"
-             x:Class="Tricycle.UI.Views.MainPage"
-             BackgroundColor="{StaticResource BackgroundColor}">
+             x:Class="Tricycle.UI.Views.MainPage">
+    <ContentPage.BackgroundColor>
+        <OnPlatform x:TypeArguments="Color">
+            <On Platform="macOS" Value="{StaticResource BackgroundColor}" />
+        </OnPlatform>
+    </ContentPage.BackgroundColor>
     <ScrollView>
         <StackLayout>
             <Grid Padding="20" ColumnSpacing="10" RowSpacing="5">
@@ -35,9 +39,19 @@
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="370"
-                       HeightRequest="400"
                        Padding="20, 0, 20, 20">
+                    <FlexLayout.Basis>
+                        <OnPlatform x:TypeArguments="FlexBasis">
+                            <On Platform="macOS" Value="370" />
+                            <On Platform="UWP" Value="480" />
+                        </OnPlatform>
+                    </FlexLayout.Basis>
+                    <Frame.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="macOS" Value="400" />
+                            <On Platform="UWP" Value="520" />
+                        </OnPlatform>
+                    </Frame.HeightRequest>
                     <StackLayout>
                         <Label Text="Video"
                                TextColor="{StaticResource PanelTitleColor}"
@@ -188,9 +202,19 @@
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
-                       FlexLayout.Basis="370"
-                       HeightRequest="400"
                        Padding="20, 0, 5, 20">
+                    <FlexLayout.Basis>
+                        <OnPlatform x:TypeArguments="FlexBasis">
+                            <On Platform="macOS" Value="370" />
+                            <On Platform="UWP" Value="480" />
+                        </OnPlatform>
+                    </FlexLayout.Basis>
+                    <Frame.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="macOS" Value="400" />
+                            <On Platform="UWP" Value="520" />
+                        </OnPlatform>
+                    </Frame.HeightRequest>
                     <StackLayout>
                         <Label Text="Audio"
                                TextColor="{StaticResource PanelTitleColor}"
