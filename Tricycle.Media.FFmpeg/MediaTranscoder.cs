@@ -251,7 +251,7 @@ namespace Tricycle.Media.FFmpeg
                 _avgSpeed = speed;
             }
 
-            return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / speed);
+            return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / _avgSpeed);
         }
 
         long CalculateEstimatedTotalSize(double percent, long size)

@@ -179,6 +179,37 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void ResetsStatisticsBetweenJobs()
+        {
+            TranscodeStatus status = null;
+            var job = new TranscodeJob()
+            {
+                SourceInfo = new MediaInfo()
+                {
+                    Duration = new TimeSpan(0, 1, 23, 43, 480)
+                }
+            };
+
+            _transcoder.StatusChanged += s => status = s;
+            _transcoder.Start(job);
+
+            _process.ErrorDataReceived += Raise.Event<Action<string>>(
+                "frame= 1439 fps=21 q=-0.0 size=  219516kB time=01:02:47.61 " +
+                "bitrate=16315.1kbits/s speed=0.876x");
+
+            _transcoder.Stop();
+            _transcoder.Start(job);
+
+            _process.ErrorDataReceived += Raise.Event<Action<string>>(
+                "frame= 1439 fps=3.3 q=-0.0 size=  119516kB time=01:02:47.61 " +
+                "bitrate=16315.1kbits/s speed=0.139x");
+
+            Assert.IsNotNull(status);
+            Assert.AreEqual(159354667, status.EstimatedTotalSize);
+            Assert.AreEqual(new TimeSpan(0, 2, 30, 35, 36), status.Eta);
+        }
+
+        [TestMethod]
         public void RaisesCompletedEvent()
         {
             bool completed = false;
