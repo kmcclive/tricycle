@@ -78,6 +78,12 @@ namespace Tricycle.Media.FFmpeg
                 {
                     var options = $"-show_frames -select_streams {videoStream.Index} -read_intervals %+#1";
                     var frameOutput = await RunFFprobe<FrameOutput>(fileName, options);
+
+                    if (frameOutput == null)
+                    {
+                        continue;
+                    }
+
                     var (displayProperties, lightProperties) = Map(frameOutput);
 
                     videoStream.MasterDisplayProperties = displayProperties;
