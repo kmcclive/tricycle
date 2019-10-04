@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -19,7 +19,6 @@
     <PackageReference Include="Iso639" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controls\" />
     <Folder Include="Models\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
@@ -28,5 +27,10 @@
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
     <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
     <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Controls\PlatformButton.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

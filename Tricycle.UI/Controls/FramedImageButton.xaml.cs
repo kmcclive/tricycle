@@ -14,7 +14,7 @@ namespace Tricycle.UI.Controls
           typeof(FramedImageButton));
         public static readonly BindableProperty SourceProperty = BindableProperty.Create(
           nameof(Source),
-          typeof(string),
+          typeof(ImageSource),
           typeof(FramedImageButton));
 
         public ICommand Command
@@ -23,9 +23,9 @@ namespace Tricycle.UI.Controls
             set { SetValue(CommandProperty, value); }
         }
 
-        public string Source
+        public ImageSource Source
         {
-            get { return GetValue(SourceProperty).ToString(); }
+            get { return (ImageSource)GetValue(SourceProperty); }
             set { SetValue(SourceProperty, value); }
         }
 
@@ -71,7 +71,7 @@ namespace Tricycle.UI.Controls
                     UpdateCurtainVisibility();
                     break;
                 case nameof(Source):
-                    image.Source = ImageSource.FromFile(Source);
+                    image.Source = Source;
                     break;
             }
         }

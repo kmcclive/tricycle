@@ -31,10 +31,10 @@
                 </FlexLayout>
                 <Label Text="Source" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                 <Entry IsReadOnly="true" Text="{Binding SourceName}" Grid.Column="1" Grid.Row="1" />
-                <controls:FramedImageButton Source="Images/folder-open.png"
-                                            Command="{Binding SourceSelectCommand}"
-                                            Grid.Column="2"
-                                            Grid.Row="1" />
+                <controls:PlatformButton Source="Images/folder-open.png"
+                                         Command="{Binding SourceSelectCommand}"
+                                         Grid.Column="2"
+                                         Grid.Row="1" />
             </Grid>
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
@@ -72,10 +72,10 @@
                             </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
                             <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                    ItemsSource="{Binding VideoFormatOptions}"
-                                    SelectedItem="{Binding SelectedVideoFormat}"
-                                    Grid.Column="1"
-                                    Grid.Row="0" />
+                                                     ItemsSource="{Binding VideoFormatOptions}"
+                                                     SelectedItem="{Binding SelectedVideoFormat}"
+                                                     Grid.Column="1"
+                                                     Grid.Row="0" />
                             <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                             <StackLayout Grid.Column="1" Grid.Row="1">
                                 <controls:SnappableSlider IsEnabled="{Binding IsVideoConfigEnabled}"
@@ -296,14 +296,14 @@
                                          Grid.Column="1"
                                          Grid.Row="0" />
                 <Entry IsReadOnly="true" Text="{Binding DestinationName}" Grid.Column="2" Grid.Row="0" />
-                <controls:FramedImageButton Source="Images/folder-browse.png"
-                                            Command="{Binding DestinationSelectCommand}"
-                                            Grid.Column="3"
-                                            Grid.Row="0" />
-                <controls:FramedImageButton Source="{Binding ToggleStartImage}"
-                                            Command="{Binding StartCommand}"
-                                            Grid.Column="4"
-                                            Grid.Row="0" />
+                <controls:PlatformButton Source="Images/folder-browse.png"
+                                         Command="{Binding DestinationSelectCommand}"
+                                         Grid.Column="3"
+                                         Grid.Row="0" />
+                <controls:PlatformButton Source="{Binding ToggleStartImage}"
+                                         Command="{Binding StartCommand}"
+                                         Grid.Column="4"
+                                         Grid.Row="0" />
                 <ProgressBar IsVisible="{Binding IsProgressVisible}"
                              Progress="{Binding Progress}"
                              Grid.Column="2"
