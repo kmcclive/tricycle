@@ -16,9 +16,6 @@ namespace Tricycle.Media.FFmpeg
         TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
-        double _avgSpeed;
-        long _avgTotalSize;
-        long _sampleSize;
 
         #endregion
 
@@ -78,7 +75,6 @@ namespace Tricycle.Media.FFmpeg
 
             _process = _processCreator.Invoke();
 
-            ResetStatistics();
             SubscribeToEvents(_process);
             _process.Start(startInfo);
 
@@ -149,7 +145,6 @@ namespace Tricycle.Media.FFmpeg
                 double.TryParse(match.Groups["speed"].Value, out var speed) &&
                 TryParseSize(match.Groups["size"].Value, out var size))
             {
-                _sampleSize++;
                 double percent = 0;
                 TimeSpan eta = TimeSpan.Zero;
 
@@ -242,39 +237,12 @@ namespace Tricycle.Media.FFmpeg
 
         TimeSpan CalculateEta(TimeSpan timeComplete, TimeSpan totalTime, double speed)
         {
-            if (_avgSpeed > 0)
-            {
-                _avgSpeed = _avgSpeed + (speed - _avgSpeed) / _sampleSize;
-            }
-            else
-            {
-                _avgSpeed = speed;
-            }
-
-            return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / _avgSpeed);
+            return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / speed);
         }
 
         long CalculateEstimatedTotalSize(double percent, long size)
         {
-            var totalSize = (long)Math.Round(size / percent);
-
-            if (_avgTotalSize > 0)
-            {
-                _avgTotalSize = _avgTotalSize + (totalSize - _avgTotalSize) / _sampleSize;
-            }
-            else
-            {
-                _avgTotalSize = totalSize;
-            }
-
-            return _avgTotalSize;
-        }
-
-        void ResetStatistics()
-        {
-            _avgSpeed = 0;
-            _avgTotalSize = 0;
-            _sampleSize = 0;
+            return (long)Math.Round(size / percent);
         }
 
         #endregion
