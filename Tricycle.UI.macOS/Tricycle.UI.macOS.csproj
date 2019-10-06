@@ -79,7 +79,6 @@
     <CodeSignProvision>Automatic</CodeSignProvision>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="netstandard" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
