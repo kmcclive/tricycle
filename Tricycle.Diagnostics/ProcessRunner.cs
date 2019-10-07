@@ -55,17 +55,11 @@ namespace Tricycle.Diagnostics
 
                     process.Start(startInfo);
 
-                    bool complete = false;
+                    bool complete = true;
 
                     if (timeout.HasValue)
                     {
-                        if (process.WaitForExit((int)timeout.Value.TotalMilliseconds))
-                        {
-                            // This is a workaround for a bug in the .NET code.
-                            // See https://stackoverflow.com/a/25772586/9090758 for more details.
-                            process.WaitForExit();
-                            complete = true;
-                        }
+                        complete = process.WaitForExit((int)timeout.Value.TotalMilliseconds);
                     }
                     else
                     {
