@@ -36,7 +36,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="380"
+                       HeightRequest="400"
                        Padding="20, 0, 20, 20">
                     <StackLayout>
                         <Label Text="Video"
@@ -50,6 +50,9 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
@@ -83,24 +86,94 @@
                                                      SelectedItem="{Binding SelectedSize}"
                                                      Grid.Column="1"
                                                      Grid.Row="3" />
-                            <Label Text="Crop Bars" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-                            <Switch IsEnabled="{Binding IsAutocropEnabled}"
-                                    IsToggled="{Binding IsAutocropChecked}"
-                                    Grid.Column="1"
-                                    Grid.Row="4" />
-                            <Label Text="Aspect Ratio" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                     ItemsSource="{Binding AspectRatioOptions}"
-                                                     SelectedItem="{Binding SelectedAspectRatio}"
-                                                     Grid.Column="1"
-                                                     Grid.Row="5" />
-                            <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+                            <Label Text="Crop" VerticalOptions="Start" Grid.Column="0" Grid.Row="4" />
+                            <StackLayout Grid.Column="1" Grid.Row="4">
+                                <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                         ItemsSource="{Binding CropOptions}"
+                                                         SelectedItem="{Binding SelectedCropOption}" />
+                                <Grid IsVisible="{Binding IsAutoCropControlVisible}"
+                                      RowSpacing="10"
+                                      Grid.Column="1"
+                                      Grid.Row="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>                            
+                                    <Label Text="Remove Bars"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="0"
+                                           Grid.Row="0" />
+                                    <Switch IsEnabled="{Binding IsAutocropEnabled}"
+                                            IsToggled="{Binding IsAutocropChecked}"
+                                            Grid.Column="1"
+                                            Grid.Row="0" />
+                                    <Label Text="Aspect Ratio"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="0"
+                                           Grid.Row="1" />
+                                    <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                             ItemsSource="{Binding AspectRatioOptions}"
+                                                             SelectedItem="{Binding SelectedAspectRatio}"
+                                                             Grid.Column="1"
+                                                             Grid.Row="1" />
+                                </Grid>
+                                <Grid IsVisible="{Binding IsManualCropControlVisible}"
+                                      RowSpacing="10"
+                                      Grid.Column="1"
+                                      Grid.Row="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="Top"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="0"
+                                           Grid.Row="0" />
+                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          Text="{Binding CropTop}"
+                                                          Grid.Column="1"
+                                                          Grid.Row="0" />
+                                    <Label Text="Bottom"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="2"
+                                           Grid.Row="0" />
+                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          Text="{Binding CropBottom}" 
+                                                          Grid.Column="3" 
+                                                          Grid.Row="0" />
+                                    <Label Text="Left"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="0"
+                                           Grid.Row="1" />
+                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          Text="{Binding CropLeft}"
+                                                          Grid.Column="1"
+                                                          Grid.Row="1" />
+                                    <Label Text="Right"
+                                           FontSize="Micro"
+                                           VerticalOptions="Center"
+                                           Grid.Column="2"
+                                           Grid.Row="1" />
+                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          Text="{Binding CropRight}"
+                                                          Grid.Column="3"
+                                                          Grid.Row="1" />
+                                </Grid>
+                            </StackLayout>
+                            <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <Switch IsEnabled="{Binding IsVideoConfigEnabled}"
                                     IsToggled="{Binding IsDenoiseChecked}"
                                     Grid.Column="1"
-                                    Grid.Row="6" />
-                            <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
-                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="7">
+                                    Grid.Row="5" />
+                            <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+                            <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="6">
                                 <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
                                                          ItemsSource="{Binding SubtitleOptions}"
                                                          SelectedItem="{Binding SelectedSubtitle}"
@@ -116,7 +189,7 @@
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
                        FlexLayout.Basis="370"
-                       HeightRequest="380"
+                       HeightRequest="400"
                        Padding="20, 0, 5, 20">
                     <StackLayout>
                         <Label Text="Audio"

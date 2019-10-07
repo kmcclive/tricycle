@@ -65,10 +65,18 @@ namespace Tricycle.UI.ViewModels
         bool _isHdrChecked;
         IList<ListItem> _sizeOptions;
         ListItem _selectedSize;
+        IList<ListItem> _cropOptions;
+        ListItem _selectedCropOption;
+        bool _isAutoCropControlVisible;
+        bool _isManualCropControlVisible;
         bool _isAutocropEnabled;
         bool _isAutocropChecked;
         IList<ListItem> _aspectRatioOptions;
         ListItem _selectedAspectRatio;
+        string _cropTop;
+        string _cropBottom;
+        string _cropLeft;
+        string _cropRight;
         bool _isDenoiseChecked;
         IList<ListItem> _subtitleOptions;
         ListItem _selectedSubtitle;
@@ -139,6 +147,9 @@ namespace Tricycle.UI.ViewModels
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
+
+            CropOptions = GetCropOptions();
+            SelectedCropOption = CropOptions?.FirstOrDefault();
         }
 
         #endregion
@@ -256,6 +267,36 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _selectedSize, value); }
         }
 
+        public IList<ListItem> CropOptions
+        {
+            get { return _cropOptions; }
+            set { SetProperty(ref _cropOptions, value); }
+        }
+
+        public ListItem SelectedCropOption
+        {
+            get { return _selectedCropOption; }
+            set
+            {
+                SetProperty(ref _selectedCropOption, value);
+
+                IsManualCropControlVisible = object.Equals(_selectedCropOption?.Value, CropOption.Manual);
+                IsAutoCropControlVisible = !IsManualCropControlVisible;
+            }
+        }
+
+        public bool IsAutoCropControlVisible
+        {
+            get { return _isAutoCropControlVisible; }
+            set { SetProperty(ref _isAutoCropControlVisible, value); }
+        }
+
+        public bool IsManualCropControlVisible
+        {
+            get { return _isManualCropControlVisible; }
+            set { SetProperty(ref _isManualCropControlVisible, value); }
+        }
+
         public bool IsAutocropEnabled
         {
             get { return _isAutocropEnabled && _isVideoConfigEnabled; }
@@ -283,6 +324,30 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _selectedAspectRatio; }
             set { SetProperty(ref _selectedAspectRatio, value); }
+        }
+
+        public string CropTop
+        {
+            get { return _cropTop; }
+            set { SetProperty(ref _cropTop, value); }
+        }
+
+        public string CropBottom
+        {
+            get { return _cropBottom; }
+            set { SetProperty(ref _cropBottom, value); }
+        }
+
+        public string CropLeft
+        {
+            get { return _cropLeft; }
+            set { SetProperty(ref _cropLeft, value); }
+        }
+
+        public string CropRight
+        {
+            get { return _cropRight; }
+            set { SetProperty(ref _cropRight, value); }
         }
 
         public bool IsDenoiseChecked
@@ -522,6 +587,11 @@ namespace Tricycle.UI.ViewModels
             }).ToArray();
         }
 
+        IList<ListItem> GetCropOptions()
+        {
+            return Enum.GetValues(typeof(CropOption)).Cast<CropOption>().Select(o => new ListItem(o)).ToArray();
+        }
+
         void ProcessAudioCodecs(IDictionary<AudioFormat, AudioCodec> codecs)
         {
             _audioFormatOptions = new List<ListItem>();
@@ -637,6 +707,7 @@ namespace Tricycle.UI.ViewModels
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
+            UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
 
             if (isValid)
             {
@@ -793,6 +864,24 @@ namespace Tricycle.UI.ViewModels
             }
 
             return false;
+        }
+
+        void UpdateManualCropCoordinates(Dimensions sourceDimensions, CropParameters cropParameters)
+        {
+            if (cropParameters != null)
+            {
+                CropTop = cropParameters.Start.Y.ToString();
+                CropBottom = (sourceDimensions.Height - cropParameters.Size.Height - cropParameters.Start.Y).ToString();
+                CropLeft = cropParameters.Start.X.ToString();
+                CropRight = (sourceDimensions.Width - cropParameters.Size.Width - cropParameters.Start.X).ToString();
+            }
+            else
+            {
+                CropTop = "0";
+                CropBottom = "0";
+                CropLeft = "0";
+                CropRight = "0";
+            }
         }
 
         void PopulateSubtitleOptions(MediaInfo sourceInfo)
@@ -1179,25 +1268,43 @@ namespace Tricycle.UI.ViewModels
         CropParameters GetJobCropParameters(int divisor)
         {
             double? aspectRatio = null;
-            CropParameters autocropParameters = null;
+            CropParameters cropParameters = null;
 
-            if (SelectedAspectRatio != ORIGINAL_OPTION)
+            if (object.Equals(SelectedCropOption?.Value, CropOption.Manual))
             {
-                aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+                int value;
+                var top = int.TryParse(CropTop, out value) ? value : 0;
+                var bottom = int.TryParse(CropBottom, out value) ? value : 0;
+                var left = int.TryParse(CropLeft, out value) ? value : 0;
+                var right = int.TryParse(CropRight, out value) ? value : 0;
+
+                cropParameters = new CropParameters()
+                {
+                    Start = new Coordinate<int>(left, top),
+                    Size = new Dimensions(_primaryVideoStream.Dimensions.Width - left - right,
+                                          _primaryVideoStream.Dimensions.Height - top - bottom)
+                };
+            }
+            else
+            {
+                if (SelectedAspectRatio != ORIGINAL_OPTION)
+                {
+                    aspectRatio = VideoUtility.GetAspectRatio((Dimensions)SelectedAspectRatio.Value);
+                }
+
+                if (IsAutocropChecked)
+                {
+                    cropParameters = _cropParameters;
+                }
             }
 
-            if (IsAutocropChecked)
-            {
-                autocropParameters = _cropParameters;
-            }
-
-            if (!aspectRatio.HasValue && (autocropParameters == null))
+            if (!aspectRatio.HasValue && (cropParameters == null))
             {
                 return null;
             }
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
-                                                                autocropParameters,
+                                                                cropParameters,
                                                                 aspectRatio,
                                                                 divisor);
         }

@@ -145,7 +145,6 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="MainWindowDelegate.cs" />
     <Compile Include="AppDocumentController.cs" />
   </ItemGroup>
   <ItemGroup>

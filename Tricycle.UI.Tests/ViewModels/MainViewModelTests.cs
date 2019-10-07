@@ -701,6 +701,69 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SelectsAutoCropOptionByDefault()
+        {
+            SelectSource();
+            Assert.AreEqual(_viewModel.SelectedCropOption?.Value, CropOption.Auto);
+        }
+
+        [TestMethod]
+        public void ShowsAutoCropControlsByDefault()
+        {
+            SelectSource();
+            Assert.IsTrue(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesManualCropControlsByDefault()
+        {
+            SelectSource();
+            Assert.IsFalse(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
+        public void ShowsManualCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+
+            Assert.IsTrue(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesAutoCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+
+            Assert.IsFalse(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void ShowsAutoCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Auto);
+
+            Assert.IsTrue(_viewModel.IsAutoCropControlVisible);
+        }
+
+        [TestMethod]
+        public void HidesManualCropControlsWhenSelectionChanges()
+        {
+            SelectSource();
+
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Auto);
+
+            Assert.IsFalse(_viewModel.IsManualCropControlVisible);
+        }
+
+        [TestMethod]
         public void DisablesAutocropByDefault()
         {
             _cropDetector.Detect(Arg.Any<MediaInfo>()).Returns(default(CropParameters));
@@ -820,6 +883,47 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(2, _viewModel.AspectRatioOptions?.Count);
             Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
             Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[1]?.Name);
+        }
+
+        [TestMethod]
+        public void ZeroesOutManualCropControlsWhenNoBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+
+            Assert.AreEqual("0", _viewModel.CropTop);
+            Assert.AreEqual("0", _viewModel.CropBottom);
+            Assert.AreEqual("0", _viewModel.CropLeft);
+            Assert.AreEqual("0", _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void PopulatesManualCropControlsWhenHorizontalBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = new Dimensions(3840, 1606);
+            _cropParameters.Start = new Coordinate<int>(0, 278);
+            SelectSource();
+
+            Assert.AreEqual("278", _viewModel.CropTop);
+            Assert.AreEqual("276", _viewModel.CropBottom);
+            Assert.AreEqual("0", _viewModel.CropLeft);
+            Assert.AreEqual("0", _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void PopulatesManualCropControlsWhenVerticalBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1440, 1080);
+            _cropParameters.Start = new Coordinate<int>(242, 0);
+            SelectSource();
+
+            Assert.AreEqual("0", _viewModel.CropTop);
+            Assert.AreEqual("0", _viewModel.CropBottom);
+            Assert.AreEqual("242", _viewModel.CropLeft);
+            Assert.AreEqual("238", _viewModel.CropRight);
         }
 
         [TestMethod]
@@ -1658,6 +1762,81 @@ namespace Tricycle.UI.Tests
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
                                                                     _cropParameters,
+                                                                    Arg.Any<double?>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectCropParametersToCalculateCropParametersForManualCropJob()
+        {
+            var expectedCropParameters = new CropParameters()
+            {
+                Size = new Dimensions(1422, 800),
+                Start = new Coordinate<int>(248, 138)
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.CropTop = "138";
+            _viewModel.CropBottom = "142";
+            _viewModel.CropLeft = "248";
+            _viewModel.CropRight = "250";
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    expectedCropParameters,
+                                                                    Arg.Any<double?>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectCropParametersToCalculateCropParametersForEmptyCoordinates()
+        {
+            var expectedCropParameters = new CropParameters()
+            {
+                Size = new Dimensions(1920, 1080),
+                Start = new Coordinate<int>(0, 0)
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.CropTop = string.Empty;
+            _viewModel.CropBottom = string.Empty;
+            _viewModel.CropLeft = string.Empty;
+            _viewModel.CropRight = string.Empty;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    expectedCropParameters,
+                                                                    Arg.Any<double?>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void PassesCorrectCropParametersToCalculateCropParametersForNullCoordinates()
+        {
+            var expectedCropParameters = new CropParameters()
+            {
+                Size = new Dimensions(1920, 1080),
+                Start = new Coordinate<int>(0, 0)
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.CropTop = null;
+            _viewModel.CropBottom = null;
+            _viewModel.CropLeft = null;
+            _viewModel.CropRight = null;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    expectedCropParameters,
                                                                     Arg.Any<double?>(),
                                                                     Arg.Any<int>());
         }
