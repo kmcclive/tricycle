@@ -116,7 +116,7 @@ namespace Tricycle.Media.FFmpeg
 
                 if (!string.IsNullOrWhiteSpace(processResult.OutputData))
                 {
-                    result = JsonConvert.DeserializeObject<T>(processResult.OutputData);
+                    result = DeserializeOutput<T>(processResult.OutputData, true);
                 }
             }
             catch (ArgumentException ex)
@@ -127,9 +127,29 @@ namespace Tricycle.Media.FFmpeg
             {
                 Debug.WriteLine(ex);
             }
+
+            return result;
+        }
+
+        T DeserializeOutput<T>(string output, bool retry)
+        {
+            var result = default(T);
+
+            try
+            {
+                result = JsonConvert.DeserializeObject<T>(output);
+            }
             catch (JsonException ex)
             {
-                Debug.WriteLine(ex);
+                if (retry)
+                {
+                    // This is a workaround for when some output is not captured by the process.
+                    result = DeserializeOutput<T>(output + "}", false);
+                }
+                else
+                {
+                    Debug.WriteLine(ex);
+                }
             }
 
             return result;
