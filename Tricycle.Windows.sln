@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Diagnostics", "..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj", "{B08428F2-A465-42D6-97EA-0215B8DC374C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Diagnostics", "Tricycle.Diagnostics\Tricycle.Diagnostics.csproj", "{B08428F2-A465-42D6-97EA-0215B8DC374C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Diagnostics.Tests", "..\Tricycle.Diagnostics.Tests\Tricycle.Diagnostics.Tests.csproj", "{879190C0-6B1B-4BC9-BB81-2711CD2A766B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Diagnostics.Tests", "Tricycle.Diagnostics.Tests\Tricycle.Diagnostics.Tests.csproj", "{879190C0-6B1B-4BC9-BB81-2711CD2A766B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.IO", "..\Tricycle.IO\Tricycle.IO.csproj", "{69BBE676-D689-42FE-8DCA-A9731621969D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.IO", "Tricycle.IO\Tricycle.IO.csproj", "{69BBE676-D689-42FE-8DCA-A9731621969D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media", "..\Tricycle.Media\Tricycle.Media.csproj", "{9411F41C-A495-42BC-B437-50E5B474B5E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media", "Tricycle.Media\Tricycle.Media.csproj", "{9411F41C-A495-42BC-B437-50E5B474B5E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media.FFmpeg", "..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj", "{2B191250-2F2F-4D18-A261-D8AEF2B0130A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media.FFmpeg", "Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj", "{2B191250-2F2F-4D18-A261-D8AEF2B0130A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media.FFmpeg.Tests", "..\Tricycle.Media.FFmpeg.Tests\Tricycle.Media.FFmpeg.Tests.csproj", "{B8281624-76A1-42F6-9560-E3B56617BC7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Media.FFmpeg.Tests", "Tricycle.Media.FFmpeg.Tests\Tricycle.Media.FFmpeg.Tests.csproj", "{B8281624-76A1-42F6-9560-E3B56617BC7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Models", "..\Tricycle.Models\Tricycle.Models.csproj", "{FE0CFF73-E3B1-4F53-9156-3F3C44D9BD7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Models", "Tricycle.Models\Tricycle.Models.csproj", "{FE0CFF73-E3B1-4F53-9156-3F3C44D9BD7A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.UI", "..\Tricycle.UI\Tricycle.UI.csproj", "{026E72CA-AC6B-4FE2-8470-CD2DFA44E4C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.UI", "Tricycle.UI\Tricycle.UI.csproj", "{026E72CA-AC6B-4FE2-8470-CD2DFA44E4C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.UI.Tests", "..\Tricycle.UI.Tests\Tricycle.UI.Tests.csproj", "{DF53056D-BA70-444F-823B-2C1B051CC0C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.UI.Tests", "Tricycle.UI.Tests\Tricycle.UI.Tests.csproj", "{DF53056D-BA70-444F-823B-2C1B051CC0C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Utilities", "..\Tricycle.Utilities\Tricycle.Utilities.csproj", "{BCDCA2A1-B725-4325-8E78-025E44EC6A49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Utilities", "Tricycle.Utilities\Tricycle.Utilities.csproj", "{BCDCA2A1-B725-4325-8E78-025E44EC6A49}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Utilities.Tests", "..\Tricycle.Utilities.Tests\Tricycle.Utilities.Tests.csproj", "{23A1532E-F913-4878-A50A-3438D55CA4B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Utilities.Tests", "Tricycle.Utilities.Tests\Tricycle.Utilities.Tests.csproj", "{23A1532E-F913-4878-A50A-3438D55CA4B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
