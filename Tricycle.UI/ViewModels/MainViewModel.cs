@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ByteSizeLib;
 using Iso639;
 using Tricycle.IO;
 using Tricycle.Media;
@@ -1503,6 +1504,15 @@ namespace Tricycle.UI.ViewModels
                 eta = $"{Math.Floor(status.Eta.TotalHours):00}:{status.Eta.Minutes:00}:{status.Eta.Seconds:00}";
             }
 
+            string progressText = string.Empty;
+
+            if (status.EstimatedTotalSize > 0)
+            {
+                progressText = $"(Est. Total Size {ByteSize.FromBytes(status.EstimatedTotalSize)}) ";
+            }
+
+            progressText += $"{status.Percent * 100:0.##}%";
+
             _device.BeginInvokeOnMainThread(() =>
             {
                 if (!_isRunning)
@@ -1512,7 +1522,7 @@ namespace Tricycle.UI.ViewModels
 
                 Progress = status.Percent;
                 RateText = string.IsNullOrEmpty(eta) ? $"{status.Speed:0.###}x" : $"ETA {eta} ({status.Speed:0.###}x)";
-                ProgressText = $"{status.Percent * 100:0.##}%";
+                ProgressText = progressText;
             });
         }
 
