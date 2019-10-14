@@ -322,7 +322,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             var actual = _generator.GenerateArguments(job);
             string expected = "-hide_banner -y -forced_subs_only 1 -canvas_size 3840x2160 -i \"input.mkv\" -f mp4 " +
                 "-map 0:0 -c:v:0 libx264 -preset medium -crf 20.33 " +
-                "-filter_complex [0:3][0:0]'scale2ref[sub][ref];[ref][sub]overlay',scale=1920:1080,setsar=1:1," +
+                "-filter_complex [0:3][0:0]\"scale2ref[sub][ref];[ref][sub]overlay\",scale=1920:1080,setsar=1:1," +
                 "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709," +
                 "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p " +
                 "-map 0:1 -c:a:0 aac -ac:a:0 2 -b:a:0 160k " +
@@ -377,7 +377,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             var actual = _generator.GenerateArguments(job);
             string expected = "-hide_banner -y -canvas_size 3840x2160 -i \"input.m4v\" -f matroska -t 1:42:37.610 " +
                 "-map 0:0 -c:v:0 libx264 -preset medium -crf 20 " +
-                "-filter_complex [0:1][0:0]'scale2ref[sub][ref];[ref][sub]overlay' " +
+                "-filter_complex [0:1][0:0]\"scale2ref[sub][ref];[ref][sub]overlay\" " +
                 "\"output.mkv\"";
 
             Assert.AreEqual(expected, actual);
