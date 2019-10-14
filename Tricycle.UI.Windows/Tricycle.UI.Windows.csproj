@@ -127,9 +127,37 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj">
+      <Project>{b08428f2-a465-42d6-97ea-0215b8dc374c}</Project>
+      <Name>Tricycle.Diagnostics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.IO.Windows\Tricycle.IO.Windows.csproj">
+      <Project>{b60d6b8b-e1e5-4344-ae78-050d7631787f}</Project>
+      <Name>Tricycle.IO.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj">
+      <Project>{69bbe676-d689-42fe-8dca-a9731621969d}</Project>
+      <Name>Tricycle.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj">
+      <Project>{2b191250-2f2f-4d18-a261-d8aef2b0130a}</Project>
+      <Name>Tricycle.Media.FFmpeg</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Media\Tricycle.Media.csproj">
+      <Project>{9411f41c-a495-42bc-b437-50e5b474b5e8}</Project>
+      <Name>Tricycle.Media</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj">
+      <Project>{fe0cff73-e3b1-4f53-9156-3f3c44d9bd7a}</Project>
+      <Name>Tricycle.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tricycle.UI\Tricycle.UI.csproj">
       <Project>{026e72ca-ac6b-4fe2-8470-cd2dfa44e4c2}</Project>
       <Name>Tricycle.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj">
+      <Project>{bcdca2a1-b725-4325-8e78-025e44ec6a49}</Project>
+      <Name>Tricycle.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
