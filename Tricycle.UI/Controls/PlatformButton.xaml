@@ -12,8 +12,8 @@
                 <On Platform="macOS">
                     <controls:FramedImageButton x:Name="macButton" />
                 </On>
-                <On Platform="UWP">
-                    <ImageButton x:Name="uwpButton" WidthRequest="36" HeightRequest="36" />
+                <On Platform="WPF">
+                    <ImageButton x:Name="wpfButton" WidthRequest="36" HeightRequest="36" />
                 </On>
             </OnPlatform>
         </StackLayout>

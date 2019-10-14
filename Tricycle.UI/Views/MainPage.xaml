@@ -43,13 +43,13 @@
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
                             <On Platform="macOS" Value="370" />
-                            <On Platform="UWP" Value="480" />
+                            <On Platform="WPF" Value="480" />
                         </OnPlatform>
                     </FlexLayout.Basis>
                     <Frame.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="UWP" Value="520" />
+                            <On Platform="WPF" Value="520" />
                         </OnPlatform>
                     </Frame.HeightRequest>
                     <StackLayout>
@@ -206,13 +206,13 @@
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
                             <On Platform="macOS" Value="370" />
-                            <On Platform="UWP" Value="480" />
+                            <On Platform="WPF" Value="480" />
                         </OnPlatform>
                     </FlexLayout.Basis>
                     <Frame.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="UWP" Value="520" />
+                            <On Platform="WPF" Value="520" />
                         </OnPlatform>
                     </Frame.HeightRequest>
                     <StackLayout>

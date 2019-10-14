@@ -46,8 +46,8 @@ namespace Tricycle.UI.Controls
                         case Device.macOS:
                             macButton.Command = Command;
                             break;
-                        case Device.UWP:
-                            uwpButton.Command = Command;
+                        case Device.WPF:
+                            wpfButton.Command = Command;
                             break;
                     }
                     break;
@@ -57,8 +57,8 @@ namespace Tricycle.UI.Controls
                         case Device.macOS:
                             macButton.Source = Source;
                             break;
-                        case Device.UWP:
-                            uwpButton.Source = Source;
+                        case Device.WPF:
+                            wpfButton.Source = Source;
                             break;
                     }
                     break;
