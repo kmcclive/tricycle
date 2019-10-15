@@ -44,9 +44,13 @@
                                          Grid.Row="1" />
             </Grid>
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
-                <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
-                       BorderColor="{StaticResource BorderColor}"
+                <Frame BorderColor="{StaticResource BorderColor}"
                        Padding="20, 0, 20, 20">
+                    <Frame.BackgroundColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="macOS" Value="{StaticResource PanelBackgroundColor}" />
+                        </OnPlatform>
+                    </Frame.BackgroundColor>
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
                             <On Platform="macOS" Value="370" />
@@ -56,7 +60,7 @@
                     <Frame.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="520" />
+                            <On Platform="WPF" Value="480" />
                         </OnPlatform>
                     </Frame.HeightRequest>
                     <StackLayout>
@@ -99,6 +103,7 @@
                             <Label Text="HDR" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
                             <Switch IsEnabled="{Binding IsHdrEnabled}"
                                     IsToggled="{Binding IsHdrChecked}"
+                                    VerticalOptions="Center"
                                     Grid.Column="1"
                                     Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
@@ -127,6 +132,7 @@
                                            Grid.Row="0" />
                                     <Switch IsEnabled="{Binding IsAutocropEnabled}"
                                             IsToggled="{Binding IsAutocropChecked}"
+                                            VerticalOptions="Center"
                                             Grid.Column="1"
                                             Grid.Row="0" />
                                     <Label Text="Aspect Ratio"
@@ -191,6 +197,7 @@
                             <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
                             <Switch IsEnabled="{Binding IsVideoConfigEnabled}"
                                     IsToggled="{Binding IsDenoiseChecked}"
+                                    VerticalOptions="Center"
                                     Grid.Column="1"
                                     Grid.Row="5" />
                             <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
@@ -199,17 +206,22 @@
                                                          ItemsSource="{Binding SubtitleOptions}"
                                                          SelectedItem="{Binding SelectedSubtitle}"
                                                          FlexLayout.Grow="1" />
-                                <Label Text="Forced Only" FontSize="Micro" Margin="10, 0, 0, 0" />
+                                <Label Text="Forced Only" FontSize="Micro" Margin="10, 0, 5, 0" />
                                 <Switch IsEnabled="{Binding IsForcedSubtitlesEnabled}"
-                                        IsToggled="{Binding IsForcedSubtitlesChecked}" />
+                                        IsToggled="{Binding IsForcedSubtitlesChecked}"
+                                        VerticalOptions="Center" />
                             </FlexLayout>
                             
                         </Grid>
                     </StackLayout>
                 </Frame>
-                <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
-                       BorderColor="{StaticResource BorderColor}"
+                <Frame BorderColor="{StaticResource BorderColor}"
                        Padding="20, 0, 5, 20">
+                    <Frame.BackgroundColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="macOS" Value="{StaticResource PanelBackgroundColor}" />
+                        </OnPlatform>
+                    </Frame.BackgroundColor>
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
                             <On Platform="macOS" Value="370" />
@@ -219,7 +231,7 @@
                     <Frame.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="520" />
+                            <On Platform="WPF" Value="480" />
                         </OnPlatform>
                     </Frame.HeightRequest>
                     <StackLayout>
@@ -228,11 +240,15 @@
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                Margin="0, 5, 0, 0" />
-                        <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
-                                  HasUnevenRows="true"
+                        <ListView HasUnevenRows="true"
                                   Margin="0, -5, 0, 0"
                                   SelectionMode="None"
                                   ItemsSource="{Binding AudioOutputs}">
+                            <ListView.BackgroundColor>
+                                <OnPlatform x:TypeArguments="Color">
+                                    <On Platform="macOS" Value="{StaticResource PanelBackgroundColor}" />
+                                </OnPlatform>
+                            </ListView.BackgroundColor>
                             <ListView.Header>
                                 <FlexLayout />
                             </ListView.Header>
@@ -300,6 +316,7 @@
                 <controls:BindablePicker IsEnabled="{Binding IsContainerFormatEnabled}"
                                          ItemsSource="{Binding ContainerFormatOptions}"
                                          SelectedItem="{Binding SelectedContainerFormat}"
+                                         VerticalOptions="Center"
                                          Grid.Column="1"
                                          Grid.Row="0" />
                 <Entry IsReadOnly="true" Text="{Binding DestinationName}" Grid.Column="2" Grid.Row="0" />

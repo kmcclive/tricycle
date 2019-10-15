@@ -25,5 +25,10 @@
                CanCascade="True">
             <Setter Property="FontSize" Value="Small" />
         </Style>
+        <Style TargetType="Picker"
+               ApplyToDerivedTypes="True"
+               CanCascade="True">
+            <Setter Property="FontSize" Value="Micro" />
+        </Style>
     </Application.Resources>
 </Application>
