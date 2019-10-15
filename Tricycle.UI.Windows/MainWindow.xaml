@@ -7,7 +7,4 @@
         xmlns:local="clr-namespace:Tricycle.UI.Windows"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1040">
-    <Grid>
-        
-    </Grid>
 </wpf:FormsApplicationPage>
