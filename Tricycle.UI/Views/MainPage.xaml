@@ -18,7 +18,14 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="13" />
+                    <RowDefinition>
+                        <RowDefinition.Height>
+                            <OnPlatform x:TypeArguments="GridLength">
+                                <On Platform="macOS" Value="13" />
+                                <On Platform="WPF" Value="19" />
+                            </OnPlatform>
+                        </RowDefinition.Height>
+                    </RowDefinition>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <FlexLayout IsVisible="{Binding IsSourceInfoVisible}" Grid.Column="1" Grid.Row="0">
