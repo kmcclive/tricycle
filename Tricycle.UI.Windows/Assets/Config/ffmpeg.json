@@ -1,0 +1,25 @@
+﻿{
+    "video": {
+        "codecs": {
+            "avc": {
+                "preset": "medium"
+            },
+            "hevc": {
+                "preset": "medium"
+            }
+        },
+        "cropDetectOptions": "0.125:2:0",
+        "denoiseOptions": "hqdn3d=4:4:3:3",
+        "tonemapOptions": "hable:desat=0"
+    },
+    "audio": {
+        "codecs": {
+            "aac": {
+                "name":  "aac"
+            },
+            "ac3": {
+                "name": "ac3"
+            }
+        }
+    }
+}
