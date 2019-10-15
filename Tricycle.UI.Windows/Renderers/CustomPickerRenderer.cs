@@ -11,7 +11,7 @@ namespace Tricycle.UI.Windows.Renderers
         {
             base.OnElementChanged(e);
 
-            if (Control != null)
+            if ((Control != null) && (e.NewElement != null))
             {
                 Control.FontSize = e.NewElement.FontSize;
             }

@@ -88,6 +88,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Renderers\CustomImageButtonRenderer.cs" />
     <Compile Include="Renderers\CustomPickerRenderer.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -177,16 +178,16 @@
     <Content Include="Assets\Tools\FFmpeg\ffprobe.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\folder-browse.png">
+    <Content Include="Assets\Images\folder-browse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\folder-open.png">
+    <Content Include="Assets\Images\folder-open.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\play.png">
+    <Content Include="Assets\Images\play.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\stop.png">
+    <Content Include="Assets\Images\stop.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
