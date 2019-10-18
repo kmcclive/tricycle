@@ -1506,9 +1506,9 @@ namespace Tricycle.UI.ViewModels
 
             string progressText = string.Empty;
 
-            if (status.EstimatedTotalSize > 0)
+            if ((status.Size > 0) && (status.EstimatedTotalSize > 0))
             {
-                progressText = $"(Est. Total Size {ByteSize.FromBytes(status.EstimatedTotalSize)}) ";
+                progressText = $"({ByteSize.FromBytes(status.Size)} / {ByteSize.FromBytes(status.EstimatedTotalSize)}) ";
             }
 
             progressText += $"{status.Percent * 100:0.##}%";
