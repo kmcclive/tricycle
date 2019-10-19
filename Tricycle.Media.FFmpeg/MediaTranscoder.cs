@@ -212,22 +212,22 @@ namespace Tricycle.Media.FFmpeg
                     double.TryParse(match.Groups["amount"].Value, out var amount))
                 {
                     string unit = match.Groups["unit"].Value;
-                    int factor = 1;
+                    int exponent = 0;
 
                     switch (unit?.ToLower())
                     {
                         case "kb":
-                            factor = 1000;
+                            exponent = 10;
                             break;
                         case "mb":
-                            factor = 1000000;
+                            exponent = 20;
                             break;
                         case "gb":
-                            factor = 1000000000;
+                            exponent = 30;
                             break;
                     }
 
-                    result = (long)Math.Round(amount * factor);
+                    result = (long)Math.Round(amount * Math.Pow(2, exponent));
                     success = true;
                 }
             }

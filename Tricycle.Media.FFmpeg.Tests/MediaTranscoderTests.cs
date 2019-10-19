@@ -171,8 +171,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.IsNotNull(status);
             Assert.AreEqual(0.75, status.Percent);
             Assert.AreEqual(3.3, status.FramesPerSecond);
-            Assert.AreEqual(119516000, status.Size);
-            Assert.AreEqual(159354667, status.EstimatedTotalSize);
+            Assert.AreEqual(122384384, status.Size);
+            Assert.AreEqual(163179179, status.EstimatedTotalSize);
             Assert.AreEqual(0.139, status.Speed);
             Assert.AreEqual(new TimeSpan(0, 1, 2, 47, 610), status.Time);
             Assert.AreEqual(new TimeSpan(0, 2, 30, 35, 36), status.Eta);
