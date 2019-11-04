@@ -255,11 +255,20 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>
-                                        <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
-                                               BorderColor="{StaticResource BorderColor}"
+                                        <Frame BorderColor="{StaticResource BorderColor}"
                                                Margin="0, 0, 3, 5"
                                                Padding="5, 10">
+                                            <Frame.BackgroundColor>
+                                                <OnPlatform x:TypeArguments="Color">
+                                                    <On Platform="macOS" Value="{StaticResource PanelBackgroundColor}" />
+                                                </OnPlatform>
+                                            </Frame.BackgroundColor>
                                             <Grid RowSpacing="5">
+                                                <Grid.HeightRequest>
+                                                    <OnPlatform x:TypeArguments="x:Double">
+                                                        <On Platform="WPF" Value="115" />
+                                                    </OnPlatform>
+                                                </Grid.HeightRequest>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
