@@ -18,6 +18,7 @@ using Tricycle.Models.Config;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
+using Xamarin.Forms.Platform.WPF.Controls;
 
 namespace Tricycle.UI.Windows
 {
@@ -36,6 +37,18 @@ namespace Tricycle.UI.Windows
             InitializeComponent();
             Forms.Init();         
             LoadApplication(new UI.App());
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+
+            var topBar = Template.FindName("PART_TopAppBar", this) as FormsAppBar;
+
+            if (topBar != null)
+            {
+                topBar.MaxHeight = 0;
+            }
         }
 
         void InitializeAppState()

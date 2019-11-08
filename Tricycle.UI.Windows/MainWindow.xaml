@@ -6,5 +6,5 @@
         xmlns:wpf="clr-namespace:Xamarin.Forms.Platform.WPF;assembly=Xamarin.Forms.Platform.WPF"
         xmlns:local="clr-namespace:Tricycle.UI.Windows"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1040">
+        Title="Tricycle" Height="730" Width="1040">
 </wpf:FormsApplicationPage>
