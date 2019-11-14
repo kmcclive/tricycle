@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using Tricycle.UI.Windows.Renderers;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
@@ -10,20 +11,37 @@ namespace Tricycle.UI.Windows.Renderers
     {
         protected override void OnElementChanged(ElementChangedEventArgs<ImageButton> e)
         {
-            if (e.NewElement?.Source is FileImageSource fileSource)
+            CorrectSource(e.NewElement);
+            
+            base.OnElementChanged(e);
+        }
+
+        protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var button = (ImageButton)sender;
+
+            if (e.PropertyName == nameof(button.Source))
             {
-                e.NewElement.Source = new FileImageSource()
+                CorrectSource(button);
+            }
+
+            base.OnElementPropertyChanged(sender, e);
+        }
+
+        protected void CorrectSource(ImageButton button)
+        {
+            if (button?.Source is FileImageSource fileSource && fileSource.File != null && !fileSource.File.StartsWith("Assets"))
+            {
+                button.Source = new FileImageSource()
                 {
                     AutomationId = fileSource.AutomationId,
                     BindingContext = fileSource.BindingContext,
                     ClassId = fileSource.ClassId,
-                    File = fileSource.File != null ? Path.Combine("Assets", fileSource.File) : null,
+                    File = Path.Combine("Assets", fileSource.File),
                     Parent = fileSource.Parent,
                     StyleId = fileSource.StyleId
                 };
             }
-
-            base.OnElementChanged(e);
         }
     }
 }
