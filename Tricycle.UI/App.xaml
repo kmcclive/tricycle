@@ -30,9 +30,22 @@
                 </Color>
             </On>
         </OnPlatform>
-        <Color x:FactoryMethod="FromHex" x:Key="PanelTitleColor">
-            <x:Arguments><x:String>#686868</x:String></x:Arguments>
-        </Color>
+        <OnPlatform x:TypeArguments="Color" x:Key="PanelTitleColor">
+            <On Platform="macOS">
+                <Color x:FactoryMethod="FromHex">
+                    <x:Arguments>
+                        <x:String>#686868</x:String>
+                    </x:Arguments>
+                </Color>
+            </On>
+            <On Platform="WPF">
+                <Color x:FactoryMethod="FromHex">
+                    <x:Arguments>
+                        <x:String>#545454</x:String>
+                    </x:Arguments>
+                </Color>
+            </On>
+        </OnPlatform>
         <Style TargetType="Entry"
                ApplyToDerivedTypes="True"
                CanCascade="True">
