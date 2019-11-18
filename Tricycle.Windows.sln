@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.UI.Windows", "Tric
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.IO.Windows", "Tricycle.IO.Windows\Tricycle.IO.Windows.csproj", "{B60D6B8B-E1E5-4344-AE78-050D7631787F}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Tricycle.Windows.Setup", "Tricycle.Windows.Setup\Tricycle.Windows.Setup.vdproj", "{B86C7269-21FB-477B-BE3F-7795A8E72B37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,8 @@ Global
 		{B60D6B8B-E1E5-4344-AE78-050D7631787F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B60D6B8B-E1E5-4344-AE78-050D7631787F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B60D6B8B-E1E5-4344-AE78-050D7631787F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B86C7269-21FB-477B-BE3F-7795A8E72B37}.Debug|Any CPU.ActiveCfg = Debug
+		{B86C7269-21FB-477B-BE3F-7795A8E72B37}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

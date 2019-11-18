@@ -4,3 +4,4 @@ Tricycle.UI.macOS/Resources/Tools/FFmpeg/ffmpeg filter=lfs diff=lfs merge=lfs -t
 *.tar.gz filter=lfs diff=lfs merge=lfs -text
 *.tar.bz2 filter=lfs diff=lfs merge=lfs -text
 *.exe filter=lfs diff=lfs merge=lfs -text
+*.ico filter=lfs diff=lfs merge=lfs -text
