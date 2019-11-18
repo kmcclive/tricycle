@@ -2502,6 +2502,23 @@ namespace Tricycle.UI.Tests
         {
             var status = new TranscodeStatus()
             {
+                Size = 881852416,
+                EstimatedTotalSize = 5583457485,
+                Percent = 0.1579
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+
+            Assert.AreEqual("(841 MB / 5.2 GB) 15.79%", _viewModel.ProgressText);
+        }
+
+        [TestMethod]
+        public void DisplaysEstimatedTotalSize()
+        {
+            var status = new TranscodeStatus()
+            {
                 Percent = 0.34567,
             };
 

@@ -79,7 +79,6 @@
     <CodeSignProvision>Automatic</CodeSignProvision>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="netstandard" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
@@ -116,6 +115,10 @@
     <Reference Include="Iso639">
       <HintPath>..\packages\Iso639.1.0.0\lib\netstandard2.0\Iso639.dll</HintPath>
     </Reference>
+    <Reference Include="ByteSize">
+      <HintPath>..\packages\ByteSize.1.3.0\lib\netstandard1.0\ByteSize.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />

@@ -16,8 +16,6 @@ namespace Tricycle.Media.FFmpeg
         TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
-        double _avgSpeed;
-        long _sampleSize;
 
         #endregion
 
@@ -144,7 +142,8 @@ namespace Tricycle.Media.FFmpeg
 
             if (TimeSpan.TryParse(match.Groups["time"].Value, out var time) &&
                 double.TryParse(match.Groups["fps"].Value, out var fps) &&
-                double.TryParse(match.Groups["speed"].Value, out var speed))
+                double.TryParse(match.Groups["speed"].Value, out var speed) &&
+                TryParseSize(match.Groups["size"].Value, out var size))
             {
                 double percent = 0;
                 TimeSpan eta = TimeSpan.Zero;
@@ -159,13 +158,21 @@ namespace Tricycle.Media.FFmpeg
                     }
                 }
 
+                long totalSize = 0;
+
+                if ((percent > 0) && (size > 0))
+                {
+                    totalSize = CalculateEstimatedTotalSize(percent, size);
+                }
+
                 StatusChanged?.Invoke(new TranscodeStatus()
                 {
                     Percent = percent,
                     Time = time,
                     FramesPerSecond = fps,
                     Speed = speed,
-                    Size = ParseSize(match.Groups["size"].Value),
+                    Size = size,
+                    EstimatedTotalSize = totalSize,
                     Eta = eta
                 });
             }
@@ -192,9 +199,10 @@ namespace Tricycle.Media.FFmpeg
             _sourceDuration = TimeSpan.Zero;
         }
 
-        long ParseSize(string size)
+        bool TryParseSize(string size, out long result)
         {
-            long result = 0;
+            bool success = false;
+            result = 0;
 
             if (!string.IsNullOrWhiteSpace(size))
             {
@@ -204,42 +212,37 @@ namespace Tricycle.Media.FFmpeg
                     double.TryParse(match.Groups["amount"].Value, out var amount))
                 {
                     string unit = match.Groups["unit"].Value;
-                    int factor = 1;
+                    int exponent = 0;
 
                     switch (unit?.ToLower())
                     {
                         case "kb":
-                            factor = 1000;
+                            exponent = 10;
                             break;
                         case "mb":
-                            factor = 1000000;
+                            exponent = 20;
                             break;
                         case "gb":
-                            factor = 1000000000;
+                            exponent = 30;
                             break;
                     }
 
-                    result = (long)Math.Round(amount * factor);
+                    result = (long)Math.Round(amount * Math.Pow(2, exponent));
+                    success = true;
                 }
             }
 
-            return result;
+            return success;
         }
 
         TimeSpan CalculateEta(TimeSpan timeComplete, TimeSpan totalTime, double speed)
         {
-            _sampleSize++;
-
-            if (_avgSpeed > 0)
-            {
-                _avgSpeed = _avgSpeed + (speed - _avgSpeed) / _sampleSize;
-            }
-            else
-            {
-                _avgSpeed = speed;
-            }
-
             return TimeSpan.FromSeconds((totalTime - timeComplete).TotalSeconds / speed);
+        }
+
+        long CalculateEstimatedTotalSize(double percent, long size)
+        {
+            return (long)Math.Round(size / percent);
         }
 
         #endregion
