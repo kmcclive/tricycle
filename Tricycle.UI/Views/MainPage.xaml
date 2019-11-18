@@ -266,6 +266,7 @@
                                             <Grid RowSpacing="5">
                                                 <Grid.HeightRequest>
                                                     <OnPlatform x:TypeArguments="x:Double">
+                                                        <On Platform="macOS" Value="70" />
                                                         <On Platform="WPF" Value="115" />
                                                     </OnPlatform>
                                                 </Grid.HeightRequest>
