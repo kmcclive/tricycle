@@ -22,6 +22,8 @@ namespace Tricycle.IO.Tests
 
         IFileSystem _fileSystem;
         IFile _fileService;
+        IDirectory _directoryService;
+        string _userDirectory;
         string _userFileName;
         string _defaultFileName;
         JsonConfigManager<Config> _configManager;
@@ -35,12 +37,16 @@ namespace Tricycle.IO.Tests
         {
             _fileSystem = Substitute.For<IFileSystem>();
             _fileService = Substitute.For<IFile>();
-            _userFileName = Path.Combine("Users", "fred", "Preferences", "config.json");
+            _directoryService = Substitute.For<IDirectory>();
+            _userDirectory = Path.Combine("Users", "fred", "Library", "Preferences");
+            _userFileName = Path.Combine(_userDirectory, "config.json");
             _defaultFileName = Path.Combine("Applications", "Tricycle.app", "Resources", "Config", "config.json");
             _configManager = new JsonConfigManager<Config>(_fileSystem, _defaultFileName, _userFileName);
 
             _fileSystem.File.Returns(_fileService);
+            _fileSystem.Directory.Returns(_directoryService);
             _fileService.Exists(Arg.Any<string>()).Returns(false);
+            _directoryService.Exists(Arg.Any<string>()).Returns(true);
         }
 
         #endregion
@@ -80,6 +86,37 @@ namespace Tricycle.IO.Tests
             _configManager.Load();
 
             _fileService.Received().ReadAllText(_defaultFileName);
+        }
+
+        [TestMethod]
+        public void LoadCreatesUserConfigDirectoryWhenItDoesNotExist()
+        {
+            var config =
+                "{" + Environment.NewLine +
+                "  \"value\": 2" + Environment.NewLine +
+                "}";
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(config);
+            _directoryService.Exists(_userDirectory).Returns(false);
+            _configManager.Load();
+
+            _directoryService.Received().CreateDirectory(_userDirectory);
+        }
+
+        [TestMethod]
+        public void LoadDoesNotCreateUserConfigDirectoryWhenItExists()
+        {
+            var config =
+                "{" + Environment.NewLine +
+                "  \"value\": 2" + Environment.NewLine +
+                "}";
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(config);
+            _configManager.Load();
+
+            _directoryService.DidNotReceive().CreateDirectory(Arg.Any<string>());
         }
 
         [TestMethod]
@@ -128,6 +165,31 @@ namespace Tricycle.IO.Tests
             _configManager.Config = expected;
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void SaveCreatesUserDirectoryWhenItDoesNotExist()
+        {
+            _configManager.Config = new Config()
+            {
+                Value = 2
+            };
+            _directoryService.Exists(_userDirectory).Returns(false);
+            _configManager.Save();
+
+            _directoryService.Received().CreateDirectory(_userDirectory);
+        }
+
+        [TestMethod]
+        public void SaveDoesNotCreateUserDirectoryWhenItExists()
+        {
+            _configManager.Config = new Config()
+            {
+                Value = 2
+            };
+            _configManager.Save();
+
+            _directoryService.DidNotReceive().CreateDirectory(Arg.Any<string>());
         }
 
         [TestMethod]

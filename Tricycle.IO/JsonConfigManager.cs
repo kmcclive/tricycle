@@ -103,6 +103,13 @@ namespace Tricycle.IO
         {
             try
             {
+                string directory = Path.GetDirectoryName(fileName);
+
+                if (!_fileSystem.Directory.Exists(directory))
+                {
+                    _fileSystem.Directory.CreateDirectory(directory);
+                }
+
                 string json = JsonConvert.SerializeObject(obj, SERIALIZER_SETTINGS);
 
                 _fileSystem.File.WriteAllText(fileName, json);
