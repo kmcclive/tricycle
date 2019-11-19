@@ -73,25 +73,45 @@ namespace Tricycle.UI.macOS
 
         public override void DidFinishLaunching(NSNotification notification)
         {
+            const string FFMPEG_CONFIG_NAME = "ffmpeg.json";
+            const string TRICYCLE_CONFIG_NAME = "tricycle.json";
+
             string resourcePath = NSBundle.MainBundle.ResourcePath;
-            string configPath = Path.Combine(resourcePath, "Config");
+            string defaultConfigPath = Path.Combine(resourcePath, "Config");
             string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
+            string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string userConfigPath = Path.Combine(userPath, "Library", "Preferences", "Tricycle");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
             var processRunner = new ProcessRunner(processCreator);
-            var ffmpegConfig = ReadConfigFile<FFmpegConfig>(Path.Combine(configPath, "ffmpeg.json"));
-            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfig);
+            var fileSystem = new FileSystem();
+            var ffmpegConfigManager =
+                new JsonConfigManager<FFmpegConfig>(fileSystem,
+                                                    Path.Combine(defaultConfigPath, FFMPEG_CONFIG_NAME),
+                                                    Path.Combine(userConfigPath, FFMPEG_CONFIG_NAME));
+            var tricycleConfigManager =
+                new JsonConfigManager<TricycleConfig>(fileSystem,
+                                                      Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
+                                                      Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
+
+            ffmpegConfigManager.Load();
+            tricycleConfigManager.Load();
+
+            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfigManager);
 
             AppState.IocContainer = new Container(_ =>
             {
+                _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);
+                _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
+                _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,
                                                                 ProcessUtility.Self));
                 _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
                                                             processRunner,
                                                             ProcessUtility.Self,
-                                                            ffmpegConfig));
-                _.For<IFileSystem>().Use<FileSystem>();
+                                                            ffmpegConfigManager));
+                _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
                 _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
                                                                   processCreator,
@@ -99,9 +119,7 @@ namespace Tricycle.UI.macOS
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
             });
-            AppState.TricycleConfig = ReadConfigFile<TricycleConfig>(Path.Combine(configPath, "tricycle.json"));
-            AppState.DefaultDestinationDirectory =
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Movies");
+            AppState.DefaultDestinationDirectory = Path.Combine(userPath, "Movies");
 
             Forms.Init();
             LoadApplication(new App());
@@ -152,33 +170,6 @@ namespace Tricycle.UI.macOS
             {
                 _appManager.RaiseFileOpened(result.FileName);
             }
-        }
-
-        T ReadConfigFile<T>(string fileName) where T : class, new()
-        {
-            T result = null;
-            var serializerSettings = new JsonSerializerSettings
-            {
-                Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            try
-            {
-                string json = File.ReadAllText(fileName);
-
-                result = JsonConvert.DeserializeObject<T>(json, serializerSettings);
-            }
-            catch (IOException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch (JsonException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-
-            return result ?? new T();
         }
 
         Coordinate<nfloat> GetCenterCoordinate()
