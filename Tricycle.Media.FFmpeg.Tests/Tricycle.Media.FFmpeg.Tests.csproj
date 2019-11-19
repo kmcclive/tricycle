@@ -20,5 +20,6 @@
     <ProjectReference Include="..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj" />
     <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj" />
     <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
   </ItemGroup>
 </Project>
