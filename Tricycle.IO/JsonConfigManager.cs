@@ -14,7 +14,8 @@ namespace Tricycle.IO
         static readonly JsonSerializerSettings SERIALIZER_SETTINGS = new JsonSerializerSettings
         {
             Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.Indented
         };
 
         IFileSystem _fileSystem;
@@ -73,32 +74,7 @@ namespace Tricycle.IO
                 throw new InvalidOperationException("Config has not been loaded or set.");
             }
 
-            try
-            {
-                string json = JsonConvert.SerializeObject(Config);
-
-                _fileSystem.File.WriteAllText(_userFileName, json);
-            }
-            catch (JsonException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch(IOException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch (NotSupportedException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch (SecurityException ex)
-            {
-                Debug.WriteLine(ex);
-            }
+            SerializeToFile(Config, _userFileName);
         }
 
         T DeserializeFile(string fileName)
@@ -127,7 +103,7 @@ namespace Tricycle.IO
         {
             try
             {
-                string json = JsonConvert.SerializeObject(obj);
+                string json = JsonConvert.SerializeObject(obj, SERIALIZER_SETTINGS);
 
                 _fileSystem.File.WriteAllText(fileName, json);
             }
