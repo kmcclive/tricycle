@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
+using Tricycle.Models.Config;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -28,7 +29,7 @@ namespace Tricycle.UI.Views
                 AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.IocContainer.GetInstance<IDevice>(),
                 AppState.IocContainer.GetInstance<IAppManager>(),
-                AppState.TricycleConfig,
+                AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.DefaultDestinationDirectory);
 
             viewModel.Alert += OnAlert;

@@ -38,6 +38,7 @@ namespace Tricycle.UI.Tests
         IFileSystem _fileSystem;
         IFile _fileService;
         IAppManager _appManager;
+        IConfigManager<TricycleConfig> _tricycleConfigManager;
         TricycleConfig _tricycleConfig;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
@@ -57,6 +58,8 @@ namespace Tricycle.UI.Tests
             _fileSystem = Substitute.For<IFileSystem>();
             _appManager = Substitute.For<IAppManager>();
             _tricycleConfig = CreateDefaultTricycleConfig();
+            _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
+            _tricycleConfigManager.Config = _tricycleConfig;
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
@@ -66,7 +69,7 @@ namespace Tricycle.UI.Tests
                                            _fileSystem,
                                            MockDevice.Self,
                                            _appManager,
-                                           _tricycleConfig,
+                                           _tricycleConfigManager,
                                            _defaultDestinationDirectory);
 
             _fileBrowserResult = new FileBrowserResult()
