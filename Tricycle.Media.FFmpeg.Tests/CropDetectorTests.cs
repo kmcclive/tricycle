@@ -6,6 +6,7 @@ using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Media;
@@ -25,7 +26,9 @@ namespace Tricycle.Media.FFmpeg.Tests
             var timeout = TimeSpan.FromMilliseconds(10);
             var ffmpegFileName = "/usr/sbin/ffmpeg";
             var config = new FFmpegConfig();
-            var detector = new CropDetector(ffmpegFileName, processRunner, processUtility, config, timeout);
+            var configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
+            configManager.Config = config;
+            var detector = new CropDetector(ffmpegFileName, processRunner, processUtility, configManager, timeout);
 
             #region Test Exceptions
 
