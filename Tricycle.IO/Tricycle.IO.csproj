@@ -8,4 +8,8 @@
   <ItemGroup>
     <Folder Include="Models\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
 </Project>
