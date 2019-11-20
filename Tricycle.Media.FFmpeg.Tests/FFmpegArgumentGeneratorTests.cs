@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
@@ -17,6 +18,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
         IProcessUtility _processUtility;
         FFmpegConfig _config;
+        IConfigManager<FFmpegConfig> _configManager;
         FFmpegArgumentGenerator _generator;
 
         #endregion
@@ -28,7 +30,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             _processUtility = Substitute.For<IProcessUtility>();
             _config = new FFmpegConfig();
-            _generator = new FFmpegArgumentGenerator(_processUtility, _config);
+            _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
+            _configManager.Config = _config;
+            _generator = new FFmpegArgumentGenerator(_processUtility, _configManager);
 
             _processUtility.EscapeFilePath(Arg.Any<string>()).Returns(x => $"\"{x[0]}\"");
         }

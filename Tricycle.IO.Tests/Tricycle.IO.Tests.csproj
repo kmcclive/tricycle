@@ -11,15 +11,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
     <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+    <PackageReference Include="System.IO.Abstractions" Version="6.0.15" />
     <PackageReference Include="NSubstitute" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj" />
-    <ProjectReference Include="..\Tricycle.Media\Tricycle.Media.csproj" />
-    <ProjectReference Include="..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj" />
-    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj" />
-    <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
   </ItemGroup>
 </Project>
