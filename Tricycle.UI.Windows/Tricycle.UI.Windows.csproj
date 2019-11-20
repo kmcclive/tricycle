@@ -140,28 +140,28 @@
     <Content Include="Assets\Config\tricycle.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.GPLv2">
+    <Content Include="..\tools\FFmpeg\COPYING.GPLv2">
       <Link>Assets\Tools\FFmpeg\COPYING.GPLv2</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.GPLv3">
+    <Content Include="..\tools\FFmpeg\COPYING.GPLv3">
       <Link>Assets\Tools\FFmpeg\COPYING.GPLv3</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.LGPLv2.1">
+    <Content Include="..\tools\FFmpeg\COPYING.LGPLv2.1">
       <Link>Assets\Tools\FFmpeg\COPYING.LGPLv2.1</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.LGPLv3">
+    <Content Include="..\tools\FFmpeg\COPYING.LGPLv3">
       <Link>Assets\Tools\FFmpeg\COPYING.LGPLv3</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\LICENSE.md">
+    <Content Include="..\tools\FFmpeg\LICENSE.md">
       <Link>Assets\Tools\FFmpeg\LICENSE.md</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\ffmpeg.tar.gz">
+    <Content Include="..\tools\FFmpeg\source\ffmpeg.tar.gz">
       <Link>Assets\Tools\FFmpeg\Source\ffmpeg.tar.gz</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\x264.tar.bz2">
+    <Content Include="..\tools\FFmpeg\source\x264.tar.bz2">
       <Link>Assets\Tools\FFmpeg\Source\x264.tar.bz2</Link>
     </Content>
-    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\x265.tar.bz2">
+    <Content Include="..\tools\FFmpeg\source\x265.tar.bz2">
       <Link>Assets\Tools\FFmpeg\Source\x265.tar.bz2</Link>
     </Content>
     <None Include="OpenTK.dll.config" />
