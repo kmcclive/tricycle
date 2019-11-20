@@ -195,6 +195,7 @@ namespace Tricycle.UI.ViewModels
                 SetProperty(ref _isVideoConfigEnabled, value);
                 RaisePropertyChanged(nameof(IsHdrEnabled));
                 RaisePropertyChanged(nameof(IsAutocropEnabled));
+                RaisePropertyChanged(nameof(IsForcedSubtitlesEnabled));
             }
         }
 
