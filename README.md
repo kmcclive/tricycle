@@ -1,5 +1,5 @@
 # Tricycle
-Tricycle is an open-source video transcoder for macOS.  It takes the guesswork out of converting videos by using layman's terms and providing a reasonable default configuration.  Tricycle is powered by other open-source projects such as [FFmpeg](https://ffmpeg.org), [x264](https://www.videolan.org/developers/x264.html), and [x265](http://www.x265.org/).
+Tricycle is an open-source video transcoder for macOS and Windows.  It takes the guesswork out of converting videos by using layman's terms and providing a reasonable default configuration.  Tricycle is powered by other open-source projects such as [FFmpeg](https://ffmpeg.org), [x264](https://www.videolan.org/developers/x264.html), and [x265](http://www.x265.org/).
 
 ![Tricycle Screenshot](/images/screenshot.png)
 
@@ -25,7 +25,11 @@ Tricycle is an open-source video transcoder for macOS.  It takes the guesswork o
 * Supports mutliple audio tracks in mono, stereo, or 5.1 surround
 
 ## System Requirements
-macOS High Sierra (10.13)
+### macOS
+* macOS High Sierra (10.13) or later
+### Windows
+* Windows 7 or later
+* .NET Framework 4.6.1 or later
 
 ## License
 Tricycle is licensed under the [GNU General Public License (GPL) Version 2](COPYING.txt).  Please see the [LICENSE file](LICENSE.txt) for more information.
