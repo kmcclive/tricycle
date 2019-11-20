@@ -157,7 +157,7 @@ namespace Tricycle.Diagnostics.Tests
 
             #region Test successful process with output and error data
 
-            var result = await runner.Run(EXE_FILE_NAME, ARGS_1, timeout);
+            var result = await runner.Run(EXE_FILE_NAME, ARGS_1, TimeSpan.FromSeconds(1));
 
             Assert.IsNotNull(result);
             Assert.AreEqual(0, result.ExitCode);

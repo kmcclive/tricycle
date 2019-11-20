@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.props')" />
+  <Import Project="..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -83,16 +83,16 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Xamarin.Forms.Core">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Platform.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Platform.macOS">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Platform.macOS.dll</HintPath>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
-      <HintPath>..\packages\Xamarin.Forms.4.0.0.497661\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Forms.4.2.0.848062\lib\Xamarin.Mac\Xamarin.Forms.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
@@ -139,7 +139,6 @@
     <Folder Include="Resources\Tools\" />
     <Folder Include="Resources\Tools\FFmpeg\" />
     <Folder Include="Resources\Config\" />
-    <Folder Include="Resources\Tools\FFmpeg\Source\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -203,15 +202,31 @@
     <BundleResource Include="..\LICENSE.txt">
       <Link>Resources\LICENSE.txt</Link>
     </BundleResource>
-    <BundleResource Include="Resources\Tools\FFmpeg\Source\ffmpeg.tar.gz" />
-    <BundleResource Include="Resources\Tools\FFmpeg\Source\x264.tar.bz2" />
-    <BundleResource Include="Resources\Tools\FFmpeg\Source\x265.tar.bz2" />
-    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.GPLv2" />
-    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.GPLv3" />
-    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.LGPLv2.1" />
-    <BundleResource Include="Resources\Tools\FFmpeg\COPYING.LGPLv3" />
-    <BundleResource Include="Resources\Tools\FFmpeg\LICENSE.md" />
+    <BundleResource Include="..\tools\FFmpeg\COPYING.GPLv2">
+      <Link>Resources\Tools\FFmpeg\COPYING.GPLv2</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\COPYING.GPLv3">
+      <Link>Resources\Tools\FFmpeg\COPYING.GPLv3</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\COPYING.LGPLv2.1">
+      <Link>Resources\Tools\FFmpeg\COPYING.LGPLv2.1</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\COPYING.LGPLv3">
+      <Link>Resources\Tools\FFmpeg\COPYING.LGPLv3</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\LICENSE.md">
+      <Link>Resources\Tools\FFmpeg\LICENSE.md</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\source\ffmpeg.tar.gz">
+      <Link>Resources\Tools\FFmpeg\Source\ffmpeg.tar.gz</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\source\x264.tar.bz2">
+      <Link>Resources\Tools\FFmpeg\Source\x264.tar.bz2</Link>
+    </BundleResource>
+    <BundleResource Include="..\tools\FFmpeg\source\x265.tar.bz2">
+      <Link>Resources\Tools\FFmpeg\Source\x265.tar.bz2</Link>
+    </BundleResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
-  <Import Project="..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.0.0.497661\build\Xamarin.Forms.targets')" />
+  <Import Project="..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.2.0.848062\build\Xamarin.Forms.targets')" />
 </Project>

@@ -544,7 +544,7 @@ namespace Tricycle.Media.FFmpeg
 
         void AppendVideoOverlayFilter(StringBuilder builder)
         {
-            builder.Append("'scale2ref[sub][ref];[ref][sub]overlay'");
+            builder.Append("\"scale2ref[sub][ref];[ref][sub]overlay\"");
         }
 
         void AppendVideoCropFilter(StringBuilder builder, CropParameters cropParameters)
