@@ -103,32 +103,5 @@ namespace Tricycle.UI.Windows
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
         }
-
-        T ReadConfigFile<T>(string fileName) where T : class, new()
-        {
-            T result = null;
-            var serializerSettings = new JsonSerializerSettings
-            {
-                Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            try
-            {
-                string json = File.ReadAllText(fileName);
-
-                result = JsonConvert.DeserializeObject<T>(json, serializerSettings);
-            }
-            catch (IOException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-            catch (JsonException ex)
-            {
-                Debug.WriteLine(ex);
-            }
-
-            return result ?? new T();
-        }
     }
 }
