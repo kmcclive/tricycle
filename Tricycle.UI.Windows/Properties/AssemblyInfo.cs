@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Tricycle")]
-[assembly: AssemblyCopyright("Copyright © 2019 Tricycle Team")]
+[assembly: AssemblyCopyright("Copyright © 2019 Tricycle Team, GPLv2 License; This software uses executables from the FFmpeg project under the LGPLv2.1.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

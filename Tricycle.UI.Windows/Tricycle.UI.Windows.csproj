@@ -36,6 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Assets\Images\tricycle.ico</ApplicationIcon>
@@ -127,11 +128,41 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="..\COPYING.txt">
+      <Link>Assets\COPYING.txt</Link>
+    </Content>
+    <Content Include="..\LICENSE.txt">
+      <Link>Assets\LICENSE.txt</Link>
+    </Content>
     <Content Include="Assets\Config\ffmpeg.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Config\tricycle.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.GPLv2">
+      <Link>Assets\Tools\FFmpeg\COPYING.GPLv2</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.GPLv3">
+      <Link>Assets\Tools\FFmpeg\COPYING.GPLv3</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.LGPLv2.1">
+      <Link>Assets\Tools\FFmpeg\COPYING.LGPLv2.1</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\COPYING.LGPLv3">
+      <Link>Assets\Tools\FFmpeg\COPYING.LGPLv3</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\LICENSE.md">
+      <Link>Assets\Tools\FFmpeg\LICENSE.md</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\ffmpeg.tar.gz">
+      <Link>Assets\Tools\FFmpeg\Source\ffmpeg.tar.gz</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\x264.tar.bz2">
+      <Link>Assets\Tools\FFmpeg\Source\x264.tar.bz2</Link>
+    </Content>
+    <Content Include="..\Tricycle.UI.macOS\Resources\Tools\FFmpeg\Source\x265.tar.bz2">
+      <Link>Assets\Tools\FFmpeg\Source\x265.tar.bz2</Link>
     </Content>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
