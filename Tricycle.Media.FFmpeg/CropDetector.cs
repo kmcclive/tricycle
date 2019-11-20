@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Media;
@@ -27,8 +28,8 @@ namespace Tricycle.Media.FFmpeg
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
                             IProcessUtility processUtility,
-                            FFmpegConfig config)
-            : this(ffmpegFileName, processRunner, processUtility, config, TimeSpan.FromSeconds(30))
+                            IConfigManager<FFmpegConfig> configManager)
+            : this(ffmpegFileName, processRunner, processUtility, configManager, TimeSpan.FromSeconds(30))
         {
 
         }
@@ -36,13 +37,13 @@ namespace Tricycle.Media.FFmpeg
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
                             IProcessUtility processUtility,
-                            FFmpegConfig config,
+                            IConfigManager<FFmpegConfig> configManager,
                             TimeSpan timeout)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;
             _processUtility = processUtility;
-            _config = config;
+            _config = configManager.Config;
             _timeout = timeout;
         }
 

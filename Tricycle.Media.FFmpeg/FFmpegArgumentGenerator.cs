@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
@@ -22,10 +23,10 @@ namespace Tricycle.Media.FFmpeg
 
         #region Constructors
 
-        public FFmpegArgumentGenerator(IProcessUtility processUtility, FFmpegConfig config)
+        public FFmpegArgumentGenerator(IProcessUtility processUtility, IConfigManager<FFmpegConfig> configManager)
         {
             _processUtility = processUtility;
-            _config = config;
+            _config = configManager.Config;
         }
 
         #endregion

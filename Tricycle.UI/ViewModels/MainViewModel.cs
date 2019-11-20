@@ -118,7 +118,7 @@ namespace Tricycle.UI.ViewModels
                              IFileSystem fileSystem,
                              IDevice device,
                              IAppManager appManager,
-                             TricycleConfig tricycleConfig,
+                             IConfigManager<TricycleConfig> tricycleConfigManager,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
@@ -129,7 +129,7 @@ namespace Tricycle.UI.ViewModels
             _fileSystem = fileSystem;
             _device = device;
             _appManager = appManager;
-            _tricycleConfig = tricycleConfig;
+            _tricycleConfig = tricycleConfigManager.Config;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
