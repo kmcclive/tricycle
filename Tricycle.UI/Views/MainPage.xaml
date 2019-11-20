@@ -18,7 +18,7 @@
                         <RowDefinition.Height>
                             <OnPlatform x:TypeArguments="GridLength">
                                 <On Platform="macOS" Value="13" />
-                                <On Platform="WPF" Value="20" />
+                                <On Platform="WPF" Value="18" />
                             </OnPlatform>
                         </RowDefinition.Height>
                     </RowDefinition>

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Tricycle.UI.Controls.Pill"
              BackgroundColor="#3366ff"
-             Padding="2">
+             Padding="1">
     <ContentView.Content>
         <Label x:Name="label" TextColor="White">
             <Label.FontSize>
