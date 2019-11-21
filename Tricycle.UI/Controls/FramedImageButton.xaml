@@ -8,6 +8,7 @@
                    BorderColor="{StaticResource BorderColor}"
                    BackgroundColor="#f9f9f9"
                    CornerRadius="5"
+                   HasShadow="False"
                    Padding="12, 5">
                 <Image x:Name="image" HeightRequest="16" WidthRequest="16" />
                 <Frame.GestureRecognizers>

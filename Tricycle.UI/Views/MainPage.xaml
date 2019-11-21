@@ -42,6 +42,7 @@
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
+                       HasShadow="False"
                        Padding="20, 0, 20, 20">
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
@@ -209,6 +210,7 @@
                 </Frame>
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                        BorderColor="{StaticResource BorderColor}"
+                       HasShadow="False"
                        Padding="20, 0, 5, 20">
                     <FlexLayout.Basis>
                         <OnPlatform x:TypeArguments="FlexBasis">
@@ -241,6 +243,7 @@
                                     <ViewCell>
                                         <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                                                BorderColor="{StaticResource BorderColor}"
+                                               HasShadow="False"
                                                Margin="0, 0, 3, 5"
                                                Padding="5, 10">
                                             <Grid RowSpacing="5">
