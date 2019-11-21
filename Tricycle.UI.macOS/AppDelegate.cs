@@ -34,7 +34,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         volatile bool _isBusy = false;
-        ContentPage _configurationPage;
+        ConfigurationPage _configurationPage;
 
         public AppDelegate()
         {

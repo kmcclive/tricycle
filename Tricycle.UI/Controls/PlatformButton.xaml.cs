@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -27,6 +28,35 @@ namespace Tricycle.UI.Controls
         {
             get { return (ImageSource)GetValue(SourceProperty); }
             set { SetValue(SourceProperty, value); }
+        }
+
+        public event EventHandler Clicked
+        {
+            add
+            {
+                switch(Device.RuntimePlatform)
+                {
+                    case Device.macOS:
+                        macButton.Clicked += value;
+                        break;
+                    case Device.WPF:
+                        wpfButton.Clicked += value;
+                        break;
+                }
+            }
+
+            remove
+            {
+                switch (Device.RuntimePlatform)
+                {
+                    case Device.macOS:
+                        macButton.Clicked -= value;
+                        break;
+                    case Device.WPF:
+                        wpfButton.Clicked -= value;
+                        break;
+                }
+            }
         }
 
         public PlatformButton()

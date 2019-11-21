@@ -50,7 +50,7 @@ namespace Tricycle.UI.Views
             return DisplayAlert(title, message, "OK", "Cancel");
         }
 
-        async void OnModalOpened(ContentPage page)
+        async void OnModalOpened(Page page)
         {
             await Navigation.PushModalAsync(page);
         }

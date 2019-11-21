@@ -2,10 +2,12 @@
 <ContentPage
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Tricycle.UI.Controls"
     x:Class="Tricycle.UI.Views.ConfigurationPage"
     BackgroundColor="{StaticResource BackgroundColor}">
     <StackLayout>
-        <Label Text="This is a modal" />
-        <Button x:Name="btnClose" Text="Close" />
+        <FlexLayout JustifyContent="End">
+            <controls:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="10" />
+        </FlexLayout>
     </StackLayout>
 </ContentPage>

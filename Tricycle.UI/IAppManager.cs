@@ -10,12 +10,12 @@ namespace Tricycle.UI
         event Action Busy;
         event Action<string> FileOpened;
         event Action<CancellationArgs> Quitting;
-        event Action<ContentPage> ModalOpened;
+        event Action<Page> ModalOpened;
 
         void RaiseReady();
         void RaiseBusy();
         void RaiseFileOpened(string fileName);
         void RaiseQuitting(CancellationArgs args);
-        void RaiseModalOpened(ContentPage page);
+        void RaiseModalOpened(Page page);
     }
 }
