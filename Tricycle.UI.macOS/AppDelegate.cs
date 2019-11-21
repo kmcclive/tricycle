@@ -18,6 +18,7 @@ using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.Models;
+using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -33,6 +34,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         volatile bool _isBusy = false;
+        ContentPage _configurationPage;
 
         public AppDelegate()
         {
@@ -158,6 +160,17 @@ namespace Tricycle.UI.macOS
                 default:
                     return true;
             }
+        }
+
+        [Action("openPreferences:")]
+        public void OpenPreferences(NSObject sender)
+        {
+            if (_configurationPage == null)
+            {
+                _configurationPage = new ConfigurationPage();
+            }
+
+            _appManager.RaiseModalOpened(_configurationPage);
         }
 
         [Export("openDocument:")]

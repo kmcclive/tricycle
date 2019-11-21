@@ -20,6 +20,7 @@ namespace Tricycle.UI.Views
         {
             InitializeComponent();
 
+            var appManager = AppState.IocContainer.GetInstance<IAppManager>();
             var viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
@@ -28,24 +29,30 @@ namespace Tricycle.UI.Views
                 AppState.IocContainer.GetInstance<ITranscodeCalculator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.IocContainer.GetInstance<IDevice>(),
-                AppState.IocContainer.GetInstance<IAppManager>(),
+                appManager,
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.DefaultDestinationDirectory);
 
+            appManager.ModalOpened += OnModalOpened;
             viewModel.Alert += OnAlert;
             viewModel.Confirm += OnConfirm;
 
             BindingContext = viewModel;
         }
 
-        private void OnAlert(string title, string message)
+        void OnAlert(string title, string message)
         {
             DisplayAlert(title, message, "OK");
         }
 
-        private Task<bool> OnConfirm(string title, string message)
+        Task<bool> OnConfirm(string title, string message)
         {
             return DisplayAlert(title, message, "OK", "Cancel");
+        }
+
+        async void OnModalOpened(ContentPage page)
+        {
+            await Navigation.PushModalAsync(page);
         }
     }
 }

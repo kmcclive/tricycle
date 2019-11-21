@@ -1,5 +1,6 @@
 ﻿using System;
 using Tricycle.UI.Models;
+using Xamarin.Forms;
 
 namespace Tricycle.UI
 {
@@ -9,10 +10,12 @@ namespace Tricycle.UI
         event Action Busy;
         event Action<string> FileOpened;
         event Action<CancellationArgs> Quitting;
+        event Action<ContentPage> ModalOpened;
 
         void RaiseReady();
         void RaiseBusy();
         void RaiseFileOpened(string fileName);
         void RaiseQuitting(CancellationArgs args);
+        void RaiseModalOpened(ContentPage page);
     }
 }
