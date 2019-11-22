@@ -210,6 +210,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\tricycle.ico" />
+    <Content Include="Assets\Images\close.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Tools\FFmpeg\ffmpeg.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
