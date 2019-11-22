@@ -157,6 +157,8 @@ namespace Tricycle.UI.macOS
             {
                 case "Open…":
                     return !_isBusy;
+                case "Preferences…":
+                    return !_isBusy;
                 default:
                     return true;
             }
