@@ -2,9 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -18,7 +15,6 @@ using Tricycle.Models.Config;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
-using Xamarin.Forms.Platform.WPF.Controls;
 
 namespace Tricycle.UI.Windows
 {
@@ -37,18 +33,6 @@ namespace Tricycle.UI.Windows
             InitializeComponent();
             Forms.Init();         
             LoadApplication(new UI.App());
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-
-            var topBar = Template.FindName("PART_TopAppBar", this) as FormsAppBar;
-
-            if (topBar != null)
-            {
-                topBar.MaxHeight = 0;
-            }
         }
 
         void InitializeAppState()

@@ -20,6 +20,8 @@ namespace Tricycle.UI.Views
         {
             InitializeComponent();
 
+            NavigationPage.SetHasNavigationBar(this, false);
+
             var appManager = AppState.IocContainer.GetInstance<IAppManager>();
             var viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
