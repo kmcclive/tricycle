@@ -5,9 +5,27 @@
     xmlns:controls="clr-namespace:Tricycle.UI.Controls"
     x:Class="Tricycle.UI.Views.ConfigurationPage"
     BackgroundColor="{StaticResource BackgroundColor}">
-    <StackLayout>
-        <FlexLayout JustifyContent="End">
+    <Grid x:Name="gridMain" ColumnSpacing="0" RowSpacing="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="46" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="7*" />
+        </Grid.ColumnDefinitions>
+        <FlexLayout JustifyContent="End" Grid.Row="0" Grid.Column="1">
             <controls:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="10" />
         </FlexLayout>
-    </StackLayout>
+        <ListView x:Name="vwSections"
+                  HorizontalOptions="FillAndExpand"
+                  VerticalOptions="FillAndExpand"
+                  VerticalScrollBarVisibility="Never"
+                  Grid.Row="1"
+                  Grid.Column="0">
+            <ListView.Header>
+                <FlexLayout />
+            </ListView.Header>
+        </ListView>
+    </Grid>
 </ContentPage>

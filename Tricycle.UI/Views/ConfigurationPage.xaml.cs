@@ -11,6 +11,8 @@ namespace Tricycle.UI.Views
         {
             InitializeComponent();
 
+            vwSections.ItemsSource = new string[] { "General", "Advanced" };
+
             btnClose.Clicked += onClose;
         }
 
