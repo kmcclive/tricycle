@@ -33,11 +33,24 @@ namespace Tricycle.UI.Windows
     public partial class MainWindow : FormsApplicationPage
     {
         IAppManager _appManager;
+        MenuItem _openFileItem;
+        MenuItem _optionsItem;
         ConfigurationPage _configurationPage;
 
         public MainWindow()
         {
             _appManager = new AppManager();
+
+            _appManager.Busy += () =>
+            {
+                _openFileItem.IsEnabled = false;
+                _optionsItem.IsEnabled = false;
+            };
+            _appManager.Ready += () =>
+            {
+                _openFileItem.IsEnabled = true;
+                _optionsItem.IsEnabled = true;
+            };
 
             InitializeAppState();
             InitializeComponent();
@@ -87,14 +100,14 @@ namespace Tricycle.UI.Windows
 
             menu.Items.Add(fileItem);
 
-            var openItem = new MenuItem()
+            _openFileItem = new MenuItem()
             {
                 Background = brush,
-                Header = "_Open"
+                Header = "_Open…",
             };
 
-            openItem.Click += OnOpenFileClick;
-            fileItem.Items.Add(openItem);
+            _openFileItem.Click += OnOpenFileClick;
+            fileItem.Items.Add(_openFileItem);
 
             var toolsItem = new MenuItem()
             {
@@ -104,14 +117,14 @@ namespace Tricycle.UI.Windows
 
             menu.Items.Add(toolsItem);
 
-            var optionsItem = new MenuItem()
+            _optionsItem = new MenuItem()
             {
                 Background = brush,
-                Header = "_Options"
+                Header = "_Options…"
             };
 
-            optionsItem.Click += OnOptionsClick;
-            toolsItem.Items.Add(optionsItem);
+            _optionsItem.Click += OnOptionsClick;
+            toolsItem.Items.Add(_optionsItem);
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
