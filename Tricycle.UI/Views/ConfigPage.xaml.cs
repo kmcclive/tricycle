@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using Xamarin.Forms;
 
 namespace Tricycle.UI.Views
 {
-    public partial class ConfigurationPage : ContentPage
+    public partial class ConfigPage : ContentPage
     {
-        public ConfigurationPage()
+        public ConfigPage()
         {
             InitializeComponent();
 

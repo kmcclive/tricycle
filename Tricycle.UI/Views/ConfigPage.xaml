@@ -3,7 +3,7 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Tricycle.UI.Controls"
-    x:Class="Tricycle.UI.Views.ConfigurationPage"
+    x:Class="Tricycle.UI.Views.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}">
     <Grid x:Name="gridMain" ColumnSpacing="0" RowSpacing="0">
         <Grid.RowDefinitions>
@@ -41,7 +41,7 @@
             </ListView>
         </Frame> 
         <local:FramedPanel Title="General" Margin="5, 0, 5, 5" Grid.Row="1" Grid.Column="1">
-            <local:GeneralConfigurationSection Margin="10, 5" />
+            <local:GeneralConfigSection Margin="10, 5" />
         </local:FramedPanel>
     </Grid>
 </ContentPage>

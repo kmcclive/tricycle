@@ -30,7 +30,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         volatile bool _isBusy = false;
-        ConfigurationPage _configurationPage;
+        ConfigPage _configPage;
 
         public AppDelegate()
         {
@@ -163,12 +163,12 @@ namespace Tricycle.UI.macOS
         [Action("openPreferences:")]
         public void OpenPreferences(NSObject sender)
         {
-            if (_configurationPage == null)
+            if (_configPage == null)
             {
-                _configurationPage = new ConfigurationPage();
+                _configPage = new ConfigPage();
             }
 
-            _appManager.RaiseModalOpened(_configurationPage);
+            _appManager.RaiseModalOpened(_configPage);
         }
 
         [Export("openDocument:")]
