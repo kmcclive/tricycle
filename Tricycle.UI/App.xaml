@@ -61,5 +61,6 @@
                CanCascade="True">
             <Setter Property="FontSize" Value="Micro" />
         </Style>
+        <Thickness x:Key="PanelPadding">20, 0, 20, 20</Thickness>
     </Application.Resources>
 </Application>

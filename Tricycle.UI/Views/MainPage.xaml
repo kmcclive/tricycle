@@ -52,7 +52,7 @@
                             <On Platform="WPF" Value="465" />
                         </OnPlatform>
                     </local:FramedPanel.HeightRequest>              
-                    <Grid RowSpacing="20" Margin="20, 0, 20, 20">
+                    <Grid RowSpacing="20" Margin="{StaticResource PanelPadding}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -214,6 +214,7 @@
                               HasUnevenRows="true"
                               Margin="20, -5, 5, 5"
                               SelectionMode="None"
+                              VerticalScrollBarVisibility="Always"
                               ItemsSource="{Binding AudioOutputs}">
                         <ListView.HeightRequest>
                             <OnPlatform x:TypeArguments="x:Double">

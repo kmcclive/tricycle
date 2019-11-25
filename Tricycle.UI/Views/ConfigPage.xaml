@@ -40,8 +40,11 @@
                 </ListView.Header>
             </ListView>
         </Frame> 
-        <local:FramedPanel Title="General" Margin="5, 0, 5, 5" Grid.Row="1" Grid.Column="1">
-            <local:GeneralConfigSection Margin="10, 5" />
+        <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 5, 5" Grid.Row="1" Grid.Column="1">
+            <StackLayout x:Name="stackSections" Margin="{StaticResource PanelPadding}">
+                <local:GeneralConfigSection x:Name="sctGeneral" />
+                <local:VideoConfigSection x:Name="sctVideo" />
+            </StackLayout>
         </local:FramedPanel>
     </Grid>
 </ContentPage>
