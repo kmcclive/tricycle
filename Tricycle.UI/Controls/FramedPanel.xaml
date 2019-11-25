@@ -7,13 +7,13 @@
             <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                    BorderColor="{StaticResource BorderColor}"
                    HasShadow="False"
-                   Padding="20, 0, 20, 20">
+                   Padding="0">
                 <StackLayout>
                     <Label x:Name="lblTitle"
                            TextColor="{StaticResource PanelTitleColor}"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
-                           Margin="0,5" />
+                           Margin="0, 5" />
                     <ContentPresenter />
                 </StackLayout>
             </Frame>
