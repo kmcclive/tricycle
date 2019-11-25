@@ -49,7 +49,7 @@
                     <local:FramedPanel.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="480" />
+                            <On Platform="WPF" Value="465" />
                         </OnPlatform>
                     </local:FramedPanel.HeightRequest>              
                     <Grid RowSpacing="20" Margin="20, 0, 20, 20">
@@ -207,7 +207,7 @@
                     <local:FramedPanel.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="480" />
+                            <On Platform="WPF" Value="465" />
                         </OnPlatform>
                     </local:FramedPanel.HeightRequest>
                     <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
@@ -218,6 +218,7 @@
                         <ListView.HeightRequest>
                             <OnPlatform x:TypeArguments="x:Double">
                                 <On Platform="macOS" Value="355" />
+                                <On Platform="WPF" Value="410" />
                             </OnPlatform>
                         </ListView.HeightRequest>
                         <ListView.Header>
