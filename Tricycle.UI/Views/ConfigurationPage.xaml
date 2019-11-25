@@ -7,7 +7,14 @@
     BackgroundColor="{StaticResource BackgroundColor}">
     <Grid x:Name="gridMain" ColumnSpacing="0" RowSpacing="0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="46" />
+            <RowDefinition>
+                <RowDefinition.Height>
+                    <OnPlatform x:TypeArguments="GridLength">
+                        <On Platform="macOS" Value="46" />
+                        <On Platform="WPF" Value="57" />
+                    </OnPlatform>
+                </RowDefinition.Height>
+            </RowDefinition>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>

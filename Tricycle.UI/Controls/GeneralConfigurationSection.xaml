@@ -14,9 +14,9 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Label Text="Show alert on completion" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-        <Switch Grid.Column="1" Grid.Row="0" />
+        <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
         <Label Text="Delete incomplete files" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
-        <Switch Grid.Column="1" Grid.Row="1" />
+        <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
         <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
         <Entry Grid.Column="1" Grid.Row="2" />
         <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
