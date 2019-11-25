@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using AppKit;
 using Foundation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;

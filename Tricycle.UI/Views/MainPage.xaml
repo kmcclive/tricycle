@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Tricycle.UI"
-             xmlns:controls="clr-namespace:Tricycle.UI.Controls"
+             xmlns:local="clr-namespace:Tricycle.UI.Controls"
              x:Class="Tricycle.UI.Views.MainPage"
              BackgroundColor="{StaticResource BackgroundColor}">
     <ScrollView>
@@ -25,19 +24,19 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <FlexLayout IsVisible="{Binding IsSourceInfoVisible}" Grid.Column="1" Grid.Row="0">
-                    <controls:Pill Text="{Binding SourceDuration}" Margin="2, 0" />
-                    <controls:Pill Text="{Binding SourceSize}" Margin="2, 0" />
-                    <controls:Pill Text="HDR" 
-                                   BackgroundColor="#ff4f00"
-                                   IsVisible="{Binding IsSourceHdr}"
-                                   Margin="2, 0" />
+                    <local:Pill Text="{Binding SourceDuration}" Margin="2, 0" />
+                    <local:Pill Text="{Binding SourceSize}" Margin="2, 0" />
+                    <local:Pill Text="HDR" 
+                                BackgroundColor="#ff4f00"
+                                IsVisible="{Binding IsSourceHdr}"
+                                Margin="2, 0" />
                 </FlexLayout>
                 <Label Text="Source" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                 <Entry IsReadOnly="true" Text="{Binding SourceName}" Grid.Column="1" Grid.Row="1" />
-                <controls:PlatformButton Source="Images/folder-open.png"
-                                         Command="{Binding SourceSelectCommand}"
-                                         Grid.Column="2"
-                                         Grid.Row="1" />
+                <local:PlatformButton Source="Images/folder-open.png"
+                                      Command="{Binding SourceSelectCommand}"
+                                      Grid.Column="2"
+                                      Grid.Row="1" />
             </Grid>
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
                 <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
@@ -75,18 +74,18 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Label Text="Format" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                     ItemsSource="{Binding VideoFormatOptions}"
-                                                     SelectedItem="{Binding SelectedVideoFormat}"
-                                                     Grid.Column="1"
-                                                     Grid.Row="0" />
+                            <local:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                  ItemsSource="{Binding VideoFormatOptions}"
+                                                  SelectedItem="{Binding SelectedVideoFormat}"
+                                                  Grid.Column="1"
+                                                  Grid.Row="0" />
                             <Label Text="Quality" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                             <StackLayout Grid.Column="1" Grid.Row="1">
-                                <controls:SnappableSlider IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                          Minimum="{Binding QualityMin}"
-                                                          Maximum="{Binding QualityMax}"
-                                                          Value="{Binding Quality}"
-                                                          StepCount="{Binding QualityStepCount}" />
+                                <local:SnappableSlider IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                       Minimum="{Binding QualityMin}"
+                                                       Maximum="{Binding QualityMax}"
+                                                       Value="{Binding Quality}"
+                                                       StepCount="{Binding QualityStepCount}" />
                                 <FlexLayout JustifyContent="SpaceBetween" Margin="0, -5, 0, 0">
                                     <Label Text="Good" FontSize="Micro" />
                                     <Label Text="Better" FontSize="Micro" />
@@ -100,16 +99,16 @@
                                     Grid.Column="1"
                                     Grid.Row="2" />
                             <Label Text="Size" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-                            <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                     ItemsSource="{Binding SizeOptions}"
-                                                     SelectedItem="{Binding SelectedSize}"
-                                                     Grid.Column="1"
-                                                     Grid.Row="3" />
+                            <local:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                  ItemsSource="{Binding SizeOptions}"
+                                                  SelectedItem="{Binding SelectedSize}"
+                                                  Grid.Column="1"
+                                                  Grid.Row="3" />
                             <Label Text="Crop" VerticalOptions="Start" Grid.Column="0" Grid.Row="4" />
                             <StackLayout Grid.Column="1" Grid.Row="4">
-                                <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                         ItemsSource="{Binding CropOptions}"
-                                                         SelectedItem="{Binding SelectedCropOption}" />
+                                <local:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                      ItemsSource="{Binding CropOptions}"
+                                                      SelectedItem="{Binding SelectedCropOption}" />
                                 <Grid IsVisible="{Binding IsAutoCropControlVisible}"
                                       RowSpacing="10"
                                       Grid.Column="1"
@@ -133,11 +132,11 @@
                                            VerticalOptions="Center"
                                            Grid.Column="0"
                                            Grid.Row="1" />
-                                    <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                             ItemsSource="{Binding AspectRatioOptions}"
-                                                             SelectedItem="{Binding SelectedAspectRatio}"
-                                                             Grid.Column="1"
-                                                             Grid.Row="1" />
+                                    <local:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                          ItemsSource="{Binding AspectRatioOptions}"
+                                                          SelectedItem="{Binding SelectedAspectRatio}"
+                                                          Grid.Column="1"
+                                                          Grid.Row="1" />
                                 </Grid>
                                 <Grid IsVisible="{Binding IsManualCropControlVisible}"
                                       RowSpacing="10"
@@ -154,37 +153,37 @@
                                            VerticalOptions="Center"
                                            Grid.Column="0"
                                            Grid.Row="0" />
-                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                          Text="{Binding CropTop}"
-                                                          Grid.Column="1"
-                                                          Grid.Row="0" />
+                                    <local:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                       Text="{Binding CropTop}"
+                                                       Grid.Column="1"
+                                                       Grid.Row="0" />
                                     <Label Text="Bottom"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="2"
                                            Grid.Row="0" />
-                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                          Text="{Binding CropBottom}" 
-                                                          Grid.Column="3" 
-                                                          Grid.Row="0" />
+                                    <local:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                       Text="{Binding CropBottom}" 
+                                                       Grid.Column="3" 
+                                                       Grid.Row="0" />
                                     <Label Text="Left"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="0"
                                            Grid.Row="1" />
-                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                          Text="{Binding CropLeft}"
-                                                          Grid.Column="1"
-                                                          Grid.Row="1" />
+                                    <local:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                       Text="{Binding CropLeft}"
+                                                       Grid.Column="1"
+                                                       Grid.Row="1" />
                                     <Label Text="Right"
                                            FontSize="Micro"
                                            VerticalOptions="Center"
                                            Grid.Column="2"
                                            Grid.Row="1" />
-                                    <controls:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                          Text="{Binding CropRight}"
-                                                          Grid.Column="3"
-                                                          Grid.Row="1" />
+                                    <local:NumberEntry IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                       Text="{Binding CropRight}"
+                                                       Grid.Column="3"
+                                                       Grid.Row="1" />
                                 </Grid>
                             </StackLayout>
                             <Label Text="Reduce Noise" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
@@ -195,10 +194,10 @@
                                     Grid.Row="5" />
                             <Label Text="Subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
                             <FlexLayout AlignItems="Center" Grid.Column="1" Grid.Row="6">
-                                <controls:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
-                                                         ItemsSource="{Binding SubtitleOptions}"
-                                                         SelectedItem="{Binding SelectedSubtitle}"
-                                                         FlexLayout.Grow="1" />
+                                <local:BindablePicker IsEnabled="{Binding IsVideoConfigEnabled}"
+                                                      ItemsSource="{Binding SubtitleOptions}"
+                                                      SelectedItem="{Binding SelectedSubtitle}"
+                                                      FlexLayout.Grow="1" />
                                 <Label Text="Forced Only" FontSize="Micro" Margin="10, 0, 5, 0" />
                                 <Switch IsEnabled="{Binding IsForcedSubtitlesEnabled}"
                                         IsToggled="{Binding IsForcedSubtitlesChecked}"
@@ -261,29 +260,29 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="0" />
-                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
-                                                                         ItemsSource="{Binding TrackOptions}"
-                                                                         SelectedItem="{Binding SelectedTrack}"
-                                                                         Grid.Column="1"
-                                                                         Grid.Row="0" />
+                                                <local:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                      ItemsSource="{Binding TrackOptions}"
+                                                                      SelectedItem="{Binding SelectedTrack}"
+                                                                      Grid.Column="1"
+                                                                      Grid.Row="0" />
                                                 <Label Text="Format"
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="1" />
-                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
-                                                                         ItemsSource="{Binding FormatOptions}"
-                                                                         SelectedItem="{Binding SelectedFormat}"
-                                                                         Grid.Column="1"
-                                                                         Grid.Row="1" />
+                                                <local:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                      ItemsSource="{Binding FormatOptions}"
+                                                                      SelectedItem="{Binding SelectedFormat}"
+                                                                      Grid.Column="1"
+                                                                      Grid.Row="1" />
                                                 <Label Text="Mixdown"
                                                        VerticalOptions="Center"
                                                        Grid.Column="0"
                                                        Grid.Row="2" />
-                                                <controls:BindablePicker IsEnabled="{Binding IsEnabled}"
-                                                                         ItemsSource="{Binding MixdownOptions}"
-                                                                         SelectedItem="{Binding SelectedMixdown}"
-                                                                         Grid.Column="1"
-                                                                         Grid.Row="2" />
+                                                <local:BindablePicker IsEnabled="{Binding IsEnabled}"
+                                                                      ItemsSource="{Binding MixdownOptions}"
+                                                                      SelectedItem="{Binding SelectedMixdown}"
+                                                                      Grid.Column="1"
+                                                                      Grid.Row="2" />
                                             </Grid>
                                         </Frame>
                                     </ViewCell>
@@ -306,21 +305,21 @@
                     <RowDefinition Height="2" />
                 </Grid.RowDefinitions>
                 <Label Text="Destination" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-                <controls:BindablePicker IsEnabled="{Binding IsContainerFormatEnabled}"
-                                         ItemsSource="{Binding ContainerFormatOptions}"
-                                         SelectedItem="{Binding SelectedContainerFormat}"
-                                         VerticalOptions="Center"
-                                         Grid.Column="1"
-                                         Grid.Row="0" />
+                <local:BindablePicker IsEnabled="{Binding IsContainerFormatEnabled}"
+                                      ItemsSource="{Binding ContainerFormatOptions}"
+                                      SelectedItem="{Binding SelectedContainerFormat}"
+                                      VerticalOptions="Center"
+                                      Grid.Column="1"
+                                      Grid.Row="0" />
                 <Entry IsReadOnly="true" Text="{Binding DestinationName}" Grid.Column="2" Grid.Row="0" />
-                <controls:PlatformButton Source="Images/folder-browse.png"
-                                         Command="{Binding DestinationSelectCommand}"
-                                         Grid.Column="3"
-                                         Grid.Row="0" />
-                <controls:PlatformButton Source="{Binding ToggleStartImage}"
-                                         Command="{Binding StartCommand}"
-                                         Grid.Column="4"
-                                         Grid.Row="0" />
+                <local:PlatformButton Source="Images/folder-browse.png"
+                                      Command="{Binding DestinationSelectCommand}"
+                                      Grid.Column="3"
+                                      Grid.Row="0" />
+                <local:PlatformButton Source="{Binding ToggleStartImage}"
+                                      Command="{Binding StartCommand}"
+                                      Grid.Column="4"
+                                      Grid.Row="0" />
                 <ProgressBar IsVisible="{Binding IsProgressVisible}"
                              Progress="{Binding Progress}"
                              Grid.Column="2"
