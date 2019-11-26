@@ -4,6 +4,17 @@
              xmlns:local="clr-namespace:Tricycle.UI.Controls"
              x:Class="Tricycle.UI.Views.MainPage"
              BackgroundColor="{StaticResource BackgroundColor}">
+    <ContentPage.Resources>
+        <OnPlatform x:Key="PanelWidth" x:TypeArguments="FlexBasis">
+            <On Platform="macOS" Value="370" />
+            <On Platform="WPF" Value="480" />
+        </OnPlatform>
+        <OnPlatform x:Key="PanelHeight" x:TypeArguments="x:Double">
+            <On Platform="macOS" Value="400" />
+            <On Platform="WPF" Value="465" />
+        </OnPlatform>
+        <Thickness x:Key="PillMargin">2, 0</Thickness>
+    </ContentPage.Resources>
     <ScrollView>
         <StackLayout>
             <Grid Padding="20" ColumnSpacing="10" RowSpacing="5">
@@ -24,12 +35,12 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <FlexLayout IsVisible="{Binding IsSourceInfoVisible}" Grid.Column="1" Grid.Row="0">
-                    <local:Pill Text="{Binding SourceDuration}" Margin="2, 0" />
-                    <local:Pill Text="{Binding SourceSize}" Margin="2, 0" />
+                    <local:Pill Text="{Binding SourceDuration}" Margin="{StaticResource PillMargin}" />
+                    <local:Pill Text="{Binding SourceSize}" Margin="{StaticResource PillMargin}" />
                     <local:Pill Text="HDR" 
                                 BackgroundColor="#ff4f00"
                                 IsVisible="{Binding IsSourceHdr}"
-                                Margin="2, 0" />
+                                Margin="{StaticResource PillMargin}" />
                 </FlexLayout>
                 <Label Text="Source" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
                 <Entry IsReadOnly="true" Text="{Binding SourceName}" Grid.Column="1" Grid.Row="1" />
@@ -39,19 +50,9 @@
                                       Grid.Row="1" />
             </Grid>
             <FlexLayout JustifyContent="SpaceEvenly" Wrap="Wrap">
-                <local:FramedPanel Title="Video">
-                    <FlexLayout.Basis>
-                        <OnPlatform x:TypeArguments="FlexBasis">
-                            <On Platform="macOS" Value="370" />
-                            <On Platform="WPF" Value="480" />
-                        </OnPlatform>
-                    </FlexLayout.Basis>
-                    <local:FramedPanel.HeightRequest>
-                        <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="465" />
-                        </OnPlatform>
-                    </local:FramedPanel.HeightRequest>              
+                <local:FramedPanel Title="Video"
+                                   FlexLayout.Basis="{StaticResource PanelWidth}"
+                                   HeightRequest="{StaticResource PanelHeight}">            
                     <Grid RowSpacing="20" Margin="{StaticResource PanelPadding}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -197,19 +198,9 @@
                             
                     </Grid>
                 </local:FramedPanel>
-                <local:FramedPanel Title="Audio">
-                    <FlexLayout.Basis>
-                        <OnPlatform x:TypeArguments="FlexBasis">
-                            <On Platform="macOS" Value="370" />
-                            <On Platform="WPF" Value="480" />
-                        </OnPlatform>
-                    </FlexLayout.Basis>
-                    <local:FramedPanel.HeightRequest>
-                        <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="400" />
-                            <On Platform="WPF" Value="465" />
-                        </OnPlatform>
-                    </local:FramedPanel.HeightRequest>
+                <local:FramedPanel Title="Audio"
+                                   FlexLayout.Basis="{StaticResource PanelWidth}"
+                                   HeightRequest="{StaticResource PanelHeight}">
                     <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
                               HasUnevenRows="true"
                               Margin="20, -5, 5, 5"

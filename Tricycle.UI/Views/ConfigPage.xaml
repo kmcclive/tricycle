@@ -7,12 +7,8 @@
     BackgroundColor="{StaticResource BackgroundColor}">
     <ContentPage.Resources>
         <OnPlatform x:Key="ButtonRowHeight" x:TypeArguments="GridLength">
-            <On Platform="macOS">
-                <GridLength>46</GridLength>
-            </On>
-            <On Platform="WPF">
-                <GridLength>57</GridLength>
-            </On>
+            <On Platform="macOS" Value="46" />
+            <On Platform="WPF" Value="57" />
         </OnPlatform>
         <Thickness x:Key="ButtonMargin">10</Thickness>
     </ContentPage.Resources>
