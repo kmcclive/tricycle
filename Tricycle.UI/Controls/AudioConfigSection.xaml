@@ -12,8 +12,8 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Label Text="Passthru matching tracks" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-            <Switch Grid.Column="1" Grid.Row="0" />
+            <Label Text="Passthru matching tracks" Grid.Column="0" Grid.Row="0" />
+            <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
         </Grid>
         <local:FramedPanel Title="Presets">
             <StackLayout>
@@ -37,7 +37,7 @@
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="320" />
-                            <On Platform="WPF" Value="435" />
+                            <On Platform="WPF" Value="410" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Header>
@@ -55,13 +55,15 @@
                                     </Grid.ColumnDefinitions>
                                     <local:BindablePicker ItemsSource="{Binding FormatOptions}"
                                                           SelectedItem="{Binding SelectedFormat}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="0"
                                                           Grid.Row="0" />
                                     <local:BindablePicker ItemsSource="{Binding MixdownOptions}"
                                                           SelectedItem="{Binding SelectedMixdown}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="1"
                                                           Grid.Row="0" />
-                                    <local:NumberEntry Text="{Binding Quality}" Grid.Column="2" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Quality}" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png" Grid.Column="3" Grid.Row="0" />
                                 </Grid>
                             </ViewCell>

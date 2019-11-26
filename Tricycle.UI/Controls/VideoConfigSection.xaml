@@ -7,7 +7,13 @@
         <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
     </ContentView.Resources>
     <StackLayout>
-        <Grid Margin="0, 0, 0, 10">
+        <Grid>
+            <Grid.Margin>
+                <OnPlatform x:TypeArguments="Thickness">
+                    <On Platform="macOS" Value="10" />
+                    <On Platform="WPF" Value="0" />
+                </OnPlatform>
+            </Grid.Margin>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="50" />
@@ -68,10 +74,10 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Entry Text="{Binding Name}" Grid.Column="0" Grid.Row="0" />
-                                <local:NumberEntry Text="{Binding Width}" Grid.Column="1" Grid.Row="0" />
+                                <Entry Text="{Binding Name}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Width}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
                                 <Label Text="x" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
-                                <local:NumberEntry Text="{Binding Height}" Grid.Column="3" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Height}" VerticalOptions="Center" Grid.Column="3" Grid.Row="0" />
                                 <local:PlatformButton Source="Images/trash.png" Grid.Column="4" Grid.Row="0" />
                             </Grid>
                         </ViewCell>
@@ -106,10 +112,10 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Entry Text="{Binding Name}" Grid.Column="0" Grid.Row="0" />
-                                <local:NumberEntry Text="{Binding Width}" Grid.Column="1" Grid.Row="0" />
+                                <Entry Text="{Binding Name}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Width}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
                                 <Label Text=":" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
-                                <local:NumberEntry Text="{Binding Height}" Grid.Column="3" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Height}" VerticalOptions="Center" Grid.Column="3" Grid.Row="0" />
                                 <local:PlatformButton Source="Images/trash.png" Grid.Column="4" Grid.Row="0" />
                             </Grid>
                         </ViewCell>
