@@ -43,11 +43,11 @@
         </local:FramedPanel>
         <local:FramedPanel Title="Size Presets">
             <ListView x:Name="vwSizePresets"
-                        BackgroundColor="{StaticResource PanelBackgroundColor}"
-                        HasUnevenRows="True"
-                        HorizontalOptions="FillAndExpand"
-                        Margin="15, 0, 5, 10"
-                        SelectionMode="None">
+                      BackgroundColor="{StaticResource PanelBackgroundColor}"
+                      HasUnevenRows="True"
+                      HorizontalOptions="FillAndExpand"
+                      Margin="15, 0, 5, 10"
+                      SelectionMode="None">
                 <ListView.HeightRequest>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="100" />
@@ -81,11 +81,11 @@
         </local:FramedPanel>
         <local:FramedPanel Title="Aspect Ratio Presets">
             <ListView x:Name="vwAspectRatioPresets"
-                        BackgroundColor="{StaticResource PanelBackgroundColor}"
-                        HasUnevenRows="True"
-                        HorizontalOptions="FillAndExpand"
-                        Margin="15, 0, 5, 10"
-                        SelectionMode="None">
+                      BackgroundColor="{StaticResource PanelBackgroundColor}"
+                      HasUnevenRows="True"
+                      HorizontalOptions="FillAndExpand"
+                      Margin="15, 0, 5, 10"
+                      SelectionMode="None">
                 <ListView.HeightRequest>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="65" />

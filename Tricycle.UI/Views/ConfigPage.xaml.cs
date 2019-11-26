@@ -57,6 +57,9 @@ namespace Tricycle.UI.Views
                 case Section.Video:
                     sctVideo.IsVisible = true;
                     break;
+                case Section.Audio:
+                    sctAudio.IsVisible = true;
+                    break;
             }
         }
     }

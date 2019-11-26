@@ -46,6 +46,7 @@
                 <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
                     <local:GeneralConfigSection x:Name="sctGeneral" />
                     <local:VideoConfigSection x:Name="sctVideo" />
+                    <local:AudioConfigSection x:Name="sctAudio" />
                 </StackLayout>
             </ScrollView>
         </local:FramedPanel>
