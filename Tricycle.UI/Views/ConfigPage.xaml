@@ -5,24 +5,29 @@
     xmlns:local="clr-namespace:Tricycle.UI.Controls"
     x:Class="Tricycle.UI.Views.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}">
+    <ContentPage.Resources>
+        <OnPlatform x:Key="ButtonRowHeight" x:TypeArguments="GridLength">
+            <On Platform="macOS">
+                <GridLength>46</GridLength>
+            </On>
+            <On Platform="WPF">
+                <GridLength>57</GridLength>
+            </On>
+        </OnPlatform>
+        <Thickness x:Key="ButtonMargin">10</Thickness>
+    </ContentPage.Resources>
     <Grid x:Name="gridMain" ColumnSpacing="0" RowSpacing="0">
         <Grid.RowDefinitions>
-            <RowDefinition>
-                <RowDefinition.Height>
-                    <OnPlatform x:TypeArguments="GridLength">
-                        <On Platform="macOS" Value="46" />
-                        <On Platform="WPF" Value="57" />
-                    </OnPlatform>
-                </RowDefinition.Height>
-            </RowDefinition>
+            <RowDefinition Height="{StaticResource ButtonRowHeight}" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="{StaticResource ButtonRowHeight}" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*" />
             <ColumnDefinition Width="7*" />
         </Grid.ColumnDefinitions>
         <FlexLayout JustifyContent="End" Grid.Row="0" Grid.Column="1">
-            <local:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="10" />
+            <local:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="{StaticResource ButtonMargin}" />
         </FlexLayout>
         <Frame BackgroundColor="{StaticResource BackgroundColor}"
                BorderColor="{StaticResource BorderColor}"
@@ -46,5 +51,8 @@
                 <local:VideoConfigSection x:Name="sctVideo" />
             </StackLayout>
         </local:FramedPanel>
+        <FlexLayout JustifyContent="End" Grid.Row="2" Grid.Column="1">
+            <local:PlatformButton x:Name="btnSave" Source="Images/save.png" Margin="{StaticResource ButtonMargin}" />
+        </FlexLayout>
     </Grid>
 </ContentPage>
