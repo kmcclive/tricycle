@@ -5,14 +5,14 @@
              x:Class="Tricycle.UI.Controls.VideoConfigSection">
     <ContentView.Resources>
         <OnPlatform x:Key="PresetListHeight" x:TypeArguments="x:Double">
-            <On Platform="macOS" Value="107" />
+            <On Platform="macOS" Value="100" />
             <On Platform="WPF" Value="135" />
         </OnPlatform>
-        <Thickness x:Key="PresetGridPadding">5, 0, 7, 5</Thickness>
+        <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
     </ContentView.Resources>
     <StackLayout>
         <local:FramedPanel Title="Quality">
-            <Grid Margin="20, -5, 20, 12" ColumnSpacing="20" RowSpacing="5">
+            <Grid Margin="20, -5, 20, 15" ColumnSpacing="20" RowSpacing="7">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
