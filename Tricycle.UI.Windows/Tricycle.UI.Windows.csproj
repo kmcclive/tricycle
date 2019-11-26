@@ -216,6 +216,7 @@
     <Content Include="Assets\Images\save.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Assets\Images\trash.png" />
     <Content Include="Assets\Tools\FFmpeg\ffmpeg.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

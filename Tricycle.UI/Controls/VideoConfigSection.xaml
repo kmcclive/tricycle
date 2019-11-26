@@ -4,9 +4,11 @@
              xmlns:local="clr-namespace:Tricycle.UI.Controls"
              x:Class="Tricycle.UI.Controls.VideoConfigSection">
     <ContentView.Resources>
-        <x:Double x:Key="PresetListHeight">107</x:Double>
-        <Thickness x:Key="PresetGridPadding">5</Thickness>
-        <x:Double x:Key="PresetRowSpacing">7</x:Double>
+        <OnPlatform x:Key="PresetListHeight" x:TypeArguments="x:Double">
+            <On Platform="macOS" Value="107" />
+            <On Platform="WPF" Value="135" />
+        </OnPlatform>
+        <Thickness x:Key="PresetGridPadding">5, 0, 7, 5</Thickness>
     </ContentView.Resources>
     <StackLayout>
         <local:FramedPanel Title="Quality">
@@ -49,8 +51,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid Padding="{StaticResource PresetGridPadding}"
-                                  RowSpacing="{StaticResource PresetRowSpacing}">
+                            <Grid Padding="{StaticResource PresetGridPadding}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
@@ -83,8 +84,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid Padding="{StaticResource PresetGridPadding}"
-                                  RowSpacing="{StaticResource PresetRowSpacing}">
+                            <Grid Padding="{StaticResource PresetGridPadding}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
