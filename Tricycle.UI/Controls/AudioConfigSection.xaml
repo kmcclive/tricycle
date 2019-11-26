@@ -32,11 +32,11 @@
                           BackgroundColor="{StaticResource PanelBackgroundColor}"
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
-                          Margin="15, 0, 5, 10"
+                          Margin="15, 0, 5, 20"
                           SelectionMode="None">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="320" />
+                            <On Platform="macOS" Value="315" />
                             <On Platform="WPF" Value="410" />
                         </OnPlatform>
                     </ListView.HeightRequest>
@@ -46,7 +46,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="5, 1, 10, 5">
+                                <Grid Padding="5, 1, 10, 7">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -63,7 +63,10 @@
                                                           VerticalOptions="Center"
                                                           Grid.Column="1"
                                                           Grid.Row="0" />
-                                    <local:NumberEntry Text="{Binding Quality}" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Quality}"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="2"
+                                                       Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png" Grid.Column="3" Grid.Row="0" />
                                 </Grid>
                             </ViewCell>
