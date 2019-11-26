@@ -4,13 +4,17 @@
              xmlns:local="clr-namespace:Tricycle.UI.Controls"
              x:Class="Tricycle.UI.Controls.VideoConfigSection">
     <ContentView.Resources>
-        <OnPlatform x:Key="PresetListHeight" x:TypeArguments="x:Double">
-            <On Platform="macOS" Value="100" />
-            <On Platform="WPF" Value="135" />
-        </OnPlatform>
         <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
     </ContentView.Resources>
     <StackLayout>
+        <Grid Margin="0, 0, 0, 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+            <Label Text="Require that all sizes be divisble by" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+            <local:NumberEntry Grid.Column="1" Grid.Row="0" />
+        </Grid>
         <local:FramedPanel Title="Quality">
             <Grid Margin="20, -5, 20, 15" ColumnSpacing="20" RowSpacing="7">
                 <Grid.ColumnDefinitions>
@@ -41,10 +45,15 @@
             <ListView x:Name="vwSizePresets"
                         BackgroundColor="{StaticResource PanelBackgroundColor}"
                         HasUnevenRows="True"
-                        HeightRequest="{StaticResource PresetListHeight}"
                         HorizontalOptions="FillAndExpand"
                         Margin="15, 0, 5, 10"
                         SelectionMode="None">
+                <ListView.HeightRequest>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="macOS" Value="100" />
+                        <On Platform="WPF" Value="135" />
+                    </OnPlatform>
+                </ListView.HeightRequest>
                 <ListView.Header>
                     <StackLayout />
                 </ListView.Header>
@@ -74,10 +83,15 @@
             <ListView x:Name="vwAspectRatioPresets"
                         BackgroundColor="{StaticResource PanelBackgroundColor}"
                         HasUnevenRows="True"
-                        HeightRequest="{StaticResource PresetListHeight}"
                         HorizontalOptions="FillAndExpand"
                         Margin="15, 0, 5, 10"
                         SelectionMode="None">
+                <ListView.HeightRequest>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="macOS" Value="65" />
+                        <On Platform="WPF" Value="90" />
+                    </OnPlatform>
+                </ListView.HeightRequest>
                 <ListView.Header>
                     <StackLayout />
                 </ListView.Header>
