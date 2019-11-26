@@ -35,7 +35,7 @@ namespace Tricycle.UI.Windows
         IAppManager _appManager;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
-        ConfigurationPage _configurationPage;
+        ConfigPage _configPage;
 
         public MainWindow()
         {
@@ -140,12 +140,12 @@ namespace Tricycle.UI.Windows
 
         private void OnOptionsClick(object sender, RoutedEventArgs e)
         {
-            if (_configurationPage == null)
+            if (_configPage == null)
             {
-                _configurationPage = new ConfigurationPage();
+                _configPage = new ConfigPage();
             }
 
-            _appManager.RaiseModalOpened(_configurationPage);
+            _appManager.RaiseModalOpened(_configPage);
         }
 
         void InitializeAppState()
