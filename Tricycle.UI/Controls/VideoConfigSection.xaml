@@ -3,9 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI.Controls"
              x:Class="Tricycle.UI.Controls.VideoConfigSection">
+    <ContentView.Resources>
+        <x:Double x:Key="PresetListHeight">107</x:Double>
+        <Thickness x:Key="PresetGridPadding">5</Thickness>
+        <x:Double x:Key="PresetRowSpacing">7</x:Double>
+    </ContentView.Resources>
     <StackLayout>
         <local:FramedPanel Title="Quality">
-            <Grid Margin="{StaticResource PanelPadding}" ColumnSpacing="20" RowSpacing="10">
+            <Grid Margin="20, -5, 20, 12" ColumnSpacing="20" RowSpacing="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -31,23 +36,71 @@
             </Grid>
         </local:FramedPanel>
         <local:FramedPanel Title="Size Presets">
-            <ListView Margin="{StaticResource PanelPadding}" HeightRequest="200" HorizontalOptions="FillAndExpand">
+            <ListView x:Name="vwSizePresets"
+                        BackgroundColor="{StaticResource PanelBackgroundColor}"
+                        HasUnevenRows="True"
+                        HeightRequest="{StaticResource PresetListHeight}"
+                        HorizontalOptions="FillAndExpand"
+                        Margin="15, 0, 5, 10"
+                        SelectionMode="None">
                 <ListView.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Label Text="Name" HorizontalTextAlignment="Center" Grid.Column="0" Grid.Row="0" />
-                        <Label Text="Width" HorizontalTextAlignment="Center" Grid.Column="1" Grid.Row="0" />
-                        <Label Text="Height" HorizontalTextAlignment="Center" Grid.Column="2" Grid.Row="0" />
-                    </Grid>
+                    <StackLayout />
                 </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="{StaticResource PresetGridPadding}"
+                                  RowSpacing="{StaticResource PresetRowSpacing}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Entry Text="{Binding Name}" Grid.Column="0" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Width}" Grid.Column="1" Grid.Row="0" />
+                                <Label Text="x" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Height}" Grid.Column="3" Grid.Row="0" />
+                                <local:PlatformButton Source="Images/trash.png" Grid.Column="4" Grid.Row="0" />
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </local:FramedPanel>
+        <local:FramedPanel Title="Aspect Ratio Presets">
+            <ListView x:Name="vwAspectRatioPresets"
+                        BackgroundColor="{StaticResource PanelBackgroundColor}"
+                        HasUnevenRows="True"
+                        HeightRequest="{StaticResource PresetListHeight}"
+                        HorizontalOptions="FillAndExpand"
+                        Margin="15, 0, 5, 10"
+                        SelectionMode="None">
+                <ListView.Header>
+                    <StackLayout />
+                </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="{StaticResource PresetGridPadding}"
+                                  RowSpacing="{StaticResource PresetRowSpacing}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Entry Text="{Binding Name}" Grid.Column="0" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Width}" Grid.Column="1" Grid.Row="0" />
+                                <Label Text=":" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                                <local:NumberEntry Text="{Binding Height}" Grid.Column="3" Grid.Row="0" />
+                                <local:PlatformButton Source="Images/trash.png" Grid.Column="4" Grid.Row="0" />
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
         </local:FramedPanel>
     </StackLayout>

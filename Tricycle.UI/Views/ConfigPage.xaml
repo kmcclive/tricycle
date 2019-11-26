@@ -42,10 +42,12 @@
             </ListView>
         </Frame> 
         <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 5, 5" Grid.Row="1" Grid.Column="1">
-            <StackLayout x:Name="stackSections" Margin="{StaticResource PanelPadding}">
-                <local:GeneralConfigSection x:Name="sctGeneral" />
-                <local:VideoConfigSection x:Name="sctVideo" />
-            </StackLayout>
+            <ScrollView>
+                <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
+                    <local:GeneralConfigSection x:Name="sctGeneral" />
+                    <local:VideoConfigSection x:Name="sctVideo" />
+                </StackLayout>
+            </ScrollView>
         </local:FramedPanel>
         <FlexLayout JustifyContent="End" Grid.Row="2" Grid.Column="1">
             <local:PlatformButton x:Name="btnSave" Source="Images/save.png" Margin="{StaticResource ButtonMargin}" />
