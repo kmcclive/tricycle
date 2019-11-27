@@ -229,6 +229,7 @@
     <BundleResource Include="Resources\Images\close.png" />
     <BundleResource Include="Resources\Images\save.png" />
     <BundleResource Include="Resources\Images\trash.png" />
+    <BundleResource Include="Resources\Images\check.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets')" />

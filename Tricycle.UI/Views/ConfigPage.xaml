@@ -47,7 +47,7 @@
         </local:FramedPanel>
         <FlexLayout JustifyContent="End" Padding="10" Grid.Row="1" Grid.Column="1">
             <local:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="10, 0" />
-            <local:PlatformButton x:Name="btnSave" Source="Images/save.png" />
+            <local:PlatformButton x:Name="btnSave" Source="Images/check.png" />
         </FlexLayout>
     </Grid>
 </ContentPage>
