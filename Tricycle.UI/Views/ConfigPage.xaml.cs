@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Linq;
+using Tricycle.IO;
+using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Models;
+using Tricycle.Models.Config;
+using Tricycle.UI.ViewModels;
 using Xamarin.Forms;
 
 namespace Tricycle.UI.Views
@@ -18,26 +23,27 @@ namespace Tricycle.UI.Views
         {
             InitializeComponent();
 
+            var viewModel = new ConfigViewModel(
+                AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
+                AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>());
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();
             var selectedSection = sections[0];
 
+            BindingContext = viewModel;
             vwSections.ItemsSource = sections;
             vwSections.SelectedItem = selectedSection;
 
             SelectSection(selectedSection);
+            viewModel.Initialize();
 
+            viewModel.Closed += async () => await Navigation.PopModalAsync();
             vwSections.ItemSelected += OnSectionSelected;
-            btnClose.Clicked += OnClose;
+            btnClose.Clicked += async (sender, e) => await Navigation.PopModalAsync();
         }
 
         void OnSectionSelected(object sender, SelectedItemChangedEventArgs e)
         {
             SelectSection((Section)e.SelectedItem);
-        }
-
-        async void OnClose(object sender, EventArgs e)
-        {
-            await Navigation.PopModalAsync();
         }
 
         void SelectSection(Section section)

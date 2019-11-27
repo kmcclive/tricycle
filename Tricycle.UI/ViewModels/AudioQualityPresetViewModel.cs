@@ -10,7 +10,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedFormat;
         IList<ListItem> _mixdownOptions;
         ListItem _selectedMixdown;
-        decimal _quality;
+        decimal? _quality;
 
         public IList<ListItem> FormatOptions
         {
@@ -36,7 +36,7 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _selectedMixdown, value);
         }
 
-        public decimal Quality
+        public decimal? Quality
         {
             get => _quality;
             set => SetProperty(ref _quality, value);

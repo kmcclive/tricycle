@@ -28,6 +28,7 @@
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
     <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
     <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj" />
+    <ProjectReference Include="..\Tricycle.Media.FFmpeg\Tricycle.Media.FFmpeg.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Controls\PlatformButton.xaml">

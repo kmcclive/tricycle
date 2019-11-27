@@ -4,8 +4,8 @@ namespace Tricycle.UI.ViewModels
     public class VideoPresetViewModel : ViewModelBase
     {
         string _name;
-        int _width;
-        int _height;
+        int? _width;
+        int? _height;
 
         public string Name
         {
@@ -13,13 +13,13 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _name, value);
         }
 
-        public int Width
+        public int? Width
         {
             get => _width;
             set => SetProperty(ref _width, value);
         }
 
-        public int Height
+        public int? Height
         {
             get => _height;
             set => SetProperty(ref _height, value);

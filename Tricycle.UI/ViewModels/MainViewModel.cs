@@ -607,7 +607,7 @@ namespace Tricycle.UI.ViewModels
             foreach (var codec in codecs)
             {
                 AudioFormat format = codec.Key;
-                string name = GetAudioFormatName(format);
+                string name = AudioUtility.GetFormatName(format);
 
                 if (name == null)
                 {
@@ -625,36 +625,14 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        string GetAudioFormatName(AudioFormat format)
-        {
-            switch (format)
-            {
-                case AudioFormat.Aac:
-                    return "AAC";
-                case AudioFormat.Ac3:
-                    return "Dolby Digital";
-                case AudioFormat.HeAac:
-                    return "HE-AAC";
-                default:
-                    return null;
-            }
-        }
-
         IList<ListItem> GetAudioMixdownOptions(IList<AudioPreset> presets)
         {
             return presets?.Select(p =>
             {
-                switch (p.Mixdown)
-                {
-                    case AudioMixdown.Mono:
-                        return new ListItem("Mono", p.Mixdown);
-                    case AudioMixdown.Stereo:
-                        return new ListItem("Stereo", p.Mixdown);
-                    case AudioMixdown.Surround5dot1:
-                        return new ListItem("Surround", p.Mixdown);
-                    default:
-                        return new ListItem(string.Empty);
-                }
+                string name = AudioUtility.GetMixdownName(p.Mixdown);
+
+                return string.IsNullOrEmpty(name) ? new ListItem(string.Empty) : new ListItem(name, p.Mixdown);
+
             }).OrderByDescending(p => p.Name).ToArray();
         }
 
@@ -997,7 +975,7 @@ namespace Tricycle.UI.ViewModels
 
             if (knownFormat.HasValue)
             {
-                format = GetAudioFormatName(knownFormat.Value);
+                format = AudioUtility.GetFormatName(knownFormat.Value);
             }
             else if (Regex.IsMatch(audioStream.FormatName, @"truehd", RegexOptions.IgnoreCase))
             {

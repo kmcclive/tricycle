@@ -8,7 +8,7 @@
             <ColumnDefinition Width="75" />
         </Grid.ColumnDefinitions>
         <Label Text="Show alert on completion" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-        <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+        <Switch IsToggled="{Binding AlertOnCompletion}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
         <Label Text="Delete incomplete files" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
         <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
         <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
