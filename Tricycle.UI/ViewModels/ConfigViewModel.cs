@@ -337,7 +337,8 @@ namespace Tricycle.UI.ViewModels
             {
                 Name = pair?.Key,
                 Width = pair?.Value.Width,
-                Height = pair?.Value.Height
+                Height = pair?.Value.Height,
+                IsRemoveEnabled = pair.HasValue
             };
 
             preset.Modified += () => OnVideoPresetModified(presets, preset);
@@ -354,7 +355,8 @@ namespace Tricycle.UI.ViewModels
                 MixdownOptions = _audioMixdownOptions,
                 SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : null,
                 SelectedMixdown = preset?.Mixdown != null ? GetAudioMixdownOption(preset.Mixdown) : null,
-                Quality = preset?.Quality
+                Quality = preset?.Quality,
+                IsRemoveEnabled = preset != null
             };
 
             result.Modified += () => OnAudioQualityPresetModified(result);
@@ -382,6 +384,8 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
+            preset.IsRemoveEnabled = true;
+
             if (!AudioQualityPresets.Any(p => p.SelectedFormat == null &&
                                               p.SelectedMixdown == null &&
                                               !p.Quality.HasValue))
@@ -401,6 +405,8 @@ namespace Tricycle.UI.ViewModels
             {
                 return;
             }
+
+            preset.IsRemoveEnabled = true;
 
             if (!presets.Any(p => string.IsNullOrEmpty(p.Name) &&
                                   !p.Width.HasValue &&

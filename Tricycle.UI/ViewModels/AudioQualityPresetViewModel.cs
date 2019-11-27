@@ -13,21 +13,11 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _mixdownOptions;
         ListItem _selectedMixdown;
         decimal? _quality;
-        bool _canRemove;
+        bool _isRemoveEnabled;
 
         public AudioQualityPresetViewModel()
         {
-            RemoveCommand = new Command(
-                () => Removed?.Invoke(),
-                () =>
-                {
-                    if (!_canRemove)
-                    {
-                        _canRemove = SelectedFormat != null || SelectedMixdown != null || Quality.HasValue;
-                    }
-
-                    return _canRemove;
-                });
+            RemoveCommand = new Command(() => Removed?.Invoke(), () => IsRemoveEnabled);
         }
 
         public IList<ListItem> FormatOptions
@@ -44,7 +34,6 @@ namespace Tricycle.UI.ViewModels
                 if (value != _selectedFormat)
                 {
                     SetProperty(ref _selectedFormat, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
             }
@@ -64,7 +53,6 @@ namespace Tricycle.UI.ViewModels
                 if (value != _selectedMixdown)
                 {
                     SetProperty(ref _selectedMixdown, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
             }
@@ -78,9 +66,18 @@ namespace Tricycle.UI.ViewModels
                 if (value != _quality)
                 {
                     SetProperty(ref _quality, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
+            }
+        }
+
+        public bool IsRemoveEnabled
+        {
+            get => _isRemoveEnabled;
+            set
+            {
+                SetProperty(ref _isRemoveEnabled, value);
+                ((Command)RemoveCommand).ChangeCanExecute();
             }
         }
 

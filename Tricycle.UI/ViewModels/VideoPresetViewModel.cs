@@ -9,21 +9,11 @@ namespace Tricycle.UI.ViewModels
         string _name;
         int? _width;
         int? _height;
-        bool _canRemove;
+        bool _isRemoveEnabled;
 
         public VideoPresetViewModel()
         {
-            RemoveCommand = new Command(
-                () => Removed?.Invoke(),
-                () =>
-                {
-                    if (!_canRemove)
-                    {
-                        _canRemove = !string.IsNullOrEmpty(Name) || Width.HasValue || Height.HasValue;
-                    }
-
-                    return _canRemove;
-                });
+            RemoveCommand = new Command(() => Removed?.Invoke(), () => IsRemoveEnabled);
         }
 
         public string Name
@@ -34,7 +24,6 @@ namespace Tricycle.UI.ViewModels
                 if (value != _name)
                 {
                     SetProperty(ref _name, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
             }
@@ -48,7 +37,6 @@ namespace Tricycle.UI.ViewModels
                 if (value != _width)
                 {
                     SetProperty(ref _width, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
             }
@@ -62,9 +50,18 @@ namespace Tricycle.UI.ViewModels
                 if (value != _height)
                 {
                     SetProperty(ref _height, value);
-                    ((Command)RemoveCommand).ChangeCanExecute();
                     Modified?.Invoke();
                 }
+            }
+        }
+
+        public bool IsRemoveEnabled
+        {
+            get => _isRemoveEnabled;
+            set
+            {
+                SetProperty(ref _isRemoveEnabled, value);
+                ((Command)RemoveCommand).ChangeCanExecute();
             }
         }
 
