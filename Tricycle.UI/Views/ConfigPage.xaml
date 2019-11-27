@@ -42,6 +42,7 @@
                     <local:GeneralConfigSection x:Name="sctGeneral" />
                     <local:VideoConfigSection x:Name="sctVideo" />
                     <local:AudioConfigSection x:Name="sctAudio" />
+                    <local:AdvancedConfigSection x:Name="sctAdvanced" />
                 </StackLayout>
             </ScrollView>
         </local:FramedPanel>

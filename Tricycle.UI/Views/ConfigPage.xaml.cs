@@ -62,6 +62,9 @@ namespace Tricycle.UI.Views
                 case Section.Audio:
                     view = sctAudio;
                     break;
+                case Section.Advanced:
+                    view = sctAdvanced;
+                    break;
             }
 
             if (view != null)
