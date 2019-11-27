@@ -11,10 +11,17 @@
                    HasShadow="False"
                    Padding="12, 5">
                 <Image x:Name="image" HeightRequest="16" WidthRequest="16" />
-                <Frame.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnFrameTapped" />
-                </Frame.GestureRecognizers>
             </Frame>
+            <Button Opacity="0"
+                    Clicked="OnTapped"
+                    RelativeLayout.XConstraint="{ConstraintExpression
+                        Type=RelativeToView, ElementName=frame, Property=X, Factor=1, Constant=0}"
+                    RelativeLayout.YConstraint="{ConstraintExpression
+                        Type=RelativeToView, ElementName=frame, Property=Y, Factor=1, Constant=0}"
+                    RelativeLayout.WidthConstraint="{ConstraintExpression
+                        Type=RelativeToView, ElementName=frame, Property=Width, Factor=1, Constant=0}"
+                    RelativeLayout.HeightConstraint="{ConstraintExpression
+                        Type=RelativeToView, ElementName=frame, Property=Height, Factor=1, Constant=0}" />
             <BoxView x:Name="curtain"
                      Color="#80ffffff"
                      CornerRadius="5"
