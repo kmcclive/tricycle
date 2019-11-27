@@ -13,7 +13,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Label Text="Passthru matching tracks" Grid.Column="0" Grid.Row="0" />
-            <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+            <Switch IsToggled="{Binding PassthruMatchingTracks}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
         </Grid>
         <local:FramedPanel Title="Quality Presets">
             <StackLayout>
@@ -33,7 +33,8 @@
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
                           Margin="15, 0, 5, 20"
-                          SelectionMode="None">
+                          SelectionMode="None"
+                          ItemsSource="{Binding AudioQualityPresets}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="360" />
@@ -67,7 +68,10 @@
                                                        VerticalOptions="Center"
                                                        Grid.Column="2"
                                                        Grid.Row="0" />
-                                    <local:PlatformButton Source="Images/trash.png" Grid.Column="3" Grid.Row="0" />
+                                    <local:PlatformButton Source="Images/trash.png"
+                                                          Command="{Binding RemoveCommand}"
+                                                          Grid.Column="3"
+                                                          Grid.Row="0" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>

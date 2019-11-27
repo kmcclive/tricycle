@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Input;
 using Tricycle.UI.Models;
+using Xamarin.Forms;
 
 namespace Tricycle.UI.ViewModels
 {
@@ -11,6 +13,22 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _mixdownOptions;
         ListItem _selectedMixdown;
         decimal? _quality;
+        bool _canRemove;
+
+        public AudioQualityPresetViewModel()
+        {
+            RemoveCommand = new Command(
+                () => Removed?.Invoke(),
+                () =>
+                {
+                    if (!_canRemove)
+                    {
+                        _canRemove = SelectedFormat != null || SelectedMixdown != null || Quality.HasValue;
+                    }
+
+                    return _canRemove;
+                });
+        }
 
         public IList<ListItem> FormatOptions
         {
@@ -21,7 +39,15 @@ namespace Tricycle.UI.ViewModels
         public ListItem SelectedFormat
         {
             get => _selectedFormat;
-            set => SetProperty(ref _selectedFormat, value);
+            set
+            {
+                if (value != _selectedFormat)
+                {
+                    SetProperty(ref _selectedFormat, value);
+                    ((Command)RemoveCommand).ChangeCanExecute();
+                    Modified?.Invoke();
+                }
+            }
         }
 
         public IList<ListItem> MixdownOptions
@@ -33,13 +59,34 @@ namespace Tricycle.UI.ViewModels
         public ListItem SelectedMixdown
         {
             get => _selectedMixdown;
-            set => SetProperty(ref _selectedMixdown, value);
+            set
+            {
+                if (value != _selectedMixdown)
+                {
+                    SetProperty(ref _selectedMixdown, value);
+                    ((Command)RemoveCommand).ChangeCanExecute();
+                    Modified?.Invoke();
+                }
+            }
         }
 
         public decimal? Quality
         {
             get => _quality;
-            set => SetProperty(ref _quality, value);
+            set
+            {
+                if (value != _quality)
+                {
+                    SetProperty(ref _quality, value);
+                    ((Command)RemoveCommand).ChangeCanExecute();
+                    Modified?.Invoke();
+                }
+            }
         }
+
+        public ICommand RemoveCommand { get; }
+
+        public event Action Modified;
+        public event Action Removed;
     }
 }

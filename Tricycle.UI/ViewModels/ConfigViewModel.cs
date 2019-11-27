@@ -51,6 +51,7 @@ namespace Tricycle.UI.ViewModels
         string _denoiseOptions;
         string _tonemapOptions;
 
+        bool _isLoading;
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioMixdownOptions;
 
@@ -87,6 +88,8 @@ namespace Tricycle.UI.ViewModels
                                        .Cast<AudioMixdown>()
                                        .Select(m => GetAudioMixdownOption(m))
                                        .ToList();
+
+            _audioMixdownOptions.Insert(0, EMPTY_ITEM);
 
             CompleteCommand = new Command(new Action(Complete));
         }
@@ -235,8 +238,12 @@ namespace Tricycle.UI.ViewModels
 
         public void Initialize()
         {
+            _isLoading = true;
+
             Load(_tricycleConfigManager.Config);
             Load(_ffmpegConfigManager.Config);
+
+            _isLoading = false;
         }
 
         protected void Complete()
@@ -269,11 +276,11 @@ namespace Tricycle.UI.ViewModels
             {
                 foreach (var pair in dictionary)
                 {
-                    presets.Add(GetVideoPreset(pair));
+                    AddVideoPreset(presets, pair);
                 }
             }
 
-            presets.Add(new VideoPresetViewModel());
+            AddVideoPreset(presets, null);
         }
 
         protected void Load(IDictionary<AudioFormat, TricycleAudioCodec> dictionary)
@@ -324,26 +331,36 @@ namespace Tricycle.UI.ViewModels
             };
         }
 
-        protected VideoPresetViewModel GetVideoPreset(KeyValuePair<string, Dimensions> pair)
+        protected void AddVideoPreset(IList<VideoPresetViewModel> presets, KeyValuePair<string, Dimensions>? pair)
         {
-            return new VideoPresetViewModel()
+            var preset = new VideoPresetViewModel()
             {
-                Name = pair.Key,
-                Width = pair.Value.Width,
-                Height = pair.Value.Height
+                Name = pair?.Key,
+                Width = pair?.Value.Width,
+                Height = pair?.Value.Height
             };
+
+            preset.Modified += () => OnVideoPresetModified(presets, preset);
+            preset.Removed += () => OnVideoPresetRemoved(presets, preset);
+
+            presets.Add(preset);
         }
 
         protected AudioQualityPresetViewModel GetAudioQualityPreset(AudioFormat? format, AudioPreset preset)
         {
-            return new AudioQualityPresetViewModel()
+            var result = new AudioQualityPresetViewModel()
             {
                 FormatOptions = _audioFormatOptions,
                 MixdownOptions = _audioMixdownOptions,
-                SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : EMPTY_ITEM,
-                SelectedMixdown = GetAudioMixdownOption(preset?.Mixdown ?? AudioMixdown.Stereo),
+                SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : null,
+                SelectedMixdown = preset?.Mixdown != null ? GetAudioMixdownOption(preset.Mixdown) : null,
                 Quality = preset?.Quality
             };
+
+            result.Modified += () => OnAudioQualityPresetModified(result);
+            result.Removed += () => OnAudioQualityPresetRemoved(result);
+
+            return result;
         }
 
         protected ListItem GetAudioFormatOption(AudioFormat format)
@@ -355,6 +372,50 @@ namespace Tricycle.UI.ViewModels
         {
             return new ListItem(AudioUtility.GetMixdownName(mixdown), mixdown);
         }
+
+        #region Event Handlers
+
+        protected void OnAudioQualityPresetModified(AudioQualityPresetViewModel preset)
+        {
+            if (_isLoading)
+            {
+                return;
+            }
+
+            if (!AudioQualityPresets.Any(p => p.SelectedFormat == null &&
+                                              p.SelectedMixdown == null &&
+                                              !p.Quality.HasValue))
+            {
+                AudioQualityPresets.Add(GetAudioQualityPreset(null, null));
+            }
+        }
+
+        protected void OnAudioQualityPresetRemoved(AudioQualityPresetViewModel preset)
+        {
+            AudioQualityPresets.Remove(preset);
+        }
+
+        protected void OnVideoPresetModified(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
+        {
+            if (_isLoading)
+            {
+                return;
+            }
+
+            if (!presets.Any(p => string.IsNullOrEmpty(p.Name) &&
+                                  !p.Width.HasValue &&
+                                  !p.Height.HasValue))
+            {
+                AddVideoPreset(presets, null);
+            }
+        }
+
+        protected void OnVideoPresetRemoved(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
+        {
+            presets.Remove(preset);
+        }
+
+        #endregion
 
         #endregion
     }
