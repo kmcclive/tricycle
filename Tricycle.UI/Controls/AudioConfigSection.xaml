@@ -15,7 +15,7 @@
             <Label Text="Passthru matching tracks" Grid.Column="0" Grid.Row="0" />
             <Switch VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
         </Grid>
-        <local:FramedPanel Title="Presets">
+        <local:FramedPanel Title="Quality Presets">
             <StackLayout>
                 <Grid Padding="5, 0, 10, 0">
                     <Grid.ColumnDefinitions>
@@ -36,8 +36,8 @@
                           SelectionMode="None">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="315" />
-                            <On Platform="WPF" Value="380" />
+                            <On Platform="macOS" Value="360" />
+                            <On Platform="WPF" Value="440" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Header>
