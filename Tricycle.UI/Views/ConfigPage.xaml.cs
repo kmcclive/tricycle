@@ -49,17 +49,25 @@ namespace Tricycle.UI.Views
                 child.IsVisible = false;
             }
 
+            ContentView view = null;
+
             switch (section)
             {
                 case Section.General:
-                    sctGeneral.IsVisible = true;
+                    view = sctGeneral;
                     break;
                 case Section.Video:
-                    sctVideo.IsVisible = true;
+                    view = sctVideo;
                     break;
                 case Section.Audio:
-                    sctAudio.IsVisible = true;
+                    view = sctAudio;
                     break;
+            }
+
+            if (view != null)
+            {
+                // Using Device to invoke this seems to workaround a bug with macOS
+                Device.InvokeOnMainThreadAsync(() => view.IsVisible = true);
             }
         }
     }
