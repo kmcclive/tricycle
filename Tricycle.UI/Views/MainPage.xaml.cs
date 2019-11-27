@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 using Tricycle.IO;
 using Tricycle.Media;
@@ -54,7 +55,10 @@ namespace Tricycle.UI.Views
 
         async void OnModalOpened(Page page)
         {
-            await Navigation.PushModalAsync(page);
+            if (!Navigation.ModalStack.Any(p => p == page))
+            {
+                await Navigation.PushModalAsync(page);
+            }
         }
     }
 }
