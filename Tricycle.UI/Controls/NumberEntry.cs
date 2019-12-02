@@ -1,9 +1,21 @@
-﻿using Xamarin.Forms;
+﻿using System.Text.RegularExpressions;
+using Xamarin.Forms;
 
 namespace Tricycle.UI.Controls
 {
     public class NumberEntry : Entry
     {
+        public static readonly BindableProperty AllowDecimalsProperty = BindableProperty.Create(
+          nameof(AllowDecimals),
+          typeof(bool),
+          typeof(NumberEntry));
+
+        public bool AllowDecimals
+        {
+            get { return (bool)GetValue(AllowDecimalsProperty); }
+            set { SetValue(AllowDecimalsProperty, value); }
+        }
+
         public NumberEntry()
         {
             HorizontalTextAlignment = TextAlignment.End;
@@ -17,21 +29,16 @@ namespace Tricycle.UI.Controls
 
             if (!string.IsNullOrEmpty(e.NewTextValue))
             {
-                string validatedText = string.Empty;
+                string pattern = @"\d*";
 
-                for (int i = 0; i < e.NewTextValue.Length; i++)
+                if (AllowDecimals)
                 {
-                    char c = e.NewTextValue[i];
-
-                    if (char.IsDigit(c))
-                    {
-                        validatedText += c;
-                    }
+                    pattern += @"(\.\d*)?";
                 }
 
-                if (validatedText != e.NewTextValue)
+                if (!Regex.IsMatch(e.NewTextValue, $"^{pattern}$"))
                 {
-                    entry.Text = validatedText;
+                    entry.Text = e.OldTextValue;
                 }
             }
         }

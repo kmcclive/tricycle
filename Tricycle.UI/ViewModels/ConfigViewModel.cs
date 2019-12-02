@@ -382,9 +382,9 @@ namespace Tricycle.UI.ViewModels
         {
             var result = new QualityScaleViewModel()
             {
-                Min = codec?.QualityRange.Min,
-                Max = codec?.QualityRange.Max,
-                StepCount = codec?.QualitySteps
+                Min = codec?.QualityRange.Min?.ToString(),
+                Max = codec?.QualityRange.Max?.ToString(),
+                StepCount = codec?.QualitySteps.ToString()
             };
 
             result.Modified += () => _isDirty |= !_isLoading;
@@ -397,8 +397,8 @@ namespace Tricycle.UI.ViewModels
             var preset = new VideoPresetViewModel()
             {
                 Name = pair?.Key,
-                Width = pair?.Value.Width,
-                Height = pair?.Value.Height,
+                Width = pair?.Value.Width.ToString(),
+                Height = pair?.Value.Height.ToString(),
                 IsRemoveEnabled = pair.HasValue
             };
 
@@ -416,7 +416,7 @@ namespace Tricycle.UI.ViewModels
                 MixdownOptions = _audioMixdownOptions,
                 SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : EMPTY_ITEM,
                 SelectedMixdown = preset?.Mixdown != null ? GetAudioMixdownOption(preset.Mixdown) : EMPTY_ITEM,
-                Quality = preset?.Quality,
+                Quality = preset?.Quality.ToString(),
                 IsRemoveEnabled = preset != null
             };
 
@@ -477,9 +477,11 @@ namespace Tricycle.UI.ViewModels
 
             foreach (var preset in AudioQualityPresets)
             {
+                decimal quality;
+
                 if ((preset.SelectedFormat == EMPTY_ITEM) ||
                     (preset.SelectedMixdown == EMPTY_ITEM) ||
-                    !preset.Quality.HasValue)
+                    !decimal.TryParse(preset.Quality, out quality))
                 {
                     continue;
                 }
@@ -498,7 +500,7 @@ namespace Tricycle.UI.ViewModels
                 codec.Presets.Add(new AudioPreset()
                 {
                     Mixdown = (AudioMixdown)preset.SelectedMixdown.Value,
-                    Quality = preset.Quality.Value
+                    Quality = quality
                 });
             }
 
@@ -524,10 +526,12 @@ namespace Tricycle.UI.ViewModels
         {
             var result = new TricycleVideoCodec();
 
-            if (qualityScale.Min.HasValue && qualityScale.Max.HasValue && qualityScale.StepCount.HasValue)
+            if (decimal.TryParse(qualityScale.Min, out var min) &&
+                decimal.TryParse(qualityScale.Max, out var max) &&
+                int.TryParse(qualityScale.StepCount, out var stepCount))
             {
-                result.QualityRange = new Range<decimal>(qualityScale.Min, qualityScale.Max);
-                result.QualitySteps = qualityScale.StepCount.Value;
+                result.QualityRange = new Range<decimal>(min, max);
+                result.QualitySteps = stepCount;
             }
             else
             {
@@ -544,9 +548,11 @@ namespace Tricycle.UI.ViewModels
 
             foreach (var preset in presets)
             {
+                int width, height;
+
                 if (string.IsNullOrWhiteSpace(preset.Name) ||
-                    !preset.Width.HasValue ||
-                    !preset.Height.HasValue)
+                    !int.TryParse(preset.Width, out width) ||
+                    !int.TryParse(preset.Height, out height))
                 {
                     continue;
                 }
@@ -556,7 +562,7 @@ namespace Tricycle.UI.ViewModels
                     result = new Dictionary<string, Dimensions>();
                 }
 
-                result[preset.Name] = new Dimensions(preset.Width.Value, preset.Height.Value);
+                result[preset.Name] = new Dimensions(width, height);
             }
 
             return result;
@@ -638,7 +644,7 @@ namespace Tricycle.UI.ViewModels
 
             if (!AudioQualityPresets.Any(p => p.SelectedFormat == EMPTY_ITEM &&
                                               p.SelectedMixdown == EMPTY_ITEM &&
-                                              !p.Quality.HasValue))
+                                              string.IsNullOrEmpty(p.Quality)))
             {
                 AudioQualityPresets.Add(GetAudioQualityPreset(null, null));
             }
@@ -663,8 +669,8 @@ namespace Tricycle.UI.ViewModels
             preset.IsRemoveEnabled = true;
 
             if (!presets.Any(p => string.IsNullOrEmpty(p.Name) &&
-                                  !p.Width.HasValue &&
-                                  !p.Height.HasValue))
+                                  string.IsNullOrEmpty(p.Width) &&
+                                  string.IsNullOrEmpty(p.Height)))
             {
                 AddVideoPreset(presets, null);
             }

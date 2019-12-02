@@ -7,8 +7,8 @@ namespace Tricycle.UI.ViewModels
     public class VideoPresetViewModel : ViewModelBase
     {
         string _name;
-        int? _width;
-        int? _height;
+        string _width;
+        string _height;
         bool _isRemoveEnabled;
 
         public VideoPresetViewModel()
@@ -29,7 +29,7 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public int? Width
+        public string Width
         {
             get => _width;
             set
@@ -42,7 +42,7 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public int? Height
+        public string Height
         {
             get => _height;
             set

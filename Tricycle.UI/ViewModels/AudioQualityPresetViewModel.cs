@@ -12,7 +12,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedFormat;
         IList<ListItem> _mixdownOptions;
         ListItem _selectedMixdown;
-        decimal? _quality;
+        string _quality;
         bool _isRemoveEnabled;
 
         public AudioQualityPresetViewModel()
@@ -58,7 +58,7 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public decimal? Quality
+        public string Quality
         {
             get => _quality;
             set

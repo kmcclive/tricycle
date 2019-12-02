@@ -5,23 +5,23 @@ namespace Tricycle.UI.ViewModels
 {
     public class QualityScaleViewModel : ViewModelBase
     {
-        decimal? _min;
-        decimal? _max;
-        int? _stepCount;
+        string _min;
+        string _max;
+        string _stepCount;
 
-        public decimal? Min
+        public string Min
         {
             get => _min;
             set => SetProperty(ref _min, value);
         }
 
-        public decimal? Max
+        public string Max
         {
             get => _max;
             set => SetProperty(ref _max, value);
         }
 
-        public int? StepCount
+        public string StepCount
         {
             get => _stepCount;
             set => SetProperty(ref _stepCount, value);

@@ -66,6 +66,7 @@
                                                           Grid.Row="0" />
                                     <local:NumberEntry Text="{Binding Quality}"
                                                        VerticalOptions="Center"
+                                                       AllowDecimals="True"
                                                        Grid.Column="2"
                                                        Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"

@@ -38,12 +38,24 @@
                 <Label Text="Best" HorizontalTextAlignment="Center" Grid.Row="0" Grid.Column="2" />
                 <Label Text="Steps" HorizontalTextAlignment="Center" Grid.Row="0" Grid.Column="3" />
                 <Label Text="AVC" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" />
-                <local:NumberEntry Text="{Binding AvcQualityScale.Min}" Grid.Row="1" Grid.Column="1" />
-                <local:NumberEntry Text="{Binding AvcQualityScale.Max}" Grid.Row="1" Grid.Column="2" />
+                <local:NumberEntry Text="{Binding AvcQualityScale.Min}"
+                                   AllowDecimals="True"
+                                   Grid.Row="1"
+                                   Grid.Column="1" />
+                <local:NumberEntry Text="{Binding AvcQualityScale.Max}"
+                                   AllowDecimals="True"
+                                   Grid.Row="1"
+                                   Grid.Column="2" />
                 <local:NumberEntry Text="{Binding AvcQualityScale.StepCount}" Grid.Row="1" Grid.Column="3" />
                 <Label Text="HEVC" VerticalOptions="Center" Grid.Row="2" Grid.Column="0" />
-                <local:NumberEntry Text="{Binding HevcQualityScale.Min}" Grid.Row="2" Grid.Column="1" />
-                <local:NumberEntry Text="{Binding HevcQualityScale.Max}" Grid.Row="2" Grid.Column="2" />
+                <local:NumberEntry Text="{Binding HevcQualityScale.Min}"
+                                   AllowDecimals="True"
+                                   Grid.Row="2"
+                                   Grid.Column="1" />
+                <local:NumberEntry Text="{Binding HevcQualityScale.Max}"
+                                   AllowDecimals="True"
+                                   Grid.Row="2"
+                                   Grid.Column="2" />
                 <local:NumberEntry Text="{Binding HevcQualityScale.StepCount}" Grid.Row="2" Grid.Column="3" />
             </Grid>
         </local:FramedPanel>
