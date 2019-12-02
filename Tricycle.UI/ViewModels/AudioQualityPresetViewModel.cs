@@ -85,5 +85,24 @@ namespace Tricycle.UI.ViewModels
 
         public event Action Modified;
         public event Action Removed;
+
+        public void ClearHandlers()
+        {
+            if (Modified != null)
+            {
+                foreach (Action handler in Modified.GetInvocationList())
+                {
+                    Modified -= handler;
+                }
+            }
+
+            if (Removed != null)
+            {
+                foreach (Action handler in Removed.GetInvocationList())
+                {
+                    Removed -= handler;
+                }
+            }
+        }
     }
 }

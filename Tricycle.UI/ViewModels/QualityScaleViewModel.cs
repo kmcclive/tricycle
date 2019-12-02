@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+
 namespace Tricycle.UI.ViewModels
 {
     public class QualityScaleViewModel : ViewModelBase
@@ -23,6 +25,26 @@ namespace Tricycle.UI.ViewModels
         {
             get => _stepCount;
             set => SetProperty(ref _stepCount, value);
+        }
+
+        public event Action Modified;
+
+        protected override void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            base.SetProperty(ref field, value, propertyName);
+
+            Modified?.Invoke();
+        }
+
+        public void ClearHandlers()
+        {
+            if (Modified != null)
+            {
+                foreach (Action handler in Modified.GetInvocationList())
+                {
+                    Modified -= handler;
+                }
+            }
         }
     }
 }

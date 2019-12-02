@@ -47,8 +47,8 @@
             </ScrollView>
         </local:FramedPanel>
         <FlexLayout JustifyContent="End" Padding="10" Grid.Row="1" Grid.Column="1">
-            <local:PlatformButton x:Name="btnClose" Source="Images/close.png" Margin="10, 0" />
-            <local:PlatformButton x:Name="btnSave" Source="Images/check.png" />
+            <local:PlatformButton Source="Images/close.png" Command="{Binding CancelCommand}" Margin="10, 0" />
+            <local:PlatformButton Source="Images/check.png" Command="{Binding CompleteCommand}" />
         </FlexLayout>
     </Grid>
 </ContentPage>

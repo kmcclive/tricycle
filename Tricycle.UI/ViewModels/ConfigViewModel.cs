@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
@@ -9,10 +12,8 @@ using Tricycle.Models.Config;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
-
-using TricycleVideoCodec = Tricycle.Models.Config.VideoCodec;
 using TricycleAudioCodec = Tricycle.Models.Config.AudioCodec;
-using System.Linq;
+using TricycleVideoCodec = Tricycle.Models.Config.VideoCodec;
 
 namespace Tricycle.UI.ViewModels
 {
@@ -52,6 +53,7 @@ namespace Tricycle.UI.ViewModels
         string _tonemapOptions;
 
         bool _isLoading;
+        bool _isDirty;
         IList<ListItem> _audioFormatOptions;
         IList<ListItem> _audioMixdownOptions;
 
@@ -92,6 +94,7 @@ namespace Tricycle.UI.ViewModels
             _audioMixdownOptions.Insert(0, EMPTY_ITEM);
 
             CompleteCommand = new Command(new Action(Complete));
+            CancelCommand = new Command(async() => await Cancel());
         }
 
         #endregion
@@ -225,12 +228,14 @@ namespace Tricycle.UI.ViewModels
         }
 
         public ICommand CompleteCommand { get; }
+        public ICommand CancelCommand { get; }
 
         #endregion
 
         #region Events
 
         public event Action Closed;
+        public event ConfirmEventHandler Confirm;
 
         #endregion
 
@@ -239,6 +244,7 @@ namespace Tricycle.UI.ViewModels
         public void Initialize()
         {
             _isLoading = true;
+            _isDirty = false;
 
             Load(_tricycleConfigManager.Config);
             Load(_ffmpegConfigManager.Config);
@@ -246,13 +252,35 @@ namespace Tricycle.UI.ViewModels
             _isLoading = false;
         }
 
+        protected override void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            base.SetProperty(ref field, value, propertyName);
+
+            _isDirty |= !_isLoading;
+        }
+
         protected void Complete()
         {
             Closed?.Invoke();
         }
 
+        protected async Task Cancel()
+        {
+            bool proceed = !_isDirty ||
+                await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?");
+
+            if (proceed)
+            {
+                Initialize();
+                Closed?.Invoke();
+            }
+        }
+
         protected void Load(TricycleConfig config)
         {
+            AvcQualityScale?.ClearHandlers();
+            HevcQualityScale?.ClearHandlers();
+
             AlertOnCompletion = config.CompletionAlert;
             DeleteIncompleteFiles = config.DeleteIncompleteFiles;
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
@@ -323,12 +351,16 @@ namespace Tricycle.UI.ViewModels
 
         protected QualityScaleViewModel GetQualityScale(TricycleVideoCodec codec)
         {
-            return new QualityScaleViewModel()
+            var result = new QualityScaleViewModel()
             {
                 Min = codec?.QualityRange.Min,
                 Max = codec?.QualityRange.Max,
                 StepCount = codec?.QualitySteps
             };
+
+            result.Modified += () => _isDirty |= !_isLoading;
+
+            return result;
         }
 
         protected void AddVideoPreset(IList<VideoPresetViewModel> presets, KeyValuePair<string, Dimensions>? pair)
@@ -353,8 +385,8 @@ namespace Tricycle.UI.ViewModels
             {
                 FormatOptions = _audioFormatOptions,
                 MixdownOptions = _audioMixdownOptions,
-                SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : null,
-                SelectedMixdown = preset?.Mixdown != null ? GetAudioMixdownOption(preset.Mixdown) : null,
+                SelectedFormat = format.HasValue ? GetAudioFormatOption(format.Value) : EMPTY_ITEM,
+                SelectedMixdown = preset?.Mixdown != null ? GetAudioMixdownOption(preset.Mixdown) : EMPTY_ITEM,
                 Quality = preset?.Quality,
                 IsRemoveEnabled = preset != null
             };
@@ -384,10 +416,11 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
+            _isDirty = true;
             preset.IsRemoveEnabled = true;
 
-            if (!AudioQualityPresets.Any(p => p.SelectedFormat == null &&
-                                              p.SelectedMixdown == null &&
+            if (!AudioQualityPresets.Any(p => p.SelectedFormat == EMPTY_ITEM &&
+                                              p.SelectedMixdown == EMPTY_ITEM &&
                                               !p.Quality.HasValue))
             {
                 AudioQualityPresets.Add(GetAudioQualityPreset(null, null));
@@ -396,6 +429,9 @@ namespace Tricycle.UI.ViewModels
 
         protected void OnAudioQualityPresetRemoved(AudioQualityPresetViewModel preset)
         {
+            _isDirty = true;
+
+            preset.ClearHandlers();
             AudioQualityPresets.Remove(preset);
         }
 
@@ -406,6 +442,7 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
+            _isDirty = true;
             preset.IsRemoveEnabled = true;
 
             if (!presets.Any(p => string.IsNullOrEmpty(p.Name) &&
@@ -418,6 +455,9 @@ namespace Tricycle.UI.ViewModels
 
         protected void OnVideoPresetRemoved(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
         {
+            _isDirty = true;
+
+            preset.ClearHandlers();
             presets.Remove(preset);
         }
 

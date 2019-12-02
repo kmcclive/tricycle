@@ -37,8 +37,8 @@ namespace Tricycle.UI.Views
             viewModel.Initialize();
 
             viewModel.Closed += async () => await Navigation.PopModalAsync();
+            viewModel.Confirm += (title, message) => DisplayAlert(title, message, "OK", "Cancel");
             vwSections.ItemSelected += OnSectionSelected;
-            btnClose.Clicked += async (sender, e) => await Navigation.PopModalAsync();
         }
 
         void OnSectionSelected(object sender, SelectedItemChangedEventArgs e)
