@@ -438,34 +438,19 @@ namespace Tricycle.UI.ViewModels
 
         TricycleConfig GenerateTricycleConfig()
         {
-            var result = new TricycleConfig()
+            return new TricycleConfig()
             {
                 CompletionAlert = AlertOnCompletion,
                 DeleteIncompleteFiles = DeleteIncompleteFiles,
                 ForcedSubtitlesOnly = PreferForcedSubtitles,
                 Audio = GenerateTricycleAudioConfig(),
-                Video = GenerateTricycleVideoConfig()
-            };
-
-            if (!string.IsNullOrWhiteSpace(Mp4FileExtension))
-            {
-                result.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+                Video = GenerateTricycleVideoConfig(),
+                DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
                 {
-                    { ContainerFormat.Mp4, Mp4FileExtension }
-                };
-            }
-
-            if (!string.IsNullOrWhiteSpace(MkvFileExtension))
-            {
-                if (result.DefaultFileExtensions == null)
-                {
-                    result.DefaultFileExtensions = new Dictionary<ContainerFormat, string>();
+                    { ContainerFormat.Mp4, string.IsNullOrWhiteSpace(Mp4FileExtension) ? "mp4" : Mp4FileExtension },
+                    { ContainerFormat.Mkv, string.IsNullOrWhiteSpace(MkvFileExtension) ? "mkv" : MkvFileExtension }
                 }
-
-                result.DefaultFileExtensions[ContainerFormat.Mkv] = MkvFileExtension;
-            }
-
-            return result;
+            };
         }
 
         TricycleAudioConfig GenerateTricycleAudioConfig()
@@ -491,11 +476,18 @@ namespace Tricycle.UI.ViewModels
                     result.Codecs = new Dictionary<AudioFormat, TricycleAudioCodec>();
                 }
 
-                var codec = result.Codecs.GetValueOrDefault((AudioFormat)preset.SelectedFormat.Value) ??
-                            new TricycleAudioCodec()
-                            {
-                                Presets = new List<AudioPreset>()
-                            };
+                var format = (AudioFormat)preset.SelectedFormat.Value;
+                var codec = result.Codecs.GetValueOrDefault(format);
+
+                if (codec == null)
+                {
+                    codec = new TricycleAudioCodec()
+                    {
+                        Presets = new List<AudioPreset>()
+                    };
+
+                    result.Codecs[format] = codec;
+                }
 
                 codec.Presets.Add(new AudioPreset()
                 {
