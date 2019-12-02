@@ -2897,6 +2897,29 @@ namespace Tricycle.UI.Tests
             _appManager.Received().RaiseReady();
         }
 
+        [TestMethod]
+        public void InspectsSourceAgainWhenConfigChanges()
+        {
+            _mediaInfo.FileName = "test.mkv";
+            SelectSource();
+
+            _mediaInspector.ClearReceivedCalls();
+            _tricycleConfigManager.ConfigChanged += Raise.Event<Action<TricycleConfig>>(_tricycleConfig);
+
+            _mediaInspector.Received().Inspect(_mediaInfo.FileName);
+        }
+
+        [TestMethod]
+        public void DetectsSourceAgainWhenConfigChanges()
+        {
+            SelectSource();
+
+            _cropDetector.ClearReceivedCalls();
+            _tricycleConfigManager.ConfigChanged += Raise.Event<Action<TricycleConfig>>(_tricycleConfig);
+
+            _cropDetector.Received().Detect(_mediaInfo);
+        }
+
         #endregion
 
         #region Helper Methods
