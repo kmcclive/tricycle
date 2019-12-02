@@ -12,8 +12,14 @@ using Tricycle.Models.Config;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
+using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.AudioCodec;
+using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.AudioConfig;
+using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.VideoCodec;
+using FFmpegVideoConfig = Tricycle.Media.FFmpeg.Models.VideoConfig;
 using TricycleAudioCodec = Tricycle.Models.Config.AudioCodec;
+using TricycleAudioConfig = Tricycle.Models.Config.AudioConfig;
 using TricycleVideoCodec = Tricycle.Models.Config.VideoCodec;
+using TricycleVideoConfig = Tricycle.Models.Config.VideoConfig;
 
 namespace Tricycle.UI.ViewModels
 {
@@ -241,6 +247,8 @@ namespace Tricycle.UI.ViewModels
 
         #region Methods
 
+        #region Public
+
         public void Initialize()
         {
             _isLoading = true;
@@ -252,6 +260,10 @@ namespace Tricycle.UI.ViewModels
             _isLoading = false;
         }
 
+        #endregion
+
+        #region Protected
+
         protected override void SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             base.SetProperty(ref field, value, propertyName);
@@ -259,12 +271,25 @@ namespace Tricycle.UI.ViewModels
             _isDirty |= !_isLoading;
         }
 
-        protected void Complete()
+        #endregion
+
+        #region Command Actions
+
+        void Complete()
         {
+            if (_isDirty)
+            {
+                _tricycleConfigManager.Config = GenerateTricycleConfig();
+                _ffmpegConfigManager.Config = GenerateFFmpegConfig();
+
+                _tricycleConfigManager.Save();
+                _ffmpegConfigManager.Save();
+            }
+
             Closed?.Invoke();
         }
 
-        protected async Task Cancel()
+        async Task Cancel()
         {
             bool proceed = !_isDirty ||
                 await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?");
@@ -276,7 +301,11 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        protected void Load(TricycleConfig config)
+        #endregion
+
+        #region Helpers
+
+        void Load(TricycleConfig config)
         {
             AvcQualityScale?.ClearHandlers();
             HevcQualityScale?.ClearHandlers();
@@ -296,7 +325,7 @@ namespace Tricycle.UI.ViewModels
             Load(config.Audio?.Codecs);
         }
 
-        protected void Load(IList<VideoPresetViewModel> presets, IDictionary<string, Dimensions> dictionary)
+        void Load(IList<VideoPresetViewModel> presets, IDictionary<string, Dimensions> dictionary)
         {
             presets.Clear();
 
@@ -311,7 +340,7 @@ namespace Tricycle.UI.ViewModels
             AddVideoPreset(presets, null);
         }
 
-        protected void Load(IDictionary<AudioFormat, TricycleAudioCodec> dictionary)
+        void Load(IDictionary<AudioFormat, TricycleAudioCodec> dictionary)
         {
             AudioQualityPresets.Clear();
 
@@ -335,7 +364,7 @@ namespace Tricycle.UI.ViewModels
             AudioQualityPresets.Add(GetAudioQualityPreset(null, null));
         }
 
-        protected void Load(FFmpegConfig config)
+        void Load(FFmpegConfig config)
         {
             string x264Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset;
             string x265Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset;
@@ -349,7 +378,7 @@ namespace Tricycle.UI.ViewModels
             TonemapOptions = config.Video?.TonemapOptions;
         }
 
-        protected QualityScaleViewModel GetQualityScale(TricycleVideoCodec codec)
+        QualityScaleViewModel GetQualityScale(TricycleVideoCodec codec)
         {
             var result = new QualityScaleViewModel()
             {
@@ -363,7 +392,7 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        protected void AddVideoPreset(IList<VideoPresetViewModel> presets, KeyValuePair<string, Dimensions>? pair)
+        void AddVideoPreset(IList<VideoPresetViewModel> presets, KeyValuePair<string, Dimensions>? pair)
         {
             var preset = new VideoPresetViewModel()
             {
@@ -379,7 +408,7 @@ namespace Tricycle.UI.ViewModels
             presets.Add(preset);
         }
 
-        protected AudioQualityPresetViewModel GetAudioQualityPreset(AudioFormat? format, AudioPreset preset)
+        AudioQualityPresetViewModel GetAudioQualityPreset(AudioFormat? format, AudioPreset preset)
         {
             var result = new AudioQualityPresetViewModel()
             {
@@ -397,19 +426,207 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        protected ListItem GetAudioFormatOption(AudioFormat format)
+        ListItem GetAudioFormatOption(AudioFormat format)
         {
             return new ListItem(AudioUtility.GetFormatName(format), format);
         }
 
-        protected ListItem GetAudioMixdownOption(AudioMixdown mixdown)
+        ListItem GetAudioMixdownOption(AudioMixdown mixdown)
         {
             return new ListItem(AudioUtility.GetMixdownName(mixdown), mixdown);
         }
 
+        TricycleConfig GenerateTricycleConfig()
+        {
+            var result = new TricycleConfig()
+            {
+                CompletionAlert = AlertOnCompletion,
+                DeleteIncompleteFiles = DeleteIncompleteFiles,
+                ForcedSubtitlesOnly = PreferForcedSubtitles,
+                Audio = GenerateTricycleAudioConfig(),
+                Video = GenerateTricycleVideoConfig()
+            };
+
+            if (!string.IsNullOrWhiteSpace(Mp4FileExtension))
+            {
+                result.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+                {
+                    { ContainerFormat.Mp4, Mp4FileExtension }
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(MkvFileExtension))
+            {
+                if (result.DefaultFileExtensions == null)
+                {
+                    result.DefaultFileExtensions = new Dictionary<ContainerFormat, string>();
+                }
+
+                result.DefaultFileExtensions[ContainerFormat.Mkv] = MkvFileExtension;
+            }
+
+            return result;
+        }
+
+        TricycleAudioConfig GenerateTricycleAudioConfig()
+        {
+            var result = new TricycleAudioConfig()
+            {
+                PassthruMatchingTracks = PassthruMatchingTracks
+            };
+
+            foreach (var preset in AudioQualityPresets)
+            {
+                if ((preset.SelectedFormat == EMPTY_ITEM) ||
+                    (preset.SelectedMixdown == EMPTY_ITEM) ||
+                    !preset.Quality.HasValue)
+                {
+                    continue;
+                }
+
+                if (result.Codecs == null)
+                {
+                    result.Codecs = new Dictionary<AudioFormat, TricycleAudioCodec>();
+                }
+
+                var codec = result.Codecs.GetValueOrDefault((AudioFormat)preset.SelectedFormat.Value) ??
+                            new TricycleAudioCodec()
+                            {
+                                Presets = new List<AudioPreset>()
+                            };
+
+                codec.Presets.Add(new AudioPreset()
+                {
+                    Mixdown = (AudioMixdown)preset.SelectedMixdown.Value,
+                    Quality = preset.Quality.Value
+                });
+            }
+
+            return result;
+        }
+
+        TricycleVideoConfig GenerateTricycleVideoConfig()
+        {
+            return new TricycleVideoConfig()
+            {
+                SizeDivisor = SizeDivisor ?? 8,
+                Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
+                {
+                    { VideoFormat.Avc, GenerateVideoCodec(AvcQualityScale) },
+                    { VideoFormat.Hevc, GenerateVideoCodec(HevcQualityScale) }
+                },
+                SizePresets = GenerateVideoPresets(SizePresets),
+                AspectRatioPresets = GenerateVideoPresets(AspectRatioPresets)
+            };
+        }
+
+        TricycleVideoCodec GenerateVideoCodec(QualityScaleViewModel qualityScale)
+        {
+            var result = new TricycleVideoCodec();
+
+            if (qualityScale.Min.HasValue && qualityScale.Max.HasValue && qualityScale.StepCount.HasValue)
+            {
+                result.QualityRange = new Range<decimal>(qualityScale.Min, qualityScale.Max);
+                result.QualitySteps = qualityScale.StepCount.Value;
+            }
+            else
+            {
+                result.QualityRange = new Range<decimal>(22, 18);
+                result.QualitySteps = 4;
+            }
+
+            return result;
+        }
+
+        IDictionary<string, Dimensions> GenerateVideoPresets(IList<VideoPresetViewModel> presets)
+        {
+            IDictionary<string, Dimensions> result = null;
+
+            foreach (var preset in presets)
+            {
+                if (string.IsNullOrWhiteSpace(preset.Name) ||
+                    !preset.Width.HasValue ||
+                    !preset.Height.HasValue)
+                {
+                    continue;
+                }
+
+                if (result == null)
+                {
+                    result = new Dictionary<string, Dimensions>();
+                }
+
+                result[preset.Name] = new Dimensions(preset.Width.Value, preset.Height.Value);
+            }
+
+            return result;
+        }
+
+        FFmpegConfig GenerateFFmpegConfig()
+        {
+            return new FFmpegConfig()
+            {
+                Audio = GenerateFFmpegAudioConfig(),
+                Video = GenerateFFmpegVideoConfig()
+            };
+        }
+
+        FFmpegAudioConfig GenerateFFmpegAudioConfig()
+        {
+            return new FFmpegAudioConfig()
+            {
+                Codecs = new Dictionary<AudioFormat, FFmpegAudioCodec>()
+                    {
+                        {
+                            AudioFormat.Aac,
+                            new FFmpegAudioCodec()
+                            {
+                                Name = string.IsNullOrWhiteSpace(AacCodec) ? "aac" : AacCodec
+                            }
+                        },
+                        {
+                            AudioFormat.Ac3,
+                            new FFmpegAudioCodec()
+                            {
+                                Name = string.IsNullOrWhiteSpace(Ac3Codec) ? "ac3" : Ac3Codec
+                            }
+                        }
+                    }
+            };
+        }
+
+        FFmpegVideoConfig GenerateFFmpegVideoConfig()
+        {
+            return new FFmpegVideoConfig()
+            {
+                Codecs = new Dictionary<VideoFormat, FFmpegVideoCodec>()
+                {
+                    {
+                        VideoFormat.Avc,
+                        new FFmpegVideoCodec()
+                        {
+                            Preset = SelectedX264Preset.ToString()
+                        }
+                    },
+                    {
+                        VideoFormat.Hevc,
+                        new FFmpegVideoCodec()
+                        {
+                            Preset = SelectedX265Preset.ToString()
+                        }
+                    }
+                },
+                CropDetectOptions = string.IsNullOrWhiteSpace(CropDetectOptions) ? null : CropDetectOptions,
+                DenoiseOptions = string.IsNullOrWhiteSpace(DenoiseOptions) ? "hqdn3d=4:4:3:3" : DenoiseOptions,
+                TonemapOptions = string.IsNullOrWhiteSpace(TonemapOptions) ? "hable:desat=0" : TonemapOptions
+            };
+        }
+
+        #endregion
+
         #region Event Handlers
 
-        protected void OnAudioQualityPresetModified(AudioQualityPresetViewModel preset)
+        void OnAudioQualityPresetModified(AudioQualityPresetViewModel preset)
         {
             if (_isLoading)
             {
@@ -427,7 +644,7 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        protected void OnAudioQualityPresetRemoved(AudioQualityPresetViewModel preset)
+        void OnAudioQualityPresetRemoved(AudioQualityPresetViewModel preset)
         {
             _isDirty = true;
 
@@ -435,7 +652,7 @@ namespace Tricycle.UI.ViewModels
             AudioQualityPresets.Remove(preset);
         }
 
-        protected void OnVideoPresetModified(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
+        void OnVideoPresetModified(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
         {
             if (_isLoading)
             {
@@ -453,7 +670,7 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        protected void OnVideoPresetRemoved(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
+        void OnVideoPresetRemoved(IList<VideoPresetViewModel> presets, VideoPresetViewModel preset)
         {
             _isDirty = true;
 
