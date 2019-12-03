@@ -2805,7 +2805,7 @@ namespace Tricycle.UI.Tests
             };
             SelectSource();
             Start();
-            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(new CancellationArgs());
+            _appManager.Quitting += Raise.Event<Action>();
 
             Assert.AreEqual("Stop Transcode", actualTitle);
             Assert.AreEqual(@"Whoa... Are you sure you want to stop and lose your progress?", actualMessage);
@@ -2814,29 +2814,45 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void StopsTranscodeWhenAppIsQuitAndConfirmed()
         {
-            var cancellation = new CancellationArgs();
-
             _viewModel.Confirm += (title, message) => Task.FromResult(true);
             SelectSource();
             Start();
-            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(cancellation);
+            _appManager.Quitting += Raise.Event<Action>();
 
             _mediaTranscoder.Received().Stop();
-            Assert.IsFalse(cancellation.Cancel);
         }
 
         [TestMethod]
         public void DoesNotStopTranscodeWhenAppIsQuitButNotConfirmed()
         {
-            var cancellation = new CancellationArgs();
-
             _viewModel.Confirm += (title, message) => Task.FromResult(false);
             SelectSource();
             Start();
-            _appManager.Quitting += Raise.Event<Action<CancellationArgs>>(cancellation);
+            _appManager.Quitting += Raise.Event<Action>();
 
             _mediaTranscoder.DidNotReceive().Stop();
-            Assert.IsTrue(cancellation.Cancel);
+        }
+
+        [TestMethod]
+        public void CallsRaiseQuitConfirmedWhenAppIsQuitAndConfirmed()
+        {
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            SelectSource();
+            Start();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.Received().RaiseQuitConfirmed();
+        }
+
+        [TestMethod]
+        public void DoesNotCallRaiseQuitConfirmedWhenAppIsQuitButNotConfirmed()
+        {
+            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            SelectSource();
+            Start();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.DidNotReceive().RaiseQuitConfirmed();
         }
 
         [TestMethod]

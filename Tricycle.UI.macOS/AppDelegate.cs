@@ -29,7 +29,8 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
-        volatile bool _isBusy = false;
+        volatile bool _isBusy;
+        volatile bool _quitConfirmed;
         ConfigPage _configPage;
 
         public AppDelegate()
@@ -54,7 +55,12 @@ namespace Tricycle.UI.macOS
 
                 NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
             };
-            
+            _appManager.QuitConfirmed += () =>
+            {
+                _quitConfirmed = true;
+                NSApplication.SharedApplication.Terminate(this);
+            };
+
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
                 Title = "Tricycle"
@@ -194,11 +200,12 @@ namespace Tricycle.UI.macOS
 
         bool ShouldClose()
         {
-            var cancellation = new CancellationArgs();
+            if (!_quitConfirmed)
+            {
+                _appManager.RaiseQuitting();
+            }
 
-            _appManager.RaiseQuitting(cancellation);
-
-            return !cancellation.Cancel;
+            return _quitConfirmed;
         }
     }
 }

@@ -139,7 +139,7 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
-            _appManager.Quitting += OnAppQuitting;
+            _appManager.Quitting += async () => await OnAppQuitting();
 
             _configManager.ConfigChanged += async config => await OnConfigChanged(config);
 
@@ -1534,9 +1534,12 @@ namespace Tricycle.UI.ViewModels
             });
         }
 
-        void OnAppQuitting(CancellationArgs args)
+        async Task OnAppQuitting()
         {
-            args.Cancel = _isRunning && !ConfirmStopTranscode().GetAwaiter().GetResult();
+            if (!_isRunning || await ConfirmStopTranscode())
+            {
+                _appManager.RaiseQuitConfirmed();
+            }
         }
 
         async Task OnConfigChanged(TricycleConfig config)
