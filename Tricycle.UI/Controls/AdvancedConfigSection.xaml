@@ -20,7 +20,7 @@
                               Grid.Row="1" />
         <Label Text="AAC Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
         <Entry Text="{Binding AacCodec}" Grid.Column="1" Grid.Row="2" />
-        <Label Text="AC-3 Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+        <Label Text="Dolby Digital Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
         <Entry Text="{Binding Ac3Codec}" Grid.Column="1" Grid.Row="3" />
         <Label Text="Crop Detect Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
         <Entry Text="{Binding CropDetectOptions}" Grid.Column="1" Grid.Row="4" />
