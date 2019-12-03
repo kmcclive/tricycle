@@ -1538,7 +1538,12 @@ namespace Tricycle.UI.ViewModels
         {
             if (!_isRunning || await ConfirmStopTranscode())
             {
-                _appManager.RaiseQuitConfirmed();
+                // This raises the event outside of the current closing call stack
+                _device.StartTimer(TimeSpan.FromTicks(1), () =>
+                {
+                    _appManager.RaiseQuitConfirmed();
+                    return false;
+                });
             }
         }
 

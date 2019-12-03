@@ -40,6 +40,7 @@ namespace Tricycle.UI.Windows
         static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
 
         IAppManager _appManager;
+        volatile bool _quitConfirmed;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         ConfigPage _configPage;
@@ -58,6 +59,12 @@ namespace Tricycle.UI.Windows
                 _openFileItem.IsEnabled = true;
                 _optionsItem.IsEnabled = true;
             };
+            _appManager.QuitConfirmed += () =>
+            {
+                _quitConfirmed = true;
+
+                Close();
+            };
 
             InitializeAppState();
             InitializeComponent();
@@ -67,11 +74,12 @@ namespace Tricycle.UI.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            var args = new CancellationArgs();
+            if (!_quitConfirmed)
+            {
+                e.Cancel = true;
 
-            _appManager.RaiseQuitting(args);
-
-            e.Cancel = args.Cancel;
+                _appManager.RaiseQuitting();
+            }
 
             base.OnClosing(e);
         }
@@ -121,7 +129,7 @@ namespace Tricycle.UI.Windows
 
             var exitItem = CreateMenuItem("E_xit");
 
-            exitItem.Click += (sender, args) => Exit();
+            exitItem.Click += (sender, args) => Close();
             fileItem.Items.Add(exitItem);
 
             var toolsItem = CreateMenuItem("_Tools");
@@ -142,18 +150,6 @@ namespace Tricycle.UI.Windows
                 BorderThickness = MENU_BORDER_THICKNESS,
                 Header = header
             };
-        }
-
-        void Exit()
-        {
-            var args = new CancellationArgs();
-
-            _appManager.RaiseQuitting(args);
-
-            if (!args.Cancel)
-            {
-                Close();
-            }
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
