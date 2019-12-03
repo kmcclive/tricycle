@@ -198,6 +198,7 @@ namespace Tricycle.UI.Tests.ViewModels
             Assert.IsNull(emptyPreset.Name);
             Assert.IsNull(emptyPreset.Width);
             Assert.IsNull(emptyPreset.Height);
+            Assert.IsFalse(emptyPreset.IsRemoveEnabled);
         }
 
         [TestMethod]
@@ -232,6 +233,7 @@ namespace Tricycle.UI.Tests.ViewModels
             Assert.IsNull(emptyPreset.Name);
             Assert.IsNull(emptyPreset.Width);
             Assert.IsNull(emptyPreset.Height);
+            Assert.IsFalse(emptyPreset.IsRemoveEnabled);
         }
 
         [TestMethod]
@@ -307,9 +309,10 @@ namespace Tricycle.UI.Tests.ViewModels
             preset = _viewModel.AudioQualityPresets[3];
 
             Assert.IsNotNull(preset);
-            Assert.AreEqual(string.Empty, preset?.SelectedFormat?.ToString());
-            Assert.AreEqual(string.Empty, preset?.SelectedMixdown?.ToString());
-            Assert.IsNull(preset?.Quality);
+            Assert.AreEqual(string.Empty, preset.SelectedFormat?.ToString());
+            Assert.AreEqual(string.Empty, preset.SelectedMixdown?.ToString());
+            Assert.IsNull(preset.Quality);
+            Assert.IsFalse(preset.IsRemoveEnabled);
         }
 
         [TestMethod]
@@ -462,6 +465,201 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             Assert.AreEqual(10, _viewModel.X265PresetOptions?.Count);
             Assert.AreEqual(1, _viewModel.X265PresetOptions.Count(o => o?.ToString() == "medium"));
+        }
+
+        [TestMethod]
+        public void AddsEmptySizePresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.SizePresets?.Count == 1 ? _viewModel.SizePresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty size preset was not created.");
+            }
+
+            preset.Name = "1080p";
+
+            Assert.AreEqual(2, _viewModel.SizePresets.Count);
+
+            var newPreset = _viewModel.SizePresets[1];
+
+            Assert.IsNotNull(newPreset);
+            Assert.IsNull(newPreset.Name);
+            Assert.IsNull(newPreset.Width);
+            Assert.IsNull(newPreset.Height);
+        }
+
+        [TestMethod]
+        public void AddsEmptyAspectRatioPresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AspectRatioPresets?.Count == 1 ? _viewModel.AspectRatioPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty aspect ratio preset was not created.");
+            }
+
+            preset.Name = "16:9";
+
+            Assert.AreEqual(2, _viewModel.AspectRatioPresets.Count);
+
+            var newPreset = _viewModel.AspectRatioPresets[1];
+
+            Assert.IsNotNull(newPreset);
+            Assert.IsNull(newPreset.Name);
+            Assert.IsNull(newPreset.Width);
+            Assert.IsNull(newPreset.Height);
+        }
+
+        [TestMethod]
+        public void AddsEmptyAudioQualityPresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
+
+            preset.Quality = "160";
+
+            Assert.AreEqual(2, _viewModel.AudioQualityPresets.Count);
+
+            var newPreset = _viewModel.AudioQualityPresets[1];
+
+            Assert.IsNotNull(newPreset);
+            Assert.AreEqual(string.Empty, newPreset?.SelectedFormat?.ToString());
+            Assert.AreEqual(string.Empty, newPreset?.SelectedMixdown?.ToString());
+            Assert.IsNull(newPreset?.Quality);
+        }
+
+        [TestMethod]
+        public void EnablesRemovalOnSizePresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.SizePresets?.Count == 1 ? _viewModel.SizePresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty size preset was not created.");
+            }
+
+            preset.Name = "1080p";
+
+            Assert.IsTrue(preset.IsRemoveEnabled);
+        }
+
+        [TestMethod]
+        public void EnablesRemovalOnAspectRatioPresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AspectRatioPresets?.Count == 1 ? _viewModel.AspectRatioPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty aspect ratio preset was not created.");
+            }
+
+            preset.Name = "16:9";
+
+            Assert.IsTrue(preset.IsRemoveEnabled);
+        }
+
+        [TestMethod]
+        public void EnablesRemovalOnAudioQualityPresetWhenModified()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
+
+            preset.Quality = "160";
+
+            Assert.IsTrue(preset.IsRemoveEnabled);
+        }
+
+        [TestMethod]
+        public void RemovesSizePresetFromListWhenRemoved()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.SizePresets?.Count == 1 ? _viewModel.SizePresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty size preset was not created.");
+            }
+
+            preset.Name = "1080p";
+
+            if (_viewModel.SizePresets?.Count != 2)
+            {
+                Assert.Inconclusive("An empty size preset was not added.");
+            }
+
+            preset.RemoveCommand.Execute(null);
+
+            Assert.AreEqual(1, _viewModel.SizePresets?.Count);
+        }
+
+        [TestMethod]
+        public void RemovesAspectRatioPresetFromListWhenRemoved()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AspectRatioPresets?.Count == 1 ? _viewModel.AspectRatioPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty aspect ratio preset was not created.");
+            }
+
+            preset.Name = "16:9";
+
+            if (_viewModel.AspectRatioPresets?.Count != 2)
+            {
+                Assert.Inconclusive("An empty aspect ratio preset was not added.");
+            }
+
+            preset.RemoveCommand.Execute(null);
+
+            Assert.AreEqual(1, _viewModel.AspectRatioPresets?.Count);
+        }
+
+        [TestMethod]
+        public void RemovesAudioQualityPresetFromListWhenRemoved()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
+
+            preset.Quality = "160";
+
+            if (_viewModel.AudioQualityPresets?.Count != 2)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not added.");
+            }
+
+            preset.RemoveCommand.Execute(null);
+
+            Assert.AreEqual(1, _viewModel.AudioQualityPresets?.Count);
         }
 
         [TestMethod]
