@@ -41,7 +41,7 @@ namespace Tricycle.UI.ViewModels
         bool _preferForcedSubtitles;
         string _mp4FileExtension;
         string _mkvFileExtension;
-        int? _sizeDivisor;
+        string _sizeDivisor;
         QualityScaleViewModel _avcQualityScale;
         QualityScaleViewModel _hevcQualityScale;
         IList<VideoPresetViewModel> _sizePresets = new ObservableCollection<VideoPresetViewModel>();
@@ -137,7 +137,7 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _mkvFileExtension, value);
         }
 
-        public int? SizeDivisor
+        public string SizeDivisor
         {
             get => _sizeDivisor;
             set => SetProperty(ref _sizeDivisor, value);
@@ -315,7 +315,7 @@ namespace Tricycle.UI.ViewModels
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
             Mp4FileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4);
             MkvFileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv);
-            SizeDivisor = config.Video?.SizeDivisor;
+            SizeDivisor = config.Video?.SizeDivisor.ToString();
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
             HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
             PassthruMatchingTracks = config.Audio?.PassthruMatchingTracks ?? false;
@@ -371,8 +371,8 @@ namespace Tricycle.UI.ViewModels
 
             SelectedX264Preset = string.IsNullOrWhiteSpace(x264Preset) ? null : new ListItem(x264Preset);
             SelectedX265Preset = string.IsNullOrWhiteSpace(x265Preset) ? null : new ListItem(x265Preset);
-            AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac).Name;
-            Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3).Name;
+            AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name;
+            Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name;
             CropDetectOptions = config.Video?.CropDetectOptions;
             DenoiseOptions = config.Video?.DenoiseOptions;
             TonemapOptions = config.Video?.TonemapOptions;
@@ -503,7 +503,7 @@ namespace Tricycle.UI.ViewModels
         {
             return new TricycleVideoConfig()
             {
-                SizeDivisor = SizeDivisor ?? 8,
+                SizeDivisor = int.TryParse(SizeDivisor, out var sizeDivisor) ? sizeDivisor : 8,
                 Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
                 {
                     { VideoFormat.Avc, GenerateVideoCodec(AvcQualityScale) },
