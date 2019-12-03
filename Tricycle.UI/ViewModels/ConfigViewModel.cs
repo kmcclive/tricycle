@@ -603,14 +603,14 @@ namespace Tricycle.UI.ViewModels
                         VideoFormat.Avc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX264Preset.ToString()
+                            Preset = SelectedX264Preset?.ToString() ?? "medium"
                         }
                     },
                     {
                         VideoFormat.Hevc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX265Preset.ToString()
+                            Preset = SelectedX265Preset?.ToString() ?? "medium"
                         }
                     }
                 },

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
+using Tricycle.Utilities;
 using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.AudioCodec;
 using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.AudioConfig;
 using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.VideoCodec;
@@ -459,6 +462,439 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             Assert.AreEqual(10, _viewModel.X265PresetOptions?.Count);
             Assert.AreEqual(1, _viewModel.X265PresetOptions.Count(o => o?.ToString() == "medium"));
+        }
+
+        [TestMethod]
+        public void SavesAlertOnCompletionToConfig()
+        {
+            bool alertOnCompletion = true;
+
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = alertOnCompletion;
+            Complete();
+
+            Assert.AreEqual(alertOnCompletion, _tricycleConfigManager.Config?.CompletionAlert);
+        }
+
+        [TestMethod]
+        public void SavesDeleteIncompleteFilesToConfig()
+        {
+            bool deleteIncompleteFiles = true;
+
+            _viewModel.Initialize();
+            _viewModel.DeleteIncompleteFiles = deleteIncompleteFiles;
+            Complete();
+
+            Assert.AreEqual(deleteIncompleteFiles, _tricycleConfigManager.Config?.DeleteIncompleteFiles);
+        }
+
+        [TestMethod]
+        public void SavesPreferForcedSubtitlesToConfig()
+        {
+            bool preferForcedSubtitles = true;
+
+            _viewModel.Initialize();
+            _viewModel.PreferForcedSubtitles = preferForcedSubtitles;
+            Complete();
+
+            Assert.AreEqual(preferForcedSubtitles, _tricycleConfigManager.Config?.ForcedSubtitlesOnly);
+        }
+
+        [TestMethod]
+        public void SavesMp4FileExtensionToConfig()
+        {
+            string extension = "m4v";
+
+            _viewModel.Initialize();
+            _viewModel.Mp4FileExtension = extension;
+            Complete();
+
+            Assert.AreEqual(extension,
+                            _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4));
+        }
+
+        [TestMethod]
+        public void SavesMkvFileExtensionToConfig()
+        {
+            string extension = "mkv2";
+
+            _viewModel.Initialize();
+            _viewModel.MkvFileExtension = extension;
+            Complete();
+
+            Assert.AreEqual(extension,
+                            _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv));
+        }
+
+        [TestMethod]
+        public void SavesSizeDivisorToConfig()
+        {
+            int divisor = 2;
+
+            _viewModel.Initialize();
+            _viewModel.SizeDivisor = divisor.ToString();
+            Complete();
+
+            Assert.AreEqual(divisor, _tricycleConfigManager.Config?.Video?.SizeDivisor);
+        }
+
+        [TestMethod]
+        public void SavesAvcQualityScaleToConfig()
+        {
+            var range = new Range<decimal>(24, 16);
+            var steps = 6;
+
+            _viewModel.Initialize();
+            _viewModel.AvcQualityScale.Min = range.Min.ToString();
+            _viewModel.AvcQualityScale.Max = range.Max.ToString();
+            _viewModel.AvcQualityScale.StepCount = steps.ToString();
+            Complete();
+
+            var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc);
+
+            Assert.AreEqual(range, codec?.QualityRange);
+            Assert.AreEqual(steps, codec?.QualitySteps);
+        }
+
+        [TestMethod]
+        public void SavesHevcQualityScaleToConfig()
+        {
+            var range = new Range<decimal>(24, 16);
+            var steps = 6;
+
+            _viewModel.Initialize();
+            _viewModel.HevcQualityScale.Min = range.Min.ToString();
+            _viewModel.HevcQualityScale.Max = range.Max.ToString();
+            _viewModel.HevcQualityScale.StepCount = steps.ToString();
+            Complete();
+
+            var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
+
+            Assert.AreEqual(range, codec?.QualityRange);
+            Assert.AreEqual(steps, codec?.QualitySteps);
+        }
+
+        [TestMethod]
+        public void SavesSizePresetsToConfig()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.SizePresets?.Count == 1 ? _viewModel.SizePresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty size preset was not created.");
+            }
+
+            var dimensions = new Dimensions(1920, 1080);
+
+            preset.Name = "1080p";
+            preset.Width = dimensions.Width.ToString();
+            preset.Height = dimensions.Height.ToString();
+
+            Complete();
+
+            var savedPresets = _tricycleConfigManager.Config?.Video?.SizePresets;
+
+            Assert.AreEqual(1, savedPresets?.Count);
+            Assert.AreEqual(dimensions, savedPresets.GetValueOrDefault(preset.Name));
+        }
+
+        [TestMethod]
+        public void SavesAspectRatioPresetsToConfig()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AspectRatioPresets?.Count == 1 ? _viewModel.AspectRatioPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty aspect ratio preset was not created.");
+            }
+
+            var dimensions = new Dimensions(16, 9);
+
+            preset.Name = "16:9";
+            preset.Width = dimensions.Width.ToString();
+            preset.Height = dimensions.Height.ToString();
+
+            Complete();
+
+            var savedPresets = _tricycleConfigManager.Config?.Video?.AspectRatioPresets;
+
+            Assert.AreEqual(1, savedPresets?.Count);
+            Assert.AreEqual(dimensions, savedPresets.GetValueOrDefault(preset.Name));
+        }
+
+        [TestMethod]
+        public void SavesPassthruMatchingTracksToConfig()
+        {
+            bool passthruMatchingTracks = true;
+
+            _viewModel.Initialize();
+            _viewModel.PassthruMatchingTracks = passthruMatchingTracks;
+            Complete();
+
+            Assert.AreEqual(passthruMatchingTracks, _tricycleConfigManager.Config?.Audio?.PassthruMatchingTracks);
+        }
+
+        [TestMethod]
+        public void SavesAacAudioQualityPresetsToConfig()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
+
+            var format = AudioFormat.Aac;
+            var expectedPreset = new AudioPreset()
+            {
+                Mixdown = AudioMixdown.Stereo,
+                Quality = 160
+            };
+
+            preset.SelectedFormat = new ListItem(format);
+            preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
+            preset.Quality = expectedPreset.Quality.ToString();
+
+            Complete();
+
+            var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
+
+            Assert.AreEqual(1, savedPresets?.Count);
+            Assert.AreEqual(expectedPreset.Mixdown, savedPresets[0]?.Mixdown);
+            Assert.AreEqual(expectedPreset.Quality, savedPresets[0]?.Quality);
+        }
+
+        [TestMethod]
+        public void SavesAc3AudioQualityPresetsToConfig()
+        {
+            _viewModel.Initialize();
+
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
+
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
+
+            var format = AudioFormat.Ac3;
+            var expectedPreset = new AudioPreset()
+            {
+                Mixdown = AudioMixdown.Surround5dot1,
+                Quality = 640
+            };
+
+            preset.SelectedFormat = new ListItem(format);
+            preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
+            preset.Quality = expectedPreset.Quality.ToString();
+
+            Complete();
+
+            var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
+
+            Assert.AreEqual(1, savedPresets?.Count);
+            Assert.AreEqual(expectedPreset.Mixdown, savedPresets[0]?.Mixdown);
+            Assert.AreEqual(expectedPreset.Quality, savedPresets[0]?.Quality);
+        }
+
+        [TestMethod]
+        public void SavesSelectedX264PresetToConfig()
+        {
+            string preset = "fast";
+
+            _viewModel.Initialize();
+            _viewModel.SelectedX264Preset = new ListItem(preset);
+            Complete();
+
+            Assert.AreEqual(preset,
+                            _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset);
+        }
+
+        [TestMethod]
+        public void SavesSelectedX265PresetToConfig()
+        {
+            string preset = "slow";
+
+            _viewModel.Initialize();
+            _viewModel.SelectedX265Preset = new ListItem(preset);
+            Complete();
+
+            Assert.AreEqual(preset,
+                            _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset);
+        }
+
+        [TestMethod]
+        public void SavesAacCodecToConfig()
+        {
+            string codec = "libfdk_aac";
+
+            _viewModel.Initialize();
+            _viewModel.AacCodec = codec;
+            Complete();
+
+            Assert.AreEqual(codec,
+                            _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name);
+        }
+
+        [TestMethod]
+        public void SavesAc3CodecToConfig()
+        {
+            string codec = "ac3_fixed";
+
+            _viewModel.Initialize();
+            _viewModel.Ac3Codec = codec;
+            Complete();
+
+            Assert.AreEqual(codec,
+                            _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name);
+        }
+
+        [TestMethod]
+        public void SavesCropDetectOptionsToConfig()
+        {
+            string options = "24:16:0";
+
+            _viewModel.Initialize();
+            _viewModel.CropDetectOptions = options;
+            Complete();
+
+            Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.CropDetectOptions);
+        }
+
+        [TestMethod]
+        public void SavesDenoiseOptionsToConfig()
+        {
+            string options = "nlmeans";
+
+            _viewModel.Initialize();
+            _viewModel.DenoiseOptions = options;
+            Complete();
+
+            Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.DenoiseOptions);
+        }
+
+        [TestMethod]
+        public void SavesTonemapOptionsToConfig()
+        {
+            string options = "reinhard";
+
+            _viewModel.Initialize();
+            _viewModel.TonemapOptions = options;
+            Complete();
+
+            Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.TonemapOptions);
+        }
+
+        [TestMethod]
+        public void CallsSaveOnTricycleConfigManagerWhenCompleted()
+        {
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            Complete();
+
+            _tricycleConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void CallsSaveOnFFmpegConfigManagerWhenCompleted()
+        {
+            _viewModel.Initialize();
+            _viewModel.AacCodec = "aac";
+            Complete();
+
+            _ffmpegConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void RaisesClosedEventWhenCompleted()
+        {
+            bool closed = false;
+
+            _viewModel.Initialize();
+            _viewModel.Closed += () => closed = true;
+            Complete();
+
+            Assert.IsTrue(closed);
+        }
+
+        [TestMethod]
+        public void RaisesClosedEventWhenCancelled()
+        {
+            bool closed = false;
+
+            _viewModel.Initialize();
+            _viewModel.Closed += () => closed = true;
+            Cancel();
+
+            Assert.IsTrue(closed);
+        }
+
+        [TestMethod]
+        public void DoesNotRaiseClosedEventWhenCancelledAndNotConfirmed()
+        {
+            bool closed = false;
+
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            _viewModel.Closed += () => closed = true;
+            Cancel();
+
+            Assert.IsFalse(closed);
+        }
+
+        [TestMethod]
+        public void DoesNotCallSaveOnTricycleConfigManagerWhenCancelled()
+        {
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            Cancel();
+
+            _tricycleConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallSaveOnFFmpegConfigManagerWhenCancelled()
+        {
+            _viewModel.Initialize();
+            _viewModel.AacCodec = "aac";
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            Cancel();
+
+            _ffmpegConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void ResetsValuesWhenCancelled()
+        {
+            _tricycleConfig.CompletionAlert = false;
+
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = !_tricycleConfig.CompletionAlert;
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            Cancel();
+
+            Assert.AreEqual(_tricycleConfig.CompletionAlert, _viewModel.AlertOnCompletion);
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        public void Cancel()
+        {
+            _viewModel.CancelCommand.Execute(null);
+        }
+
+        public void Complete()
+        {
+            _viewModel.CompleteCommand.Execute(null);
         }
 
         #endregion
