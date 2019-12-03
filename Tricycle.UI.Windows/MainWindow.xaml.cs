@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
@@ -16,14 +17,17 @@ using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.UI.Models;
 using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
 using Xamarin.Forms.Platform.WPF.Controls;
+using Container = StructureMap.Container;
 using ControlTemplate = System.Windows.Controls.ControlTemplate;
 using Menu = System.Windows.Controls.Menu;
 using MenuItem = System.Windows.Controls.MenuItem;
+using Thickness = System.Windows.Thickness;
 
 namespace Tricycle.UI.Windows
 {
@@ -32,6 +36,9 @@ namespace Tricycle.UI.Windows
     /// </summary>
     public partial class MainWindow : FormsApplicationPage
     {
+        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.WhiteSmoke);
+        static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
+
         IAppManager _appManager;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
@@ -58,6 +65,17 @@ namespace Tricycle.UI.Windows
             LoadApplication(new UI.App());
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            var args = new CancellationArgs();
+
+            _appManager.RaiseQuitting(args);
+
+            e.Cancel = args.Cancel;
+
+            base.OnClosing(e);
+        }
+
         protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
         {
             base.OnTemplateChanged(oldTemplate, newTemplate);
@@ -75,11 +93,11 @@ namespace Tricycle.UI.Windows
             }
 
             var panel = new StackPanel();
-            var brush = new SolidColorBrush(Colors.WhiteSmoke);
             var menu = new Menu()
             {
                 IsMainMenu = true,
-                Background = brush,
+                Background = MENU_BACKGROUND_BRUSH,
+                BorderThickness = MENU_BORDER_THICKNESS,
                 Padding = new System.Windows.Thickness(10, 5, 10, 5),
                 FontSize = 14,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -92,39 +110,50 @@ namespace Tricycle.UI.Windows
             panel.Children.Add(menu);
             panel.Children.Add(content);
 
-            var fileItem = new MenuItem()
-            {
-                Background = brush,
-                Header = "_File"
-            };
+            var fileItem = CreateMenuItem("_File");
 
             menu.Items.Add(fileItem);
 
-            _openFileItem = new MenuItem()
-            {
-                Background = brush,
-                Header = "_Open…",
-            };
+            _openFileItem = CreateMenuItem("_Open…");
 
             _openFileItem.Click += OnOpenFileClick;
             fileItem.Items.Add(_openFileItem);
 
-            var toolsItem = new MenuItem()
-            {
-                Background = brush,
-                Header = "_Tools"
-            };
+            var exitItem = CreateMenuItem("E_xit");
+
+            exitItem.Click += (sender, args) => Exit();
+            fileItem.Items.Add(exitItem);
+
+            var toolsItem = CreateMenuItem("_Tools");
 
             menu.Items.Add(toolsItem);
 
-            _optionsItem = new MenuItem()
-            {
-                Background = brush,
-                Header = "_Options…"
-            };
+            _optionsItem = CreateMenuItem("_Options…");
 
             _optionsItem.Click += OnOptionsClick;
             toolsItem.Items.Add(_optionsItem);
+        }
+
+        MenuItem CreateMenuItem(string header)
+        {
+            return new MenuItem()
+            {
+                Background = MENU_BACKGROUND_BRUSH,
+                BorderThickness = MENU_BORDER_THICKNESS,
+                Header = header
+            };
+        }
+
+        void Exit()
+        {
+            var args = new CancellationArgs();
+
+            _appManager.RaiseQuitting(args);
+
+            if (!args.Cancel)
+            {
+                Close();
+            }
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
@@ -138,7 +167,7 @@ namespace Tricycle.UI.Windows
             }
         }
 
-        private void OnOptionsClick(object sender, RoutedEventArgs e)
+        void OnOptionsClick(object sender, RoutedEventArgs e)
         {
             if (_configPage == null)
             {

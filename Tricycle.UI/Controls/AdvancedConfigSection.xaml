@@ -6,7 +6,7 @@
     <Grid ColumnSpacing="10" RowSpacing="20">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="125" />
+            <ColumnDefinition Width="150" />
         </Grid.ColumnDefinitions>
         <Label Text="x264 Preset" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
         <local:BindablePicker ItemsSource="{Binding X264PresetOptions}"
