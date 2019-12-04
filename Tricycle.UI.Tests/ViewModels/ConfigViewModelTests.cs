@@ -429,9 +429,12 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _viewModel.Initialize();
 
-            Assert.AreEqual(1, _viewModel.AudioQualityPresets?.Count);
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
 
-            var preset = _viewModel.AudioQualityPresets[0];
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
 
             Assert.AreEqual(3, preset?.FormatOptions?.Count);
             Assert.AreEqual(string.Empty, preset?.FormatOptions[0]?.ToString());
@@ -444,9 +447,12 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _viewModel.Initialize();
 
-            Assert.AreEqual(1, _viewModel.AudioQualityPresets?.Count);
+            var preset = _viewModel.AudioQualityPresets?.Count == 1 ? _viewModel.AudioQualityPresets[0] : null;
 
-            var preset = _viewModel.AudioQualityPresets[0];
+            if (preset == null)
+            {
+                Assert.Inconclusive("An empty audio quality preset was not created.");
+            }
 
             Assert.AreEqual(4, preset?.MixdownOptions?.Count);
             Assert.AreEqual(string.Empty, preset?.MixdownOptions[0]?.ToString());
@@ -1035,7 +1041,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void RaisesConfirmEventWhenCancelled()
+        public void RaisesConfirmEventWhenCancelledAndDirty()
         {
             string title = null;
             string message = null;
@@ -1052,6 +1058,22 @@ namespace Tricycle.UI.Tests.ViewModels
 
             Assert.AreEqual("Discard Changes", title);
             Assert.AreEqual("Are you sure you want to lose your changes?", message);
+        }
+
+        [TestMethod]
+        public void DoesNotRaiseConfirmEventWhenCancelledAndNotDirty()
+        {
+            bool confirmed = false;
+
+            _viewModel.Initialize();
+            _viewModel.Confirm += (t, m) =>
+            {
+                confirmed = true;
+                return Task.FromResult(false);
+            };
+            Cancel();
+
+            Assert.IsFalse(confirmed);
         }
 
         [TestMethod]
@@ -1125,7 +1147,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void RaisesConfirmEventWhenActiveAndDirty()
+        public void RaisesConfirmEventWhenActiveAndDirtyAndAppIsQutting()
         {
             string title = null;
             string message = null;
@@ -1146,7 +1168,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotRaiseConfirmEventWhenActiveAndNotDirty()
+        public void DoesNotRaiseConfirmEventWhenActiveAndNotDirtyAndAppIsQutting()
         {
             bool confirmed = false;
 
