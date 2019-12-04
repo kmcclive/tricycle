@@ -30,6 +30,7 @@ namespace Tricycle.UI.Tests.ViewModels
         ConfigViewModel _viewModel;
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
+        IAppManager _appManager;
         TricycleConfig _tricycleConfig;
         FFmpegConfig _ffmpegConfig;
 
@@ -42,7 +43,8 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _ffmpegConfigManager = Substitute.For<IConfigManager<FFmpegConfig>>();
-            _viewModel = new ConfigViewModel(_tricycleConfigManager, _ffmpegConfigManager);
+            _appManager = Substitute.For<IAppManager>();
+            _viewModel = new ConfigViewModel(_tricycleConfigManager, _ffmpegConfigManager, _appManager, MockDevice.Self);
             _tricycleConfig = new TricycleConfig()
             {
                 Audio = new TricycleAudioConfig(),
@@ -1033,6 +1035,26 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void RaisesConfirmEventWhenCancelled()
+        {
+            string title = null;
+            string message = null;
+
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (t, m) =>
+            {
+                title = t;
+                message = m;
+                return Task.FromResult(false);
+            };
+            Cancel();
+
+            Assert.AreEqual("Discard Changes", title);
+            Assert.AreEqual("Are you sure you want to lose your changes?", message);
+        }
+
+        [TestMethod]
         public void DoesNotRaiseClosedEventWhenCancelledAndNotConfirmed()
         {
             bool closed = false;
@@ -1079,6 +1101,89 @@ namespace Tricycle.UI.Tests.ViewModels
             Cancel();
 
             Assert.AreEqual(_tricycleConfig.CompletionAlert, _viewModel.AlertOnCompletion);
+        }
+
+        [TestMethod]
+        public void CallsRaiseQuitConfirmedWhenActiveAndNotDirty()
+        {
+            _appManager.IsModalOpen.Returns(true);
+            _viewModel.Initialize();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.Received().RaiseQuitConfirmed();
+        }
+
+        [TestMethod]
+        public void DoesNotCallRaiseQuitConfirmedWhenInactive()
+        {
+            _appManager.IsModalOpen.Returns(false);
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.DidNotReceive().RaiseQuitConfirmed();
+        }
+
+        [TestMethod]
+        public void RaisesConfirmEventWhenActiveAndDirty()
+        {
+            string title = null;
+            string message = null;
+
+            _appManager.IsModalOpen.Returns(true);
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (t, m) =>
+            {
+                title = t;
+                message = m;
+                return Task.FromResult(false);
+            };
+            _appManager.Quitting += Raise.Event<Action>();
+
+            Assert.AreEqual("Discard Changes", title);
+            Assert.AreEqual("Are you sure you want to lose your changes?", message);
+        }
+
+        [TestMethod]
+        public void DoesNotRaiseConfirmEventWhenActiveAndNotDirty()
+        {
+            bool confirmed = false;
+
+            _appManager.IsModalOpen.Returns(true);
+            _viewModel.Initialize();
+            _viewModel.Confirm += (t, m) =>
+            {
+                confirmed = true;
+                return Task.FromResult(false);
+            };
+            _appManager.Quitting += Raise.Event<Action>();
+
+            Assert.IsFalse(confirmed);
+        }
+
+        [TestMethod]
+        public void DoesNotCallRaiseQuitConfirmedWhenActiveAndDirtyButNotConfirmed()
+        {
+            _appManager.IsModalOpen.Returns(true);
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.DidNotReceive().RaiseQuitConfirmed();
+        }
+
+        [TestMethod]
+        public void CallsRaiseQuitConfirmedWhenActiveAndDirtyAndConfirmed()
+        {
+            _appManager.IsModalOpen.Returns(true);
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.Received().RaiseQuitConfirmed();
         }
 
         #endregion

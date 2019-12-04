@@ -1536,7 +1536,7 @@ namespace Tricycle.UI.ViewModels
 
         async Task OnAppQuitting()
         {
-            if (!_isRunning || await ConfirmStopTranscode())
+            if (!_appManager.IsModalOpen && (!_isRunning || await ConfirmStopTranscode()))
             {
                 // This raises the event outside of the current closing call stack
                 _device.StartTimer(TimeSpan.FromTicks(1), () =>

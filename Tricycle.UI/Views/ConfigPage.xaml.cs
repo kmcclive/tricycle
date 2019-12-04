@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
@@ -19,13 +20,19 @@ namespace Tricycle.UI.Views
             Advanced
         }
 
+        IAppManager _appManager;
+
         public ConfigPage()
         {
             InitializeComponent();
 
+            _appManager = AppState.IocContainer.GetInstance<IAppManager>();
+
             var viewModel = new ConfigViewModel(
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
-                AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>());
+                AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>(),
+                _appManager,
+                AppState.IocContainer.GetInstance<IDevice>());
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();
             var selectedSection = sections[0];
 
@@ -36,9 +43,15 @@ namespace Tricycle.UI.Views
             SelectSection(selectedSection);
             viewModel.Initialize();
 
-            viewModel.Closed += async () => await Navigation.PopModalAsync();
+            viewModel.Closed += async () => await OnClosed();
             viewModel.Confirm += (title, message) => DisplayAlert(title, message, "OK", "Cancel");
             vwSections.ItemSelected += OnSectionSelected;
+        }
+
+        async Task OnClosed()
+        {
+            await Navigation.PopModalAsync();
+            _appManager.RaiseModalClosed();
         }
 
         void OnSectionSelected(object sender, SelectedItemChangedEventArgs e)

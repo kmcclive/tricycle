@@ -35,6 +35,8 @@ namespace Tricycle.UI.ViewModels
 
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
+        IAppManager _appManager;
+        IDevice _device;
 
         bool _alertOnCompletion;
         bool _deleteIncompleteFiles;
@@ -68,10 +70,14 @@ namespace Tricycle.UI.ViewModels
         #region Constructors
 
         public ConfigViewModel(IConfigManager<TricycleConfig> tricycleConfigManager,
-                               IConfigManager<FFmpegConfig> ffmpegConfigManager)
+                               IConfigManager<FFmpegConfig> ffmpegConfigManager,
+                               IAppManager appManager,
+                               IDevice device)
         {
             _tricycleConfigManager = tricycleConfigManager;
             _ffmpegConfigManager = ffmpegConfigManager;
+            _appManager = appManager;
+            _device = device;
             _x264PresetOptions = new List<ListItem>()
             {
                 new ListItem("ultrafast"),
@@ -99,8 +105,10 @@ namespace Tricycle.UI.ViewModels
 
             _audioMixdownOptions.Insert(0, EMPTY_ITEM);
 
+            _appManager.Quitting += async () => await OnAppQuitting();
+
             CompleteCommand = new Command(new Action(Complete));
-            CancelCommand = new Command(async() => await Cancel());
+            CancelCommand = new Command(async () => await Cancel());
         }
 
         #endregion
@@ -674,6 +682,20 @@ namespace Tricycle.UI.ViewModels
 
             preset.ClearHandlers();
             presets.Remove(preset);
+        }
+
+        async Task OnAppQuitting()
+        {
+            if (_appManager.IsModalOpen &&
+                (!_isDirty || await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?")))
+            {
+                // This raises the event outside of the current closing call stack
+                _device.StartTimer(TimeSpan.FromTicks(1), () =>
+                {
+                    _appManager.RaiseQuitConfirmed();
+                    return false;
+                });
+            }
         }
 
         #endregion

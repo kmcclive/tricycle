@@ -13,7 +13,6 @@ using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Models;
 using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -29,8 +28,6 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
-        volatile bool _isBusy;
-        volatile bool _quitConfirmed;
         ConfigPage _configPage;
 
         public AppDelegate()
@@ -41,14 +38,6 @@ namespace Tricycle.UI.macOS
 
             _appManager = new AppManager();
 
-            _appManager.Busy += () =>
-            {
-                _isBusy = true;
-            };
-            _appManager.Ready += () =>
-            {
-                _isBusy = false;
-            };
             _appManager.FileOpened += fileName =>
             {
                 var url = new NSUrl($"file://{Uri.EscapeUriString(fileName)}");
@@ -57,7 +46,6 @@ namespace Tricycle.UI.macOS
             };
             _appManager.QuitConfirmed += () =>
             {
-                _quitConfirmed = true;
                 NSApplication.SharedApplication.Terminate(this);
             };
 
@@ -158,9 +146,9 @@ namespace Tricycle.UI.macOS
             switch(item.Title)
             {
                 case "Open…":
-                    return !_isBusy;
+                    return !_appManager.IsBusy;
                 case "Preferences…":
-                    return !_isBusy;
+                    return !_appManager.IsBusy;
                 default:
                     return true;
             }
@@ -200,12 +188,12 @@ namespace Tricycle.UI.macOS
 
         bool ShouldClose()
         {
-            if (!_quitConfirmed)
+            if (!_appManager.IsQuitConfirmed)
             {
                 _appManager.RaiseQuitting();
             }
 
-            return _quitConfirmed;
+            return _appManager.IsQuitConfirmed;
         }
     }
 }

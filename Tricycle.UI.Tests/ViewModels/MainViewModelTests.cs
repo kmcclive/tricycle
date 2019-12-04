@@ -2856,6 +2856,15 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void DoesNotCallRaiseQuitConfirmedWhenAppIsQuitAndModalIsOpen()
+        {
+            _appManager.IsModalOpen.Returns(true);
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _appManager.DidNotReceive().RaiseQuitConfirmed();
+        }
+
+        [TestMethod]
         public void ReadsSourceWhenFileOpenedEventIsRaised()
         {
             string fileName = "/Users/fred/Movies/test.mkv";
