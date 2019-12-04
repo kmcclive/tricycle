@@ -48,5 +48,35 @@ namespace Tricycle.Utilities
 
             return result;
         }
+
+        public static string GetFormatName(AudioFormat format)
+        {
+            switch (format)
+            {
+                case AudioFormat.Aac:
+                    return "AAC";
+                case AudioFormat.Ac3:
+                    return "Dolby Digital";
+                case AudioFormat.HeAac:
+                    return "HE-AAC";
+                default:
+                    return null;
+            }
+        }
+
+        public static string GetMixdownName(AudioMixdown mixdown)
+        {
+            switch (mixdown)
+            {
+                case AudioMixdown.Mono:
+                    return "Mono";
+                case AudioMixdown.Stereo:
+                    return "Stereo";
+                case AudioMixdown.Surround5dot1:
+                    return "Surround";
+                default:
+                    return null;
+            }
+        }
     }
 }

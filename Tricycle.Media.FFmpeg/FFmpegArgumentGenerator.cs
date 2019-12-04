@@ -17,7 +17,7 @@ namespace Tricycle.Media.FFmpeg
         #region Fields
 
         readonly IProcessUtility _processUtility;
-        readonly FFmpegConfig _config;
+        readonly IConfigManager<FFmpegConfig> _configManager;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace Tricycle.Media.FFmpeg
         public FFmpegArgumentGenerator(IProcessUtility processUtility, IConfigManager<FFmpegConfig> configManager)
         {
             _processUtility = processUtility;
-            _config = configManager.Config;
+            _configManager = configManager;
         }
 
         #endregion
@@ -119,7 +119,7 @@ namespace Tricycle.Media.FFmpeg
 
             try
             {
-                AppendStreamMap(argBuilder, job.SourceInfo, job.Streams, subtitlesIndex);
+                AppendStreamMap(argBuilder, _configManager.Config, job.SourceInfo, job.Streams, subtitlesIndex);
             }
             catch (ArgumentException ex)
             {
@@ -211,6 +211,7 @@ namespace Tricycle.Media.FFmpeg
         }
 
         void AppendStreamMap(StringBuilder builder,
+                             FFmpegConfig config,
                              MediaInfo sourceInfo,
                              IList<OutputStream> streams,
                              int? subtitlesIndex)
@@ -252,11 +253,12 @@ namespace Tricycle.Media.FFmpeg
                         throw new NotSupportedException($"The stream type {sourceStream.StreamType} is not supported.");
                 }
 
-                AppendStream(builder, sourceStream, outputStream, relativeIndex, subtitlesIndex);
+                AppendStream(builder, config, sourceStream, outputStream, relativeIndex, subtitlesIndex);
             }
         }
 
         void AppendStream(StringBuilder builder,
+                          FFmpegConfig config,
                           StreamInfo sourceStream,
                           OutputStream outputStream,
                           int relativeIndex,
@@ -272,7 +274,7 @@ namespace Tricycle.Media.FFmpeg
                 case VideoOutputStream video:
                     if (sourceStream is VideoStreamInfo videoSource)
                     {
-                        AppendVideoStream(builder, videoSource, video, streamSpecifier, subtitlesIndex);
+                        AppendVideoStream(builder, config, videoSource, video, streamSpecifier, subtitlesIndex);
                     }
                     else
                     {
@@ -288,7 +290,7 @@ namespace Tricycle.Media.FFmpeg
                             $"{nameof(sourceStream)} and {nameof(outputStream)} types do not match.",
                             nameof(outputStream));
                     }
-                    AppendAudioStream(builder, audio, streamSpecifier);
+                    AppendAudioStream(builder, config, audio, streamSpecifier);
                     break;
                 default:
                     AppendPassthruStream(builder, streamSpecifier);
@@ -310,9 +312,12 @@ namespace Tricycle.Media.FFmpeg
 
         #region Audio
 
-        void AppendAudioStream(StringBuilder builder, AudioOutputStream outputStream, string streamSpecifier)
+        void AppendAudioStream(StringBuilder builder,
+                               FFmpegConfig config,
+                               AudioOutputStream outputStream,
+                               string streamSpecifier)
         {
-            AppendAudioFormat(builder, streamSpecifier, outputStream.Format);
+            AppendAudioFormat(builder, config, streamSpecifier, outputStream.Format);
 
             if (outputStream.Mixdown.HasValue)
             {
@@ -327,9 +332,9 @@ namespace Tricycle.Media.FFmpeg
             }
         }
 
-        void AppendAudioFormat(StringBuilder builder, string streamSpecifier, AudioFormat format)
+        void AppendAudioFormat(StringBuilder builder, FFmpegConfig config, string streamSpecifier, AudioFormat format)
         {
-            AudioCodec codec = GetAudioCodec(format);
+            AudioCodec codec = GetAudioCodec(config, format);
 
             builder.Append($"-c:{streamSpecifier} {codec.Name}");
 
@@ -350,9 +355,9 @@ namespace Tricycle.Media.FFmpeg
             builder.Append($"-b:{streamSpecifier} {quality}k");
         }
 
-        AudioCodec GetAudioCodec(AudioFormat format)
+        AudioCodec GetAudioCodec(FFmpegConfig config, AudioFormat format)
         {
-            if ((_config.Audio?.Codecs != null) && _config.Audio.Codecs.TryGetValue(format, out var codec))
+            if ((config.Audio?.Codecs != null) && config.Audio.Codecs.TryGetValue(format, out var codec))
             {
                 return codec;
             }
@@ -375,12 +380,13 @@ namespace Tricycle.Media.FFmpeg
         #region Video
 
         void AppendVideoStream(StringBuilder builder,
+                               FFmpegConfig config,
                                VideoStreamInfo sourceStream,
                                VideoOutputStream outputStream,
                                string streamSpecifier,
                                int? subtitlesIndex)
         {
-            AppendVideoFormat(builder, streamSpecifier, outputStream.Format);
+            AppendVideoFormat(builder, config, streamSpecifier, outputStream.Format);
             AppendDelimiter(builder);
             AppendVideoQuality(builder, outputStream.Quality);
 
@@ -459,7 +465,7 @@ namespace Tricycle.Media.FFmpeg
                     AppendListDelimiter(filterBuilder);
                 }
 
-                AppendVideoDenoiseFilter(filterBuilder);
+                AppendVideoDenoiseFilter(filterBuilder, config);
             }
 
             if (outputStream.Tonemap)
@@ -469,7 +475,7 @@ namespace Tricycle.Media.FFmpeg
                     AppendListDelimiter(filterBuilder);
                 }
 
-                AppendVideoTonemapFilter(filterBuilder);
+                AppendVideoTonemapFilter(filterBuilder, config);
             }
 
             if (filterBuilder.Length > 0)
@@ -488,18 +494,18 @@ namespace Tricycle.Media.FFmpeg
             }
         }
 
-        void AppendVideoFormat(StringBuilder builder, string streamSpecifier, VideoFormat format)
+        void AppendVideoFormat(StringBuilder builder, FFmpegConfig config, string streamSpecifier, VideoFormat format)
         {
             string codecName = GetVideoCodecName(format);
 
             builder.Append($"-c:{streamSpecifier} {codecName}");
 
-            VideoCodec config = GetVideoCodecConfig(format);
+            VideoCodec codec = GetVideoCodec(config, format);
 
-            if (!string.IsNullOrWhiteSpace(config?.Preset))
+            if (!string.IsNullOrWhiteSpace(codec?.Preset))
             {
                 AppendDelimiter(builder);
-                builder.Append($"-preset {config.Preset}");
+                builder.Append($"-preset {codec.Preset}");
             }
         }
 
@@ -575,9 +581,9 @@ namespace Tricycle.Media.FFmpeg
             builder.Append("1");
         }
 
-        void AppendVideoDenoiseFilter(StringBuilder builder)
+        void AppendVideoDenoiseFilter(StringBuilder builder, FFmpegConfig config)
         {
-            string options = _config.Video?.DenoiseOptions;
+            string options = config.Video?.DenoiseOptions;
 
             if (string.IsNullOrWhiteSpace(options))
             {
@@ -587,9 +593,9 @@ namespace Tricycle.Media.FFmpeg
             builder.Append(options);
         }
 
-        void AppendVideoTonemapFilter(StringBuilder builder)
+        void AppendVideoTonemapFilter(StringBuilder builder, FFmpegConfig config)
         {
-            string options = _config.Video?.TonemapOptions;
+            string options = config.Video?.TonemapOptions;
 
             if (string.IsNullOrWhiteSpace(options))
             {
@@ -632,9 +638,9 @@ namespace Tricycle.Media.FFmpeg
             }
         }
 
-        VideoCodec GetVideoCodecConfig(VideoFormat format)
+        VideoCodec GetVideoCodec(FFmpegConfig config, VideoFormat format)
         {
-            if ((_config.Video?.Codecs != null) && _config.Video.Codecs.TryGetValue(format, out var codec))
+            if ((config.Video?.Codecs != null) && config.Video.Codecs.TryGetValue(format, out var codec))
             {
                 return codec;
             }

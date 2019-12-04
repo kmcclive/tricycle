@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Tricycle.UI.Controls.GeneralConfigSection">
+    <Grid ColumnSpacing="10" RowSpacing="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="75" />
+        </Grid.ColumnDefinitions>
+        <Label Text="Show alert on completion" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+        <Switch IsToggled="{Binding AlertOnCompletion}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+        <Label Text="Delete incomplete files" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+        <Switch IsToggled="{Binding DeleteIncompleteFiles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
+        <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+        <Switch IsToggled="{Binding PreferForcedSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="2" />
+        <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+        <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="3" />
+        <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+        <Entry Text="{Binding MkvFileExtension}" Grid.Column="1" Grid.Row="4" />
+    </Grid>
+</ContentView>

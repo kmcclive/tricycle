@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+
 namespace Tricycle.UI
 {
     public class MockDevice : IDevice
@@ -18,14 +20,22 @@ namespace Tricycle.UI
             }
         }
 
+        private MockDevice()
+        {
+
+        }
+
         public void BeginInvokeOnMainThread(Action action)
         {
             action?.Invoke();
         }
 
-        private MockDevice()
+        public void StartTimer(TimeSpan interval, Func<bool> callback)
         {
-
+            do
+            {
+                Thread.Sleep(interval);
+            } while (callback());
         }
     }
 }

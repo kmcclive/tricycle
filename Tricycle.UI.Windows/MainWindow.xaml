@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpf="clr-namespace:Xamarin.Forms.Platform.WPF;assembly=Xamarin.Forms.Platform.WPF"
-        xmlns:local="clr-namespace:Tricycle.UI.Windows"
         mc:Ignorable="d"
-        Title="Tricycle" Height="730" Width="1040" Icon="Assets/Images/tricycle.ico">
+        Title="Tricycle" Height="750" Width="1040" Icon="Assets/Images/tricycle.ico">
 </wpf:FormsApplicationPage>

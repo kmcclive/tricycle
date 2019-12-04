@@ -1,18 +1,56 @@
 ﻿using System;
 using Tricycle.UI.Models;
+using Xamarin.Forms;
 
 namespace Tricycle.UI
 {
     public class AppManager : IAppManager
     {
+        int _modalCount;
+
+        public bool IsBusy { get; private set; }
+        public bool IsQuitConfirmed { get; private set; }
+        public bool IsModalOpen { get => _modalCount > 0; }
+
         public event Action Ready;
         public event Action Busy;
         public event Action<string> FileOpened;
-        public event Action<CancellationArgs> Quitting;
+        public event Action Quitting;
+        public event Action QuitConfirmed;
+        public event Action<Page> ModalOpened;
+        public event Action ModalClosed;
 
-        public void RaiseReady() => Ready?.Invoke();
-        public void RaiseBusy() => Busy?.Invoke();
+        public void RaiseReady()
+        {
+            IsBusy = false;
+            Ready?.Invoke();
+        }
+
+        public void RaiseBusy()
+        {
+            IsBusy = true;
+            Busy?.Invoke();
+        }
+
         public void RaiseFileOpened(string fileName) => FileOpened?.Invoke(fileName);
-        public void RaiseQuitting(CancellationArgs args) => Quitting?.Invoke(args);
+        public void RaiseQuitting() => Quitting?.Invoke();
+
+        public void RaiseQuitConfirmed()
+        {
+            IsQuitConfirmed = true;
+            QuitConfirmed?.Invoke();
+        }
+
+        public void RaiseModalOpened(Page page)
+        {
+            _modalCount++;
+            ModalOpened?.Invoke(page);
+        }
+
+        public void RaiseModalClosed()
+        {
+            _modalCount--;
+            ModalClosed?.Invoke();
+        }
     }
 }

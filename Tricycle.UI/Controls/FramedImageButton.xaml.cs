@@ -81,7 +81,7 @@ namespace Tricycle.UI.Controls
             UpdateCurtainVisibility();
         }
 
-        void OnFrameTapped(object sender, EventArgs args)
+        void OnTapped(object sender, EventArgs args)
         {
             if (curtain.IsVisible)
             {
@@ -95,11 +95,17 @@ namespace Tricycle.UI.Controls
             Device.StartTimer(TimeSpan.FromMilliseconds(100), () =>
             {
                 frame.BackgroundColor = oldColor;
+
+                //This prevents the UI from getting hung up
+                Device.StartTimer(TimeSpan.FromTicks(1), () =>
+                {
+                    Clicked?.Invoke(this, args);
+                    Command?.Execute(null);
+                    return false;
+                });
+
                 return false;
             });
-
-            Clicked?.Invoke(this, args);
-            Command?.Execute(null);
         }
 
         void UpdateCurtainVisibility()

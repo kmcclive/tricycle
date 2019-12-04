@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using AppKit;
 using Foundation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -17,7 +13,7 @@ using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Models;
+using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -32,7 +28,7 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
-        volatile bool _isBusy = false;
+        ConfigPage _configPage;
 
         public AppDelegate()
         {
@@ -42,21 +38,17 @@ namespace Tricycle.UI.macOS
 
             _appManager = new AppManager();
 
-            _appManager.Busy += () =>
-            {
-                _isBusy = true;
-            };
-            _appManager.Ready += () =>
-            {
-                _isBusy = false;
-            };
             _appManager.FileOpened += fileName =>
             {
                 var url = new NSUrl($"file://{Uri.EscapeUriString(fileName)}");
 
                 NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
             };
-            
+            _appManager.QuitConfirmed += () =>
+            {
+                NSApplication.SharedApplication.Terminate(this);
+            };
+
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
                 Title = "Tricycle"
@@ -154,10 +146,23 @@ namespace Tricycle.UI.macOS
             switch(item.Title)
             {
                 case "Open…":
-                    return !_isBusy;
+                    return !_appManager.IsBusy;
+                case "Preferences…":
+                    return !_appManager.IsBusy;
                 default:
                     return true;
             }
+        }
+
+        [Action("openPreferences:")]
+        public void OpenPreferences(NSObject sender)
+        {
+            if (_configPage == null)
+            {
+                _configPage = new ConfigPage();
+            }
+
+            _appManager.RaiseModalOpened(_configPage);
         }
 
         [Export("openDocument:")]
@@ -183,11 +188,12 @@ namespace Tricycle.UI.macOS
 
         bool ShouldClose()
         {
-            var cancellation = new CancellationArgs();
+            if (!_appManager.IsQuitConfirmed)
+            {
+                _appManager.RaiseQuitting();
+            }
 
-            _appManager.RaiseQuitting(cancellation);
-
-            return !cancellation.Cancel;
+            return _appManager.IsQuitConfirmed;
         }
     }
 }

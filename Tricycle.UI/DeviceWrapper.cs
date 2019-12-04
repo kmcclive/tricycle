@@ -23,14 +23,19 @@ namespace Tricycle.UI
             }
         }
 
+        private DeviceWrapper()
+        {
+
+        }
+
         public void BeginInvokeOnMainThread(Action action)
         {
             Device.BeginInvokeOnMainThread(action);
         }
 
-        private DeviceWrapper()
+        public void StartTimer(TimeSpan interval, Func<bool> callback)
         {
-
+            Device.StartTimer(interval, callback);
         }
     }
 }

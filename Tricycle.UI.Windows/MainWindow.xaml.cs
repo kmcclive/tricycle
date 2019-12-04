@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
 using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
@@ -15,10 +17,17 @@ using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.UI.Models;
+using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
 using Xamarin.Forms.Platform.WPF.Controls;
+using Container = StructureMap.Container;
+using ControlTemplate = System.Windows.Controls.ControlTemplate;
+using Menu = System.Windows.Controls.Menu;
+using MenuItem = System.Windows.Controls.MenuItem;
+using Thickness = System.Windows.Thickness;
 
 namespace Tricycle.UI.Windows
 {
@@ -27,11 +36,21 @@ namespace Tricycle.UI.Windows
     /// </summary>
     public partial class MainWindow : FormsApplicationPage
     {
+        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.WhiteSmoke);
+        static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
+
         IAppManager _appManager;
+        MenuItem _openFileItem;
+        MenuItem _optionsItem;
+        ConfigPage _configPage;
 
         public MainWindow()
         {
             _appManager = new AppManager();
+
+            _appManager.Busy += new Action(OnBusyChange);
+            _appManager.Ready += new Action(OnBusyChange);
+            _appManager.QuitConfirmed += new Action(Close);
 
             InitializeAppState();
             InitializeComponent();
@@ -39,16 +58,84 @@ namespace Tricycle.UI.Windows
             LoadApplication(new UI.App());
         }
 
-        protected override void OnActivated(EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            base.OnActivated(e);
-
-            var topBar = Template.FindName("PART_TopAppBar", this) as FormsAppBar;
-
-            if (topBar != null)
+            if (!_appManager.IsQuitConfirmed)
             {
-                topBar.MaxHeight = 0;
+                e.Cancel = true;
+
+                _appManager.RaiseQuitting();
             }
+
+            base.OnClosing(e);
+        }
+
+        protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
+        {
+            base.OnTemplateChanged(oldTemplate, newTemplate);
+
+            Dispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(CreateMenu));
+        }
+
+        void CreateMenu()
+        {
+            var contentContainer = Template.FindName("PART_ContentControl", this) as FormsContentControl;
+
+            if (contentContainer == null)
+            {
+                return;
+            }
+
+            var panel = new StackPanel();
+            var menu = new Menu()
+            {
+                IsMainMenu = true,
+                Background = MENU_BACKGROUND_BRUSH,
+                BorderThickness = MENU_BORDER_THICKNESS,
+                Padding = new System.Windows.Thickness(10, 5, 10, 5),
+                FontSize = 14,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            var content = contentContainer.Content as UIElement;
+
+            contentContainer.Content = panel;
+
+            panel.Children.Add(menu);
+            panel.Children.Add(content);
+
+            var fileItem = CreateMenuItem("_File");
+
+            menu.Items.Add(fileItem);
+
+            _openFileItem = CreateMenuItem("_Open…");
+
+            _openFileItem.Click += OnOpenFileClick;
+            fileItem.Items.Add(_openFileItem);
+
+            var exitItem = CreateMenuItem("E_xit");
+
+            exitItem.Click += (sender, args) => Close();
+            fileItem.Items.Add(exitItem);
+
+            var toolsItem = CreateMenuItem("_Tools");
+
+            menu.Items.Add(toolsItem);
+
+            _optionsItem = CreateMenuItem("_Options…");
+
+            _optionsItem.Click += OnOptionsClick;
+            toolsItem.Items.Add(_optionsItem);
+        }
+
+        MenuItem CreateMenuItem(string header)
+        {
+            return new MenuItem()
+            {
+                Background = MENU_BACKGROUND_BRUSH,
+                BorderThickness = MENU_BORDER_THICKNESS,
+                Header = header
+            };
         }
 
         void InitializeAppState()
@@ -102,6 +189,33 @@ namespace Tricycle.UI.Windows
             });
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
+        }
+
+        void OnBusyChange()
+        {
+            _openFileItem.IsEnabled = !_appManager.IsBusy;
+            _optionsItem.IsEnabled = !_appManager.IsBusy;
+        }
+
+        void OnOpenFileClick(object sender, RoutedEventArgs e)
+        {
+            var browser = new FileBrowser();
+            var result = browser.BrowseToOpen().GetAwaiter().GetResult();
+
+            if (result.Confirmed)
+            {
+                _appManager.RaiseFileOpened(result.FileName);
+            }
+        }
+
+        void OnOptionsClick(object sender, RoutedEventArgs e)
+        {
+            if (_configPage == null)
+            {
+                _configPage = new ConfigPage();
+            }
+
+            _appManager.RaiseModalOpened(_configPage);
         }
     }
 }

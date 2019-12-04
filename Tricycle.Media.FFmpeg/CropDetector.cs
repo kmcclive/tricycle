@@ -22,7 +22,7 @@ namespace Tricycle.Media.FFmpeg
         readonly string _ffmpegFileName;
         readonly IProcessRunner _processRunner;
         readonly IProcessUtility _processUtility;
-        readonly FFmpegConfig _config;
+        readonly IConfigManager<FFmpegConfig> _configManager;
         readonly TimeSpan _timeout;
 
         public CropDetector(string ffmpegFileName,
@@ -43,7 +43,7 @@ namespace Tricycle.Media.FFmpeg
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;
             _processUtility = processUtility;
-            _config = configManager.Config;
+            _configManager = configManager;
             _timeout = timeout;
         }
 
@@ -65,18 +65,19 @@ namespace Tricycle.Media.FFmpeg
 			CropParameters result = null;
             IEnumerable<double> positions = GetSeekSeconds(mediaInfo.Duration);
             var escapedFileName = _processUtility.EscapeFilePath(mediaInfo.FileName);
+            FFmpegConfig config = _configManager.Config;
+            string options = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(config?.Video?.CropDetectOptions))
+            {
+                options = "=" + config.Video.CropDetectOptions;
+            }
+
             var lockTarget = new object();
             int? minX = null, minY = null, maxWidth = null, maxHeight = null;
 
             var tasks = positions.Select(async seconds =>
             {
-                string options = string.Empty;
-
-                if (!string.IsNullOrWhiteSpace(_config.Video?.CropDetectOptions))
-                {
-                    options = "=" + _config.Video.CropDetectOptions;
-                }
-
                 var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect{options} -f null -";
 
                 try
@@ -90,7 +91,7 @@ namespace Tricycle.Media.FFmpeg
 
                         if (crop != null)
                         {
-                            lock (crop)
+                            lock (lockTarget)
                             {
                                 minX = minX.HasValue ? Math.Min(crop.Start.X, minX.Value) : crop.Start.X;
                                 minY = minY.HasValue ? Math.Min(crop.Start.Y, minY.Value) : crop.Start.Y;

@@ -47,7 +47,7 @@ namespace Tricycle.UI.ViewModels
         readonly IFileSystem _fileSystem;
         readonly IDevice _device;
         readonly IAppManager _appManager;
-        readonly TricycleConfig _tricycleConfig;
+        readonly IConfigManager<TricycleConfig> _configManager;
         readonly string _defaultDestinationDirectory;
 
         bool _isSourceInfoVisible;
@@ -94,6 +94,7 @@ namespace Tricycle.UI.ViewModels
         string _rateText;
         string _toggleStartImage = PLAY_IMAGE;
 
+        TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
         string _defaultExtension = DEFAULT_EXTENSION;
@@ -118,7 +119,7 @@ namespace Tricycle.UI.ViewModels
                              IFileSystem fileSystem,
                              IDevice device,
                              IAppManager appManager,
-                             IConfigManager<TricycleConfig> tricycleConfigManager,
+                             IConfigManager<TricycleConfig> configManager,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
@@ -129,7 +130,8 @@ namespace Tricycle.UI.ViewModels
             _fileSystem = fileSystem;
             _device = device;
             _appManager = appManager;
-            _tricycleConfig = tricycleConfigManager.Config;
+            _configManager = configManager;
+            _tricycleConfig = configManager.Config;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
@@ -137,7 +139,9 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
-            _appManager.Quitting += OnAppQuitting;
+            _appManager.Quitting += async () => await OnAppQuitting();
+
+            _configManager.ConfigChanged += async config => await OnConfigChanged(config);
 
             SourceSelectCommand = new Command(async () => await SelectSource(),
                                               () => _isSourceSelectionEnabled);
@@ -607,7 +611,7 @@ namespace Tricycle.UI.ViewModels
             foreach (var codec in codecs)
             {
                 AudioFormat format = codec.Key;
-                string name = GetAudioFormatName(format);
+                string name = AudioUtility.GetFormatName(format);
 
                 if (name == null)
                 {
@@ -625,36 +629,14 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        string GetAudioFormatName(AudioFormat format)
-        {
-            switch (format)
-            {
-                case AudioFormat.Aac:
-                    return "AAC";
-                case AudioFormat.Ac3:
-                    return "Dolby Digital";
-                case AudioFormat.HeAac:
-                    return "HE-AAC";
-                default:
-                    return null;
-            }
-        }
-
         IList<ListItem> GetAudioMixdownOptions(IList<AudioPreset> presets)
         {
             return presets?.Select(p =>
             {
-                switch (p.Mixdown)
-                {
-                    case AudioMixdown.Mono:
-                        return new ListItem("Mono", p.Mixdown);
-                    case AudioMixdown.Stereo:
-                        return new ListItem("Stereo", p.Mixdown);
-                    case AudioMixdown.Surround5dot1:
-                        return new ListItem("Surround", p.Mixdown);
-                    default:
-                        return new ListItem(string.Empty);
-                }
+                string name = AudioUtility.GetMixdownName(p.Mixdown);
+
+                return string.IsNullOrEmpty(name) ? new ListItem(string.Empty) : new ListItem(name, p.Mixdown);
+
             }).OrderByDescending(p => p.Name).ToArray();
         }
 
@@ -691,7 +673,7 @@ namespace Tricycle.UI.ViewModels
             {
                 _cropParameters = await _cropDetector.Detect(_sourceInfo);
 
-                ProcessConfig(_tricycleConfig); //this is done here to improve testability
+                ProcessConfig(_tricycleConfig);
                 IsContainerFormatEnabled = true;
                 DestinationName = GetDefaultDestinationName(_sourceInfo, _defaultExtension);
                 isValid = true;
@@ -997,7 +979,7 @@ namespace Tricycle.UI.ViewModels
 
             if (knownFormat.HasValue)
             {
-                format = GetAudioFormatName(knownFormat.Value);
+                format = AudioUtility.GetFormatName(knownFormat.Value);
             }
             else if (Regex.IsMatch(audioStream.FormatName, @"truehd", RegexOptions.IgnoreCase))
             {
@@ -1552,9 +1534,27 @@ namespace Tricycle.UI.ViewModels
             });
         }
 
-        private void OnAppQuitting(CancellationArgs args)
+        async Task OnAppQuitting()
         {
-            args.Cancel = _isRunning && !ConfirmStopTranscode().GetAwaiter().GetResult();
+            if (!_appManager.IsModalOpen && (!_isRunning || await ConfirmStopTranscode()))
+            {
+                // This raises the event outside of the current closing call stack
+                _device.StartTimer(TimeSpan.FromTicks(1), () =>
+                {
+                    _appManager.RaiseQuitConfirmed();
+                    return false;
+                });
+            }
+        }
+
+        async Task OnConfigChanged(TricycleConfig config)
+        {
+            _tricycleConfig = config;
+
+            if ((_sourceInfo != null) && !_isRunning)
+            {
+                await OpenSource(_sourceInfo.FileName);
+            }
         }
 
         #endregion

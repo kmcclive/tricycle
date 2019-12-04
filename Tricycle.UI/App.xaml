@@ -21,7 +21,7 @@
         <OnPlatform x:TypeArguments="Color" x:Key="PanelBackgroundColor">
             <On Platform="macOS">
                 <Color x:FactoryMethod="FromHex">
-                    <x:Arguments><x:String>#e5e5e5</x:String></x:Arguments>
+                    <x:Arguments><x:String>#e8e8e8</x:String></x:Arguments>
                 </Color>
             </On>
             <On Platform="WPF">
@@ -61,5 +61,6 @@
                CanCascade="True">
             <Setter Property="FontSize" Value="Micro" />
         </Style>
+        <Thickness x:Key="PanelPadding">20, 0, 20, 20</Thickness>
     </Application.Resources>
 </Application>

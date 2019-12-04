@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Tricycle.UI.Controls"
+             x:Class="Tricycle.UI.Controls.VideoConfigSection">
+    <ContentView.Resources>
+        <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
+    </ContentView.Resources>
+    <StackLayout>
+        <Grid>
+            <Grid.Margin>
+                <OnPlatform x:TypeArguments="Thickness">
+                    <On Platform="macOS" Value="7" />
+                    <On Platform="WPF" Value="0" />
+                </OnPlatform>
+            </Grid.Margin>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+            <Label Text="Require that all sizes be divisble by" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+            <local:NumberEntry Text="{Binding SizeDivisor}" Grid.Column="1" Grid.Row="0" />
+        </Grid>
+        <local:FramedPanel Title="Quality">
+            <Grid Margin="20, -5, 20, 15" ColumnSpacing="20" RowSpacing="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Text="Good" HorizontalTextAlignment="Center" Grid.Row="0" Grid.Column="1" />
+                <Label Text="Best" HorizontalTextAlignment="Center" Grid.Row="0" Grid.Column="2" />
+                <Label Text="Steps" HorizontalTextAlignment="Center" Grid.Row="0" Grid.Column="3" />
+                <Label Text="AVC" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" />
+                <local:NumberEntry Text="{Binding AvcQualityScale.Min}"
+                                   AllowDecimals="True"
+                                   Grid.Row="1"
+                                   Grid.Column="1" />
+                <local:NumberEntry Text="{Binding AvcQualityScale.Max}"
+                                   AllowDecimals="True"
+                                   Grid.Row="1"
+                                   Grid.Column="2" />
+                <local:NumberEntry Text="{Binding AvcQualityScale.StepCount}" Grid.Row="1" Grid.Column="3" />
+                <Label Text="HEVC" VerticalOptions="Center" Grid.Row="2" Grid.Column="0" />
+                <local:NumberEntry Text="{Binding HevcQualityScale.Min}"
+                                   AllowDecimals="True"
+                                   Grid.Row="2"
+                                   Grid.Column="1" />
+                <local:NumberEntry Text="{Binding HevcQualityScale.Max}"
+                                   AllowDecimals="True"
+                                   Grid.Row="2"
+                                   Grid.Column="2" />
+                <local:NumberEntry Text="{Binding HevcQualityScale.StepCount}" Grid.Row="2" Grid.Column="3" />
+            </Grid>
+        </local:FramedPanel>
+        <local:FramedPanel Title="Size Presets">
+            <StackLayout>
+                <Grid Margin="0, -5, 0, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="60" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Name" HorizontalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                    <Label Text="Width" HorizontalOptions="Center" Grid.Column="1" Grid.Row="0" />
+                    <Label Text="Height" HorizontalOptions="Center" Grid.Column="3" Grid.Row="0" />
+                </Grid>
+                <ListView x:Name="vwSizePresets"
+                          BackgroundColor="{StaticResource PanelBackgroundColor}"
+                          HasUnevenRows="True"
+                          HorizontalOptions="FillAndExpand"
+                          Margin="15, -5, 5, 10"
+                          SelectionMode="None"
+                          ItemsSource="{Binding SizePresets}">
+                    <ListView.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="macOS" Value="100" />
+                            <On Platform="WPF" Value="135" />
+                        </OnPlatform>
+                    </ListView.HeightRequest>
+                    <ListView.Header>
+                        <StackLayout />
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid Padding="{StaticResource PresetGridPadding}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Entry Text="{Binding Name}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Width}"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="1"
+                                                       Grid.Row="0" />
+                                    <Label Text="x" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Height}"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="3"
+                                                       Grid.Row="0" />
+                                    <local:PlatformButton Source="Images/trash.png"
+                                                          Command="{Binding RemoveCommand}"
+                                                          Grid.Column="4"
+                                                          Grid.Row="0" />
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </local:FramedPanel>
+        <local:FramedPanel Title="Aspect Ratio Presets">
+            <StackLayout>
+                <Grid Margin="0, -5, 0, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="60" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Name" HorizontalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                    <Label Text="Width" HorizontalOptions="Center" Grid.Column="1" Grid.Row="0" />
+                    <Label Text="Height" HorizontalOptions="Center" Grid.Column="3" Grid.Row="0" />
+                </Grid>
+                <ListView x:Name="vwAspectRatioPresets"
+                          BackgroundColor="{StaticResource PanelBackgroundColor}"
+                          HasUnevenRows="True"
+                          HorizontalOptions="FillAndExpand"
+                          Margin="15, 0, 5, 10"
+                          SelectionMode="None"
+                          ItemsSource="{Binding AspectRatioPresets}">
+                    <ListView.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="macOS" Value="65" />
+                            <On Platform="WPF" Value="90" />
+                        </OnPlatform>
+                    </ListView.HeightRequest>
+                    <ListView.Header>
+                        <StackLayout />
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid Padding="{StaticResource PresetGridPadding}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Entry Text="{Binding Name}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Width}"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="1"
+                                                       Grid.Row="0" />
+                                    <Label Text=":" VerticalOptions="Center" Grid.Column="2" Grid.Row="0" />
+                                    <local:NumberEntry Text="{Binding Height}"
+                                                       VerticalOptions="Center"
+                                                       Grid.Column="3"
+                                                       Grid.Row="0" />
+                                    <local:PlatformButton Source="Images/trash.png"
+                                                          Command="{Binding RemoveCommand}"
+                                                          Grid.Column="4"
+                                                          Grid.Row="0" />
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </local:FramedPanel>
+    </StackLayout>
+</ContentView>
