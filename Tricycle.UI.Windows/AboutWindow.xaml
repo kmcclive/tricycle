@@ -1,0 +1,27 @@
+﻿<Window x:Class="Tricycle.UI.Windows.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Tricycle.UI.Windows"
+        mc:Ignorable="d"
+        Title="About Tricycle"
+        Height="240"
+        Width="480"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Icon="Assets/Images/tricycle.ico"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <StackPanel Orientation="Horizontal" Margin="20">
+        <Image Source="Assets/Images/tricycle-large.png" />
+        <StackPanel Margin="20, 0, 0, 0">
+            <Label FontSize="18">Tricycle</Label>
+            <Label Content="{Binding Version}" />
+            <Label>Copyright © 2019 Tricycle Team</Label>
+            <Label>GPLv2 License</Label>
+            <Label Width="240">
+                <TextBlock TextWrapping="Wrap" Text="This software uses executables from the FFmpeg project under the LGPLv2.1."/>
+            </Label>
+        </StackPanel>
+    </StackPanel>
+</Window>
