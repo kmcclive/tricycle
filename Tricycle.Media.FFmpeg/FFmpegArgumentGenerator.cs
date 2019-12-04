@@ -110,7 +110,7 @@ namespace Tricycle.Media.FFmpeg
             AppendFormat(argBuilder, job.Format);
             AppendDelimiter(argBuilder);
 
-            // This is a workaround for subtitle overlays with MKV reportsing an incorrect duration
+            // This is a workaround for subtitle overlays with MKV reporting an incorrect duration
             if (job.Format == ContainerFormat.Mkv && subtitlesIndex.HasValue)
             {
                 AppendDuration(argBuilder, job.SourceInfo.Duration);
