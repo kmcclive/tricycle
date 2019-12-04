@@ -48,9 +48,9 @@ namespace Tricycle.UI.Windows
         {
             _appManager = new AppManager();
 
-            _appManager.Busy += new Action(OnBusyChange);
-            _appManager.Ready += new Action(OnBusyChange);
-            _appManager.QuitConfirmed += new Action(Close);
+            _appManager.Busy += OnBusyChange;
+            _appManager.Ready += OnBusyChange;
+            _appManager.QuitConfirmed += Close;
 
             InitializeAppState();
             InitializeComponent();
@@ -126,6 +126,15 @@ namespace Tricycle.UI.Windows
 
             _optionsItem.Click += OnOptionsClick;
             toolsItem.Items.Add(_optionsItem);
+
+            var helpItem = CreateMenuItem("_Help");
+
+            menu.Items.Add(helpItem);
+
+            var aboutItem = CreateMenuItem("_About Tricycle");
+
+            aboutItem.Click += OnAboutClick;
+            helpItem.Items.Add(aboutItem);
         }
 
         MenuItem CreateMenuItem(string header)
@@ -216,6 +225,16 @@ namespace Tricycle.UI.Windows
             }
 
             _appManager.RaiseModalOpened(_configPage);
+        }
+
+        void OnAboutClick(object sender, RoutedEventArgs e)
+        {
+            var window = new AboutWindow()
+            {
+                Owner = this
+            };
+
+            window.ShowDialog();
         }
     }
 }

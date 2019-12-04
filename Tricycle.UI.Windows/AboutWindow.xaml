@@ -10,7 +10,6 @@
         Width="480"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Icon="Assets/Images/tricycle.ico"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <StackPanel Orientation="Horizontal" Margin="20">
         <Image Source="Assets/Images/tricycle-large.png" />

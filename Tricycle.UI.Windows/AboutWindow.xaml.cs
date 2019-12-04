@@ -25,6 +25,14 @@ namespace Tricycle.UI.Windows
             InitializeComponent();
         }
 
-        public Version Version { get => Assembly.GetExecutingAssembly().GetName().Version; }
+        public string Version
+        {
+            get
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+
+                return $"{version.Major}.{version.Minor}.{version.Build}";
+            }
+        }
     }
 }
