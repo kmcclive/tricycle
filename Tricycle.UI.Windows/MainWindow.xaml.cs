@@ -40,7 +40,6 @@ namespace Tricycle.UI.Windows
         static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
 
         IAppManager _appManager;
-        volatile bool _quitConfirmed;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         ConfigPage _configPage;
@@ -49,22 +48,9 @@ namespace Tricycle.UI.Windows
         {
             _appManager = new AppManager();
 
-            _appManager.Busy += () =>
-            {
-                _openFileItem.IsEnabled = false;
-                _optionsItem.IsEnabled = false;
-            };
-            _appManager.Ready += () =>
-            {
-                _openFileItem.IsEnabled = true;
-                _optionsItem.IsEnabled = true;
-            };
-            _appManager.QuitConfirmed += () =>
-            {
-                _quitConfirmed = true;
-
-                Close();
-            };
+            _appManager.Busy += new Action(OnBusyChange);
+            _appManager.Ready += new Action(OnBusyChange);
+            _appManager.QuitConfirmed += new Action(Close);
 
             InitializeAppState();
             InitializeComponent();
@@ -74,7 +60,7 @@ namespace Tricycle.UI.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (!_quitConfirmed)
+            if (!_appManager.IsQuitConfirmed)
             {
                 e.Cancel = true;
 
@@ -152,27 +138,6 @@ namespace Tricycle.UI.Windows
             };
         }
 
-        void OnOpenFileClick(object sender, RoutedEventArgs e)
-        {
-            var browser = new FileBrowser();
-            var result = browser.BrowseToOpen().GetAwaiter().GetResult();
-
-            if (result.Confirmed)
-            {
-                _appManager.RaiseFileOpened(result.FileName);
-            }
-        }
-
-        void OnOptionsClick(object sender, RoutedEventArgs e)
-        {
-            if (_configPage == null)
-            {
-                _configPage = new ConfigPage();
-            }
-
-            _appManager.RaiseModalOpened(_configPage);
-        }
-
         void InitializeAppState()
         {
             const string FFMPEG_CONFIG_NAME = "ffmpeg.json";
@@ -224,6 +189,33 @@ namespace Tricycle.UI.Windows
             });
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
+        }
+
+        void OnBusyChange()
+        {
+            _openFileItem.IsEnabled = !_appManager.IsBusy;
+            _optionsItem.IsEnabled = !_appManager.IsBusy;
+        }
+
+        void OnOpenFileClick(object sender, RoutedEventArgs e)
+        {
+            var browser = new FileBrowser();
+            var result = browser.BrowseToOpen().GetAwaiter().GetResult();
+
+            if (result.Confirmed)
+            {
+                _appManager.RaiseFileOpened(result.FileName);
+            }
+        }
+
+        void OnOptionsClick(object sender, RoutedEventArgs e)
+        {
+            if (_configPage == null)
+            {
+                _configPage = new ConfigPage();
+            }
+
+            _appManager.RaiseModalOpened(_configPage);
         }
     }
 }
