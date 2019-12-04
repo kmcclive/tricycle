@@ -31,7 +31,7 @@ namespace Tricycle.UI.Windows
             {
                 var version = Assembly.GetExecutingAssembly().GetName().Version;
 
-                return $"{version.Major}.{version.Minor}.{version.Build}";
+                return $"Version {version.Major}.{version.Minor}.{version.Build}";
             }
         }
 
