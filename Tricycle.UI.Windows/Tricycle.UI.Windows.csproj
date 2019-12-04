@@ -98,6 +98,7 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IconHelper.cs" />
     <Compile Include="Renderers\CustomImageButtonRenderer.cs" />
     <Compile Include="Renderers\CustomPickerRenderer.cs" />
     <Page Include="AboutWindow.xaml">

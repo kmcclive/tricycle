@@ -34,5 +34,12 @@ namespace Tricycle.UI.Windows
                 return $"{version.Major}.{version.Minor}.{version.Build}";
             }
         }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            IconHelper.RemoveIcon(this);
+        }
     }
 }
