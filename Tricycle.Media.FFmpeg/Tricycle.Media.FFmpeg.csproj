@@ -19,5 +19,7 @@
     <Folder Include="Models\" />
     <Folder Include="Models\FFprobe\" />
     <Folder Include="Serialization\" />
+    <Folder Include="Models\Jobs\" />
+    <Folder Include="Serialization\Argument\" />
   </ItemGroup>
 </Project>
