@@ -77,6 +77,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
         string GetOptions(MappedStream stream, string outputSpecifier)
         {
             var optionBuilder = new StringBuilder();
+            var defaultConverter = new ArgumentConverter();
 
             foreach (var property in stream.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -90,11 +91,27 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                         optionBuilder.Append(" ");
                     }
 
-                    optionBuilder.Append($"{argument.Name}:{outputSpecifier} {propValue}");
+                    var converter = GetConverter(property) ?? defaultConverter;
+
+                    optionBuilder.Append(converter.Convert($"{argument.Name}:{outputSpecifier}", propValue));
                 }
             }
 
             return optionBuilder.ToString();
+        }
+
+        IArgumentConverter GetConverter(PropertyInfo property)
+        {
+            IArgumentConverter result = null;
+
+            var converterType = property.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter;
+
+            if (converterType != null)
+            {
+                result = Activator.CreateInstance(converterType) as IArgumentConverter;
+            }
+
+            return result;
         }
     }
 }

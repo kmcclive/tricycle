@@ -10,7 +10,8 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         public StreamInput Input { get; set; }
 
         [Argument("-c")]
-        public string Codec { get; set; }
+        [ArgumentConverter(typeof(CodecConverter))]
+        public Codec Codec { get; set; }
 
         [Argument("-b")]
         public string Bitrate { get; set; }

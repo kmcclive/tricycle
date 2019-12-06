@@ -54,7 +54,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             var stream = new MappedAudioStream()
             {
                 Input = new StreamInput(0, 1),
-                Codec = "aac"
+                Codec = new Codec("aac")
             };
 
             Assert.AreEqual("-map 0:1 -c:a:0 aac", _converter.Convert("-map", new MappedStream[] { stream }));
@@ -90,7 +90,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             var stream = new MappedAudioStream()
             {
                 Input = new StreamInput(0, 1),
-                Codec = "aac",
+                Codec = new Codec("aac"),
                 Bitrate = "160k"
             };
 
@@ -104,15 +104,15 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             {
                 new MappedVideoStream(new StreamInput(0, 0))
                 {
-                    Codec = "libx264"
+                    Codec = new Codec("libx264")
                 },
                 new MappedAudioStream(new StreamInput(0, 1))
                 {
-                    Codec = "aac"
+                    Codec = new Codec("aac")
                 },
                 new MappedAudioStream(new StreamInput(0, 2))
                 {
-                    Codec = "ac3"
+                    Codec = new Codec("ac3")
                 }
             };
 
