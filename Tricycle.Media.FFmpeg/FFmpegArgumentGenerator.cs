@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 

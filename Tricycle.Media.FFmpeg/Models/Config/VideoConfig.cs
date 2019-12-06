@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Tricycle.Models;
 
-namespace Tricycle.Media.FFmpeg.Models
+namespace Tricycle.Media.FFmpeg.Models.Config
 {
     public class VideoConfig
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.ViewModels;

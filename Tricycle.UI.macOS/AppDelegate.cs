@@ -10,7 +10,7 @@ using Tricycle.IO;
 using Tricycle.IO.macOS;
 using Tricycle.Media;
 using Tricycle.Media.FFmpeg;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.Views;

@@ -7,7 +7,7 @@ using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 

@@ -1,4 +1,4 @@
-﻿namespace Tricycle.Media.FFmpeg.Models
+﻿namespace Tricycle.Media.FFmpeg.Models.Config
 {
     public class FFmpegConfig
     {
