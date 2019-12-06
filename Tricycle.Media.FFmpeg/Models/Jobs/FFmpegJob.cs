@@ -10,6 +10,7 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [Argument("-i")]
         public string InputFileName { get; set; }
 
+        [ArgumentPriority(Priority.End)]
         public string OutputFileName { get; set; }
 
         [Argument("-hide_banner")]

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Models.Jobs;
+using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
@@ -14,10 +17,33 @@ namespace Tricycle.Media.FFmpeg
 {
     public class FFmpegArgumentGenerator : IFFmpegArgumentGenerator
     {
+        #region Nested Types
+
+        class ArgumentProperty
+        {
+            public string PropertyName { get; set; }
+            public string ArgumentName { get; set; }
+            public Priority Priority { get; set; }
+            public Type ConverterType { get; set; }
+            public object Value { get; set; }
+        }
+
+        #endregion
+
+        #region Constants
+
+        static readonly IArgumentConverter DEFAULT_CONVERTER = new ArgumentConverter();
+
+        #endregion
+
         #region Fields
 
         readonly IProcessUtility _processUtility;
         readonly IConfigManager<FFmpegConfig> _configManager;
+        readonly IDictionary<Type, IArgumentConverter> _convertersByType = new Dictionary<Type, IArgumentConverter>()
+        {
+            { DEFAULT_CONVERTER.GetType(), DEFAULT_CONVERTER }
+        };
 
         #endregion
 
@@ -33,7 +59,55 @@ namespace Tricycle.Media.FFmpeg
 
         #region Methods
 
-        #region Public
+        #region
+
+        public string GenerateArguments(FFmpegJob job)
+        {
+            if (job == null)
+            {
+                throw new ArgumentNullException(nameof(job));
+            }
+
+            if (string.IsNullOrWhiteSpace(job.InputFileName))
+            {
+                throw new ArgumentException($"{nameof(job)}.{nameof(job.InputFileName)} is null or empty.", nameof(job));
+            }
+
+            IEnumerable<ArgumentProperty> properties =
+                job.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                             .Select(p => new ArgumentProperty()
+                             {
+                                 PropertyName = p.Name,
+                                 ArgumentName = p.GetCustomAttribute<ArgumentAttribute>()?.Name,
+                                 Priority = p.GetCustomAttribute<ArgumentPriorityAttribute>()?.Priority
+                                            ?? Priority.PostInput,
+                                 ConverterType = p.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter,
+                                 Value = p.GetValue(job)
+                             })
+                             .Where(p => p.Value != null)
+                             .OrderBy(p => p.Priority)
+                             .ThenBy(p => string.IsNullOrWhiteSpace(p.ArgumentName));
+
+            var builder = new StringBuilder();
+
+            foreach (var property in properties)
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(" ");
+                }
+
+                IArgumentConverter converter = GetConverter(property.ConverterType);
+                string argument = converter.Convert(property.ArgumentName, property.Value);
+
+                if (!string.IsNullOrWhiteSpace(argument))
+                {
+                    builder.Append(argument);
+                }
+            }
+
+            return builder?.ToString();
+        }
 
         public string GenerateArguments(TranscodeJob job)
         {
@@ -138,6 +212,19 @@ namespace Tricycle.Media.FFmpeg
         #endregion
 
         #region Private
+
+        IArgumentConverter GetConverter(Type type)
+        {
+            IArgumentConverter result = DEFAULT_CONVERTER;
+
+            if (type != null)
+            {
+                result = _convertersByType.GetValueOrDefault(type)
+                         ?? Activator.CreateInstance(type) as IArgumentConverter;
+            }
+
+            return result;
+        }
 
         #region Universal
 

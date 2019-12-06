@@ -4,7 +4,8 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
     public enum Priority
     {
         PreInput,
-        PostInput
+        PostInput,
+        End
     }
 
     [AttributeUsage(AttributeTargets.Property)]

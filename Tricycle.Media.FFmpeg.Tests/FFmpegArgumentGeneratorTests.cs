@@ -5,6 +5,7 @@ using NSubstitute;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
@@ -45,7 +46,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void GenerateArgumentsThrowsForNullArgument()
         {
-            _generator.GenerateArguments(null);
+            _generator.GenerateArguments(default(FFmpegJob));
         }
 
         [TestMethod]
