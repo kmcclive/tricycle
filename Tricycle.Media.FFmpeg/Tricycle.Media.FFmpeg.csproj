@@ -22,5 +22,6 @@
     <Folder Include="Models\Jobs\" />
     <Folder Include="Serialization\Argument\" />
     <Folder Include="Models\Config\" />
+    <Folder Include="Serialization\Json\" />
   </ItemGroup>
 </Project>

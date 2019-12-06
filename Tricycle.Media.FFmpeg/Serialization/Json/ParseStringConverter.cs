@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Tricycle.Media.FFmpeg.Serialization
+namespace Tricycle.Media.FFmpeg.Serialization.Json
 {
     //Adapted from https://app.quicktype.io/
     class ParseStringConverter : JsonConverter
