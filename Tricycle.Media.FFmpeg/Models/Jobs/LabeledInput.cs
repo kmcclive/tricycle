@@ -5,5 +5,15 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
     {
         public string Label { get; set; }
         public string Specifier => Label;
+
+        public LabeledInput()
+        {
+
+        }
+
+        public LabeledInput(string label)
+        {
+            Label = label;
+        }
     }
 }

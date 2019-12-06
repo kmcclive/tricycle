@@ -10,8 +10,15 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         public int? ChannelCount { get; set; }
 
         public MappedAudioStream()
+            : base(StreamType.Audio)
         {
-            StreamType = StreamType.Audio;
+
+        }
+
+        public MappedAudioStream(StreamInput input)
+            : base(StreamType.Audio, input)
+        {
+
         }
     }
 }

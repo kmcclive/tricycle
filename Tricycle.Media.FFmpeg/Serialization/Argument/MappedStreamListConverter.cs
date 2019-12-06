@@ -83,7 +83,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                 var argument = property.GetCustomAttribute<ArgumentAttribute>();
                 var propValue = property.GetValue(stream);
 
-                if ((argument != null) && (property != null))
+                if ((argument != null) && (propValue != null))
                 {
                     if (optionBuilder.Length > 0)
                     {

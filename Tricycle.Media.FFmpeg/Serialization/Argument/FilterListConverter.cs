@@ -53,13 +53,20 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                         optionBuilder.Append(":");
                     }
 
+                    bool hasName = false;
+
                     if (!string.IsNullOrWhiteSpace(option?.Name))
                     {
-                        optionBuilder.Append($"{option.Name}=");
+                        hasName = true;
+                        optionBuilder.Append($"{option.Name}");
                     }
 
                     if (!string.IsNullOrWhiteSpace(option?.Value))
                     {
+                        if (hasName)
+                        {
+                            optionBuilder.Append("=");
+                        }
                         optionBuilder.Append(option.Value);
                     }
                 }
