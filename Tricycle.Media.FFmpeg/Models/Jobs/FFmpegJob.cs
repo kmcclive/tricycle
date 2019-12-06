@@ -8,8 +8,11 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
     public class FFmpegJob
     {
         [Argument("-i")]
+        [ArgumentConverter(typeof(FileNameConverter))]
+        [ArgumentPriority(Priority.Input)]
         public string InputFileName { get; set; }
 
+        [ArgumentConverter(typeof(FileNameConverter))]
         [ArgumentPriority(Priority.End)]
         public string OutputFileName { get; set; }
 

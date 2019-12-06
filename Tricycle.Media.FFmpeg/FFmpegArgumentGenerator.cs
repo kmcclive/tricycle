@@ -106,6 +106,13 @@ namespace Tricycle.Media.FFmpeg
                 }
             }
 
+            if (string.IsNullOrWhiteSpace(job.OutputFileName) && string.IsNullOrWhiteSpace(job.Format))
+            {
+                // Some jobs like crop or interlace detection won't write to a file,
+                // but FFmpeg still requires the output argument
+                builder.Append(" -f null -");
+            }
+
             return builder?.ToString();
         }
 
