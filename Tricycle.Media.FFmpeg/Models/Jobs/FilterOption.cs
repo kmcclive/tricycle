@@ -26,11 +26,11 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
             };
         }
 
-        public static FilterOption FromValue(string value)
+        public static FilterOption FromValue(object value)
         {
             return new FilterOption()
             {
-                Value = value
+                Value = value?.ToString()
             };
         }
     }

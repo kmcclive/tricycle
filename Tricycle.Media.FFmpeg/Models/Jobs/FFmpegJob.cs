@@ -35,9 +35,17 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentConverter(typeof(TimeSpanConverter))]
         public TimeSpan? Duration { get; set; }
 
+        [Argument("-frames:v")]
+        public int? FrameCount { get; set; }
+
         [Argument("-canvas_size")]
         [ArgumentPriority(Priority.PreInput)]
         public Dimensions? CanvasSize { get; set; }
+
+        [Argument("-forced_subs_only")]
+        [ArgumentPriority(Priority.PreInput)]
+        [ArgumentConverter(typeof(BinaryConverter))]
+        public bool? ForcedSubtitlesOnly { get; set; }
 
         [Argument("-f")]
         public string Format { get; set; }
