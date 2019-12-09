@@ -240,6 +240,16 @@ namespace Tricycle.Media.FFmpeg
                 result.Add(GetSampleAspectRatioFilter(1, 1));
             }
 
+            if (outputStream.Denoise)
+            {
+                result.Add(GetDenoiseFilter(config));
+            }
+
+            if (outputStream.Tonemap)
+            {
+                AddTonemapFilters(result, config);
+            }
+
             return result;
         }
 
@@ -311,6 +321,77 @@ namespace Tricycle.Media.FFmpeg
                 {
                     FilterOption.FromValue(width),
                     FilterOption.FromValue(height)
+                }
+            };
+        }
+
+        protected virtual Filter GetDenoiseFilter(FFmpegConfig config)
+        {
+            // TODO: handle custom options
+            return new Filter("hqdn3d")
+            {
+                Options = new FilterOption[]
+                {
+                    FilterOption.FromValue(4),
+                    FilterOption.FromValue(4),
+                    FilterOption.FromValue(3),
+                    FilterOption.FromValue(3)
+                }
+            };
+        }
+
+        protected virtual void AddTonemapFilters(IList<Filter> filters, FFmpegConfig config)
+        {
+            filters.Add(new Filter("zscale")
+            {
+                Options = new FilterOption[]
+                {
+                    new FilterOption("t", "linear"),
+                    new FilterOption("npl", "100")
+                }
+            });
+            filters.Add(new Filter("format")
+            {
+                Options = new FilterOption[]
+                {
+                    FilterOption.FromValue("gbrpf32le")
+                }
+            });
+            filters.Add(new Filter("zscale")
+            {
+                Options = new FilterOption[]
+                {
+                    new FilterOption("p", "bt709")
+                }
+            });
+            filters.Add(GetTonemapFilter(config));
+            filters.Add(new Filter("zscale")
+            {
+                Options = new FilterOption[]
+                {
+                    new FilterOption("t", "bt709"),
+                    new FilterOption("m", "bt709"),
+                    new FilterOption("r", "tv")
+                }
+            });
+            filters.Add(new Filter("format")
+            {
+                Options = new FilterOption[]
+                {
+                    FilterOption.FromValue("yuv420p")
+                }
+            });
+        }
+
+        protected virtual Filter GetTonemapFilter(FFmpegConfig config)
+        {
+            // TODO: handle custom options
+            return new Filter("tonemap")
+            {
+                Options = new FilterOption[]
+                {
+                    FilterOption.FromValue("hable"),
+                    new FilterOption("desat", "0")
                 }
             };
         }
