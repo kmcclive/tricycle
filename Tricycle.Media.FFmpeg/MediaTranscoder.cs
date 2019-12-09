@@ -62,7 +62,7 @@ namespace Tricycle.Media.FFmpeg
                 throw new InvalidOperationException("A job is already running.");
             }
 
-            string arguments = _argumentGenerator.GenerateArguments(job);
+            string arguments = _argumentGenerator.GenerateArguments(null);
             var startInfo = new ProcessStartInfo()
             {
                 CreateNoWindow = true,

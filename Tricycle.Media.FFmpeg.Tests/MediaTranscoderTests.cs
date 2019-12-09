@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
+using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
 
@@ -94,7 +95,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             _transcoder.Start(job);
 
-            _argumentGenerator.Received().GenerateArguments(job);
+            _argumentGenerator.Received().GenerateArguments(null);
         }
 
         [TestMethod]
@@ -111,7 +112,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             string arguments = "transcode arguments";
             ProcessStartInfo startInfo = null;
 
-            _argumentGenerator.GenerateArguments(Arg.Any<TranscodeJob>()).Returns(arguments);
+            _argumentGenerator.GenerateArguments(Arg.Any<FFmpegJob>()).Returns(arguments);
             _process.Start(Arg.Any<ProcessStartInfo>()).Returns(x => {
                 startInfo = x[0] as ProcessStartInfo;
                 return true;

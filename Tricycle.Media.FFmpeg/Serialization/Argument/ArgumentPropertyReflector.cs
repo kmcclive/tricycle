@@ -24,16 +24,15 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 
             return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
                                 .Where(p => p.GetCustomAttribute<ArgumentIgnoreAttribute>() == null)
+                                .OrderBy(p => p.GetCustomAttribute<ArgumentOrderAttribute>()?.Order)
                                 .Select(p => new ArgumentProperty()
                                 {
                                     PropertyName = p.Name,
                                     ArgumentName = p.GetCustomAttribute<ArgumentAttribute>()?.Name,
-                                    Order = p.GetCustomAttribute<ArgumentOrderAttribute>()?.Order,
                                     Converter = GetConverter(p.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter),
                                     Value = p.GetValue(obj)
                                 })
                                 .Where(p => p.Value != null)
-                                .OrderBy(p => p.Order)
                                 .ToList();
         }
 
