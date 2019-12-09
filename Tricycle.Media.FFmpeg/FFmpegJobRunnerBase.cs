@@ -20,13 +20,22 @@ namespace Tricycle.Media.FFmpeg
         }
 
         IConfigManager<FFmpegConfig> _configManager;
+        IFFmpegArgumentGenerator _argumentGenerator;
 
-        public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager)
+        public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager, IFFmpegArgumentGenerator argumentGenerator)
         {
             _configManager = configManager;
+            _argumentGenerator = argumentGenerator;
         }
 
-        protected virtual FFmpegJob Map(TranscodeJob job, JobType jobType)
+        protected virtual string GenerateArguments(TranscodeJob job, JobType jobType)
+        {
+            var ffmpegJob = Map(job, jobType, _configManager.Config);
+
+            return _argumentGenerator.GenerateArguments(ffmpegJob);
+        }
+
+        protected virtual FFmpegJob Map(TranscodeJob job, JobType jobType, FFmpegConfig config)
         {
             if (job == null)
             {
@@ -103,8 +112,6 @@ namespace Tricycle.Media.FFmpeg
 
                 result.CanvasSize = videoSourceStream.Dimensions;
             }
-
-            FFmpegConfig config = _configManager.Config;
 
             result.Streams = new List<MappedStream>()
             {
