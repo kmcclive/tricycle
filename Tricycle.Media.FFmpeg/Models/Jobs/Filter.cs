@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tricycle.Media.FFmpeg.Models.Jobs
 {
-    public class Filter
+    public class Filter : IFilter
     {
         public string Name { get; set; }
         public IList<IInput> Inputs { get; set; }

@@ -12,7 +12,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
         {
             var builder = new StringBuilder();
 
-            if (value is IEnumerable<Filter> filters)
+            if (value is IEnumerable<IFilter> filters)
             {
                 foreach (var filter in filters)
                 {
@@ -21,13 +21,26 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                         builder.Append(filter.ChainToPrevious ? ";" : ",");
                     }
 
-                    AppendFilter(builder, filter);
+                    switch (filter)
+                    {
+                        case CustomFilter customFilter:
+                            AppendCustomFilter(builder, customFilter);
+                            break;
+                        case Filter normalFilter:
+                            AppendFilter(builder, normalFilter);
+                            break;
+                    }
                 }
 
                 return base.Convert(argName, builder.ToString() ?? string.Empty);
             }
 
-            throw new NotSupportedException($"{nameof(value)} must be of type IEnumerable<Filter>.");
+            throw new NotSupportedException($"{nameof(value)} must be of type IEnumerable<IFilter>.");
+        }
+
+        void AppendCustomFilter(StringBuilder builder, CustomFilter filter)
+        {
+            builder.Append(filter.Data);
         }
 
         void AppendFilter(StringBuilder builder, Filter filter)

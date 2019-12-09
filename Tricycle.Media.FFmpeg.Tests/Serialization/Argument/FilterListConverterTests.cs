@@ -28,7 +28,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         {
             var filter = new Filter("tonemap");
 
-            Assert.AreEqual("-filter tonemap", _converter.Convert("-filter", new Filter[] { filter }));
+            Assert.AreEqual("-filter tonemap", _converter.Convert("-filter", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter_complex [0:3][0:0]scale2ref",
-                            _converter.Convert("-filter_complex", new Filter[] { filter }));
+                            _converter.Convert("-filter_complex", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter_complex scale2ref[sub][ref]",
-                            _converter.Convert("-filter_complex", new Filter[] { filter }));
+                            _converter.Convert("-filter_complex", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter tonemap=hable",
-                            _converter.Convert("-filter", new Filter[] { filter }));
+                            _converter.Convert("-filter", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -90,7 +90,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter setsar=1",
-                            _converter.Convert("-filter", new Filter[] { filter }));
+                            _converter.Convert("-filter", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -105,7 +105,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter tonemap=desat=0",
-                            _converter.Convert("-filter", new Filter[] { filter }));
+                            _converter.Convert("-filter", new IFilter[] { filter }));
         }
 
         [TestMethod]
@@ -122,13 +122,13 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
             };
 
             Assert.AreEqual("-filter zscale=t=bt709:m=bt709:r=tv",
-                            _converter.Convert("-filter", new Filter[] { filter }));
+                            _converter.Convert("-filter", new IFilter[] { filter }));
         }
 
         [TestMethod]
         public void ConvertDelimitsFilters()
         {
-            var filters = new Filter[]
+            var filters = new IFilter[]
             {
                 new Filter("scale")
                 {
@@ -155,7 +155,7 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         [TestMethod]
         public void ConvertChainsFilters()
         {
-            var filters = new Filter[]
+            var filters = new IFilter[]
             {
                 new Filter("scale2ref")
                 {
@@ -178,6 +178,15 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
 
             Assert.AreEqual("-filter_complex scale2ref[sub][ref];[ref][sub]overlay",
                             _converter.Convert("-filter_complex", filters));
+        }
+
+        [TestMethod]
+        public void ConvertHandlesCustomFilters()
+        {
+            string argName = "-filter";
+            var filter = new CustomFilter("hqdn3d=4:4:3:3");
+
+            Assert.AreEqual($"{argName} {filter.Data}", _converter.Convert(argName, new IFilter[] { filter }));
         }
     }
 }

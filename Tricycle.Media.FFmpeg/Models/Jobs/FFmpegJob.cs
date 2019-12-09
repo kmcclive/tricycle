@@ -56,6 +56,6 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
 
         [Argument("-filter_complex")]
         [ArgumentConverter(typeof(FilterListConverter))]
-        public IList<Filter> Filters { get; set; }
+        public IList<IFilter> Filters { get; set; }
     }
 }

@@ -200,12 +200,12 @@ namespace Tricycle.Media.FFmpeg
             }
         }
 
-        protected virtual IList<Filter> GetVideoFilters(FFmpegConfig config,
-                                                        VideoStreamInfo sourceStream,
-                                                        VideoOutputStream outputStream,
-                                                        int? subtitlesIndex)
+        protected virtual IList<IFilter> GetVideoFilters(FFmpegConfig config,
+                                                         VideoStreamInfo sourceStream,
+                                                         VideoOutputStream outputStream,
+                                                         int? subtitlesIndex)
         {
-            var result = new List<Filter>();
+            var result = new List<IFilter>();
 
             if (subtitlesIndex.HasValue)
             {
@@ -253,10 +253,10 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
-        protected virtual Filter GetSub2RefFilter(VideoStreamInfo sourceStream,
-                                                  int? subtitlesIndex,
-                                                  string subLabel,
-                                                  string refLabel)
+        protected virtual IFilter GetSub2RefFilter(VideoStreamInfo sourceStream,
+                                                   int? subtitlesIndex,
+                                                   string subLabel,
+                                                   string refLabel)
         {
             return new Filter("scale2ref")
             {
@@ -274,7 +274,7 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual Filter GetOverlayFilter(string bottomLabel, string topLabel)
+        protected virtual IFilter GetOverlayFilter(string bottomLabel, string topLabel)
         {
             return new Filter("overlay")
             {
@@ -287,7 +287,7 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual Filter GetCropFilter(CropParameters parameters)
+        protected virtual IFilter GetCropFilter(CropParameters parameters)
         {
             return new Filter("crop")
             {
@@ -301,7 +301,7 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual Filter GetScaleFilter(Dimensions dimensions)
+        protected virtual IFilter GetScaleFilter(Dimensions dimensions)
         {
             return new Filter("scale")
             {
@@ -313,7 +313,7 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual Filter GetSampleAspectRatioFilter(int width, int height)
+        protected virtual IFilter GetSampleAspectRatioFilter(int width, int height)
         {
             return new Filter("setsar")
             {
@@ -325,9 +325,13 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual Filter GetDenoiseFilter(FFmpegConfig config)
+        protected virtual IFilter GetDenoiseFilter(FFmpegConfig config)
         {
-            // TODO: handle custom options
+            if (!string.IsNullOrWhiteSpace(config.Video?.DenoiseOptions))
+            {
+                return new CustomFilter(config.Video.DenoiseOptions);
+            }
+
             return new Filter("hqdn3d")
             {
                 Options = new FilterOption[]
@@ -340,7 +344,7 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual void AddTonemapFilters(IList<Filter> filters, FFmpegConfig config)
+        protected virtual void AddTonemapFilters(IList<IFilter> filters, FFmpegConfig config)
         {
             filters.Add(new Filter("zscale")
             {
@@ -383,10 +387,16 @@ namespace Tricycle.Media.FFmpeg
             });
         }
 
-        protected virtual Filter GetTonemapFilter(FFmpegConfig config)
+        protected virtual IFilter GetTonemapFilter(FFmpegConfig config)
         {
-            // TODO: handle custom options
-            return new Filter("tonemap")
+            const string NAME = "tonemap";
+
+            if (!string.IsNullOrWhiteSpace(config.Video?.TonemapOptions))
+            {
+                return new CustomFilter($"{NAME}={config.Video?.TonemapOptions}");
+            }
+
+            return new Filter(NAME)
             {
                 Options = new FilterOption[]
                 {
