@@ -3,6 +3,8 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 {
     public class FlagConverter : IArgumentConverter
     {
+        public IArgumentPropertyReflector Reflector { get; set; }
+
         public string Convert(string argName, object value)
         {
             if (value is bool flag)

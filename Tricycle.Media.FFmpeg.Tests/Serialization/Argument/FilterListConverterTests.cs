@@ -64,86 +64,24 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         }
 
         [TestMethod]
-        public void ConvertIncludesOptionName()
-        {
-            var filter = new Filter("tonemap")
-            {
-                Options = new FilterOption[]
-                {
-                    FilterOption.FromName("hable")
-                }
-            };
-
-            Assert.AreEqual("-filter tonemap=hable",
-                            _converter.Convert("-filter", new IFilter[] { filter }));
-        }
-
-        [TestMethod]
-        public void ConvertIncludesOptionValue()
-        {
-            var filter = new Filter("setsar")
-            {
-                Options = new FilterOption[]
-                {
-                    FilterOption.FromValue("1")
-                }
-            };
-
-            Assert.AreEqual("-filter setsar=1",
-                            _converter.Convert("-filter", new IFilter[] { filter }));
-        }
-
-        [TestMethod]
-        public void ConvertIncludesOptionNameAndValue()
-        {
-            var filter = new Filter("tonemap")
-            {
-                Options = new FilterOption[]
-                {
-                    new FilterOption("desat", "0")
-                }
-            };
-
-            Assert.AreEqual("-filter tonemap=desat=0",
-                            _converter.Convert("-filter", new IFilter[] { filter }));
-        }
-
-        [TestMethod]
-        public void ConvertDelimitsOptions()
-        {
-            var filter = new Filter("zscale")
-            {
-                Options = new FilterOption[]
-                {
-                    new FilterOption("t", "bt709"),
-                    new FilterOption("m", "bt709"),
-                    new FilterOption("r", "tv")
-                }
-            };
-
-            Assert.AreEqual("-filter zscale=t=bt709:m=bt709:r=tv",
-                            _converter.Convert("-filter", new IFilter[] { filter }));
-        }
-
-        [TestMethod]
         public void ConvertDelimitsFilters()
         {
             var filters = new IFilter[]
             {
                 new Filter("scale")
                 {
-                    Options = new FilterOption[]
+                    Options = new Option[]
                     {
-                        FilterOption.FromValue("1920"),
-                        FilterOption.FromValue("1080")
+                        Option.FromValue("1920"),
+                        Option.FromValue("1080")
                     }
                 },
                 new Filter("setsar")
                 {
-                    Options = new FilterOption[]
+                    Options = new Option[]
                     {
-                        FilterOption.FromValue("1"),
-                        FilterOption.FromValue("1")
+                        Option.FromValue("1"),
+                        Option.FromValue("1")
                     }
                 },
             };

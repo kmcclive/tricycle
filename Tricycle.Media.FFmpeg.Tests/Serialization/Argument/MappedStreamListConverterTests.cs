@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 
@@ -14,6 +16,70 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         public void Setup()
         {
             _converter = new MappedStreamListConverter();
+            _converter.Reflector = Substitute.For<IArgumentPropertyReflector>();
+
+            var mockConverter = Substitute.For<IArgumentConverter>();
+
+            mockConverter.Convert(Arg.Any<string>(), Arg.Any<object>()).Returns(x => $"{x[0]} {x[1]}");
+
+            _converter.Reflector.Reflect(Arg.Is<object>(x => x is MappedStream)).Returns(x =>
+            {
+                var stream = x[0] as MappedStream;
+                IList<ArgumentProperty> result = new List<ArgumentProperty>();
+
+                if (stream.Codec != null)
+                {
+                    result.Add(new ArgumentProperty()
+                    {
+                        PropertyName = nameof(stream.Codec),
+                        ArgumentName = "-c",
+                        Value = stream.Codec,
+                        Converter = mockConverter
+                    });
+                }
+
+                if (stream.Bitrate != null)
+                {
+                    result.Add(new ArgumentProperty()
+                    {
+                        PropertyName = nameof(stream.Bitrate),
+                        ArgumentName = "-b",
+                        Value = stream.Bitrate,
+                        Converter = mockConverter
+                    });
+                }
+
+                if (stream is MappedAudioStream audioStream && audioStream.ChannelCount.HasValue)
+                {
+                    result.Add(new ArgumentProperty()
+                    {
+                        PropertyName = nameof(audioStream.ChannelCount),
+                        ArgumentName = "-ac",
+                        Value = audioStream.ChannelCount,
+                        Converter = mockConverter
+                    });
+                }
+
+                return result;
+            });
+
+            _converter.Reflector.Reflect(Arg.Is<object>(x => x is Codec)).Returns(x =>
+            {
+                var codec = x[0] as Codec;
+                IList<ArgumentProperty> result = new List<ArgumentProperty>();
+
+                if (codec.Name != null)
+                {
+                    result.Add(new ArgumentProperty()
+                    {
+                        PropertyName = nameof(codec.Name),
+                        Value = codec.Name,
+                        Converter = mockConverter
+                    });
+                }
+
+                return result;
+            });
         }
 
         [TestMethod]

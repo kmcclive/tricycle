@@ -138,15 +138,10 @@ namespace Tricycle.Media.FFmpeg
             VideoFormat format = outputStream.Format;
             VideoCodec codec = config.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
             string codecName = GetVideoCodecName(format);
+            X26xCodec result = format == VideoFormat.Hevc ? new X265Codec() : new X26xCodec();
 
-            var result = new Codec(codecName)
-            {
-                Options = new Dictionary<string, string>()
-                {
-                    { "preset", codec.Preset },
-                    { "crf", outputStream.Quality.ToString("0.##") }
-                }
-            };
+            result.Preset = codec.Preset;
+            result.Crf = outputStream.Quality;
 
             if (outputStream.DynamicRange == DynamicRange.High)
             {
@@ -155,7 +150,12 @@ namespace Tricycle.Media.FFmpeg
                     throw new NotSupportedException($"HDR is not supported with the video format {outputStream.Format}.");
                 }
 
-                var optionBuilder = new StringBuilder("colorprim=bt2020:colormatrix=bt2020nc:transfer=smpte2084");
+                var options = new List<Option>()
+                {
+                    new Option("colorprim", "bt2020"),
+                    new Option("colormatrix", "bt2020nc"),
+                    new Option("transfer", "smpte2084")
+                };
 
                 if (outputStream.CopyHdrMetadata)
                 {
@@ -170,18 +170,18 @@ namespace Tricycle.Media.FFmpeg
                                                   properties.Luminance.Max,
                                                   properties.Luminance.Min);
 
-                        optionBuilder.Append($":master-display={value}");
+                        options.Add(new Option("master-display", value));
                     }
 
                     if (sourceStream.LightLevelProperties != null)
                     {
                         var properties = sourceStream.LightLevelProperties;
 
-                        optionBuilder.Append($":max-cli=\"{properties.MaxCll},{properties.MaxFall}\"");
+                        options.Add(new Option("max-cli", $"\"{properties.MaxCll},{properties.MaxFall}\""));
                     }
                 }
 
-                result.Options["x265-params"] = optionBuilder.ToString();
+                ((X265Codec)result).Options = options;
             }
 
             return result;
@@ -291,12 +291,12 @@ namespace Tricycle.Media.FFmpeg
         {
             return new Filter("crop")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue(parameters.Size.Width),
-                    FilterOption.FromValue(parameters.Size.Height),
-                    FilterOption.FromValue(parameters.Start.X),
-                    FilterOption.FromValue(parameters.Start.Y)
+                    Option.FromValue(parameters.Size.Width),
+                    Option.FromValue(parameters.Size.Height),
+                    Option.FromValue(parameters.Start.X),
+                    Option.FromValue(parameters.Start.Y)
                 }
             };
         }
@@ -305,10 +305,10 @@ namespace Tricycle.Media.FFmpeg
         {
             return new Filter("scale")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue(dimensions.Width),
-                    FilterOption.FromValue(dimensions.Height)
+                    Option.FromValue(dimensions.Width),
+                    Option.FromValue(dimensions.Height)
                 }
             };
         }
@@ -317,10 +317,10 @@ namespace Tricycle.Media.FFmpeg
         {
             return new Filter("setsar")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue(width),
-                    FilterOption.FromValue(height)
+                    Option.FromValue(width),
+                    Option.FromValue(height)
                 }
             };
         }
@@ -334,12 +334,12 @@ namespace Tricycle.Media.FFmpeg
 
             return new Filter("hqdn3d")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue(4),
-                    FilterOption.FromValue(4),
-                    FilterOption.FromValue(3),
-                    FilterOption.FromValue(3)
+                    Option.FromValue(4),
+                    Option.FromValue(4),
+                    Option.FromValue(3),
+                    Option.FromValue(3)
                 }
             };
         }
@@ -348,41 +348,41 @@ namespace Tricycle.Media.FFmpeg
         {
             filters.Add(new Filter("zscale")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    new FilterOption("t", "linear"),
-                    new FilterOption("npl", "100")
+                    new Option("t", "linear"),
+                    new Option("npl", "100")
                 }
             });
             filters.Add(new Filter("format")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue("gbrpf32le")
+                    Option.FromValue("gbrpf32le")
                 }
             });
             filters.Add(new Filter("zscale")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    new FilterOption("p", "bt709")
+                    new Option("p", "bt709")
                 }
             });
             filters.Add(GetTonemapFilter(config));
             filters.Add(new Filter("zscale")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    new FilterOption("t", "bt709"),
-                    new FilterOption("m", "bt709"),
-                    new FilterOption("r", "tv")
+                    new Option("t", "bt709"),
+                    new Option("m", "bt709"),
+                    new Option("r", "tv")
                 }
             });
             filters.Add(new Filter("format")
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue("yuv420p")
+                    Option.FromValue("yuv420p")
                 }
             });
         }
@@ -398,10 +398,10 @@ namespace Tricycle.Media.FFmpeg
 
             return new Filter(NAME)
             {
-                Options = new FilterOption[]
+                Options = new Option[]
                 {
-                    FilterOption.FromValue("hable"),
-                    new FilterOption("desat", "0")
+                    Option.FromValue("hable"),
+                    new Option("desat", "0")
                 }
             };
         }

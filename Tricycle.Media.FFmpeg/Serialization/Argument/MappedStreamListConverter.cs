@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models.Media;
@@ -77,41 +76,52 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
         string GetOptions(MappedStream stream, string outputSpecifier)
         {
             var optionBuilder = new StringBuilder();
-            var defaultConverter = new ArgumentConverter();
 
-            foreach (var property in stream.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                var argument = property.GetCustomAttribute<ArgumentAttribute>();
-                var propValue = property.GetValue(stream);
-
-                if ((argument != null) && (propValue != null))
-                {
-                    if (optionBuilder.Length > 0)
-                    {
-                        optionBuilder.Append(" ");
-                    }
-
-                    var converter = GetConverter(property) ?? defaultConverter;
-
-                    optionBuilder.Append(converter.Convert($"{argument.Name}:{outputSpecifier}", propValue));
-                }
-            }
+            Append(optionBuilder, stream, outputSpecifier, 0);
 
             return optionBuilder.ToString();
         }
 
-        IArgumentConverter GetConverter(PropertyInfo property)
+        void Append(StringBuilder builder, object obj, string outputSpecifier, int level)
         {
-            IArgumentConverter result = null;
-
-            var converterType = property.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter;
-
-            if (converterType != null)
+            foreach (var property in Reflector.Reflect(obj))
             {
-                result = Activator.CreateInstance(converterType) as IArgumentConverter;
+                if (builder.Length > 0)
+                {
+                    builder.Append(" ");
+                }
+
+                var type = property.Value.GetType();
+                string argName = property.ArgumentName;
+
+                if (level == 0)
+                {
+                    argName += $":{outputSpecifier}";
+                }
+
+                if (IsSimpleType(type) || IsSimpleType(Nullable.GetUnderlyingType(type)))
+                {
+                    builder.Append(property.Converter.Convert(argName, property.Value)?.Trim());
+                }
+                else
+                {
+                    builder.Append(argName);
+                    Append(builder, property.Value, outputSpecifier, level + 1);
+                }
+            }
+        }
+
+        bool IsSimpleType(Type type)
+        {
+            if (type == null)
+            {
+                return false;
             }
 
-            return result;
+            return type.IsPrimitive
+            || type.IsEnum
+            || type.Equals(typeof(string))
+            || type.Equals(typeof(decimal));
         }
     }
 }

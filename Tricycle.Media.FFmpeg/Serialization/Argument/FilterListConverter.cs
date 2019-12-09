@@ -8,6 +8,8 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 {
     public class FilterListConverter : ArgumentConverter, IArgumentConverter
     {
+        IArgumentConverter _optionListConverter = new OptionListConverter();
+
         public override string Convert(string argName, object value)
         {
             var builder = new StringBuilder();
@@ -57,36 +59,11 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 
             if (filter.Options != null)
             {
-                var optionBuilder = new StringBuilder();
+                var optionString = _optionListConverter.Convert(string.Empty, filter.Options)?.Trim();
 
-                foreach (var option in filter.Options)
+                if (optionString.Length > 0)
                 {
-                    if (optionBuilder.Length > 0)
-                    {
-                        optionBuilder.Append(":");
-                    }
-
-                    bool hasName = false;
-
-                    if (!string.IsNullOrWhiteSpace(option?.Name))
-                    {
-                        hasName = true;
-                        optionBuilder.Append($"{option.Name}");
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(option?.Value))
-                    {
-                        if (hasName)
-                        {
-                            optionBuilder.Append("=");
-                        }
-                        optionBuilder.Append(option.Value);
-                    }
-                }
-
-                if (optionBuilder.Length > 0)
-                {
-                    builder.Append($"={optionBuilder}");
+                    builder.Append($"={optionString}");
                 }
             }
 

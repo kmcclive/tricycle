@@ -2,33 +2,33 @@
 
 namespace Tricycle.Media.FFmpeg.Models.Jobs
 {
-    public class FilterOption
+    public class Option
     {
         public string Name { get; set; }
         public string Value { get; set; }
 
-        public FilterOption()
+        public Option()
         {
 
         }
 
-        public FilterOption(string name, string value)
+        public Option(string name, string value)
         {
             Name = name;
             Value = value;
         }
 
-        public static FilterOption FromName(string name)
+        public static Option FromName(string name)
         {
-            return new FilterOption()
+            return new Option()
             {
                 Name = name
             };
         }
 
-        public static FilterOption FromValue(object value)
+        public static Option FromValue(object value)
         {
-            return new FilterOption()
+            return new Option()
             {
                 Value = value?.ToString()
             };

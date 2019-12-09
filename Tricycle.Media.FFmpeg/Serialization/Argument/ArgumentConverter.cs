@@ -3,6 +3,8 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 {
     public class ArgumentConverter : IArgumentConverter
     {
+        public IArgumentPropertyReflector Reflector { get; set; }
+
         public virtual string Convert(string argName, object value)
         {
             string stringValue = value?.ToString();

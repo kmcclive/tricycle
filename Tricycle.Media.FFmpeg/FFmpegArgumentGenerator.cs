@@ -23,7 +23,7 @@ namespace Tricycle.Media.FFmpeg
         {
             public string PropertyName { get; set; }
             public string ArgumentName { get; set; }
-            public Priority Priority { get; set; }
+            public int? Order { get; set; }
             public Type ConverterType { get; set; }
             public object Value { get; set; }
         }
@@ -79,13 +79,12 @@ namespace Tricycle.Media.FFmpeg
                              {
                                  PropertyName = p.Name,
                                  ArgumentName = p.GetCustomAttribute<ArgumentAttribute>()?.Name,
-                                 Priority = p.GetCustomAttribute<ArgumentPriorityAttribute>()?.Priority
-                                            ?? Priority.PostInput,
+                                 Order = p.GetCustomAttribute<ArgumentOrderAttribute>()?.Order,
                                  ConverterType = p.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter,
                                  Value = p.GetValue(job)
                              })
                              .Where(p => p.Value != null)
-                             .OrderBy(p => p.Priority)
+                             .OrderBy(p => p.Order)
                              .ThenBy(p => string.IsNullOrWhiteSpace(p.ArgumentName));
 
             var builder = new StringBuilder();
@@ -333,7 +332,7 @@ namespace Tricycle.Media.FFmpeg
 
                 int relativeIndex;
 
-                switch(sourceStream.StreamType)
+                switch (sourceStream.StreamType)
                 {
                     case StreamType.Audio:
                         relativeIndex = audioIndex;

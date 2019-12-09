@@ -6,11 +6,13 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
 {
     public class MappedStream
     {
+        [ArgumentIgnore]
         public StreamType StreamType { get; set; }
+
+        [ArgumentIgnore]
         public StreamInput Input { get; set; }
 
         [Argument("-c")]
-        [ArgumentConverter(typeof(CodecConverter))]
         public Codec Codec { get; set; }
 
         [Argument("-b")]
