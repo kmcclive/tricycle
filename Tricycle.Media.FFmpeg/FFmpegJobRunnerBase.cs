@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -105,25 +104,34 @@ namespace Tricycle.Media.FFmpeg
                 result.CanvasSize = videoSourceStream.Dimensions;
             }
 
+            FFmpegConfig config = _configManager.Config;
+
             result.Streams = new List<MappedStream>()
             {
-                Map(_configManager.Config, videoSourceStream, videoOutputStream)
+                MapVideoStream(config, videoSourceStream, videoOutputStream, jobType)
             };
 
-            result.Filters = GetVideoFilters(_configManager.Config, videoSourceStream, videoOutputStream, subtitlesIndex);
+            result.Filters = GetVideoFilters(config, videoSourceStream, videoOutputStream, subtitlesIndex);
 
             return result;
         }
 
-        protected virtual MappedVideoStream Map(FFmpegConfig config,
-                                                VideoStreamInfo sourceStream,
-                                                VideoOutputStream outputStream)
+        protected virtual MappedVideoStream MapVideoStream(FFmpegConfig config,
+                                                           VideoStreamInfo sourceStream,
+                                                           VideoOutputStream outputStream,
+                                                           JobType jobType)
         {
-            return new MappedVideoStream()
+            var result = new MappedVideoStream()
             {
                 Input = GetStreamInput(sourceStream),
-                Codec = GetVideoCodec(config, sourceStream, outputStream)
             };
+
+            if (jobType == JobType.Transcode)
+            {
+                result.Codec = GetVideoCodec(config, sourceStream, outputStream);
+            }
+
+            return result;
         }
 
         protected virtual StreamInput GetStreamInput(StreamInfo stream)
@@ -138,7 +146,7 @@ namespace Tricycle.Media.FFmpeg
             VideoFormat format = outputStream.Format;
             VideoCodec codec = config.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
             string codecName = GetVideoCodecName(format);
-            X26xCodec result = format == VideoFormat.Hevc ? new X265Codec() : new X26xCodec();
+            X26xCodec result = format == VideoFormat.Hevc ? new X265Codec(codecName) : new X26xCodec(codecName);
 
             result.Preset = codec.Preset;
             result.Crf = outputStream.Quality;
@@ -327,7 +335,7 @@ namespace Tricycle.Media.FFmpeg
 
         protected virtual IFilter GetDenoiseFilter(FFmpegConfig config)
         {
-            if (!string.IsNullOrWhiteSpace(config.Video?.DenoiseOptions))
+            if (!string.IsNullOrWhiteSpace(config?.Video?.DenoiseOptions))
             {
                 return new CustomFilter(config.Video.DenoiseOptions);
             }
@@ -391,9 +399,9 @@ namespace Tricycle.Media.FFmpeg
         {
             const string NAME = "tonemap";
 
-            if (!string.IsNullOrWhiteSpace(config.Video?.TonemapOptions))
+            if (!string.IsNullOrWhiteSpace(config?.Video?.TonemapOptions))
             {
-                return new CustomFilter($"{NAME}={config.Video?.TonemapOptions}");
+                return new CustomFilter($"{NAME}={config.Video.TonemapOptions}");
             }
 
             return new Filter(NAME)
