@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models;
@@ -18,7 +19,14 @@ namespace Tricycle.Media.FFmpeg
             Preview
         }
 
-        protected virtual FFmpegJob Map(TranscodeJob job, JobType jobType, FFmpegConfig config)
+        IConfigManager<FFmpegConfig> _configManager;
+
+        public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager)
+        {
+            _configManager = configManager;
+        }
+
+        protected virtual FFmpegJob Map(TranscodeJob job, JobType jobType)
         {
             if (job == null)
             {
@@ -95,6 +103,8 @@ namespace Tricycle.Media.FFmpeg
 
                 result.CanvasSize = videoSourceStream.Dimensions;
             }
+
+            FFmpegConfig config = _configManager.Config;
 
             result.Streams = new List<MappedStream>()
             {
