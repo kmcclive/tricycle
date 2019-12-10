@@ -184,7 +184,7 @@ namespace Tricycle.Media.FFmpeg
                                               VideoOutputStream outputStream)
         {
             VideoFormat format = outputStream.Format;
-            VideoCodec codec = config.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
+            VideoCodec codec = config?.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
             string codecName = GetVideoCodecName(format);
             X26xCodec result = format == VideoFormat.Hevc ? new X265Codec(codecName) : new X26xCodec(codecName);
 

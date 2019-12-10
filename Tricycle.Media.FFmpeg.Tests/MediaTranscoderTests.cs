@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -19,6 +20,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         IConfigManager<FFmpegConfig> _configManager;
         IFFmpegArgumentGenerator _argumentGenerator;
         MediaTranscoder _transcoder;
+        VideoStreamInfo _videoSource;
+        VideoOutputStream _videoOutput;
+        TranscodeJob _transcodeJob;
 
         [TestInitialize]
         public void Setup()
@@ -28,6 +32,31 @@ namespace Tricycle.Media.FFmpeg.Tests
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _configManager, _argumentGenerator);
+
+            _videoSource = new VideoStreamInfo()
+            {
+                Index = 0
+            };
+            _videoOutput = new VideoOutputStream()
+            {
+                SourceStreamIndex = 0
+            };
+            _transcodeJob = new TranscodeJob()
+            {
+                SourceInfo = new MediaInfo()
+                {
+                    FileName = "source",
+                    Streams = new List<StreamInfo>()
+                    {
+                        _videoSource
+                    }
+                },
+                OutputFileName = "destination",
+                Streams = new List<OutputStream>()
+                {
+                    _videoOutput
+                }
+            };
         }
 
         [TestMethod]
@@ -41,11 +70,11 @@ namespace Tricycle.Media.FFmpeg.Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void StartThrowsForRunningJob()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.HasExited.Returns(false);
 
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
         }
 
         [TestMethod]
@@ -59,7 +88,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void StopThrowsWhenNoJobRunning()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.HasExited.Returns(true);
 
@@ -75,7 +104,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void IsRunningReturnsFalseWhenNoJobRunning()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.HasExited.Returns(true);
             
@@ -85,7 +114,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void IsRunningReturnsTrueForRunningJob()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.HasExited.Returns(false);
 
@@ -93,19 +122,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void StartCallsArgumentGenerator()
-        {
-            var job = new TranscodeJob();
-
-            _transcoder.Start(job);
-
-            _argumentGenerator.Received().GenerateArguments(null);
-        }
-
-        [TestMethod]
         public void StartCallsProcessStart()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.Received().Start(Arg.Any<ProcessStartInfo>());
         }
@@ -122,7 +141,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 return true;
             });
 
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             Assert.IsNotNull(startInfo);
             Assert.IsTrue(startInfo.CreateNoWindow);
@@ -136,7 +155,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void StopKillsProcess()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
             _process.HasExited.Returns(false);
 
             _transcoder.Stop();
@@ -147,7 +166,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void StopDisposesProcess()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
             _process.HasExited.Returns(false);
 
             _transcoder.Stop();
@@ -160,13 +179,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             TranscodeStatus status = null;
 
-            _transcoder.Start(new TranscodeJob()
-            {
-                SourceInfo = new MediaInfo()
-                {
-                    Duration = new TimeSpan(0, 1, 23, 43, 480)
-                }
-            });
+            _transcodeJob.SourceInfo.Duration = new TimeSpan(0, 1, 23, 43, 480);
+
+            _transcoder.Start(_transcodeJob);
             _transcoder.StatusChanged += s => status = s;
 
             _process.ErrorDataReceived += Raise.Event<Action<string>>(
@@ -188,7 +203,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             bool completed = false;
 
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
             _transcoder.Completed += () => completed = true;
             _process.ExitCode.Returns(0);
 
@@ -203,7 +218,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             string expected = "transcode error";
             string actual = null;
 
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
             _transcoder.Failed += e => actual = e;
             _process.ExitCode.Returns(1);
 
@@ -217,7 +232,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void DisposesProcessOnExit()
         {
-            _transcoder.Start(new TranscodeJob());
+            _transcoder.Start(_transcodeJob);
 
             _process.Exited += Raise.Event<Action>();
 
