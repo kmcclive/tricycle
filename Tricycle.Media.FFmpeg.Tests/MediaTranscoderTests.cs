@@ -3,6 +3,8 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
+using Tricycle.IO;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
@@ -14,6 +16,7 @@ namespace Tricycle.Media.FFmpeg.Tests
     {
         string _ffmpegFileName;
         IProcess _process;
+        IConfigManager<FFmpegConfig> _configManager;
         IFFmpegArgumentGenerator _argumentGenerator;
         MediaTranscoder _transcoder;
 
@@ -23,7 +26,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             _ffmpegFileName = "usr/sbin/ffmpeg";
             _process = Substitute.For<IProcess>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
-            _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _argumentGenerator);
+            _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
+            _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _configManager, _argumentGenerator);
         }
 
         [TestMethod]

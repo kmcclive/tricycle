@@ -12,8 +12,8 @@ namespace Tricycle.Media.FFmpeg
 {
     public abstract class FFmpegJobRunnerBase
     {
-        IConfigManager<FFmpegConfig> _configManager;
-        IFFmpegArgumentGenerator _argumentGenerator;
+        protected IConfigManager<FFmpegConfig> _configManager;
+        protected IFFmpegArgumentGenerator _argumentGenerator;
 
         public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager, IFFmpegArgumentGenerator argumentGenerator)
         {
