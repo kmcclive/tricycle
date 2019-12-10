@@ -7,17 +7,16 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.IO.Windows;
 using Tricycle.Media;
 using Tricycle.Media.FFmpeg;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Models;
 using Tricycle.UI.Views;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -173,7 +172,7 @@ namespace Tricycle.UI.Windows
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
 
-            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfigManager);
+            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
 
             AppState.IocContainer = new Container(_ =>
             {
@@ -192,6 +191,7 @@ namespace Tricycle.UI.Windows
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
                 _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
                                                                   processCreator,
+                                                                  ffmpegConfigManager,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
