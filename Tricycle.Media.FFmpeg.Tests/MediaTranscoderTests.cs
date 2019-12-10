@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
+using Tricycle.Models;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
 
@@ -23,6 +25,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         VideoStreamInfo _videoSource;
         VideoOutputStream _videoOutput;
         TranscodeJob _transcodeJob;
+        FFmpegJob _ffmpegJob;
 
         [TestInitialize]
         public void Setup()
@@ -31,7 +34,10 @@ namespace Tricycle.Media.FFmpeg.Tests
             _process = Substitute.For<IProcess>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
-            _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _configManager, _argumentGenerator);
+            _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _configManager, _argumentGenerator);       
+
+            _argumentGenerator.When(x => x.GenerateArguments(Arg.Any<FFmpegJob>()))
+                              .Do(x => _ffmpegJob = x[0] as FFmpegJob);
 
             _videoSource = new VideoStreamInfo()
             {
@@ -57,6 +63,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                     _videoOutput
                 }
             };
+            _ffmpegJob = null;
         }
 
         [TestMethod]
@@ -73,6 +80,16 @@ namespace Tricycle.Media.FFmpeg.Tests
             _transcoder.Start(_transcodeJob);
 
             _process.HasExited.Returns(false);
+
+            _transcoder.Start(_transcodeJob);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void StartThrowsForHdrWithAvcFormat()
+        {
+            _videoOutput.Format = VideoFormat.Avc;
+            _videoOutput.DynamicRange = DynamicRange.High;
 
             _transcoder.Start(_transcodeJob);
         }
@@ -127,6 +144,258 @@ namespace Tricycle.Media.FFmpeg.Tests
             _transcoder.Start(_transcodeJob);
 
             _process.Received().Start(Arg.Any<ProcessStartInfo>());
+        }
+
+        [TestMethod]
+        public void StartAssignsMp4FormatOnJob()
+        {
+            _transcodeJob.Format = ContainerFormat.Mp4;
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(_ffmpegJob?.Format, "mp4");
+        }
+
+        [TestMethod]
+        public void StartAssignsMkvFormatOnJob()
+        {
+            _transcodeJob.Format = ContainerFormat.Mkv;
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(_ffmpegJob?.Format, "matroska");
+        }
+
+        [TestMethod]
+        public void StartAssignsX264CodecOnJobVideoStream()
+        {
+            var preset = "fast";
+
+            _videoOutput.Format = VideoFormat.Avc;
+            _videoOutput.Quality = 20;
+            _configManager.Config = new FFmpegConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                    {
+                        { VideoFormat.Avc, new VideoCodec(preset) }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X26xCodec;
+
+            Assert.IsNotNull(codec);
+            Assert.AreEqual("libx264", codec.Name);
+            Assert.AreEqual(preset, codec.Preset);
+            Assert.AreEqual(_videoOutput.Quality, codec.Crf);
+        }
+
+        [TestMethod]
+        public void StartAssignsX265CodecOnJobVideoStream()
+        {
+            var preset = "slow";
+
+            _videoOutput.Format = VideoFormat.Hevc;
+            _videoOutput.Quality = 18;
+            _configManager.Config = new FFmpegConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                    {
+                        { VideoFormat.Hevc, new VideoCodec(preset) }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X26xCodec;
+
+            Assert.IsNotNull(codec);
+            Assert.AreEqual("libx265", codec.Name);
+            Assert.AreEqual(preset, codec.Preset);
+            Assert.AreEqual(_videoOutput.Quality, codec.Crf);
+        }
+
+        [TestMethod]
+        public void StartAddsOptionsOnJobVideoCodecForHdr()
+        {
+            _videoOutput.Format = VideoFormat.Hevc;
+            _videoOutput.DynamicRange = DynamicRange.High;
+
+            _transcoder.Start(_transcodeJob);
+
+            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X265Codec;
+
+            Assert.IsNotNull(codec);
+            Assert.AreEqual(3, codec.Options?.Count);
+
+            var option = codec.Options.FirstOrDefault(o => o.Name == "colorprim");
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual(option.Value, "bt2020");
+
+            option = codec.Options.FirstOrDefault(o => o.Name == "colormatrix");
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual(option.Value, "bt2020nc");
+
+            option = codec.Options.FirstOrDefault(o => o.Name == "transfer");
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual(option.Value, "smpte2084");
+        }
+
+        [TestMethod]
+        public void StartAddsOptionsOnJobVideoCodecForCopyHdrMetadata()
+        {
+            _videoSource.MasterDisplayProperties = new MasterDisplayProperties()
+            {
+                Red = new Coordinate<int>(34000, 16000),
+                Green = new Coordinate<int>(13250, 34500),
+                Blue = new Coordinate<int>(7500, 3000),
+                WhitePoint = new Coordinate<int>(15635, 16450),
+                Luminance = new Range<int>(1, 10000000)
+            };
+            _videoSource.LightLevelProperties = new LightLevelProperties()
+            {
+                MaxCll = 1000,
+                MaxFall = 400
+            };
+            _videoOutput.Format = VideoFormat.Hevc;
+            _videoOutput.DynamicRange = DynamicRange.High;
+            _videoOutput.CopyHdrMetadata = true;
+
+            _transcoder.Start(_transcodeJob);
+
+            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X265Codec;
+
+            Assert.IsNotNull(codec);
+            Assert.AreEqual(5, codec.Options?.Count);
+
+            var option = codec.Options.FirstOrDefault(o => o.Name == "master-display");
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual("\"G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1)\"", option.Value);
+
+            option = codec.Options.FirstOrDefault(o => o.Name == "max-cll");
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual("\"1000,400\"", option.Value);
+        }
+
+        [TestMethod]
+        public void StartAddsPassthruStreamOnJob()
+        {
+            int index = 1;
+
+            _transcodeJob.SourceInfo.Streams.Add(new StreamInfo()
+            {
+                Index = index
+            });
+            _transcodeJob.Streams.Add(new OutputStream()
+            {
+                SourceStreamIndex = index
+            });
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(2, _ffmpegJob.Streams?.Count);
+
+            var stream = _ffmpegJob.Streams[1];
+
+            Assert.AreEqual(0, stream.Input?.FileIndex);
+            Assert.AreEqual(index, stream.Input?.StreamIndex);
+            Assert.AreEqual("copy", stream.Codec?.Name);
+        }
+
+        [TestMethod]
+        public void StartAddsAacAudioStreamOnJob()
+        {
+            int index = 1;
+            var format = AudioFormat.Aac;
+            string codec = "libfdk_aac";
+
+            _transcodeJob.SourceInfo.Streams.Add(new AudioStreamInfo()
+            {
+                Index = index
+            });
+            _transcodeJob.Streams.Add(new AudioOutputStream()
+            {
+                SourceStreamIndex = index,
+                Format = format,
+                Mixdown = AudioMixdown.Stereo,
+                Quality = 160
+            });
+            _configManager.Config = new FFmpegConfig()
+            {
+                Audio = new AudioConfig()
+                {
+                    Codecs = new Dictionary<AudioFormat, AudioCodec>()
+                    {
+                        { format, new AudioCodec(codec) }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(2, _ffmpegJob.Streams?.Count);
+
+            var stream = _ffmpegJob.Streams[1] as MappedAudioStream;
+
+            Assert.AreEqual(0, stream.Input?.FileIndex);
+            Assert.AreEqual(index, stream.Input?.StreamIndex);
+            Assert.AreEqual(codec, stream.Codec?.Name);
+            Assert.AreEqual(2, stream.ChannelCount);
+            Assert.AreEqual("160k", stream.Bitrate);
+        }
+
+        [TestMethod]
+        public void StartAddsAc3AudioStreamOnJob()
+        {
+            int index = 2;
+            var format = AudioFormat.Ac3;
+            string codec = "ac3_fixed";
+
+            _transcodeJob.SourceInfo.Streams.Add(new AudioStreamInfo()
+            {
+                Index = index
+            });
+            _transcodeJob.Streams.Add(new AudioOutputStream()
+            {
+                SourceStreamIndex = index,
+                Format = format,
+                Mixdown = AudioMixdown.Surround5dot1,
+                Quality = 640
+            });
+            _configManager.Config = new FFmpegConfig()
+            {
+                Audio = new AudioConfig()
+                {
+                    Codecs = new Dictionary<AudioFormat, AudioCodec>()
+                    {
+                        { format, new AudioCodec(codec) }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(2, _ffmpegJob.Streams?.Count);
+
+            var stream = _ffmpegJob.Streams[1] as MappedAudioStream;
+
+            Assert.AreEqual(0, stream.Input?.FileIndex);
+            Assert.AreEqual(index, stream.Input?.StreamIndex);
+            Assert.AreEqual(codec, stream.Codec?.Name);
+            Assert.AreEqual(6, stream.ChannelCount);
+            Assert.AreEqual("640k", stream.Bitrate);
         }
 
         [TestMethod]

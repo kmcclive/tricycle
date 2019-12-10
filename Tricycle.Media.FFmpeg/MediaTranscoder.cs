@@ -225,7 +225,7 @@ namespace Tricycle.Media.FFmpeg
                     {
                         var properties = sourceStream.LightLevelProperties;
 
-                        options.Add(new Option("max-cli", $"\"{properties.MaxCll},{properties.MaxFall}\""));
+                        options.Add(new Option("max-cll", $"\"{properties.MaxCll},{properties.MaxFall}\""));
                     }
                 }
 
@@ -250,7 +250,10 @@ namespace Tricycle.Media.FFmpeg
 
         protected virtual MappedStream MapPassthruStream(StreamInfo sourceStream, OutputStream outputStream)
         {
-            return new MappedStream(sourceStream.StreamType, new StreamInput(0, outputStream.SourceStreamIndex));
+            return new MappedStream(sourceStream.StreamType, GetStreamInput(sourceStream))
+            {
+                Codec = new Codec("copy")
+            };
         }
 
         protected virtual MappedAudioStream MapAudioStream(FFmpegConfig config,
@@ -259,7 +262,7 @@ namespace Tricycle.Media.FFmpeg
         {
             var result = new MappedAudioStream()
             {
-                Input = new StreamInput(0, outputStream.SourceStreamIndex),
+                Input = GetStreamInput(sourceStream),
                 Codec = new Codec(GetAudioCodecName(config, outputStream.Format))
             };
 
