@@ -7,18 +7,11 @@ using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
-using Tricycle.Utilities;
 
 namespace Tricycle.Media.FFmpeg
 {
     public abstract class FFmpegJobRunnerBase
     {
-        protected enum JobType
-        {
-            Transcode,
-            Preview
-        }
-
         IConfigManager<FFmpegConfig> _configManager;
         IFFmpegArgumentGenerator _argumentGenerator;
 
@@ -28,14 +21,14 @@ namespace Tricycle.Media.FFmpeg
             _argumentGenerator = argumentGenerator;
         }
 
-        protected virtual string GenerateArguments(TranscodeJob job, JobType jobType)
+        protected virtual string GenerateArguments(TranscodeJob job)
         {
-            var ffmpegJob = Map(job, jobType, _configManager.Config);
+            var ffmpegJob = Map(job, _configManager.Config);
 
             return _argumentGenerator.GenerateArguments(ffmpegJob);
         }
 
-        protected virtual FFmpegJob Map(TranscodeJob job, JobType jobType, FFmpegConfig config)
+        protected virtual FFmpegJob Map(TranscodeJob job, FFmpegConfig config)
         {
             if (job == null)
             {
@@ -71,18 +64,11 @@ namespace Tricycle.Media.FFmpeg
                 throw new ArgumentException($"{nameof(job)}.{nameof(job.Streams)} is null or empty.", nameof(job));
             }
 
-            var videoSourceStream = job.SourceInfo.Streams.OfType<VideoStreamInfo>().FirstOrDefault();
+            var videoSource = job.SourceInfo.Streams.OfType<VideoStreamInfo>().FirstOrDefault();
 
-            if (videoSourceStream == null)
+            if (videoSource == null)
             {
                 throw new NotSupportedException($"{nameof(job)}.{nameof(job.SourceInfo)} must contain a video stream.");
-            }
-
-            var videoOutputStream = job.Streams.OfType<VideoOutputStream>().FirstOrDefault();
-
-            if (videoOutputStream == null)
-            {
-                throw new NotSupportedException($"{nameof(job)}.{nameof(job.Streams)} must contain a video stream.");
             }
 
             var result = new FFmpegJob()
@@ -110,109 +96,86 @@ namespace Tricycle.Media.FFmpeg
                     result.ForcedSubtitlesOnly = true;
                 }
 
-                result.CanvasSize = videoSourceStream.Dimensions;
+                result.CanvasSize = videoSource.Dimensions;
             }
 
-            result.Streams = new List<MappedStream>()
-            {
-                MapVideoStream(config, videoSourceStream, videoOutputStream, jobType)
-            };
+            result.Streams = MapStreams(config, job);
 
-            result.Filters = GetVideoFilters(config, videoSourceStream, videoOutputStream, subtitlesIndex);
+            var videoOutput = job.Streams.OfType<VideoOutputStream>()
+                                         .FirstOrDefault(s => s.SourceStreamIndex == videoSource.Index);
+
+            if (videoOutput != null)
+            {
+                result.Filters = GetVideoFilters(config, videoSource, videoOutput, subtitlesIndex);
+            }
 
             return result;
         }
 
-        protected virtual MappedVideoStream MapVideoStream(FFmpegConfig config,
-                                                           VideoStreamInfo sourceStream,
-                                                           VideoOutputStream outputStream,
-                                                           JobType jobType)
+        protected virtual IList<MappedStream> MapStreams(FFmpegConfig config, TranscodeJob job)
         {
-            var result = new MappedVideoStream()
-            {
-                Input = GetStreamInput(sourceStream),
-            };
+            IList<MappedStream> result = new List<MappedStream>();
+            IDictionary<int, StreamInfo> sourceStreamsByIndex = job.SourceInfo.Streams.ToDictionary(s => s.Index);
 
-            if (jobType == JobType.Transcode)
+            for (int i = 0; i < job.Streams.Count; i++)
             {
-                result.Codec = GetVideoCodec(config, sourceStream, outputStream);
+                OutputStream outputStream = job.Streams[i];
+                StreamInfo sourceStream;
+
+                if (!sourceStreamsByIndex.TryGetValue(outputStream.SourceStreamIndex, out sourceStream))
+                {
+                    throw new ArgumentException(
+                        $"{nameof(job.SourceInfo)} does not contain a stream with index {outputStream.SourceStreamIndex}.",
+                        nameof(job.SourceInfo));
+                }
+
+                MappedStream mappedStream = MapStream(config, sourceStream, outputStream);
+
+                if (mappedStream != null)
+                {
+                    result.Add(mappedStream);
+                }
             }
 
             return result;
+        }
+
+        protected virtual MappedStream MapStream(FFmpegConfig config,
+                                                 StreamInfo sourceStream,
+                                                 OutputStream outputStream)
+        {
+            if (sourceStream is VideoStreamInfo videoSource)
+            {
+                if (outputStream is VideoOutputStream videoOutput)
+                {
+                    return MapVideoStream(config, videoSource, videoOutput);
+                }
+
+                throw GetStreamMismatchException(nameof(sourceStream), nameof(outputStream));
+            }
+
+            return null;
+        }
+
+        protected virtual Exception GetStreamMismatchException(string sourceStreamName, string outputStreamName)
+        {
+            return new ArgumentException($"{sourceStreamName} and {outputStreamName} types do not match.",
+                                         outputStreamName);
+        }
+
+        protected virtual MappedVideoStream MapVideoStream(FFmpegConfig config,
+                                                           VideoStreamInfo sourceStream,
+                                                           VideoOutputStream outputStream)
+        {
+            return new MappedVideoStream()
+            {
+                Input = GetStreamInput(sourceStream),
+            };
         }
 
         protected virtual StreamInput GetStreamInput(StreamInfo stream)
         {
             return new StreamInput(0, stream.Index);
-        }
-
-        protected virtual Codec GetVideoCodec(FFmpegConfig config,
-                                              VideoStreamInfo sourceStream,
-                                              VideoOutputStream outputStream)
-        {
-            VideoFormat format = outputStream.Format;
-            VideoCodec codec = config.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
-            string codecName = GetVideoCodecName(format);
-            X26xCodec result = format == VideoFormat.Hevc ? new X265Codec(codecName) : new X26xCodec(codecName);
-
-            result.Preset = codec.Preset;
-            result.Crf = outputStream.Quality;
-
-            if (outputStream.DynamicRange == DynamicRange.High)
-            {
-                if (outputStream.Format != VideoFormat.Hevc)
-                {
-                    throw new NotSupportedException($"HDR is not supported with the video format {outputStream.Format}.");
-                }
-
-                var options = new List<Option>()
-                {
-                    new Option("colorprim", "bt2020"),
-                    new Option("colormatrix", "bt2020nc"),
-                    new Option("transfer", "smpte2084")
-                };
-
-                if (outputStream.CopyHdrMetadata)
-                {
-                    if (sourceStream.MasterDisplayProperties != null)
-                    {
-                        var properties = sourceStream.MasterDisplayProperties;
-                        var value = string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
-                                                  properties.Green,
-                                                  properties.Blue,
-                                                  properties.Red,
-                                                  properties.WhitePoint,
-                                                  properties.Luminance.Max,
-                                                  properties.Luminance.Min);
-
-                        options.Add(new Option("master-display", value));
-                    }
-
-                    if (sourceStream.LightLevelProperties != null)
-                    {
-                        var properties = sourceStream.LightLevelProperties;
-
-                        options.Add(new Option("max-cli", $"\"{properties.MaxCll},{properties.MaxFall}\""));
-                    }
-                }
-
-                ((X265Codec)result).Options = options;
-            }
-
-            return result;
-        }
-
-        protected virtual string GetVideoCodecName(VideoFormat format)
-        {
-            switch (format)
-            {
-                case VideoFormat.Avc:
-                    return "libx264";
-                case VideoFormat.Hevc:
-                    return "libx265";
-                default:
-                    throw new NotSupportedException($"The video format {format} is not supported.");
-            }
         }
 
         protected virtual IList<IFilter> GetVideoFilters(FFmpegConfig config,
