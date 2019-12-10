@@ -24,16 +24,24 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
 
             return obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)
                                 .Where(p => p.GetCustomAttribute<ArgumentIgnoreAttribute>() == null)
-                                .OrderBy(p => p.GetCustomAttribute<ArgumentOrderAttribute>()?.Order)
-                                .Select(p => new ArgumentProperty()
-                                {
-                                    PropertyName = p.Name,
-                                    ArgumentName = p.GetCustomAttribute<ArgumentAttribute>()?.Name,
-                                    Converter = GetConverter(p.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter),
-                                    Value = p.GetValue(obj)
-                                })
+                                .OrderBy(p => p.GetCustomAttribute<ArgumentOrderAttribute>()?.Order ?? int.MaxValue)
+                                .Select(p => Map(p, obj))
                                 .Where(p => p.Value != null)
                                 .ToList();
+        }
+
+        ArgumentProperty Map(PropertyInfo property, object obj)
+        {
+            Type converterType = property.GetCustomAttribute<ArgumentConverterAttribute>()?.Converter;
+
+            return new ArgumentProperty()
+            {
+                PropertyName = property.Name,
+                ArgumentName = property.GetCustomAttribute<ArgumentAttribute>()?.Name,
+                Converter = GetConverter(converterType),
+                HasCustomConverter = converterType != null,
+                Value = property.GetValue(obj)
+            };
         }
 
         IArgumentConverter GetConverter(Type type)

@@ -99,7 +99,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                     argName += $":{outputSpecifier}";
                 }
 
-                if (IsSimpleType(type) || IsSimpleType(Nullable.GetUnderlyingType(type)))
+                if (property.HasCustomConverter || IsSimpleType(type) || IsSimpleType(Nullable.GetUnderlyingType(type)))
                 {
                     builder.Append(property.Converter.Convert(argName, property.Value)?.Trim());
                 }

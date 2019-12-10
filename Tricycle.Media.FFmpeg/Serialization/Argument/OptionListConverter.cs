@@ -38,7 +38,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                     }
                 }
 
-                return base.Convert(argName, builder);
+                return builder.Length > 0 ? base.Convert(argName, builder) : string.Empty;
             }
 
             throw new NotSupportedException($"{nameof(value)} must be of type IEnumerable<Option>.");

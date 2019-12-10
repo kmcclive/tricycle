@@ -11,6 +11,7 @@ using Tricycle.IO.macOS;
 using Tricycle.Media;
 using Tricycle.Media.FFmpeg;
 using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.Views;
@@ -88,7 +89,7 @@ namespace Tricycle.UI.macOS
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
 
-            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(ProcessUtility.Self, ffmpegConfigManager);
+            var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
 
             AppState.IocContainer = new Container(_ =>
             {
@@ -105,8 +106,10 @@ namespace Tricycle.UI.macOS
                                                             ffmpegConfigManager));
                 _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
+                _.For<IArgumentPropertyReflector>().Use<ArgumentPropertyReflector>();
                 _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
                                                                   processCreator,
+                                                                  ffmpegConfigManager,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
