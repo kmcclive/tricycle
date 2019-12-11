@@ -8,7 +8,14 @@
         <FlexLayout JustifyContent="End" Grid.Row="1" Grid.Column="1">
             <local:PlatformButton Source="Images/close.png" Command="{Binding CloseCommand}" />
         </FlexLayout>
-        <Image Source="{Binding CurrentImageSource}" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
+        <FlexLayout JustifyContent="Center"
+                    AlignItems="Center"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand">
+            <ActivityIndicator IsVisible="{Binding IsSpinnerVisible}" IsRunning="True" />
+            <Image IsVisible="{Binding IsImageVisible}"
+                   Source="{Binding CurrentImageSource}" />
+        </FlexLayout>
         <FlexLayout JustifyContent="SpaceAround">
             <local:PlatformButton Source="Images/previous.png" Command="{Binding PreviousCommand}" />
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />

@@ -18,6 +18,8 @@ namespace Tricycle.UI.ViewModels
         readonly IDevice _device;
 
         string _currentImageSource;
+        bool _isSpinnerVisible;
+        bool _isImageVisible;
 
         IList<string> _imageFileNames;
         int _currentIndex;
@@ -39,6 +41,18 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _currentImageSource, value);
         }
 
+        public bool IsSpinnerVisible
+        {
+            get => _isSpinnerVisible;
+            set => SetProperty(ref _isSpinnerVisible, value);
+        }
+
+        public bool IsImageVisible
+        {
+            get => _isImageVisible;
+            set => SetProperty(ref _isImageVisible, value);
+        }
+
         public ICommand CloseCommand { get; }
         public ICommand PreviousCommand { get; }
         public ICommand NextCommand { get; }
@@ -52,6 +66,8 @@ namespace Tricycle.UI.ViewModels
 
             _device.BeginInvokeOnMainThread(() =>
             {
+                SetLoading(true);
+
                 CurrentImageSource = null;
 
                 RefreshButtons();
@@ -72,6 +88,7 @@ namespace Tricycle.UI.ViewModels
                 CurrentImageSource = _imageFileNames?.FirstOrDefault();
 
                 RefreshButtons();
+                SetLoading(false);
             });
         }
 
@@ -118,6 +135,12 @@ namespace Tricycle.UI.ViewModels
         {
             ((Command)PreviousCommand).ChangeCanExecute();
             ((Command)NextCommand).ChangeCanExecute();
+        }
+
+        void SetLoading(bool isLoading)
+        {
+            IsSpinnerVisible = isLoading;
+            IsImageVisible = !isLoading;
         }
     }
 }
