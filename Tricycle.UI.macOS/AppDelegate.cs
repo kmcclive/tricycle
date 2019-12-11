@@ -209,7 +209,7 @@ namespace Tricycle.UI.macOS
                 _previewPage = new PreviewPage();
             }
 
-            Task.Run(() => _previewPage.Load(job));
+            _previewPage.TranscodeJob = job;
 
             _appManager.RaiseModalOpened(_previewPage);
         }

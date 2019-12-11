@@ -15,16 +15,18 @@ namespace Tricycle.UI.ViewModels
     {
         readonly IPreviewImageGenerator _imageGenerator;
         readonly IFileSystem _fileSystem;
+        readonly IDevice _device;
 
         string _currentImageSource;
 
         IList<string> _imageFileNames;
         int _currentIndex;
 
-        public PreviewViewModel(IPreviewImageGenerator imageGenerator, IFileSystem fileSystem)
+        public PreviewViewModel(IPreviewImageGenerator imageGenerator, IFileSystem fileSystem, IDevice device)
         {
             _imageGenerator = imageGenerator;
             _fileSystem = fileSystem;
+            _device = device;
 
             CloseCommand = new Command(Close);
             PreviousCommand = new Command(Previous, () => _currentIndex > 0);
@@ -46,7 +48,15 @@ namespace Tricycle.UI.ViewModels
         public async Task Load(TranscodeJob job)
         {
             _imageFileNames = null;
+            _currentIndex = 0;
 
+            _device.BeginInvokeOnMainThread(() =>
+            {
+                CurrentImageSource = null;
+
+                RefreshButtons();
+            });
+            
             if (job != null)
             {
                 try
@@ -57,10 +67,12 @@ namespace Tricycle.UI.ViewModels
                 catch (NotSupportedException) { }
             }
 
-            _currentIndex = 0;
-            CurrentImageSource = _imageFileNames?.FirstOrDefault();
+            _device.BeginInvokeOnMainThread(() =>
+            {
+                CurrentImageSource = _imageFileNames?.FirstOrDefault();
 
-            RefreshButtons();
+                RefreshButtons();
+            });
         }
 
         void Close()

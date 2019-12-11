@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Tricycle.Media;
 using Tricycle.Models;
@@ -22,16 +20,24 @@ namespace Tricycle.UI.Views
             _appManager = AppState.IocContainer.GetInstance<IAppManager>();
             _viewModel = new PreviewViewModel(
                 AppState.IocContainer.GetInstance<IPreviewImageGenerator>(),
-                AppState.IocContainer.GetInstance<IFileSystem>());
+                AppState.IocContainer.GetInstance<IFileSystem>(),
+                AppState.IocContainer.GetInstance<IDevice>());
 
             _viewModel.Closed += async () => await OnClosed();
 
             BindingContext = _viewModel;
         }
 
-        public Task Load(TranscodeJob job)
+        public TranscodeJob TranscodeJob { get; set; }
+
+        protected override void OnAppearing()
         {
-            return _viewModel.Load(job);
+            base.OnAppearing();
+
+            if (TranscodeJob != null)
+            {
+                Task.Run(() => _viewModel.Load(TranscodeJob));
+            }
         }
 
         async Task OnClosed()
