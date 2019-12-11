@@ -30,6 +30,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         ConfigPage _configPage;
+        PreviewPage _previewPage;
 
         public AppDelegate()
         {
@@ -178,6 +179,17 @@ namespace Tricycle.UI.macOS
             {
                 _appManager.RaiseFileOpened(result.FileName);
             }
+        }
+
+        [Action("viewPreview:")]
+        public void ViewPreview(NSObject sender)
+        {
+            if (_previewPage == null)
+            {
+                _previewPage = new PreviewPage();
+            }
+
+            _appManager.RaiseModalOpened(_previewPage);
         }
 
         Coordinate<nfloat> GetCenterCoordinate()
