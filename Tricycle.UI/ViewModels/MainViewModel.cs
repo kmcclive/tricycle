@@ -476,6 +476,15 @@ namespace Tricycle.UI.ViewModels
 
         #region Methods
 
+        #region Public
+
+        public TranscodeJob GetTranscodeJob()
+        {
+            return _isStartEnabled ? CreateJob() : null;
+        }
+
+        #endregion
+
         #region Command Actions
 
         async Task SelectSource()

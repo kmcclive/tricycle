@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 using StructureMap;
@@ -29,6 +30,7 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
+        MainPage _mainPage;
         ConfigPage _configPage;
         PreviewPage _previewPage;
 
@@ -73,6 +75,7 @@ namespace Tricycle.UI.macOS
             string resourcePath = NSBundle.MainBundle.ResourcePath;
             string defaultConfigPath = Path.Combine(resourcePath, "Config");
             string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
+            string ffmpegFileName = Path.Combine(ffmpegPath, "ffmpeg");
             string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             string userConfigPath = Path.Combine(userPath, "Library", "Preferences", "Tricycle");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
@@ -101,24 +104,34 @@ namespace Tricycle.UI.macOS
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,
                                                                 ProcessUtility.Self));
-                _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
+                _.For<ICropDetector>().Use(new CropDetector(ffmpegFileName,
                                                             processRunner,
                                                             ffmpegConfigManager,
                                                             ffmpegArgumentGenerator));
                 _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
                 _.For<IArgumentPropertyReflector>().Use<ArgumentPropertyReflector>();
-                _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
+                _.For<IMediaTranscoder>().Use(new MediaTranscoder(ffmpegFileName,
                                                                   processCreator,
                                                                   ffmpegConfigManager,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
+                _.For<IPreviewImageGenerator>().Use(new PreviewImageGenerator(ffmpegFileName,
+                                                                              processRunner,
+                                                                              ffmpegArgumentGenerator,
+                                                                              ffmpegConfigManager,
+                                                                              fileSystem));
             });
             AppState.DefaultDestinationDirectory = Path.Combine(userPath, "Movies");
 
             Forms.Init();
-            LoadApplication(new App());
+
+            var app = new App();
+
+            _mainPage = app.MainPage as MainPage;
+
+            LoadApplication(app);
 
             base.DidFinishLaunching(notification);
         }
@@ -184,10 +197,19 @@ namespace Tricycle.UI.macOS
         [Action("viewPreview:")]
         public void ViewPreview(NSObject sender)
         {
+            var job = _mainPage?.GetTranscodeJob();
+
+            if (job == null)
+            {
+                return;
+            }
+
             if (_previewPage == null)
             {
                 _previewPage = new PreviewPage();
             }
+
+            Task.Run(() => _previewPage.Load(job));
 
             _appManager.RaiseModalOpened(_previewPage);
         }

@@ -6,6 +6,7 @@ using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Jobs;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -17,6 +18,8 @@ namespace Tricycle.UI.Views
     [DesignTimeVisible(true)]
     public partial class MainPage : ContentPage
     {
+        MainViewModel _viewModel;
+
         public MainPage()
         {
             InitializeComponent();
@@ -24,7 +27,7 @@ namespace Tricycle.UI.Views
             NavigationPage.SetHasNavigationBar(this, false);
 
             var appManager = AppState.IocContainer.GetInstance<IAppManager>();
-            var viewModel = new MainViewModel(
+            _viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
                 AppState.IocContainer.GetInstance<IMediaTranscoder>(),
@@ -37,10 +40,15 @@ namespace Tricycle.UI.Views
                 AppState.DefaultDestinationDirectory);
 
             appManager.ModalOpened += OnModalOpened;
-            viewModel.Alert += OnAlert;
-            viewModel.Confirm += OnConfirm;
+            _viewModel.Alert += OnAlert;
+            _viewModel.Confirm += OnConfirm;
 
-            BindingContext = viewModel;
+            BindingContext = _viewModel;
+        }
+
+        public TranscodeJob GetTranscodeJob()
+        {
+            return _viewModel.GetTranscodeJob();
         }
 
         void OnAlert(string title, string message)
