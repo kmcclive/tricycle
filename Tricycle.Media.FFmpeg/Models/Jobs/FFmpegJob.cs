@@ -36,7 +36,7 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentOrder(2)]
         public TimeSpan? Duration { get; set; }
 
-        [Argument("-frames:v")]
+        [Argument("-frames:vf")]
         [ArgumentOrder(2)]
         public int? FrameCount { get; set; }
 

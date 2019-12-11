@@ -102,8 +102,8 @@ namespace Tricycle.UI.macOS
                                                                 ProcessUtility.Self));
                 _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
                                                             processRunner,
-                                                            ProcessUtility.Self,
-                                                            ffmpegConfigManager));
+                                                            ffmpegConfigManager,
+                                                            ffmpegArgumentGenerator));
                 _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
                 _.For<IArgumentPropertyReflector>().Use<ArgumentPropertyReflector>();

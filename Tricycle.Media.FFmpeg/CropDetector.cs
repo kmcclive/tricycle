@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
-using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 
@@ -20,29 +20,29 @@ namespace Tricycle.Media.FFmpeg
 
         readonly string _ffmpegFileName;
         readonly IProcessRunner _processRunner;
-        readonly IProcessUtility _processUtility;
         readonly IConfigManager<FFmpegConfig> _configManager;
+        readonly IFFmpegArgumentGenerator _argumentGenerator;
         readonly TimeSpan _timeout;
 
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
-                            IProcessUtility processUtility,
-                            IConfigManager<FFmpegConfig> configManager)
-            : this(ffmpegFileName, processRunner, processUtility, configManager, TimeSpan.FromSeconds(30))
+                            IConfigManager<FFmpegConfig> configManager,
+                            IFFmpegArgumentGenerator argumentGenerator)
+            : this(ffmpegFileName, processRunner, configManager, argumentGenerator, TimeSpan.FromSeconds(30))
         {
 
         }
 
         public CropDetector(string ffmpegFileName,
                             IProcessRunner processRunner,
-                            IProcessUtility processUtility,
                             IConfigManager<FFmpegConfig> configManager,
+                            IFFmpegArgumentGenerator argumentGenerator,
                             TimeSpan timeout)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;
-            _processUtility = processUtility;
             _configManager = configManager;
+            _argumentGenerator = argumentGenerator;
             _timeout = timeout;
         }
 
@@ -63,7 +63,6 @@ namespace Tricycle.Media.FFmpeg
 
 			CropParameters result = null;
             IEnumerable<double> positions = GetSeekSeconds(mediaInfo.Duration);
-            var escapedFileName = _processUtility.EscapeFilePath(mediaInfo.FileName);
             FFmpegConfig config = _configManager.Config;
             string options = string.Empty;
 
@@ -77,7 +76,18 @@ namespace Tricycle.Media.FFmpeg
 
             var tasks = positions.Select(async seconds =>
             {
-                var arguments = $"-hide_banner -ss {seconds:0.###} -i {escapedFileName} -frames:vf 2 -vf cropdetect{options} -f null -";
+                var job = new FFmpegJob()
+                {
+                    HideBanner = true,
+                    StartTime = TimeSpan.FromSeconds(seconds),
+                    InputFileName = mediaInfo.FileName,
+                    FrameCount = 2,
+                    Filters = new IFilter[]
+                    {
+                        new CustomFilter($"cropdetect{options}")
+                    }
+                };
+                var arguments = _argumentGenerator.GenerateArguments(job);
 
                 try
                 {
