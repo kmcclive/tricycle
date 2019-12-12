@@ -88,8 +88,8 @@
                                 <modifierMask key="keyEquivalentModifierMask" />
                                 <menu key="submenu" title="View" id="HyV-fh-RgO">
                                     <items>
-                                        <menuItem title="Preview…" keyEquivalent="p" id="snW-S8-Cw5">
-                                            <modifierMask key="keyEquivalentModifierMask" />
+                                        <menuItem title="Preview…" keyEquivalent="2" id="snW-S8-Cw5">
+                                            <modifierMask key="keyEquivalentModifierMask" command="YES" />
                                             <connections>
                                                 <action selector="viewPreview:" target="Ady-hI-5gd" id="BXY-wc-z0C" />
                                             </connections>

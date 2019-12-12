@@ -59,11 +59,6 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _currentImageSource, value);
         }
 
-        public bool IsSpinnerVisible
-        {
-            get => _isLoading;
-        }
-
         public bool IsImageVisible
         {
             get => !_isLoading;
@@ -75,7 +70,6 @@ namespace Tricycle.UI.ViewModels
             set
             {
                 SetProperty(ref _isLoading, value);
-                RaisePropertyChanged(nameof(IsSpinnerVisible));
                 RaisePropertyChanged(nameof(IsImageVisible));
 
                 if (_isLoading)

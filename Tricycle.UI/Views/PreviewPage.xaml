@@ -9,7 +9,7 @@
             <local:PlatformButton Source="Images/close.png" Command="{Binding CloseCommand}" />
         </FlexLayout>
         <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10">
-            <ActivityIndicator IsVisible="{Binding IsSpinnerVisible}"
+            <ActivityIndicator IsVisible="{Binding IsLoading}"
                                IsRunning="True"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"  />
