@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
 {
@@ -90,17 +91,17 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public void ConvertThrowsExceptionWhenValueContainsOtherStreamType()
-        {
-            _converter.Convert("-map", 0);
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void ConvertThrowsExceptionWhenValueIsMissingInput()
         {
             _converter.Convert("-map", new MappedStream[] { new MappedStream() });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void ConvertThrowsExceptionWhenValueContainsOtherStreamType()
+        {
+            _converter.Convert("-map", new MappedStream[] { new MappedStream(StreamType.Other, new StreamInput(0, 0)) });
         }
 
         [TestMethod]

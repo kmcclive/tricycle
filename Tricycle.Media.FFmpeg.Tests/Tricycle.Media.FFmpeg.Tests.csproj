@@ -26,7 +26,4 @@
     <Folder Include="Serialization\" />
     <Folder Include="Serialization\Argument\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Serialization\Argument\IArgumentReflector.cs" />
-  </ItemGroup>
 </Project>
