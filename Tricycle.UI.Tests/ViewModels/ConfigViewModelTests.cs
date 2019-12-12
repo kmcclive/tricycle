@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
-using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.AudioCodec;
-using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.AudioConfig;
-using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.VideoCodec;
-using FFmpegVideoConfig = Tricycle.Media.FFmpeg.Models.VideoConfig;
+using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.Config.AudioCodec;
+using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.Config.AudioConfig;
+using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.Config.VideoCodec;
+using FFmpegVideoConfig = Tricycle.Media.FFmpeg.Models.Config.VideoConfig;
 using TricycleAudioCodec = Tricycle.Models.Config.AudioCodec;
 using TricycleAudioConfig = Tricycle.Models.Config.AudioConfig;
 using TricycleVideoCodec = Tricycle.Models.Config.VideoCodec;
@@ -44,7 +44,11 @@ namespace Tricycle.UI.Tests.ViewModels
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _ffmpegConfigManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _appManager = Substitute.For<IAppManager>();
-            _viewModel = new ConfigViewModel(_tricycleConfigManager, _ffmpegConfigManager, _appManager, MockDevice.Self);
+            _viewModel = new ConfigViewModel(_tricycleConfigManager, _ffmpegConfigManager, _appManager, MockDevice.Self)
+            {
+                IsPageVisible = true
+            };
+
             _tricycleConfig = new TricycleConfig()
             {
                 Audio = new TricycleAudioConfig(),
@@ -1128,7 +1132,6 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void CallsRaiseQuitConfirmedWhenActiveAndNotDirty()
         {
-            _appManager.IsModalOpen.Returns(true);
             _viewModel.Initialize();
             _appManager.Quitting += Raise.Event<Action>();
 
@@ -1138,7 +1141,7 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void DoesNotCallRaiseQuitConfirmedWhenInactive()
         {
-            _appManager.IsModalOpen.Returns(false);
+            _viewModel.IsPageVisible = false;
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
             _appManager.Quitting += Raise.Event<Action>();
@@ -1152,7 +1155,6 @@ namespace Tricycle.UI.Tests.ViewModels
             string title = null;
             string message = null;
 
-            _appManager.IsModalOpen.Returns(true);
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
             _viewModel.Confirm += (t, m) =>
@@ -1172,7 +1174,6 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             bool confirmed = false;
 
-            _appManager.IsModalOpen.Returns(true);
             _viewModel.Initialize();
             _viewModel.Confirm += (t, m) =>
             {
@@ -1187,7 +1188,6 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void DoesNotCallRaiseQuitConfirmedWhenActiveAndDirtyButNotConfirmed()
         {
-            _appManager.IsModalOpen.Returns(true);
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
             _viewModel.Confirm += (title, message) => Task.FromResult(false);
@@ -1199,7 +1199,6 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void CallsRaiseQuitConfirmedWhenActiveAndDirtyAndConfirmed()
         {
-            _appManager.IsModalOpen.Returns(true);
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
             _viewModel.Confirm += (title, message) => Task.FromResult(true);

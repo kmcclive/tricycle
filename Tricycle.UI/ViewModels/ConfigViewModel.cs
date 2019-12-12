@@ -6,16 +6,16 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
-using Tricycle.Media.FFmpeg.Models;
+using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
-using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.AudioCodec;
-using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.AudioConfig;
-using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.VideoCodec;
-using FFmpegVideoConfig = Tricycle.Media.FFmpeg.Models.VideoConfig;
+using FFmpegAudioCodec = Tricycle.Media.FFmpeg.Models.Config.AudioCodec;
+using FFmpegAudioConfig = Tricycle.Media.FFmpeg.Models.Config.AudioConfig;
+using FFmpegVideoCodec = Tricycle.Media.FFmpeg.Models.Config.VideoCodec;
+using FFmpegVideoConfig = Tricycle.Media.FFmpeg.Models.Config.VideoConfig;
 using TricycleAudioCodec = Tricycle.Models.Config.AudioCodec;
 using TricycleAudioConfig = Tricycle.Models.Config.AudioConfig;
 using TricycleVideoCodec = Tricycle.Models.Config.VideoCodec;
@@ -114,6 +114,8 @@ namespace Tricycle.UI.ViewModels
         #endregion
 
         #region Properties
+
+        public bool IsPageVisible { get; set; }
 
         public bool AlertOnCompletion
         {
@@ -686,7 +688,7 @@ namespace Tricycle.UI.ViewModels
 
         async Task OnAppQuitting()
         {
-            if (_appManager.IsModalOpen &&
+            if (IsPageVisible &&
                 (!_isDirty || await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?")))
             {
                 // This raises the event outside of the current closing call stack

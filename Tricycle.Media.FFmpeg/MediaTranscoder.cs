@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Tricycle.Diagnostics;
+using Tricycle.IO;
+using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Media.FFmpeg.Models.Jobs;
+using Tricycle.Models;
 using Tricycle.Models.Jobs;
+using Tricycle.Models.Media;
+using Tricycle.Utilities;
 
 namespace Tricycle.Media.FFmpeg
 {
-    public class MediaTranscoder : IMediaTranscoder
+    public class MediaTranscoder : FFmpegJobRunnerBase, IMediaTranscoder
     {
         #region Fields
 
         readonly string _ffmpegFileName;
         readonly Func<IProcess> _processCreator;
-        readonly IFFmpegArgumentGenerator _argumentGenerator;
         TimeSpan _sourceDuration;
         IProcess _process;
         string _lastError;
@@ -23,11 +29,12 @@ namespace Tricycle.Media.FFmpeg
 
         public MediaTranscoder(string ffmpegFileName,
                                Func<IProcess> processCreator,
+                               IConfigManager<FFmpegConfig> configManager,
                                IFFmpegArgumentGenerator argumentGenerator)
+            : base(configManager, argumentGenerator)
         {
             _ffmpegFileName = ffmpegFileName;
             _processCreator = processCreator;
-            _argumentGenerator = argumentGenerator;
         }
 
         #endregion
@@ -62,7 +69,7 @@ namespace Tricycle.Media.FFmpeg
                 throw new InvalidOperationException("A job is already running.");
             }
 
-            string arguments = _argumentGenerator.GenerateArguments(job);
+            string arguments = GenerateArguments(job);
             var startInfo = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
@@ -98,6 +105,200 @@ namespace Tricycle.Media.FFmpeg
 
             _process = null;
             _sourceDuration = TimeSpan.Zero;
+        }
+
+        #endregion
+
+        #region Protected
+
+        #region Overrides
+
+        protected override FFmpegJob Map(TranscodeJob job, FFmpegConfig config)
+        {
+            var result = base.Map(job, config);
+
+            result.Format = GetFormatName(job.Format);
+
+            // This is a workaround for subtitle overlays with MKV reporting an incorrect duration
+            if ((job.Format == ContainerFormat.Mkv) && (job.Subtitles?.SourceStreamIndex != null))
+            {
+                result.Duration = job.SourceInfo.Duration;
+            }
+
+            return result;
+        }
+
+        protected override MappedStream MapStream(FFmpegConfig config,
+                                                  StreamInfo sourceStream,
+                                                  OutputStream outputStream)
+        {
+            var result = base.MapStream(config, sourceStream, outputStream);
+
+            if (result == null)
+            {
+                switch (outputStream)
+                {
+                    case AudioOutputStream audioOutput:
+                        if (sourceStream is AudioStreamInfo audioInput)
+                        {
+                            return MapAudioStream(config, audioInput, audioOutput);
+                        }
+
+                        throw GetStreamMismatchException(nameof(sourceStream), nameof(outputStream));
+                    default:
+                        return MapPassthruStream(sourceStream, outputStream);
+                }
+            }
+
+            return result;
+        }
+
+        protected override MappedVideoStream MapVideoStream(FFmpegConfig config,
+                                                            VideoStreamInfo sourceStream,
+                                                            VideoOutputStream outputStream)
+        {
+            var result = base.MapVideoStream(config, sourceStream, outputStream);
+
+            result.Codec = GetVideoCodec(config, sourceStream, outputStream);
+
+            return result;
+        }
+
+        #endregion
+
+        protected virtual string GetFormatName(ContainerFormat format)
+        {
+            switch (format)
+            {
+                case ContainerFormat.Mkv:
+                    return "matroska";
+                case ContainerFormat.Mp4:
+                    return "mp4";
+                default:
+                    throw new NotSupportedException($"The container format {format} is not supported.");
+            }
+        }
+
+        protected virtual Codec GetVideoCodec(FFmpegConfig config,
+                                              VideoStreamInfo sourceStream,
+                                              VideoOutputStream outputStream)
+        {
+            VideoFormat format = outputStream.Format;
+            VideoCodec codec = config?.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
+            string codecName = GetVideoCodecName(format);
+            X26xCodec result = format == VideoFormat.Hevc ? new X265Codec(codecName) : new X26xCodec(codecName);
+
+            result.Preset = codec.Preset;
+            result.Crf = outputStream.Quality;
+
+            if (outputStream.DynamicRange == DynamicRange.High)
+            {
+                if (outputStream.Format != VideoFormat.Hevc)
+                {
+                    throw new NotSupportedException($"HDR is not supported with the video format {outputStream.Format}.");
+                }
+
+                var options = new List<Option>()
+                {
+                    new Option("colorprim", "bt2020"),
+                    new Option("colormatrix", "bt2020nc"),
+                    new Option("transfer", "smpte2084")
+                };
+
+                if (outputStream.CopyHdrMetadata)
+                {
+                    if (sourceStream.MasterDisplayProperties != null)
+                    {
+                        var properties = sourceStream.MasterDisplayProperties;
+                        var value = string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
+                                                  properties.Green,
+                                                  properties.Blue,
+                                                  properties.Red,
+                                                  properties.WhitePoint,
+                                                  properties.Luminance.Max,
+                                                  properties.Luminance.Min);
+
+                        options.Add(new Option("master-display", value));
+                    }
+
+                    if (sourceStream.LightLevelProperties != null)
+                    {
+                        var properties = sourceStream.LightLevelProperties;
+
+                        options.Add(new Option("max-cll", $"\"{properties.MaxCll},{properties.MaxFall}\""));
+                    }
+                }
+
+                ((X265Codec)result).Options = options;
+            }
+
+            return result;
+        }
+
+        protected virtual string GetVideoCodecName(VideoFormat format)
+        {
+            switch (format)
+            {
+                case VideoFormat.Avc:
+                    return "libx264";
+                case VideoFormat.Hevc:
+                    return "libx265";
+                default:
+                    throw new NotSupportedException($"The video format {format} is not supported.");
+            }
+        }
+
+        protected virtual MappedStream MapPassthruStream(StreamInfo sourceStream, OutputStream outputStream)
+        {
+            return new MappedStream(sourceStream.StreamType, GetStreamInput(sourceStream))
+            {
+                Codec = new Codec("copy")
+            };
+        }
+
+        protected virtual MappedAudioStream MapAudioStream(FFmpegConfig config,
+                                                           AudioStreamInfo sourceStream,
+                                                           AudioOutputStream outputStream)
+        {
+            var result = new MappedAudioStream()
+            {
+                Input = GetStreamInput(sourceStream),
+                Codec = new Codec(GetAudioCodecName(config, outputStream.Format))
+            };
+
+            if (outputStream.Mixdown.HasValue)
+            {
+                result.ChannelCount = AudioUtility.GetChannelCount(outputStream.Mixdown.Value);
+            }
+
+            if (outputStream.Quality.HasValue)
+            {
+                result.Bitrate = $"{outputStream.Quality:0}k";
+            }
+
+            return result;
+        }
+
+        string GetAudioCodecName(FFmpegConfig config, AudioFormat format)
+        {
+            string result = config?.Audio?.Codecs?.GetValueOrDefault(format)?.Name;
+
+            if (result == null)
+            {
+                switch (format)
+                {
+                    case AudioFormat.Aac:
+                        result = "aac";
+                        break;
+                    case AudioFormat.Ac3:
+                        result = "ac3";
+                        break;
+                    default:
+                        throw new NotSupportedException($"The audio format {format} is not supported.");
+                }
+            }
+
+            return result;
         }
 
         #endregion

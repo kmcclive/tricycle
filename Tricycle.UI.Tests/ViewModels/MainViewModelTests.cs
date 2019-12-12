@@ -70,7 +70,10 @@ namespace Tricycle.UI.Tests
                                            MockDevice.Self,
                                            _appManager,
                                            _tricycleConfigManager,
-                                           _defaultDestinationDirectory);
+                                           _defaultDestinationDirectory)
+            {
+                IsPageVisible = true
+            };
 
             _fileBrowserResult = new FileBrowserResult()
             {
@@ -224,6 +227,44 @@ namespace Tricycle.UI.Tests
 
             Assert.AreEqual("Invalid Source", actualTitle);
             Assert.AreEqual("The selected file could not be opened.", actualMessage);
+        }
+
+        [TestMethod]
+        public void RaisesSourceSelectedWithFalseWhenSourceIsNull()
+        {
+            bool isValid = true;
+
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
+            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
+                       .Do(x => isValid = (bool)x[0]);
+            SelectSource();
+
+            Assert.IsFalse(isValid);
+        }
+
+        [TestMethod]
+        public void RaisesSourceSelectedWithFalseWhenSourceHasNoVideo()
+        {
+            bool isValid = true;
+
+            _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
+            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
+                       .Do(x => isValid = (bool)x[0]);
+            SelectSource();
+
+            Assert.IsFalse(isValid);
+        }
+
+        [TestMethod]
+        public void RaisesSourceSelectedWithTrueWhenSourceIsValid()
+        {
+            bool isValid = false;
+
+            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
+                       .Do(x => isValid = (bool)x[0]);
+            SelectSource();
+
+            Assert.IsTrue(isValid);
         }
 
         [TestMethod]
@@ -2856,8 +2897,9 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DoesNotCallRaiseQuitConfirmedWhenAppIsQuitAndModalIsOpen()
+        public void DoesNotCallRaiseQuitConfirmedWhenAppIsQuitAndPageIsNotVisible()
         {
+            _viewModel.IsPageVisible = false;
             _appManager.IsModalOpen.Returns(true);
             _appManager.Quitting += Raise.Event<Action>();
 

@@ -9,6 +9,7 @@ namespace Tricycle.UI
         bool IsBusy { get; }
         bool IsQuitConfirmed { get; }
         bool IsModalOpen { get; }
+        bool IsValidSourceSelected { get; }
 
         event Action Ready;
         event Action Busy;
@@ -17,6 +18,7 @@ namespace Tricycle.UI
         event Action QuitConfirmed;
         event Action<Page> ModalOpened;
         event Action ModalClosed;
+        event Action<bool> SourceSelected;
 
         void RaiseReady();
         void RaiseBusy();
@@ -25,5 +27,6 @@ namespace Tricycle.UI
         void RaiseQuitConfirmed();
         void RaiseModalOpened(Page page);
         void RaiseModalClosed();
+        void RaiseSourceSelected(bool isValid);
     }
 }

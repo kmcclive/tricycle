@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Serialization\" />
+    <Folder Include="Serialization\Argument\" />
+  </ItemGroup>
 </Project>
