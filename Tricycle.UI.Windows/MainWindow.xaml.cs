@@ -41,7 +41,10 @@ namespace Tricycle.UI.Windows
         IAppManager _appManager;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
+        MenuItem _previewItem;
+        MainPage _mainPage;
         ConfigPage _configPage;
+        PreviewPage _previewPage;
 
         public MainWindow()
         {
@@ -49,12 +52,18 @@ namespace Tricycle.UI.Windows
 
             _appManager.Busy += OnBusyChange;
             _appManager.Ready += OnBusyChange;
+            _appManager.SourceSelected += OnSourceSelected;
             _appManager.QuitConfirmed += Close;
 
             InitializeAppState();
             InitializeComponent();
-            Forms.Init();         
-            LoadApplication(new UI.App());
+            Forms.Init();
+
+            var app = new UI.App();
+
+            _mainPage = app.MainPage as MainPage;
+
+            LoadApplication(app);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -91,7 +100,7 @@ namespace Tricycle.UI.Windows
                 IsMainMenu = true,
                 Background = MENU_BACKGROUND_BRUSH,
                 BorderThickness = MENU_BORDER_THICKNESS,
-                Padding = new System.Windows.Thickness(10, 5, 10, 5),
+                Padding = new Thickness(10, 5, 10, 5),
                 FontSize = 14,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Top
@@ -116,6 +125,16 @@ namespace Tricycle.UI.Windows
 
             exitItem.Click += (sender, args) => Close();
             fileItem.Items.Add(exitItem);
+
+            var viewItem = CreateMenuItem("_View");
+        
+            menu.Items.Add(viewItem);
+
+            _previewItem = CreateMenuItem("_Preview…");
+            _previewItem.IsEnabled = false;
+
+            _previewItem.Click += OnPreviewClick;
+            viewItem.Items.Add(_previewItem);
 
             var toolsItem = CreateMenuItem("_Tools");
 
@@ -155,6 +174,7 @@ namespace Tricycle.UI.Windows
             string assetsPath = Path.Combine(appPath, "Assets");
             string defaultConfigPath = Path.Combine(assetsPath, "Config");
             string ffmpegPath = Path.Combine(assetsPath, "Tools", "FFmpeg");
+            string ffmpegFileName = Path.Combine(ffmpegPath, "ffmpeg.exe");
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string userConfigPath = Path.Combine(appDataPath, "Tricycle");
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
@@ -180,21 +200,26 @@ namespace Tricycle.UI.Windows
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
-                _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
+                _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe.exe"),
                                                                 processRunner,
                                                                 ProcessUtility.Self));
-                _.For<ICropDetector>().Use(new CropDetector(Path.Combine(ffmpegPath, "ffmpeg"),
+                _.For<ICropDetector>().Use(new CropDetector(ffmpegFileName,
                                                             processRunner,
                                                             ffmpegConfigManager,
                                                             ffmpegArgumentGenerator));
                 _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
-                _.For<IMediaTranscoder>().Use(new MediaTranscoder(Path.Combine(ffmpegPath, "ffmpeg"),
+                _.For<IMediaTranscoder>().Use(new MediaTranscoder(ffmpegFileName,
                                                                   processCreator,
                                                                   ffmpegConfigManager,
                                                                   ffmpegArgumentGenerator));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
+                _.For<IPreviewImageGenerator>().Use(new PreviewImageGenerator(ffmpegFileName,
+                                                                              processRunner,
+                                                                              ffmpegArgumentGenerator,
+                                                                              ffmpegConfigManager,
+                                                                              fileSystem));
             });
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
@@ -204,6 +229,12 @@ namespace Tricycle.UI.Windows
         {
             _openFileItem.IsEnabled = !_appManager.IsBusy;
             _optionsItem.IsEnabled = !_appManager.IsBusy;
+            _previewItem.IsEnabled = !_appManager.IsBusy && _appManager.IsValidSourceSelected;
+        }
+
+        void OnSourceSelected(bool isValid)
+        {
+            _previewItem.IsEnabled = isValid && !_appManager.IsBusy;
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
@@ -235,6 +266,25 @@ namespace Tricycle.UI.Windows
             };
 
             window.ShowDialog();
+        }
+
+        void OnPreviewClick(object sender, RoutedEventArgs e)
+        {
+            var job = _mainPage?.GetTranscodeJob();
+
+            if (job == null)
+            {
+                return;
+            }
+
+            if (_previewPage == null)
+            {
+                _previewPage = new PreviewPage();
+            }
+
+            _previewPage.TranscodeJob = job;
+
+            _appManager.RaiseModalOpened(_previewPage);
         }
     }
 }
