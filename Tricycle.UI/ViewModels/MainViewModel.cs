@@ -161,6 +161,8 @@ namespace Tricycle.UI.ViewModels
 
         #region Properties
 
+        public bool IsPageVisible { get; set; }
+
         public bool IsSourceInfoVisible
         {
             get { return _isSourceInfoVisible; }
@@ -1545,7 +1547,7 @@ namespace Tricycle.UI.ViewModels
 
         async Task OnAppQuitting()
         {
-            if (!_appManager.IsModalOpen && (!_isRunning || await ConfirmStopTranscode()))
+            if (IsPageVisible && (!_isRunning || await ConfirmStopTranscode()))
             {
                 // This raises the event outside of the current closing call stack
                 _device.StartTimer(TimeSpan.FromTicks(1), () =>

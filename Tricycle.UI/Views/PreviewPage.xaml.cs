@@ -21,6 +21,7 @@ namespace Tricycle.UI.Views
             _viewModel = new PreviewViewModel(
                 AppState.IocContainer.GetInstance<IPreviewImageGenerator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
+                AppState.IocContainer.GetInstance<IAppManager>(),
                 AppState.IocContainer.GetInstance<IDevice>());
 
             _viewModel.Closed += async () => await OnClosed();
@@ -34,10 +35,19 @@ namespace Tricycle.UI.Views
         {
             base.OnAppearing();
 
+            _viewModel.IsPageVisible = true;
+
             if (TranscodeJob != null)
             {
                 Task.Run(() => _viewModel.Load(TranscodeJob));
             }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            _viewModel.IsPageVisible = false;
         }
 
         async Task OnClosed()

@@ -13,27 +13,45 @@ namespace Tricycle.UI.ViewModels
 {
     public class PreviewViewModel : ViewModelBase
     {
+        #region Fields
+
         readonly IPreviewImageGenerator _imageGenerator;
         readonly IFileSystem _fileSystem;
+        readonly IAppManager _appManager;
         readonly IDevice _device;
 
         string _currentImageSource;
-        bool _isSpinnerVisible;
-        bool _isImageVisible;
+        bool _isLoading;
 
         IList<string> _imageFileNames;
         int _currentIndex;
 
-        public PreviewViewModel(IPreviewImageGenerator imageGenerator, IFileSystem fileSystem, IDevice device)
+        #endregion
+
+        #region Constructors
+
+        public PreviewViewModel(IPreviewImageGenerator imageGenerator,
+                                IFileSystem fileSystem,
+                                IAppManager appManager,
+                                IDevice device)
         {
             _imageGenerator = imageGenerator;
             _fileSystem = fileSystem;
+            _appManager = appManager;
             _device = device;
+
+            _appManager.Quitting += OnAppQuitting;
 
             CloseCommand = new Command(Close);
             PreviousCommand = new Command(Previous, () => _currentIndex > 0);
             NextCommand = new Command(Next, () => _currentIndex < (_imageFileNames?.Count ?? 0) - 1);
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsPageVisible { get; set; }
 
         public string CurrentImageSource
         {
@@ -43,21 +61,46 @@ namespace Tricycle.UI.ViewModels
 
         public bool IsSpinnerVisible
         {
-            get => _isSpinnerVisible;
-            set => SetProperty(ref _isSpinnerVisible, value);
+            get => _isLoading;
         }
 
         public bool IsImageVisible
         {
-            get => _isImageVisible;
-            set => SetProperty(ref _isImageVisible, value);
+            get => !_isLoading;
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                SetProperty(ref _isLoading, value);
+                RaisePropertyChanged(nameof(IsSpinnerVisible));
+                RaisePropertyChanged(nameof(IsImageVisible));
+
+                if (_isLoading)
+                {
+                    _appManager.RaiseBusy();
+                } else
+                {
+                    _appManager.RaiseReady();
+                }
+            }
         }
 
         public ICommand CloseCommand { get; }
         public ICommand PreviousCommand { get; }
         public ICommand NextCommand { get; }
 
+        #endregion
+
+        #region Events
+
         public event Action Closed;
+
+        #endregion
+
+        #region Methods
 
         public async Task Load(TranscodeJob job)
         {
@@ -66,11 +109,10 @@ namespace Tricycle.UI.ViewModels
 
             _device.BeginInvokeOnMainThread(() =>
             {
-                SetLoading(true);
+                IsLoading = true;
+                RefreshButtons();
 
                 CurrentImageSource = null;
-
-                RefreshButtons();
             });
             
             if (job != null)
@@ -88,29 +130,13 @@ namespace Tricycle.UI.ViewModels
                 CurrentImageSource = _imageFileNames?.FirstOrDefault();
 
                 RefreshButtons();
-                SetLoading(false);
+                IsLoading = false;
             });
         }
 
         void Close()
         {
-            if (_imageFileNames != null)
-            {
-                foreach (var fileName in _imageFileNames)
-                {
-                    try
-                    {
-                        if (_fileSystem.File.Exists(fileName))
-                        {
-                            _fileSystem.File.Delete(fileName);
-                        }
-                    }
-                    catch (ArgumentException) { }
-                    catch (NotSupportedException) { }
-                    catch (IOException) { }
-                    catch (UnauthorizedAccessException) { }
-                }
-            }
+            DeleteImages();
 
             Closed?.Invoke();
         }
@@ -137,10 +163,36 @@ namespace Tricycle.UI.ViewModels
             ((Command)NextCommand).ChangeCanExecute();
         }
 
-        void SetLoading(bool isLoading)
+        void DeleteImages()
         {
-            IsSpinnerVisible = isLoading;
-            IsImageVisible = !isLoading;
+            if (_imageFileNames != null)
+            {
+                foreach (var fileName in _imageFileNames)
+                {
+                    try
+                    {
+                        if (_fileSystem.File.Exists(fileName))
+                        {
+                            _fileSystem.File.Delete(fileName);
+                        }
+                    }
+                    catch (ArgumentException) { }
+                    catch (NotSupportedException) { }
+                    catch (IOException) { }
+                    catch (UnauthorizedAccessException) { }
+                }
+            }
         }
+
+        void OnAppQuitting()
+        {
+            if (IsPageVisible)
+            {
+                DeleteImages();
+                _appManager.RaiseQuitConfirmed();
+            }
+        }
+
+        #endregion
     }
 }

@@ -51,6 +51,20 @@ namespace Tricycle.UI.Views
             return _viewModel.GetTranscodeJob();
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            _viewModel.IsPageVisible = true;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            _viewModel.IsPageVisible = false;
+        }
+
         void OnAlert(string title, string message)
         {
             DisplayAlert(title, message, "OK");

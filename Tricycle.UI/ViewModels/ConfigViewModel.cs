@@ -115,6 +115,8 @@ namespace Tricycle.UI.ViewModels
 
         #region Properties
 
+        public bool IsPageVisible { get; set; }
+
         public bool AlertOnCompletion
         {
             get => _alertOnCompletion;
@@ -686,7 +688,7 @@ namespace Tricycle.UI.ViewModels
 
         async Task OnAppQuitting()
         {
-            if (_appManager.IsModalOpen &&
+            if (IsPageVisible &&
                 (!_isDirty || await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?")))
             {
                 // This raises the event outside of the current closing call stack

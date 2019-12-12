@@ -21,6 +21,7 @@ namespace Tricycle.UI.Views
         }
 
         IAppManager _appManager;
+        ConfigViewModel _viewModel;
 
         public ConfigPage()
         {
@@ -28,7 +29,7 @@ namespace Tricycle.UI.Views
 
             _appManager = AppState.IocContainer.GetInstance<IAppManager>();
 
-            var viewModel = new ConfigViewModel(
+            _viewModel = new ConfigViewModel(
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>(),
                 _appManager,
@@ -36,16 +37,30 @@ namespace Tricycle.UI.Views
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();
             var selectedSection = sections[0];
 
-            BindingContext = viewModel;
+            BindingContext = _viewModel;
             vwSections.ItemsSource = sections;
             vwSections.SelectedItem = selectedSection;
 
             SelectSection(selectedSection);
-            viewModel.Initialize();
+            _viewModel.Initialize();
 
-            viewModel.Closed += async () => await OnClosed();
-            viewModel.Confirm += (title, message) => DisplayAlert(title, message, "OK", "Cancel");
+            _viewModel.Closed += async () => await OnClosed();
+            _viewModel.Confirm += (title, message) => DisplayAlert(title, message, "OK", "Cancel");
             vwSections.ItemSelected += OnSectionSelected;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            _viewModel.IsPageVisible = true;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            _viewModel.IsPageVisible = false;
         }
 
         async Task OnClosed()
