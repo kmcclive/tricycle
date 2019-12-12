@@ -14,6 +14,7 @@ namespace Tricycle.Media.FFmpeg
         /// <exception cref="ArgumentException">
         /// <paramref name="job"/>.InputFileName is <c>null</c> or empty
         /// </exception>
+        /// <exception cref="NotSupportedException">An unsupported option was specified.</exception>
         string GenerateArguments(FFmpegJob job);
     }
 }

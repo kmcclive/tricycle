@@ -190,7 +190,7 @@ namespace Tricycle.Media.FFmpeg
                 const string SUB_LABEL = "sub";
                 const string REF_LABEL = "ref";
 
-                result.Add(GetSub2RefFilter(sourceStream, subtitlesIndex, SUB_LABEL, REF_LABEL));
+                result.Add(GetScale2RefFilter(sourceStream, subtitlesIndex, SUB_LABEL, REF_LABEL));
                 result.Add(GetOverlayFilter(REF_LABEL, SUB_LABEL));
             }
 
@@ -231,10 +231,10 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
-        protected virtual IFilter GetSub2RefFilter(VideoStreamInfo sourceStream,
-                                                   int? subtitlesIndex,
-                                                   string subLabel,
-                                                   string refLabel)
+        protected virtual IFilter GetScale2RefFilter(VideoStreamInfo sourceStream,
+                                                     int? subtitlesIndex,
+                                                     string subLabel,
+                                                     string refLabel)
         {
             return new Filter("scale2ref")
             {

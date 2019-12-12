@@ -24,7 +24,4 @@
     <Folder Include="Models\Config\" />
     <Folder Include="Serialization\Json\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Serialization\Argument\CodecConverter.cs" />
-  </ItemGroup>
 </Project>
