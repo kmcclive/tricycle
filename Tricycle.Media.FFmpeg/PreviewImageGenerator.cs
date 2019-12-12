@@ -85,6 +85,7 @@ namespace Tricycle.Media.FFmpeg
             {
                 var ffmpegJob = Map(job, _configManager?.Config);
 
+                ffmpegJob.LogLevel = "panic";
                 ffmpegJob.OutputFileName = _fileSystem.Path.Combine(tempPath, $"{Guid.NewGuid()}.png");
                 ffmpegJob.StartTime = position;
                 ffmpegJob.FrameCount = 1;

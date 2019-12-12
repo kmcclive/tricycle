@@ -21,6 +21,10 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentOrder(0)]
         public bool HideBanner { get; set; }
 
+        [Argument("-loglevel")]
+        [ArgumentOrder(0)]
+        public string LogLevel { get; set; }
+
         [Argument("-y")]
         [ArgumentConverter(typeof(FlagConverter))]
         [ArgumentOrder(0)]
