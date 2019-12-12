@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     public class NumberEntry : Entry
     {

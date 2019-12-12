@@ -15,7 +15,7 @@ using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Views;
+using Tricycle.UI.Pages;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -160,7 +160,7 @@ namespace Tricycle.UI.macOS
         [Action("validateMenuItem:")]
         public bool ValidateMenuItem(NSMenuItem item)
         {
-            switch(item.Title)
+            switch (item.Title)
             {
                 case "Open…":
                 case "Preferences…":

@@ -1,4 +1,4 @@
-﻿using Tricycle.UI.Views;
+﻿using Tricycle.UI.Pages;
 using Xamarin.Forms;
 
 namespace Tricycle.UI

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     public partial class AdvancedConfigSection : ContentView
     {

@@ -8,7 +8,7 @@ using Tricycle.Models.Config;
 using Tricycle.UI.ViewModels;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Views
+namespace Tricycle.UI.Pages
 {
     public partial class ConfigPage : ContentPage
     {

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Tricycle.UI.Controls"
-             x:Class="Tricycle.UI.Controls.VideoConfigSection">
+             xmlns:local="clr-namespace:Tricycle.UI.Views"
+             x:Class="Tricycle.UI.Views.VideoConfigSection">
     <ContentView.Resources>
         <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
     </ContentView.Resources>

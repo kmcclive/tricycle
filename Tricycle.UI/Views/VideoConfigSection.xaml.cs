@@ -1,6 +1,6 @@
 ﻿using Xamarin.Forms;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     public partial class VideoConfigSection : ContentView
     {

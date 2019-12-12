@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     public partial class FramedImageButton : ContentView
     {

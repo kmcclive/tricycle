@@ -6,7 +6,7 @@ using Tricycle.Models.Jobs;
 using Tricycle.UI.ViewModels;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Views
+namespace Tricycle.UI.Pages
 {
     public partial class PreviewPage : ContentPage
     {

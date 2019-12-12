@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Reflection;
 using Xamarin.Forms;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     // Adapted from
     // https://github.com/Oceanware/XamarinFormsBindablePicker/blob/master/XamarinFormsBindablePicker/XamarinFormsBindablePicker/Controls/BindablePicker.cs

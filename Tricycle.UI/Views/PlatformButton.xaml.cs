@@ -4,7 +4,7 @@ using System.Windows.Input;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace Tricycle.UI.Controls
+namespace Tricycle.UI.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlatformButton : ContentView
