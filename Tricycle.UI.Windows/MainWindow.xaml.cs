@@ -78,6 +78,18 @@ namespace Tricycle.UI.Windows
             base.OnClosing(e);
         }
 
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+
+            var backButton = Template.FindName("PART_Previous_Modal", this) as Control;
+
+            if (backButton != null)
+            {
+                backButton.Visibility = Visibility.Hidden;
+            }
+        }
+
         protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
         {
             base.OnTemplateChanged(oldTemplate, newTemplate);

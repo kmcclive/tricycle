@@ -96,6 +96,8 @@ namespace Tricycle.UI.ViewModels
 
         #region Methods
 
+        #region Public
+
         public async Task Load(TranscodeJob job)
         {
             _imageFileNames = null;
@@ -128,6 +130,10 @@ namespace Tricycle.UI.ViewModels
             });
         }
 
+        #endregion
+
+        #region Command Actions
+
         void Close()
         {
             DeleteImages();
@@ -151,6 +157,10 @@ namespace Tricycle.UI.ViewModels
             RefreshButtons();
         }
 
+        #endregion
+
+        #region Helpers
+
         void RefreshButtons()
         {
             ((Command)PreviousCommand).ChangeCanExecute();
@@ -159,33 +169,47 @@ namespace Tricycle.UI.ViewModels
 
         void DeleteImages()
         {
-            if (_imageFileNames != null)
+            if (_imageFileNames == null)
             {
-                foreach (var fileName in _imageFileNames)
+                return;
+            }
+
+            foreach (var fileName in _imageFileNames)
+            {
+                try
                 {
-                    try
+                    if (_fileSystem.File.Exists(fileName))
                     {
-                        if (_fileSystem.File.Exists(fileName))
-                        {
-                            _fileSystem.File.Delete(fileName);
-                        }
+                        _fileSystem.File.Delete(fileName);
                     }
-                    catch (ArgumentException) { }
-                    catch (NotSupportedException) { }
-                    catch (IOException) { }
-                    catch (UnauthorizedAccessException) { }
                 }
+                catch (ArgumentException) { }
+                catch (NotSupportedException) { }
+                catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
             }
         }
+
+        #endregion
+
+        #region Event Handlers
 
         void OnAppQuitting()
         {
             if (IsPageVisible)
             {
                 DeleteImages();
-                _appManager.RaiseQuitConfirmed();
+
+                // This raises the event outside of the current closing call stack
+                _device.StartTimer(TimeSpan.FromTicks(1), () =>
+                {
+                    _appManager.RaiseQuitConfirmed();
+                    return false;
+                });
             }
         }
+
+        #endregion
 
         #endregion
     }
