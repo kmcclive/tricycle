@@ -11,6 +11,7 @@ namespace Tricycle.UI
         public bool IsBusy { get; private set; }
         public bool IsQuitConfirmed { get; private set; }
         public bool IsModalOpen { get => _modalCount > 0; }
+        public bool IsValidSourceSelected { get; private set; }
 
         public event Action Ready;
         public event Action Busy;
@@ -19,6 +20,7 @@ namespace Tricycle.UI
         public event Action QuitConfirmed;
         public event Action<Page> ModalOpened;
         public event Action ModalClosed;
+        public event Action<bool> SourceSelected;
 
         public void RaiseReady()
         {
@@ -51,6 +53,12 @@ namespace Tricycle.UI
         {
             _modalCount--;
             ModalClosed?.Invoke();
+        }
+
+        public void RaiseSourceSelected(bool isValid)
+        {
+            IsValidSourceSelected = isValid;
+            SourceSelected?.Invoke(isValid);
         }
     }
 }

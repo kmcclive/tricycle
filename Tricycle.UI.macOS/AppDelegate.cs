@@ -163,9 +163,10 @@ namespace Tricycle.UI.macOS
             switch(item.Title)
             {
                 case "Open…":
-                    return !_appManager.IsBusy;
                 case "Preferences…":
-                    return !_appManager.IsBusy;
+                    return !_appManager.IsBusy && !_appManager.IsModalOpen;
+                case "Preview…":
+                    return !_appManager.IsBusy && !_appManager.IsModalOpen && _appManager.IsValidSourceSelected;
                 default:
                     return true;
             }

@@ -722,6 +722,7 @@ namespace Tricycle.UI.ViewModels
 
             startCommand.ChangeCanExecute();
             _appManager.RaiseReady();
+            _appManager.RaiseSourceSelected(isValid);
         }
 
         void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)

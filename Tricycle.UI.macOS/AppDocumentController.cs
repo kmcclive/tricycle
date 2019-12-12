@@ -16,7 +16,7 @@ namespace Tricycle.UI.macOS
             switch (menuItem.ParentItem?.Title)
             {
                 case "Open Recent":
-                    return !_appManager.IsBusy || menuItem.Title == "Clear Menu";
+                    return !(_appManager.IsBusy || _appManager.IsModalOpen) || menuItem.Title == "Clear Menu";
                 default:
                     return true;
             }

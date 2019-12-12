@@ -163,5 +163,27 @@ namespace Tricycle.UI.Tests
 
             Assert.IsTrue(_appManager.IsModalOpen);
         }
+
+        [TestMethod]
+        public void RaiseSourceSelectedRaisesSourceSelectedEvent()
+        {
+            bool expected = true;
+            bool actual = !expected;
+
+            _appManager.SourceSelected += isValid => actual = isValid;
+            _appManager.RaiseSourceSelected(expected);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void RaiseSourceSelectedSetsIsValidSourceSelected()
+        {
+            bool isValid = true;
+
+            _appManager.RaiseSourceSelected(isValid);
+
+            Assert.AreEqual(isValid, _appManager.IsValidSourceSelected);
+        }
     }
 }
