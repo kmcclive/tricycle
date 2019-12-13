@@ -30,7 +30,7 @@
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />
         </Grid>
-        <FlexLayout JustifyContent="SpaceEvenly" Margin="15, 0, 15, 15">
+        <FlexLayout JustifyContent="SpaceEvenly" Margin="0, 0, 0, 15">
             <local:PlatformButton Source="Images/previous.png" Command="{Binding PreviousCommand}" />
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />
         </FlexLayout>
