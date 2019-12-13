@@ -90,6 +90,7 @@ namespace Tricycle.UI.ViewModels
 
         #region Events
 
+        public event AlertEventHandler Alert;
         public event Action Closed;
 
         #endregion
@@ -127,6 +128,12 @@ namespace Tricycle.UI.ViewModels
 
                 RefreshButtons();
                 IsLoading = false;
+
+                if (_imageFileNames?.Any() != true)
+                {
+                    Alert?.Invoke("Preview Error", @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯");
+                    Closed?.Invoke();
+                }
             });
         }
 
