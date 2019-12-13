@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
@@ -105,10 +104,9 @@ namespace Tricycle.UI.ViewModels
 
             _audioMixdownOptions.Insert(0, EMPTY_ITEM);
 
-            _appManager.Quitting += async () => await OnAppQuitting();
+            _appManager.Quitting += OnAppQuitting;
 
-            CompleteCommand = new Command(new Action(Complete));
-            CancelCommand = new Command(async () => await Cancel());
+            CloseCommand = new Command(new Action(Close));
         }
 
         #endregion
@@ -243,15 +241,13 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _tonemapOptions, value);
         }
 
-        public ICommand CompleteCommand { get; }
-        public ICommand CancelCommand { get; }
+        public ICommand CloseCommand { get; }
 
         #endregion
 
         #region Events
 
         public event Action Closed;
-        public event ConfirmEventHandler Confirm;
 
         #endregion
 
@@ -285,30 +281,14 @@ namespace Tricycle.UI.ViewModels
 
         #region Command Actions
 
-        void Complete()
+        void Close()
         {
             if (_isDirty)
             {
-                _tricycleConfigManager.Config = GenerateTricycleConfig();
-                _ffmpegConfigManager.Config = GenerateFFmpegConfig();
-
-                _tricycleConfigManager.Save();
-                _ffmpegConfigManager.Save();
+                Save();
             }
 
             Closed?.Invoke();
-        }
-
-        async Task Cancel()
-        {
-            bool proceed = !_isDirty ||
-                await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?");
-
-            if (proceed)
-            {
-                Initialize();
-                Closed?.Invoke();
-            }
         }
 
         #endregion
@@ -444,6 +424,15 @@ namespace Tricycle.UI.ViewModels
         ListItem GetAudioMixdownOption(AudioMixdown mixdown)
         {
             return new ListItem(AudioUtility.GetMixdownName(mixdown), mixdown);
+        }
+
+        void Save()
+        {
+            _tricycleConfigManager.Config = GenerateTricycleConfig();
+            _ffmpegConfigManager.Config = GenerateFFmpegConfig();
+
+            _tricycleConfigManager.Save();
+            _ffmpegConfigManager.Save();
         }
 
         TricycleConfig GenerateTricycleConfig()
@@ -686,11 +675,15 @@ namespace Tricycle.UI.ViewModels
             presets.Remove(preset);
         }
 
-        async Task OnAppQuitting()
+        void OnAppQuitting()
         {
-            if (IsPageVisible &&
-                (!_isDirty || await Confirm?.Invoke("Discard Changes", "Are you sure you want to lose your changes?")))
+            if (IsPageVisible)
             {
+                if (_isDirty)
+                {
+                    Save();
+                }
+
                 // This raises the event outside of the current closing call stack
                 _device.StartTimer(TimeSpan.FromTicks(1), () =>
                 {

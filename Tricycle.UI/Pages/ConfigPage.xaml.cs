@@ -45,7 +45,6 @@ namespace Tricycle.UI.Pages
             _viewModel.Initialize();
 
             _viewModel.Closed += async () => await OnClosed();
-            _viewModel.Confirm += (title, message) => DisplayAlert(title, message, "OK", "Cancel");
             vwSections.ItemSelected += OnSectionSelected;
         }
 

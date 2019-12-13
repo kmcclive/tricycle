@@ -6,7 +6,7 @@
     x:Class="Tricycle.UI.Pages.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}">
     <StackLayout Spacing="0">
-        <local:NavigationBar BackCommand="{Binding CompleteCommand}">
+        <local:NavigationBar BackCommand="{Binding CloseCommand}">
             <local:NavigationBar.Title>
                 <OnPlatform x:TypeArguments="x:String">
                     <On Platform="macOS" Value="Preferences" />
