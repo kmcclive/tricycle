@@ -132,7 +132,6 @@ namespace Tricycle.UI.ViewModels
                 if (_imageFileNames?.Any() != true)
                 {
                     Alert?.Invoke("Preview Error", @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯");
-                    Closed?.Invoke();
                 }
             });
         }

@@ -310,19 +310,6 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public async Task RaisesClosedWhenLoadFails()
-        {
-            bool closed = false;
-
-            _imageGenerator.Generate(Arg.Any<TranscodeJob>()).Returns(new string[0]);
-            _viewModel.Closed += () => closed = true;
-
-            await _viewModel.Load(new TranscodeJob());
-
-            Assert.IsTrue(closed);
-        }
-
-        [TestMethod]
         public async Task DeletesFilesWhenClosing()
         {
             var fileNames = new string[] { "a", "b", "c" };
