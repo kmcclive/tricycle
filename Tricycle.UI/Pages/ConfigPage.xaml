@@ -5,50 +5,53 @@
     xmlns:local="clr-namespace:Tricycle.UI.Views"
     x:Class="Tricycle.UI.Pages.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}">
-    <ContentPage.Resources>
-        <OnPlatform x:Key="ButtonRowHeight" x:TypeArguments="GridLength">
-            <On Platform="macOS" Value="46" />
-            <On Platform="WPF" Value="57" />
-        </OnPlatform>
-    </ContentPage.Resources>
-    <Grid x:Name="gridMain" ColumnSpacing="0" RowSpacing="0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="{StaticResource ButtonRowHeight}" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="7*" />
-        </Grid.ColumnDefinitions>
-        <Frame BackgroundColor="{StaticResource BackgroundColor}"
-               BorderColor="{StaticResource BorderColor}"
-               HasShadow="False"
-               Margin="10, 10, 5, 0"
-               Padding="0"
-               Grid.Row="0"
-               Grid.Column="0">
-            <ListView x:Name="vwSections"
-                      HorizontalOptions="FillAndExpand"
-                      VerticalOptions="FillAndExpand"
-                      VerticalScrollBarVisibility="Never">
-                <ListView.Header>
-                    <FlexLayout />
-                </ListView.Header>
-            </ListView>
-        </Frame> 
-        <local:FramedPanel x:Name="pnlSection" Margin="5, 10, 10, 0" Grid.Row="0" Grid.Column="1">
-            <ScrollView>
-                <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
-                    <local:GeneralConfigSection x:Name="sctGeneral" />
-                    <local:VideoConfigSection x:Name="sctVideo" />
-                    <local:AudioConfigSection x:Name="sctAudio" />
-                    <local:AdvancedConfigSection x:Name="sctAdvanced" />
-                </StackLayout>
-            </ScrollView>
-        </local:FramedPanel>
-        <FlexLayout JustifyContent="End" Padding="10" Grid.Row="1" Grid.Column="1">
-            <local:PlatformButton Source="Images/close.png" Command="{Binding CancelCommand}" Margin="10, 0" />
-            <local:PlatformButton Source="Images/check.png" Command="{Binding CompleteCommand}" />
-        </FlexLayout>
-    </Grid>
+    <StackLayout Spacing="0">
+        <local:NavigationBar BackCommand="{Binding CloseCommand}">
+            <local:NavigationBar.Title>
+                <OnPlatform x:TypeArguments="x:String">
+                    <On Platform="macOS" Value="Preferences" />
+                    <On Platform="WPF" Value="Options" />
+                </OnPlatform>
+            </local:NavigationBar.Title>
+        </local:NavigationBar>
+        <Grid ColumnSpacing="0"
+              RowSpacing="0"
+              Margin="10"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="7*" />
+            </Grid.ColumnDefinitions>
+            <Frame BackgroundColor="{StaticResource BackgroundColor}"
+                   BorderColor="{StaticResource BorderColor}"
+                   HasShadow="False"
+                   Margin="0, 0, 5, 0"
+                   Padding="0"
+                   Grid.Row="0"
+                   Grid.Column="0">
+                <ListView x:Name="vwSections"
+                          HorizontalOptions="FillAndExpand"
+                          VerticalOptions="FillAndExpand"
+                          VerticalScrollBarVisibility="Never">
+                    <ListView.Header>
+                        <FlexLayout />
+                    </ListView.Header>
+                </ListView>
+            </Frame> 
+            <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 0, 0" Grid.Row="0" Grid.Column="1">
+                <ScrollView>
+                    <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
+                        <local:GeneralConfigSection x:Name="sctGeneral" />
+                        <local:VideoConfigSection x:Name="sctVideo" />
+                        <local:AudioConfigSection x:Name="sctAudio" />
+                        <local:AdvancedConfigSection x:Name="sctAdvanced" />
+                    </StackLayout>
+                </ScrollView>
+            </local:FramedPanel>
+        </Grid>
+    </StackLayout>
 </ContentPage>

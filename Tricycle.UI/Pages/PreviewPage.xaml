@@ -4,11 +4,9 @@
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Pages.PreviewPage"
              BackgroundColor="{StaticResource BackgroundColor}">
-    <StackLayout Margin="10, 10, 10, 15">
-        <FlexLayout JustifyContent="End">
-            <local:PlatformButton Source="Images/close.png" Command="{Binding CloseCommand}" />
-        </FlexLayout>
-        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10">
+    <StackLayout Spacing="0">
+        <local:NavigationBar Title="Preview" BackCommand="{Binding CloseCommand}" />
+        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="15">
             <ActivityIndicator IsVisible="{Binding IsLoading}"
                                IsRunning="True"
                                HorizontalOptions="Center"
@@ -32,7 +30,7 @@
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />
         </Grid>
-        <FlexLayout JustifyContent="SpaceAround">
+        <FlexLayout JustifyContent="SpaceEvenly" Margin="0, 0, 0, 15">
             <local:PlatformButton Source="Images/previous.png" Command="{Binding PreviousCommand}" />
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />
         </FlexLayout>

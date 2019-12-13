@@ -291,6 +291,25 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public async Task DisplaysAlertWhenLoadFails()
+        {
+            string title = null;
+            string message = null;
+
+            _imageGenerator.Generate(Arg.Any<TranscodeJob>()).Returns(new string[0]);
+            _viewModel.Alert += (t, m) =>
+            {
+                title = t;
+                message = m;
+            };
+
+            await _viewModel.Load(new TranscodeJob());
+
+            Assert.AreEqual("Preview Error", title);
+            Assert.AreEqual(@"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯", message);
+        }
+
+        [TestMethod]
         public async Task DeletesFilesWhenClosing()
         {
             var fileNames = new string[] { "a", "b", "c" };

@@ -675,13 +675,13 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void SavesAlertOnCompletionToConfig()
+        public void SavesAlertOnCloseToConfig()
         {
             bool alertOnCompletion = true;
 
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = alertOnCompletion;
-            Complete();
+            Close();
 
             Assert.AreEqual(alertOnCompletion, _tricycleConfigManager.Config?.CompletionAlert);
         }
@@ -693,7 +693,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.DeleteIncompleteFiles = deleteIncompleteFiles;
-            Complete();
+            Close();
 
             Assert.AreEqual(deleteIncompleteFiles, _tricycleConfigManager.Config?.DeleteIncompleteFiles);
         }
@@ -705,7 +705,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.PreferForcedSubtitles = preferForcedSubtitles;
-            Complete();
+            Close();
 
             Assert.AreEqual(preferForcedSubtitles, _tricycleConfigManager.Config?.ForcedSubtitlesOnly);
         }
@@ -717,7 +717,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.Mp4FileExtension = extension;
-            Complete();
+            Close();
 
             Assert.AreEqual(extension,
                             _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4));
@@ -730,7 +730,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.MkvFileExtension = extension;
-            Complete();
+            Close();
 
             Assert.AreEqual(extension,
                             _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv));
@@ -743,7 +743,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SizeDivisor = divisor.ToString();
-            Complete();
+            Close();
 
             Assert.AreEqual(divisor, _tricycleConfigManager.Config?.Video?.SizeDivisor);
         }
@@ -758,7 +758,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.AvcQualityScale.Min = range.Min.ToString();
             _viewModel.AvcQualityScale.Max = range.Max.ToString();
             _viewModel.AvcQualityScale.StepCount = steps.ToString();
-            Complete();
+            Close();
 
             var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc);
 
@@ -776,7 +776,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.HevcQualityScale.Min = range.Min.ToString();
             _viewModel.HevcQualityScale.Max = range.Max.ToString();
             _viewModel.HevcQualityScale.StepCount = steps.ToString();
-            Complete();
+            Close();
 
             var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
 
@@ -802,7 +802,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.Width = dimensions.Width.ToString();
             preset.Height = dimensions.Height.ToString();
 
-            Complete();
+            Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Video?.SizePresets;
 
@@ -828,7 +828,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.Width = dimensions.Width.ToString();
             preset.Height = dimensions.Height.ToString();
 
-            Complete();
+            Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Video?.AspectRatioPresets;
 
@@ -843,7 +843,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.PassthruMatchingTracks = passthruMatchingTracks;
-            Complete();
+            Close();
 
             Assert.AreEqual(passthruMatchingTracks, _tricycleConfigManager.Config?.Audio?.PassthruMatchingTracks);
         }
@@ -871,7 +871,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
             preset.Quality = expectedPreset.Quality.ToString();
 
-            Complete();
+            Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
 
@@ -903,7 +903,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
             preset.Quality = expectedPreset.Quality.ToString();
 
-            Complete();
+            Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
 
@@ -919,7 +919,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SelectedX264Preset = new ListItem(preset);
-            Complete();
+            Close();
 
             Assert.AreEqual(preset,
                             _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset);
@@ -932,7 +932,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SelectedX265Preset = new ListItem(preset);
-            Complete();
+            Close();
 
             Assert.AreEqual(preset,
                             _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset);
@@ -945,7 +945,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.AacCodec = codec;
-            Complete();
+            Close();
 
             Assert.AreEqual(codec,
                             _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name);
@@ -958,7 +958,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.Ac3Codec = codec;
-            Complete();
+            Close();
 
             Assert.AreEqual(codec,
                             _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name);
@@ -971,7 +971,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.CropDetectOptions = options;
-            Complete();
+            Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.CropDetectOptions);
         }
@@ -983,7 +983,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.DenoiseOptions = options;
-            Complete();
+            Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.DenoiseOptions);
         }
@@ -995,142 +995,101 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.TonemapOptions = options;
-            Complete();
+            Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.TonemapOptions);
         }
 
         [TestMethod]
-        public void CallsSaveOnTricycleConfigManagerWhenCompleted()
+        public void CallsSaveOnTricycleConfigManagerWhenClosedAndDirty()
         {
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
-            Complete();
+            Close();
 
             _tricycleConfigManager.Received().Save();
         }
 
         [TestMethod]
-        public void CallsSaveOnFFmpegConfigManagerWhenCompleted()
+        public void DoesNotCallsSaveOnTricycleConfigManagerWhenClosedButNotDirty()
         {
             _viewModel.Initialize();
-            _viewModel.AacCodec = "aac";
-            Complete();
-
-            _ffmpegConfigManager.Received().Save();
-        }
-
-        [TestMethod]
-        public void RaisesClosedEventWhenCompleted()
-        {
-            bool closed = false;
-
-            _viewModel.Initialize();
-            _viewModel.Closed += () => closed = true;
-            Complete();
-
-            Assert.IsTrue(closed);
-        }
-
-        [TestMethod]
-        public void RaisesClosedEventWhenCancelled()
-        {
-            bool closed = false;
-
-            _viewModel.Initialize();
-            _viewModel.Closed += () => closed = true;
-            Cancel();
-
-            Assert.IsTrue(closed);
-        }
-
-        [TestMethod]
-        public void RaisesConfirmEventWhenCancelledAndDirty()
-        {
-            string title = null;
-            string message = null;
-
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (t, m) =>
-            {
-                title = t;
-                message = m;
-                return Task.FromResult(false);
-            };
-            Cancel();
-
-            Assert.AreEqual("Discard Changes", title);
-            Assert.AreEqual("Are you sure you want to lose your changes?", message);
-        }
-
-        [TestMethod]
-        public void DoesNotRaiseConfirmEventWhenCancelledAndNotDirty()
-        {
-            bool confirmed = false;
-
-            _viewModel.Initialize();
-            _viewModel.Confirm += (t, m) =>
-            {
-                confirmed = true;
-                return Task.FromResult(false);
-            };
-            Cancel();
-
-            Assert.IsFalse(confirmed);
-        }
-
-        [TestMethod]
-        public void DoesNotRaiseClosedEventWhenCancelledAndNotConfirmed()
-        {
-            bool closed = false;
-
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (title, message) => Task.FromResult(false);
-            _viewModel.Closed += () => closed = true;
-            Cancel();
-
-            Assert.IsFalse(closed);
-        }
-
-        [TestMethod]
-        public void DoesNotCallSaveOnTricycleConfigManagerWhenCancelled()
-        {
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
-            Cancel();
+            Close();
 
             _tricycleConfigManager.DidNotReceive().Save();
         }
 
         [TestMethod]
-        public void DoesNotCallSaveOnFFmpegConfigManagerWhenCancelled()
+        public void CallsSaveOnFFmpegConfigManagerWhenClosedAndDirty()
         {
             _viewModel.Initialize();
             _viewModel.AacCodec = "aac";
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
-            Cancel();
+            Close();
+
+            _ffmpegConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallsSaveOnFFmpegConfigManagerWhenClosedButNotDirty()
+        {
+            _viewModel.Initialize();
+            Close();
 
             _ffmpegConfigManager.DidNotReceive().Save();
         }
 
         [TestMethod]
-        public void ResetsValuesWhenCancelled()
+        public void RaisesClosedEventWhenClosed()
         {
-            _tricycleConfig.CompletionAlert = false;
+            bool closed = false;
 
             _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = !_tricycleConfig.CompletionAlert;
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
-            Cancel();
+            _viewModel.Closed += () => closed = true;
+            Close();
 
-            Assert.AreEqual(_tricycleConfig.CompletionAlert, _viewModel.AlertOnCompletion);
+            Assert.IsTrue(closed);
         }
 
         [TestMethod]
-        public void CallsRaiseQuitConfirmedWhenActiveAndNotDirty()
+        public void CallsSaveOnTricycleConfigManagerWhenAppIsQuittingAndDirty()
+        {
+            _viewModel.Initialize();
+            _viewModel.AlertOnCompletion = true;
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _tricycleConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallsSaveOnTricycleConfigManagerWhenAppIsQuittingButNotDirty()
+        {
+            _viewModel.Initialize();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _tricycleConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void CallsSaveOnFFmpegConfigManagerWhenAppIsQuitting()
+        {
+            _viewModel.Initialize();
+            _viewModel.AacCodec = "aac";
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _ffmpegConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallsSaveOnFFmpegConfigManagerWhenAppIsQuittingButNotDirty()
+        {
+            _viewModel.Initialize();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _ffmpegConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void RaisesQuitConfirmedWhenActiveAndAppIsQuitting()
         {
             _viewModel.Initialize();
             _appManager.Quitting += Raise.Event<Action>();
@@ -1139,7 +1098,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotCallRaiseQuitConfirmedWhenInactive()
+        public void DoesNotRaiseQuitConfirmedWhenInactiveAndAppIsQuitting()
         {
             _viewModel.IsPageVisible = false;
             _viewModel.Initialize();
@@ -1149,76 +1108,13 @@ namespace Tricycle.UI.Tests.ViewModels
             _appManager.DidNotReceive().RaiseQuitConfirmed();
         }
 
-        [TestMethod]
-        public void RaisesConfirmEventWhenActiveAndDirtyAndAppIsQutting()
-        {
-            string title = null;
-            string message = null;
-
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (t, m) =>
-            {
-                title = t;
-                message = m;
-                return Task.FromResult(false);
-            };
-            _appManager.Quitting += Raise.Event<Action>();
-
-            Assert.AreEqual("Discard Changes", title);
-            Assert.AreEqual("Are you sure you want to lose your changes?", message);
-        }
-
-        [TestMethod]
-        public void DoesNotRaiseConfirmEventWhenActiveAndNotDirtyAndAppIsQutting()
-        {
-            bool confirmed = false;
-
-            _viewModel.Initialize();
-            _viewModel.Confirm += (t, m) =>
-            {
-                confirmed = true;
-                return Task.FromResult(false);
-            };
-            _appManager.Quitting += Raise.Event<Action>();
-
-            Assert.IsFalse(confirmed);
-        }
-
-        [TestMethod]
-        public void DoesNotCallRaiseQuitConfirmedWhenActiveAndDirtyButNotConfirmed()
-        {
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (title, message) => Task.FromResult(false);
-            _appManager.Quitting += Raise.Event<Action>();
-
-            _appManager.DidNotReceive().RaiseQuitConfirmed();
-        }
-
-        [TestMethod]
-        public void CallsRaiseQuitConfirmedWhenActiveAndDirtyAndConfirmed()
-        {
-            _viewModel.Initialize();
-            _viewModel.AlertOnCompletion = true;
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
-            _appManager.Quitting += Raise.Event<Action>();
-
-            _appManager.Received().RaiseQuitConfirmed();
-        }
-
         #endregion
 
         #region Helper Methods
 
-        public void Cancel()
+        public void Close()
         {
-            _viewModel.CancelCommand.Execute(null);
-        }
-
-        public void Complete()
-        {
-            _viewModel.CompleteCommand.Execute(null);
+            _viewModel.CloseCommand.Execute(null);
         }
 
         #endregion

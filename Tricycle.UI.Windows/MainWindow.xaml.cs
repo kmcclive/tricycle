@@ -86,7 +86,7 @@ namespace Tricycle.UI.Windows
 
             if (backButton != null)
             {
-                backButton.Visibility = Visibility.Hidden;
+                backButton.Visibility = Visibility.Collapsed;
             }
         }
 
