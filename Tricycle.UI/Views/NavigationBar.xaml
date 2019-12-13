@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Tricycle.UI.Views"
+             x:Class="Tricycle.UI.Views.NavigationBar">
+    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" Padding="10, 5">
+        <FlexLayout.BackgroundColor>
+            <OnPlatform x:TypeArguments="Color">
+                <On Platform="macOS" Value="#e3e3e3" />
+                <On Platform="macOS" Value="WhiteSmoke" />
+            </OnPlatform>
+        </FlexLayout.BackgroundColor>
+        <local:PlatformButton x:Name="btnBack" Source="Images/previous.png" />
+        <Label x:Name="lblTitle" Text="Preferences" FontSize="16" FontAttributes="Bold" TextColor="#575757" />
+        <Label WidthRequest="42" />
+    </FlexLayout>
+</ContentView>
