@@ -7,11 +7,11 @@
         <FlexLayout.BackgroundColor>
             <OnPlatform x:TypeArguments="Color">
                 <On Platform="macOS" Value="#e3e3e3" />
-                <On Platform="macOS" Value="WhiteSmoke" />
+                <On Platform="WPF" Value="WhiteSmoke" />
             </OnPlatform>
         </FlexLayout.BackgroundColor>
         <local:PlatformButton x:Name="btnBack" Source="Images/previous.png" />
         <Label x:Name="lblTitle" Text="Preferences" FontSize="16" FontAttributes="Bold" TextColor="#575757" />
-        <Label WidthRequest="42" />
+        <local:PlatformButton Opacity="0" />
     </FlexLayout>
 </ContentView>
