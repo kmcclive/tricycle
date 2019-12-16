@@ -139,6 +139,7 @@
     <Folder Include="Resources\Tools\" />
     <Folder Include="Resources\Tools\FFmpeg\" />
     <Folder Include="Resources\Config\" />
+    <Folder Include="Renderers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -149,6 +150,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="AppDocumentController.cs" />
+    <Compile Include="Renderers\GradientStackLayoutRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
