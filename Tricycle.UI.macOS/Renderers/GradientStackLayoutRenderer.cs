@@ -37,6 +37,56 @@ namespace Tricycle.UI.macOS.Renderers
             }
 
             NativeView.Layer.InsertSublayer(gradient, 0);
+
+            if (layout.LeftBorderWidth > 0)
+            {
+                var left = new CALayer()
+                {
+                    Frame = new CGRect(0, 0, layout.LeftBorderWidth, dirtyRect.Size.Height),
+                    BackgroundColor = layout.LeftBorderColor.ToCGColor()
+                };
+
+                NativeView.Layer.AddSublayer(left);
+            }
+
+            if (layout.TopBorderWidth > 0)
+            {
+                var top = new CALayer()
+                {
+                    Frame = new CGRect(0,
+                                       dirtyRect.Size.Height - layout.TopBorderWidth,
+                                       dirtyRect.Size.Width,
+                                       layout.TopBorderWidth),
+                    BackgroundColor = layout.TopBorderColor.ToCGColor()
+                };
+
+                NativeView.Layer.AddSublayer(top);
+            }
+
+            if (layout.RightBorderWidth > 0)
+            {
+                var right = new CALayer()
+                {
+                    Frame = new CGRect(dirtyRect.Size.Width - layout.RightBorderWidth,
+                                       0,
+                                       layout.RightBorderWidth,
+                                       dirtyRect.Size.Height),
+                    BackgroundColor = layout.RightBorderColor.ToCGColor()
+                };
+
+                NativeView.Layer.AddSublayer(right);
+            }
+
+            if (layout.BottomBorderWidth > 0)
+            {
+                var bottom = new CALayer()
+                {
+                    Frame = new CGRect(0, 0, dirtyRect.Size.Width, layout.BottomBorderWidth),
+                    BackgroundColor = layout.BottomBorderColor.ToCGColor()
+                };
+
+                NativeView.Layer.AddSublayer(bottom);
+            }
         }
     }
 }
