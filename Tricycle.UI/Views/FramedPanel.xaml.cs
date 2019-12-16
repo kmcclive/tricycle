@@ -12,7 +12,7 @@ namespace Tricycle.UI.Views
 
         public string Title
         {
-            get { return GetValue(TitleProperty).ToString(); }
+            get { return GetValue(TitleProperty)?.ToString(); }
             set { SetValue(TitleProperty, value); }
         }
 

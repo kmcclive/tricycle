@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.Threading.Tasks;
 using AppKit;
 using Foundation;
 using StructureMap;
@@ -55,7 +54,10 @@ namespace Tricycle.UI.macOS
 
             MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
             {
-                Title = "Tricycle"
+                Title = "Tricycle",
+                TitlebarAppearsTransparent = true,
+                BackgroundColor = NSColor.FromSrgb(225 / 255f, 224 / 255f, 225 / 255f, 1),
+                MovableByWindowBackground = true
             };
             MainWindow.WindowShouldClose += sender => ShouldClose();
         }

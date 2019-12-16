@@ -1,50 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.App">
     <Application.Resources>
         <OnPlatform x:TypeArguments="Color" x:Key="BackgroundColor">
-            <On Platform="macOS">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments><x:String>#e9e9e9</x:String></x:Arguments>
-                </Color>
-            </On>
-            <On Platform="WPF">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments><x:String>#ffffff</x:String></x:Arguments>
-                </Color>
-            </On>
+            <On Platform="macOS" Value="#e9e9e9" />
+            <On Platform="WPF" Value="#ffffff" />
         </OnPlatform>
-        <Color x:FactoryMethod="FromHex" x:Key="BorderColor">
-            <x:Arguments><x:String>#cfcfd0</x:String></x:Arguments>
-        </Color>
         <OnPlatform x:TypeArguments="Color" x:Key="PanelBackgroundColor">
-            <On Platform="macOS">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments><x:String>#e6e6e6</x:String></x:Arguments>
-                </Color>
-            </On>
-            <On Platform="WPF">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments><x:String>#ffffff</x:String></x:Arguments>
-                </Color>
-            </On>
+            <On Platform="macOS" Value="#e6e6e6" />
+            <On Platform="WPF" Value="#ffffff" />
         </OnPlatform>
         <OnPlatform x:TypeArguments="Color" x:Key="PanelTitleColor">
-            <On Platform="macOS">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments>
-                        <x:String>#686868</x:String>
-                    </x:Arguments>
-                </Color>
-            </On>
-            <On Platform="WPF">
-                <Color x:FactoryMethod="FromHex">
-                    <x:Arguments>
-                        <x:String>#545454</x:String>
-                    </x:Arguments>
-                </Color>
-            </On>
+            <On Platform="macOS" Value="#686868" />
+            <On Platform="WPF" Value="#545454" />
         </OnPlatform>
         <Style TargetType="Entry"
                ApplyToDerivedTypes="True"
@@ -62,5 +32,19 @@
             <Setter Property="FontSize" Value="Micro" />
         </Style>
         <Thickness x:Key="PanelPadding">20, 0, 20, 20</Thickness>
+        <!-- macOS only -->
+        <Color x:Key="BorderColor">#cccccc</Color>
+        <Color x:Key="ButtonBackgroundColor">#f9f9f9</Color>
+        <!-- macOS only -->
+        <ControlTemplate x:Key="PageTemplate">
+            <StackLayout>
+                <OnPlatform x:TypeArguments="View">
+                    <On Platform="macOS">
+                        <local:MacTitleBar BindingContext="{TemplateBinding BindingContext}" Status="{Binding Status}" />
+                    </On>
+                </OnPlatform>
+                <ContentPresenter />
+            </StackLayout>
+        </ControlTemplate>
     </Application.Resources>
 </Application>

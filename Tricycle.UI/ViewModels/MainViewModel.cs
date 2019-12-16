@@ -93,6 +93,7 @@ namespace Tricycle.UI.ViewModels
         string _progressText;
         string _rateText;
         string _toggleStartImage = PLAY_IMAGE;
+        string _status = "Ready";
 
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
@@ -461,6 +462,12 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _toggleStartImage; }
             set { SetProperty(ref _toggleStartImage, value); }
+        }
+
+        public string Status
+        {
+            get { return _status; }
+            set { SetProperty(ref _status, value); }
         }
 
         public ICommand SourceSelectCommand { get; }
