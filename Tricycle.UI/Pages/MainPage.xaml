@@ -18,7 +18,7 @@
     </ContentPage.Resources>
     <ScrollView>
         <StackLayout>
-            <Grid Padding="20, 0, 20, 20" ColumnSpacing="10" RowSpacing="5">
+            <Grid Padding="20, 6, 20, 20" ColumnSpacing="10" RowSpacing="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />

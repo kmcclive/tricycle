@@ -228,10 +228,7 @@
     <BundleResource Include="..\tools\FFmpeg\source\x265.tar.bz2">
       <Link>Resources\Tools\FFmpeg\Source\x265.tar.bz2</Link>
     </BundleResource>
-    <BundleResource Include="Resources\Images\close.png" />
-    <BundleResource Include="Resources\Images\save.png" />
     <BundleResource Include="Resources\Images\trash.png" />
-    <BundleResource Include="Resources\Images\check.png" />
     <BundleResource Include="Resources\Images\next.png" />
     <BundleResource Include="Resources\Images\previous.png" />
     <BundleResource Include="Resources\Images\preview.png" />
