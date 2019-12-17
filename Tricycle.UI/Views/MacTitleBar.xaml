@@ -26,19 +26,18 @@
                    Padding="0"
                    VerticalOptions="Center">
                 <StackLayout Spacing="0">
-                    <StackLayout Orientation="Horizontal" Spacing="0" HorizontalOptions="Center">
+                    <FlexLayout x:Name="flexStatus" IsVisible="False" JustifyContent="Center" Wrap="NoWrap">
                         <ActivityIndicator x:Name="actSpinner"
                                            IsVisible="False"
                                            IsRunning="True"
                                            HeightRequest="{StaticResource ImageHeight}"
                                            Margin="0, 4, 0, 3" />
                         <Label x:Name="lblStatus"
-                               IsVisible="False"
                                TextColor="#4f4f4f"
                                FontFamily="Menlo"
                                FontSize="Micro"
                                Margin="0, 2, 5, 5" />
-                    </StackLayout>
+                    </FlexLayout>
                     <Image x:Name="imgIcon"
                            Source="Images/tricycle-gray.png"
                            HeightRequest="{StaticResource ImageHeight}"

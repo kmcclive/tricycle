@@ -95,8 +95,8 @@ namespace Tricycle.UI.Views
                     break;
                 case nameof(Status):
                     lblStatus.Text = Status;
-                    lblStatus.IsVisible = !string.IsNullOrWhiteSpace(Status);
-                    imgIcon.IsVisible = !lblStatus.IsVisible;
+                    flexStatus.IsVisible = !string.IsNullOrWhiteSpace(Status);
+                    imgIcon.IsVisible = !flexStatus.IsVisible;
                     break;
                 case nameof(Progress):
                     barProgress.Progress = Progress;
