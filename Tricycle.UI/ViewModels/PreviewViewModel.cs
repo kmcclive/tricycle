@@ -83,6 +83,7 @@ namespace Tricycle.UI.ViewModels
         }
 
         public string Status => "Preview";
+        public bool IsSpinnerVisible => false;
         public bool IsBackVisible => true;
         public bool IsPreviewVisible => false;
 

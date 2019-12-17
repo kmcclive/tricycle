@@ -92,6 +92,7 @@ namespace Tricycle.UI.ViewModels
         double _progress;
         string _toggleStartImage = PLAY_IMAGE;
         string _status;
+        bool _isSpinnerVisible;
 
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
@@ -452,6 +453,12 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _status, value); }
         }
 
+        public bool IsSpinnerVisible
+        {
+            get { return _isSpinnerVisible; }
+            set { SetProperty(ref _isSpinnerVisible, value); }
+        }
+
         public bool IsBackVisible => false;
         public bool IsPreviewVisible => true;
 
@@ -654,6 +661,8 @@ namespace Tricycle.UI.ViewModels
         {
             Command startCommand = ((Command)StartCommand);
             _isStartEnabled = false;
+            IsSpinnerVisible = true;
+            Status = "Scanning source...";
 
             _appManager.RaiseBusy();
             EnableControls(false);
@@ -696,6 +705,9 @@ namespace Tricycle.UI.ViewModels
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
             UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
+
+            IsSpinnerVisible = false;
+            Status = string.Empty;
 
             if (isValid)
             {
@@ -1090,6 +1102,9 @@ namespace Tricycle.UI.ViewModels
 
         void StartTranscode()
         {
+            IsSpinnerVisible = true;
+            Status = "Starting...";
+
             var job = CreateJob();
             bool success = false;
 
@@ -1166,6 +1181,7 @@ namespace Tricycle.UI.ViewModels
 
         void ResetProgress()
         {
+            IsSpinnerVisible = false;
             Progress = 0;
             Status = string.Empty;
         }

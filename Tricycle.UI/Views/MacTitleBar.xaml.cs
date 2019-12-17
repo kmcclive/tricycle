@@ -6,6 +6,10 @@ namespace Tricycle.UI.Views
 {
     public partial class MacTitleBar : ContentView
     {
+        public static readonly BindableProperty IsSpinnerVisibleProperty = BindableProperty.Create(
+          nameof(IsSpinnerVisible),
+          typeof(bool),
+          typeof(MacTitleBar));
         public static readonly BindableProperty StatusProperty = BindableProperty.Create(
           nameof(Status),
           typeof(string),
@@ -45,6 +49,12 @@ namespace Tricycle.UI.Views
             set { SetValue(ProgressProperty, value); }
         }
 
+        public bool IsSpinnerVisible
+        {
+            get => (bool)GetValue(IsSpinnerVisibleProperty);
+            set => SetValue(IsSpinnerVisibleProperty, value);
+        }
+
         public bool IsBackVisible
         {
             get => (bool)GetValue(IsBackVisibleProperty); 
@@ -80,6 +90,9 @@ namespace Tricycle.UI.Views
 
             switch (propertyName)
             {
+                case nameof(IsSpinnerVisible):
+                    actSpinner.IsVisible = IsSpinnerVisible;
+                    break;
                 case nameof(Status):
                     lblStatus.Text = Status;
                     lblStatus.IsVisible = !string.IsNullOrWhiteSpace(Status);

@@ -42,6 +42,7 @@
                 <OnPlatform x:TypeArguments="View">
                     <On Platform="macOS">
                         <local:MacTitleBar BindingContext="{TemplateBinding BindingContext}"
+                                           IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                            Status="{Binding Status}"
                                            Progress="{Binding Progress}"
                                            IsBackVisible="{Binding IsBackVisible}"
