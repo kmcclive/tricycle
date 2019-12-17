@@ -64,7 +64,7 @@ namespace Tricycle.UI.Pages
 
         async Task OnClosed()
         {
-            await Navigation.PopModalAsync();
+            await Navigation.PopModalAsync(false);
             _appManager.RaiseModalClosed();
         }
 

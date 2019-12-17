@@ -20,6 +20,8 @@ namespace Tricycle.UI
             }
         }
 
+        public string RuntimePlatform => "macOS";
+
         private MockDevice()
         {
 

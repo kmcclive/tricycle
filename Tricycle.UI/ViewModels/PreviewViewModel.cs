@@ -82,6 +82,10 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
+        public string Status => "Preview";
+        public bool IsBackVisible => true;
+        public ICommand BackCommand => CloseCommand;
+
         public ICommand CloseCommand { get; }
         public ICommand PreviousCommand { get; }
         public ICommand NextCommand { get; }

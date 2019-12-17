@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Pages.PreviewPage"
-             BackgroundColor="{StaticResource BackgroundColor}">
+             BackgroundColor="{StaticResource BackgroundColor}"
+             ControlTemplate="{StaticResource PageTemplate}">
     <StackLayout Spacing="0">
-        <local:NavigationBar Title="Preview" BackCommand="{Binding CloseCommand}" />
         <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="15">
             <ActivityIndicator IsVisible="{Binding IsLoading}"
                                IsRunning="True"

@@ -13,6 +13,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="1" />
         </Grid.RowDefinitions>
+        <StackLayout Orientation="Horizontal" Margin="10, 0, 0, 0" VerticalOptions="Center" Grid.Row="0" Grid.Column="0">
+            <local:PlatformButton x:Name="btnBack" IsVisible="False" Source="Images/previous.png" />
+        </StackLayout>
         <Frame BorderColor="{StaticResource BorderColor}"
                BackgroundColor="{StaticResource ButtonBackgroundColor}"
                CornerRadius="5"
@@ -24,9 +27,12 @@
                Grid.Column="1">
             <Label x:Name="lblStatus" TextColor="#4f4f4f" FontSize="Micro" HorizontalOptions="Center" />
         </Frame>
-        <StackLayout Orientation="Horizontal" Grid.Row="0" Grid.Column="2" VerticalOptions="Center">
+        <StackLayout Orientation="Horizontal" Margin="0, 0, 10, 0" VerticalOptions="Center" Grid.Row="0" Grid.Column="2">
             <local:FramedImageButton x:Name="btnPreview" Source="Images/preview.png" />
         </StackLayout>
-        <BoxView BackgroundColor="#b4b3b4" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" />
+        <BoxView BackgroundColor="{StaticResource TitleBarBorderColor}"
+                 Grid.Row="1"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="3" />
     </Grid>
 </ContentView>

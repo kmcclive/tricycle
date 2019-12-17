@@ -18,7 +18,7 @@
     </ContentPage.Resources>
     <ScrollView>
         <StackLayout>
-            <Grid Padding="20" ColumnSpacing="10" RowSpacing="5">
+            <Grid Padding="20, 0, 20, 20" ColumnSpacing="10" RowSpacing="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -281,7 +281,6 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="2" />
                 </Grid.RowDefinitions>
                 <Label Text="Destination" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
                 <local:BindablePicker IsEnabled="{Binding IsContainerFormatEnabled}"
@@ -299,14 +298,6 @@
                                       Command="{Binding StartCommand}"
                                       Grid.Column="4"
                                       Grid.Row="0" />
-                <ProgressBar IsVisible="{Binding IsProgressVisible}"
-                             Progress="{Binding Progress}"
-                             Grid.Column="2"
-                             Grid.Row="1" />
-                <FlexLayout JustifyContent="SpaceBetween" Grid.Column="2" Grid.Row="2">
-                    <Label FontSize="Micro" Text="{Binding RateText}" />
-                    <Label FontSize="Micro" Text="{Binding ProgressText}" />
-                </FlexLayout>
             </Grid>
         </StackLayout>
     </ScrollView>

@@ -241,7 +241,26 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _tonemapOptions, value);
         }
 
+        public string Status
+        {
+            get
+            {
+                switch (_device.RuntimePlatform)
+                {
+                    case Device.macOS:
+                        return "Preferences";
+                    case Device.WPF:
+                        return "Options";
+                    default:
+                        return string.Empty;
+                }
+            }
+        }
+
+        public bool IsBackVisible => true;
+
         public ICommand CloseCommand { get; }
+        public ICommand BackCommand => CloseCommand;
 
         #endregion
 

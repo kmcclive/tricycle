@@ -470,6 +470,8 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _status, value); }
         }
 
+        public bool IsBackVisible => false;
+
         public ICommand SourceSelectCommand { get; }
         public ICommand DestinationSelectCommand { get; }
         public ICommand StartCommand { get; }

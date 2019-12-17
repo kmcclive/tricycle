@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -12,6 +10,14 @@ namespace Tricycle.UI.Views
           nameof(Status),
           typeof(string),
           typeof(MacTitleBar));
+        public static readonly BindableProperty IsBackVisibleProperty = BindableProperty.Create(
+          nameof(IsBackVisible),
+          typeof(bool),
+          typeof(MacTitleBar));
+        public static readonly BindableProperty BackCommandProperty = BindableProperty.Create(
+          nameof(BackCommand),
+          typeof(ICommand),
+          typeof(MacTitleBar));
         public static readonly BindableProperty PreviewCommandProperty = BindableProperty.Create(
           nameof(PreviewCommand),
           typeof(ICommand),
@@ -21,6 +27,18 @@ namespace Tricycle.UI.Views
         {
             get { return GetValue(StatusProperty)?.ToString(); }
             set { SetValue(StatusProperty, value); }
+        }
+
+        public bool IsBackVisible
+        {
+            get { return (bool)GetValue(IsBackVisibleProperty); }
+            set { SetValue(IsBackVisibleProperty, value); }
+        }
+
+        public ICommand BackCommand
+        {
+            get { return (ICommand)GetValue(BackCommandProperty); }
+            set { SetValue(BackCommandProperty, value); }
         }
 
         public ICommand PreviewCommand
@@ -42,6 +60,12 @@ namespace Tricycle.UI.Views
             {
                 case nameof(Status):
                     lblStatus.Text = Status;
+                    break;
+                case nameof(BackCommand):
+                    btnBack.Command = BackCommand;
+                    break;
+                case nameof(IsBackVisible):
+                    btnBack.IsVisible = IsBackVisible;
                     break;
             }
         }

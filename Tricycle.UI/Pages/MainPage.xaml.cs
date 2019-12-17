@@ -79,7 +79,7 @@ namespace Tricycle.UI.Pages
         {
             if (!Navigation.ModalStack.Any(p => p == page))
             {
-                await Navigation.PushModalAsync(page);
+                await Navigation.PushModalAsync(page, false);
             }
         }
     }
