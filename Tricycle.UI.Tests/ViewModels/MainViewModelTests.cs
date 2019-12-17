@@ -148,11 +148,15 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void HidesStatusInitially()
+        {
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
         public void HidesProgressInitially()
         {
-            Assert.IsFalse(_viewModel.IsProgressVisible);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+            Assert.AreEqual(_viewModel.Progress, 0);
         }
 
         [TestMethod]
@@ -2575,10 +2579,12 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DisplaysProgressText()
+        public void DisplaysStatus()
         {
             var status = new TranscodeStatus()
             {
+                Eta = new TimeSpan(0, 2, 30, 35, 36),
+                Speed = 0.225,
                 Size = 881852416,
                 EstimatedTotalSize = 5583457485,
                 Percent = 0.1579
@@ -2588,53 +2594,42 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("(841 MB / 5.2 GB) 15.79%", _viewModel.ProgressText);
+            Assert.AreEqual("02:30:35 |  0.225x |    841 MB /    5.2 GB | 15.79%", _viewModel.Status);
         }
 
         [TestMethod]
-        public void DisplaysEstimatedTotalSize()
+        public void DisplaysStatusWithoutEta()
         {
             var status = new TranscodeStatus()
             {
-                Percent = 0.34567,
+                Speed = 0.225,
+                Size = 881852416,
+                EstimatedTotalSize = 5583457485,
+                Percent = 0.1579
             };
 
             SelectSource();
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("34.57%", _viewModel.ProgressText);
+            Assert.AreEqual(" 0.225x |    841 MB /    5.2 GB | 15.79%", _viewModel.Status);
         }
 
         [TestMethod]
-        public void DisplaysRateText()
-        {
-            var status = new TranscodeStatus()
-            {
-                Speed = 0.225
-            };
-
-            SelectSource();
-            Start();
-            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
-
-            Assert.AreEqual("0.225x", _viewModel.RateText);
-        }
-
-        [TestMethod]
-        public void DisplaysEtaText()
+        public void DisplaysStatusWithoutSize()
         {
             var status = new TranscodeStatus()
             {
                 Eta = new TimeSpan(0, 2, 30, 35, 36),
-                Speed = 0.139
+                Speed = 0.225,
+                Percent = 0.1579
             };
 
             SelectSource();
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("ETA 02:30:35 (0.139x)", _viewModel.RateText);
+            Assert.AreEqual("02:30:35 |  0.225x | 15.79%", _viewModel.Status);
         }
 
         [TestMethod]
@@ -2643,8 +2638,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2652,10 +2646,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
         }
 
         [TestMethod]
@@ -2664,8 +2655,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2673,10 +2663,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
         }
 
         [TestMethod]
@@ -2685,8 +2672,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2694,10 +2680,58 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             Stop();
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobCompletes()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobFails()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobIsStopped()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            Stop();
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
         }
 
         [TestMethod]

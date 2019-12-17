@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -88,10 +89,7 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _containerFormatOptions;
         ListItem _selectedContainerFormat;
         string _destinationName;
-        bool _isProgressVisible;
         double _progress;
-        string _progressText;
-        string _rateText;
         string _toggleStartImage = PLAY_IMAGE;
         string _status;
 
@@ -436,28 +434,10 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _destinationName, value); }
         }
 
-        public bool IsProgressVisible
-        {
-            get { return _isProgressVisible; }
-            set { SetProperty(ref _isProgressVisible, value); }
-        }
-
         public double Progress
         {
             get { return _progress; }
             set { SetProperty(ref _progress, value); }
-        }
-
-        public string ProgressText
-        {
-            get { return _progressText; }
-            set { SetProperty(ref _progressText, value); }
-        }
-
-        public string RateText
-        {
-            get { return _rateText; }
-            set { SetProperty(ref _rateText, value); }
         }
 
         public string ToggleStartImage
@@ -1118,7 +1098,6 @@ namespace Tricycle.UI.ViewModels
                 _mediaTranscoder.Start(job);
 
                 _isRunning = true;
-                IsProgressVisible = true;
                 ToggleStartImage = STOP_IMAGE;
 
                 _appManager.RaiseBusy();
@@ -1187,10 +1166,8 @@ namespace Tricycle.UI.ViewModels
 
         void ResetProgress()
         {
-            IsProgressVisible = false;
             Progress = 0;
-            ProgressText = string.Empty;
-            RateText = string.Empty;
+            Status = string.Empty;
         }
 
         void DeleteDestination()
@@ -1506,21 +1483,28 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
-            string eta = null;
+            var builder = new StringBuilder();
 
             if (status.Eta > TimeSpan.Zero)
             {
-                eta = $"{Math.Floor(status.Eta.TotalHours):00}:{status.Eta.Minutes:00}:{status.Eta.Seconds:00}";
+                builder.AppendFormat("{0:00}:{1:00}:{2:00} | ",
+                                     Math.Floor(status.Eta.TotalHours),
+                                     status.Eta.Minutes,
+                                     status.Eta.Seconds);
             }
+
+            builder.AppendFormat("{0,6}x", status.Speed.ToString("0.###"));
 
             string progressText = string.Empty;
 
             if ((status.Size > 0) && (status.EstimatedTotalSize > 0))
             {
-                progressText = $"({ByteSize.FromBytes(status.Size)} / {ByteSize.FromBytes(status.EstimatedTotalSize)}) ";
+                builder.AppendFormat(" | {0,9} / {1,9}",
+                                     ByteSize.FromBytes(status.Size),
+                                     ByteSize.FromBytes(status.EstimatedTotalSize));
             }
 
-            progressText += $"{status.Percent * 100:0.##}%";
+            builder.AppendFormat(" | {0,5}%", (status.Percent * 100).ToString("0.##"));
 
             _device.BeginInvokeOnMainThread(() =>
             {
@@ -1530,8 +1514,7 @@ namespace Tricycle.UI.ViewModels
                 }
 
                 Progress = status.Percent;
-                RateText = string.IsNullOrEmpty(eta) ? $"{status.Speed:0.###}x" : $"ETA {eta} ({status.Speed:0.###}x)";
-                ProgressText = progressText;
+                Status = builder.ToString();
             });
         }
 

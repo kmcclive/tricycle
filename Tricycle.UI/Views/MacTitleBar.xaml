@@ -27,21 +27,22 @@
                 <Grid RowSpacing="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="2" />
+                        <RowDefinition Height="3" />
                     </Grid.RowDefinitions>
                     <Label x:Name="lblStatus"
                            IsVisible="False"
                            TextColor="#4f4f4f"
+                           FontFamily="Menlo"
                            FontSize="Micro"
-                           Margin="10,5"
+                           Margin="10, 2, 10, 5"
                            HorizontalOptions="Center"
                            Grid.Row="0" />
                     <Image x:Name="imgIcon"
                            Source="Images/tricycle-gray.png"
-                           WidthRequest="16"
                            HeightRequest="16"
-                           Margin="10, 5, 10, 3"
+                           Margin="10, 5, 10, 2"
                            HorizontalOptions="Center"
+                           VerticalOptions="Center"
                            Grid.Row="0" />
                     <ProgressBar x:Name="barProgress"
                                  IsVisible="False"

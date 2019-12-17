@@ -87,6 +87,7 @@ namespace Tricycle.UI.Views
                     break;
                 case nameof(Progress):
                     barProgress.Progress = Progress;
+                    barProgress.IsVisible = Progress > 0;
                     break;
                 case nameof(IsBackVisible):
                     btnBack.IsVisible = IsBackVisible;
