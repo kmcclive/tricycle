@@ -93,7 +93,7 @@ namespace Tricycle.UI.ViewModels
         string _progressText;
         string _rateText;
         string _toggleStartImage = PLAY_IMAGE;
-        string _status = "Ready";
+        string _status;
 
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;

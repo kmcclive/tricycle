@@ -60,6 +60,8 @@ namespace Tricycle.UI.Views
             {
                 case nameof(Status):
                     lblStatus.Text = Status;
+                    lblStatus.IsVisible = !string.IsNullOrWhiteSpace(Status);
+                    imgIcon.IsVisible = !lblStatus.IsVisible;
                     break;
                 case nameof(BackCommand):
                     btnBack.Command = BackCommand;

@@ -25,7 +25,18 @@
                VerticalOptions="Center"
                Grid.Row="0"
                Grid.Column="1">
-            <Label x:Name="lblStatus" TextColor="#4f4f4f" FontSize="Micro" HorizontalOptions="Center" />
+            <StackLayout>
+                <Label x:Name="lblStatus"
+                       IsVisible="False"
+                       TextColor="#4f4f4f"
+                       FontSize="Micro"
+                       HorizontalOptions="Center" />
+                <Image x:Name="imgIcon"
+                       Source="Images/tricycle-gray.png"
+                       WidthRequest="16"
+                       HeightRequest="16"
+                       HorizontalOptions="Center" />
+            </StackLayout>
         </Frame>
         <StackLayout Orientation="Horizontal" Margin="0, 0, 10, 0" VerticalOptions="Center" Grid.Row="0" Grid.Column="2">
             <local:FramedImageButton x:Name="btnPreview" Source="Images/preview.png" />
