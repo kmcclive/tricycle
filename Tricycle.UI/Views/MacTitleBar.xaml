@@ -3,59 +3,60 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Views.MacTitleBar">
-    <Grid BackgroundColor="#e1e0e1">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="400" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="1" />
-        </Grid.RowDefinitions>
-        <StackLayout Orientation="Horizontal" Margin="10, 0, 0, 0" VerticalOptions="Center" Grid.Row="0" Grid.Column="0">
-            <local:PlatformButton x:Name="btnBack" IsVisible="False" Source="Images/previous.png" />
-        </StackLayout>
-        <Frame BorderColor="{StaticResource BorderColor}"
-               BackgroundColor="{StaticResource ButtonBackgroundColor}"
-               CornerRadius="5"
-               HasShadow="False"
-               Margin="15, 0"
-               Padding="0"
-               VerticalOptions="Center"
-               Grid.Row="0"
-               Grid.Column="1">
-            <Grid RowSpacing="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="2" />
-                </Grid.RowDefinitions>
-                <Label x:Name="lblStatus"
-                       IsVisible="False"
-                       TextColor="#4f4f4f"
-                       FontSize="Micro"
-                       Margin="10,5"
-                       HorizontalOptions="Center"
-                       Grid.Row="0" />
-                <Image x:Name="imgIcon"
-                       Source="Images/tricycle-gray.png"
-                       WidthRequest="16"
-                       HeightRequest="16"
-                       Margin="10, 5, 10, 3"
-                       HorizontalOptions="Center"
-                       Grid.Row="0" />
-                <ProgressBar IsVisible="{Binding IsProgressVisible}"
-                             Progress="{Binding Progress}"
-                             Margin="2, 0"
-                             Grid.Row="1" />
-            </Grid>
-        </Frame>
-        <StackLayout Orientation="Horizontal" Margin="0, 0, 10, 0" VerticalOptions="Center" Grid.Row="0" Grid.Column="2">
-            <local:FramedImageButton x:Name="btnPreview" Source="Images/preview.png" />
-        </StackLayout>
-        <BoxView BackgroundColor="{StaticResource TitleBarBorderColor}"
-                 Grid.Row="1"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="3" />
-    </Grid>
+    <ContentView.Resources>
+        <x:Double x:Key="ToolbarHeight">26</x:Double>
+    </ContentView.Resources>
+    <StackLayout BackgroundColor="#e1e0e1" Spacing="0">
+        <FlexLayout Margin="0, 0, 0, 10" Wrap="Wrap">
+            <StackLayout Orientation="Horizontal"
+                         HeightRequest="{StaticResource ToolbarHeight}"
+                         Margin="10, 0"
+                         VerticalOptions="Center"
+                         FlexLayout.Grow="1">
+                <local:PlatformButton x:Name="btnBack" IsVisible="False" Source="Images/previous.png" />
+            </StackLayout>
+            <Frame BorderColor="{StaticResource BorderColor}"
+                   BackgroundColor="{StaticResource ButtonBackgroundColor}"
+                   CornerRadius="5"
+                   HasShadow="False"
+                   HeightRequest="{StaticResource ToolbarHeight}"
+                   WidthRequest="400"
+                   Margin="10, 0"
+                   Padding="0"
+                   VerticalOptions="Center">
+                <Grid RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="2" />
+                    </Grid.RowDefinitions>
+                    <Label x:Name="lblStatus"
+                           IsVisible="False"
+                           TextColor="#4f4f4f"
+                           FontSize="Micro"
+                           Margin="10,5"
+                           HorizontalOptions="Center"
+                           Grid.Row="0" />
+                    <Image x:Name="imgIcon"
+                           Source="Images/tricycle-gray.png"
+                           WidthRequest="16"
+                           HeightRequest="16"
+                           Margin="10, 5, 10, 3"
+                           HorizontalOptions="Center"
+                           Grid.Row="0" />
+                    <ProgressBar IsVisible="{Binding IsProgressVisible}"
+                                 Progress="{Binding Progress}"
+                                 Margin="2, 0"
+                                 Grid.Row="1" />
+                </Grid>
+            </Frame>
+            <StackLayout Orientation="Horizontal"
+                         HeightRequest="{StaticResource ToolbarHeight}"
+                         Margin="10, 0"
+                         VerticalOptions="Center"
+                         FlexLayout.Grow="1">
+                <local:FramedImageButton x:Name="btnPreview" Source="Images/preview.png" />
+            </StackLayout>
+        </FlexLayout>
+        <BoxView BackgroundColor="{StaticResource TitleBarBorderColor}" HeightRequest="1" />
+    </StackLayout>
 </ContentView>
