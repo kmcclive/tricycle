@@ -43,8 +43,11 @@
                     <On Platform="macOS">
                         <local:MacTitleBar BindingContext="{TemplateBinding BindingContext}"
                                            Status="{Binding Status}"
+                                           Progress="{Binding Progress}"
                                            IsBackVisible="{Binding IsBackVisible}"
-                                           BackCommand="{Binding BackCommand}" />
+                                           BackCommand="{Binding BackCommand}"
+                                           IsPreviewVisible="{Binding IsPreviewVisible}"
+                                           PreviewCommand="{Binding PreviewCommand}" />
                     </On>
                 </OnPlatform>
                 <ContentPresenter HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />

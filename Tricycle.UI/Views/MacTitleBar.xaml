@@ -7,13 +7,13 @@
         <x:Double x:Key="ToolbarHeight">26</x:Double>
     </ContentView.Resources>
     <StackLayout BackgroundColor="#e1e0e1" Spacing="0">
-        <FlexLayout Margin="0, 0, 0, 10" Wrap="Wrap">
+        <FlexLayout Margin="0, 0, 0, 5" Wrap="Wrap">
             <StackLayout Orientation="Horizontal"
                          HeightRequest="{StaticResource ToolbarHeight}"
                          Margin="10, 0"
                          VerticalOptions="Center"
                          FlexLayout.Grow="1">
-                <local:PlatformButton x:Name="btnBack" IsVisible="False" Source="Images/previous.png" />
+                <local:PlatformButton x:Name="btnBack" Source="Images/previous.png" />
             </StackLayout>
             <Frame BorderColor="{StaticResource BorderColor}"
                    BackgroundColor="{StaticResource ButtonBackgroundColor}"
@@ -43,8 +43,8 @@
                            Margin="10, 5, 10, 3"
                            HorizontalOptions="Center"
                            Grid.Row="0" />
-                    <ProgressBar IsVisible="{Binding IsProgressVisible}"
-                                 Progress="{Binding Progress}"
+                    <ProgressBar x:Name="barProgress"
+                                 IsVisible="False"
                                  Margin="2, 0"
                                  Grid.Row="1" />
                 </Grid>

@@ -10,22 +10,19 @@ namespace Tricycle.UI.Pages
 {
     public partial class PreviewPage : ContentPage
     {
-        IAppManager _appManager;
         PreviewViewModel _viewModel;
 
-        public PreviewPage()
+        public PreviewPage(IAppManager appManager)
         {
             InitializeComponent();
 
-            _appManager = AppState.IocContainer.GetInstance<IAppManager>();
             _viewModel = new PreviewViewModel(
                 AppState.IocContainer.GetInstance<IPreviewImageGenerator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
-                AppState.IocContainer.GetInstance<IAppManager>(),
+                appManager,
                 AppState.IocContainer.GetInstance<IDevice>());
 
             _viewModel.Alert += (title, message) => DisplayAlert(title, message, "OK");
-            _viewModel.Closed += async () => await OnClosed();
 
             BindingContext = _viewModel;
         }
@@ -49,12 +46,6 @@ namespace Tricycle.UI.Pages
             base.OnDisappearing();
 
             _viewModel.IsPageVisible = false;
-        }
-
-        async Task OnClosed()
-        {
-            await Navigation.PopModalAsync(false);
-            _appManager.RaiseModalClosed();
         }
     }
 }

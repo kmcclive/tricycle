@@ -1039,15 +1039,12 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void RaisesClosedEventWhenClosed()
+        public void RaisesModalCloseEventWhenClosed()
         {
-            bool closed = false;
-
             _viewModel.Initialize();
-            _viewModel.Closed += () => closed = true;
             Close();
 
-            Assert.IsTrue(closed);
+            _appManager.Received().RaiseModalClosed();
         }
 
         [TestMethod]
@@ -1114,7 +1111,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
         public void Close()
         {
-            _viewModel.CloseCommand.Execute(null);
+            _viewModel.BackCommand.Execute(null);
         }
 
         #endregion

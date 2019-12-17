@@ -105,10 +105,10 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaiseModalOpenedRaisesModalOpenedEvent()
         {
-            Page actual = null;
-            Page expected = new Page();
+            Modal? actual = null;
+            var expected = Modal.Preview;
 
-            _appManager.ModalOpened += page => actual = page;
+            _appManager.ModalOpened += modal => actual = modal;
             _appManager.RaiseModalOpened(expected);
 
             Assert.AreEqual(expected, actual);
@@ -117,7 +117,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaiseModalOpenedSetsIsModalOpened()
         {
-            _appManager.RaiseModalOpened(null);
+            _appManager.RaiseModalOpened(Modal.Preview);
 
             Assert.IsTrue(_appManager.IsModalOpen);
         }
@@ -136,7 +136,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaiseModalClosedResetsIsModalOpen()
         {
-            _appManager.RaiseModalOpened(null);
+            _appManager.RaiseModalOpened(Modal.Preview);
 
             if (!_appManager.IsModalOpen)
             {
@@ -151,8 +151,8 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaiseModalClosedDoesNotResetIsModalOpenWhenAdditionalModalsAreOpen()
         {
-            _appManager.RaiseModalOpened(null);
-            _appManager.RaiseModalOpened(null);
+            _appManager.RaiseModalOpened(Modal.Preview);
+            _appManager.RaiseModalOpened(Modal.Preview);
 
             if (!_appManager.IsModalOpen)
             {

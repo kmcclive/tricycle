@@ -14,7 +14,6 @@ using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Pages;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -29,9 +28,6 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
-        MainPage _mainPage;
-        ConfigPage _configPage;
-        PreviewPage _previewPage;
 
         public AppDelegate()
         {
@@ -128,12 +124,7 @@ namespace Tricycle.UI.macOS
             AppState.DefaultDestinationDirectory = Path.Combine(userPath, "Movies");
 
             Forms.Init();
-
-            var app = new App();
-
-            _mainPage = app.MainPage as MainPage;
-
-            LoadApplication(app);
+            LoadApplication(new App(_appManager));
 
             base.DidFinishLaunching(notification);
         }
@@ -177,12 +168,7 @@ namespace Tricycle.UI.macOS
         [Action("openPreferences:")]
         public void OpenPreferences(NSObject sender)
         {
-            if (_configPage == null)
-            {
-                _configPage = new ConfigPage();
-            }
-
-            _appManager.RaiseModalOpened(_configPage);
+            _appManager.RaiseModalOpened(Modal.Config);
         }
 
         [Export("openDocument:")]
@@ -200,21 +186,7 @@ namespace Tricycle.UI.macOS
         [Action("viewPreview:")]
         public void ViewPreview(NSObject sender)
         {
-            var job = _mainPage?.GetTranscodeJob();
-
-            if (job == null)
-            {
-                return;
-            }
-
-            if (_previewPage == null)
-            {
-                _previewPage = new PreviewPage();
-            }
-
-            _previewPage.TranscodeJob = job;
-
-            _appManager.RaiseModalOpened(_previewPage);
+            _appManager.RaiseModalOpened(Modal.Preview);
         }
 
         Coordinate<nfloat> GetCenterCoordinate()

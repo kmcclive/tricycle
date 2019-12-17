@@ -232,39 +232,27 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaisesSourceSelectedWithFalseWhenSourceIsNull()
         {
-            bool isValid = true;
-
-            _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
+             _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
             SelectSource();
 
-            Assert.IsFalse(isValid);
+            _appManager.Received().RaiseSourceSelected(false);
         }
 
         [TestMethod]
         public void RaisesSourceSelectedWithFalseWhenSourceHasNoVideo()
         {
-            bool isValid = true;
-
             _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
             SelectSource();
 
-            Assert.IsFalse(isValid);
+            _appManager.Received().RaiseSourceSelected(false);
         }
 
         [TestMethod]
         public void RaisesSourceSelectedWithTrueWhenSourceIsValid()
         {
-            bool isValid = false;
-
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
             SelectSource();
 
-            Assert.IsTrue(isValid);
+            _appManager.Received().RaiseSourceSelected(true);
         }
 
         [TestMethod]
@@ -273,6 +261,51 @@ namespace Tricycle.UI.Tests
             SelectSource();
 
             Assert.IsTrue(_viewModel.IsSourceInfoVisible);
+        }
+
+        [TestMethod]
+        public void EnablesPreviewCommandWhenSourceIsValid()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            SelectSource();
+
+            Assert.IsTrue(enabled);
+        }
+
+        [TestMethod]
+        public void DisablesPreviewCommandWhenSourceIsNull()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
+
+            SelectSource();
+
+            Assert.IsFalse(enabled);
+        }
+
+        [TestMethod]
+        public void DisablesPreviewCommandWhenSourceHasNoVideo()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
+            SelectSource();
+
+            Assert.IsFalse(enabled);
+        }
+
+        [TestMethod]
+        public void RaisesModalOpenedWhenPreviewIsClicked()
+        {
+            SelectSource();
+            _viewModel.PreviewCommand.Execute(null);
+
+            _appManager.Received().RaiseModalOpened(Modal.Preview);
         }
 
         [TestMethod]

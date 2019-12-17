@@ -106,7 +106,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.Quitting += OnAppQuitting;
 
-            CloseCommand = new Command(new Action(Close));
+            BackCommand = new Command(new Action(Close));
         }
 
         #endregion
@@ -258,15 +258,9 @@ namespace Tricycle.UI.ViewModels
         }
 
         public bool IsBackVisible => true;
+        public bool IsPreviewVisible => false;
 
-        public ICommand CloseCommand { get; }
-        public ICommand BackCommand => CloseCommand;
-
-        #endregion
-
-        #region Events
-
-        public event Action Closed;
+        public ICommand BackCommand { get; }
 
         #endregion
 
@@ -307,7 +301,7 @@ namespace Tricycle.UI.ViewModels
                 Save();
             }
 
-            Closed?.Invoke();
+            _appManager.RaiseModalClosed();
         }
 
         #endregion

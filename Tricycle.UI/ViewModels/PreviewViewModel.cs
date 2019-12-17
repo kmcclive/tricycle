@@ -42,7 +42,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.Quitting += OnAppQuitting;
 
-            CloseCommand = new Command(Close);
+            BackCommand = new Command(Close);
             PreviousCommand = new Command(Previous, () => _currentIndex > 0);
             NextCommand = new Command(Next, () => _currentIndex < (_imageFileNames?.Count ?? 0) - 1);
         }
@@ -84,9 +84,9 @@ namespace Tricycle.UI.ViewModels
 
         public string Status => "Preview";
         public bool IsBackVisible => true;
-        public ICommand BackCommand => CloseCommand;
+        public bool IsPreviewVisible => false;
 
-        public ICommand CloseCommand { get; }
+        public ICommand BackCommand { get; }
         public ICommand PreviousCommand { get; }
         public ICommand NextCommand { get; }
 
@@ -95,7 +95,6 @@ namespace Tricycle.UI.ViewModels
         #region Events
 
         public event AlertEventHandler Alert;
-        public event Action Closed;
 
         #endregion
 
@@ -148,7 +147,7 @@ namespace Tricycle.UI.ViewModels
         {
             DeleteImages();
 
-            Closed?.Invoke();
+            _appManager.RaiseModalClosed();
         }
 
         void Previous()

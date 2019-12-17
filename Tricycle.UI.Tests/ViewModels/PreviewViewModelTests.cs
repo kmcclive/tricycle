@@ -162,7 +162,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.NextCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.NextCommand.CanExecute(null);
             _imageGenerator.When(x => x.Generate(Arg.Any<TranscodeJob>()))
-                           .Do(x => Assert.IsFalse(enabled));         
+                           .Do(x => Assert.IsFalse(enabled));
 
             await _viewModel.Load(new TranscodeJob());
 
@@ -318,7 +318,7 @@ namespace Tricycle.UI.Tests.ViewModels
             await _viewModel.Load(new TranscodeJob());
             _fileService.Exists(Arg.Any<string>()).Returns(true);
 
-            _viewModel.CloseCommand.Execute(null);
+            _viewModel.BackCommand.Execute(null);
 
             foreach (var fileName in fileNames)
             {
@@ -337,7 +337,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _fileService.Exists(Arg.Any<string>()).Returns(true);
             _fileService.Exists(doesNotExist).Returns(false);
 
-            _viewModel.CloseCommand.Execute(null);
+            _viewModel.BackCommand.Execute(null);
 
             foreach (var fileName in fileNames)
             {
@@ -353,15 +353,11 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void RaisesClosedEventWhenClosed()
+        public void RaisesModalClosedEventWhenClosed()
         {
-            bool raised = false;
+            _viewModel.BackCommand.Execute(null);
 
-            _viewModel.Closed += () => raised = true;
-
-            _viewModel.CloseCommand.Execute(null);
-
-            Assert.IsTrue(raised);
+            _appManager.Received().RaiseModalClosed();
         }
 
         [TestMethod]

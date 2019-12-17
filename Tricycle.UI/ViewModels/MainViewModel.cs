@@ -150,6 +150,8 @@ namespace Tricycle.UI.ViewModels
                                                    () => _isDestinationSelectionEnabled);
             StartCommand = new Command(async () => await ToggleRunning(),
                                        () => _isStartEnabled);
+            PreviewCommand = new Command(() => _appManager.RaiseModalOpened(Modal.Preview),
+                                         () => _isStartEnabled);
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -471,10 +473,12 @@ namespace Tricycle.UI.ViewModels
         }
 
         public bool IsBackVisible => false;
+        public bool IsPreviewVisible => true;
 
         public ICommand SourceSelectCommand { get; }
         public ICommand DestinationSelectCommand { get; }
         public ICommand StartCommand { get; }
+        public ICommand PreviewCommand { get; }
 
         #endregion
 
@@ -730,6 +734,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             startCommand.ChangeCanExecute();
+            ((Command)PreviewCommand).ChangeCanExecute();
             _appManager.RaiseReady();
             _appManager.RaiseSourceSelected(isValid);
         }

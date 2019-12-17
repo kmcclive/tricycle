@@ -18,7 +18,7 @@ namespace Tricycle.UI
         public event Action<string> FileOpened;
         public event Action Quitting;
         public event Action QuitConfirmed;
-        public event Action<Page> ModalOpened;
+        public event Action<Modal> ModalOpened;
         public event Action ModalClosed;
         public event Action<bool> SourceSelected;
 
@@ -43,10 +43,10 @@ namespace Tricycle.UI
             QuitConfirmed?.Invoke();
         }
 
-        public void RaiseModalOpened(Page page)
+        public void RaiseModalOpened(Modal modal)
         {
             _modalCount++;
-            ModalOpened?.Invoke(page);
+            ModalOpened?.Invoke(modal);
         }
 
         public void RaiseModalClosed()
