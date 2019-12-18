@@ -2594,7 +2594,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("02:30:35 |  0.225x |    841 MB /    5.2 GB | 15.79%", _viewModel.Status);
+            Assert.AreEqual("Transcoding... 0.23x | 02:30:35 | ~5.2 GB | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]
@@ -2612,7 +2612,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual(" 0.225x |    841 MB /    5.2 GB | 15.79%", _viewModel.Status);
+            Assert.AreEqual("Transcoding... 0.23x | ~5.2 GB | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]
@@ -2629,7 +2629,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("02:30:35 |  0.225x | 15.79%", _viewModel.Status);
+            Assert.AreEqual("Transcoding... 0.23x | 02:30:35 | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]

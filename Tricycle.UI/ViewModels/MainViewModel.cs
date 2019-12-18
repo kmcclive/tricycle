@@ -1107,7 +1107,7 @@ namespace Tricycle.UI.ViewModels
         void StartTranscode()
         {
             IsSpinnerVisible = true;
-            Status = "Starting...";
+            Status = "Transcoding...";
 
             var job = CreateJob();
             bool success = false;
@@ -1433,6 +1433,41 @@ namespace Tricycle.UI.ViewModels
             ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
 
+        string GetPercentFormat(double percent)
+        {
+            if (percent >= 1)
+            {
+                return "#.#";
+            }
+
+            return "0.##";
+        }
+
+        string GetSizeFormat(ByteSize size)
+        {
+            if (size.LargestWholeNumberValue >= 100)
+            {
+                return "#";
+            }
+
+            return "#.#";
+        }
+
+        string GetSpeedFormat(double speed)
+        {
+            if (speed >= 10)
+            {
+                return "#";
+            }
+
+            if (speed >= 1)
+            {
+                return "#.#";
+            }
+
+            return "0.##";
+        }
+
         #endregion
 
         #region Event Handlers
@@ -1505,28 +1540,31 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
-            var builder = new StringBuilder();
+            var builder = new StringBuilder("Transcoding... ");
+            string speedFormat = GetSpeedFormat(status.Speed);
+
+            builder.AppendFormat("{0,4}x", status.Speed.ToString(speedFormat));
 
             if (status.Eta > TimeSpan.Zero)
             {
-                builder.AppendFormat("{0:00}:{1:00}:{2:00} | ",
+                builder.AppendFormat(" | {0:00}:{1:00}:{2:00}",
                                      Math.Floor(status.Eta.TotalHours),
                                      status.Eta.Minutes,
                                      status.Eta.Seconds);
             }
 
-            builder.AppendFormat("{0,6}x", status.Speed.ToString("0.###"));
-
-            string progressText = string.Empty;
-
             if ((status.Size > 0) && (status.EstimatedTotalSize > 0))
             {
-                builder.AppendFormat(" | {0,9} / {1,9}",
-                                     ByteSize.FromBytes(status.Size),
-                                     ByteSize.FromBytes(status.EstimatedTotalSize));
+                var byteSize = ByteSize.FromBytes(status.EstimatedTotalSize);
+                string sizeFormat = GetSizeFormat(byteSize);
+
+                builder.AppendFormat(" | ~{0,6}", byteSize.ToString(sizeFormat));
             }
 
-            builder.AppendFormat(" | {0,5}%", (status.Percent * 100).ToString("0.##"));
+            var percent = status.Percent * 100;
+            string percentFormat = GetPercentFormat(percent);
+
+            builder.AppendFormat(" | {0,4}%", percent.ToString(percentFormat));
 
             _device.BeginInvokeOnMainThread(() =>
             {
