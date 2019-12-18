@@ -86,7 +86,7 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             await _viewModel.Load(new TranscodeJob());
 
-            Assert.IsFalse(_viewModel.IsLoading);
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
         }
 
         [TestMethod]
