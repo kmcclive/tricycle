@@ -150,7 +150,7 @@ namespace Tricycle.UI.ViewModels
             StartCommand = new Command(async () => await ToggleRunning(),
                                        () => _isStartEnabled);
             PreviewCommand = new Command(() => _appManager.RaiseModalOpened(Modal.Preview),
-                                         () => _isStartEnabled);
+                                         () => _isStartEnabled && !_isRunning);
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -660,7 +660,9 @@ namespace Tricycle.UI.ViewModels
 
         async Task OpenSource(string fileName)
         {
-            Command startCommand = ((Command)StartCommand);
+            Command startCommand = (Command)StartCommand;
+            Command previewCommand = (Command)PreviewCommand;
+
             _isStartEnabled = false;
             IsSpinnerVisible = true;
             Status = "Scanning source...";
@@ -668,6 +670,7 @@ namespace Tricycle.UI.ViewModels
             _appManager.RaiseBusy();
             EnableControls(false);
             startCommand.ChangeCanExecute();
+            previewCommand.ChangeCanExecute();
 
             SourceName = fileName;
             _sourceInfo = await _mediaInspector.Inspect(fileName);
@@ -727,7 +730,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             startCommand.ChangeCanExecute();
-            ((Command)PreviewCommand).ChangeCanExecute();
+            previewCommand.ChangeCanExecute();
             _appManager.RaiseReady();
             _appManager.RaiseSourceSelected(isValid);
         }
@@ -1118,6 +1121,7 @@ namespace Tricycle.UI.ViewModels
 
                 _appManager.RaiseBusy();
                 EnableControls(false);
+                ((Command)PreviewCommand).ChangeCanExecute();
 
                 success = true;
             }
@@ -1177,6 +1181,7 @@ namespace Tricycle.UI.ViewModels
 
             ResetProgress();
             EnableControls(true);
+            ((Command)PreviewCommand).ChangeCanExecute();
             _appManager.RaiseReady();
         }
 
