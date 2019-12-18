@@ -22,7 +22,7 @@ using TricycleVideoConfig = Tricycle.Models.Config.VideoConfig;
 
 namespace Tricycle.UI.ViewModels
 {
-    public class ConfigViewModel : ViewModelBase
+    public class ConfigViewModel : ViewModelBase, ITricycleViewModel
     {
         #region Constants
 
@@ -241,6 +241,10 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _tonemapOptions, value);
         }
 
+        #region ITricycleViewModel Members
+
+        public bool IsSpinnerVisible => false;
+
         public string Status
         {
             get
@@ -250,19 +254,29 @@ namespace Tricycle.UI.ViewModels
                     case Device.macOS:
                         return "Preferences";
                     case Device.WPF:
-                        return "Options";
                     default:
-                        return string.Empty;
+                        return "Options";
                 }
             }
         }
 
-        public bool IsSpinnerVisible => false;
+        public double Progress => 0;
+
         public bool IsBackVisible => true;
-        public bool IsPreviewVisible => false;
-        public bool IsStartVisible => false;
 
         public ICommand BackCommand { get; }
+
+        public bool IsPreviewVisible => false;
+
+        public ICommand PreviewCommand { get; } = new Command(() => { }, () => false);
+
+        public bool IsStartVisible => false;
+
+        public ICommand StartCommand { get; } = new Command(() => { }, () => false);
+
+        public string StartImageSource => null;
+
+        #endregion
 
         #endregion
 

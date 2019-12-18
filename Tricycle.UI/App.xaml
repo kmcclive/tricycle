@@ -51,7 +51,7 @@
                                            PreviewCommand="{Binding PreviewCommand}"
                                            IsStartVisible="{Binding IsStartVisible}"
                                            StartCommand="{Binding StartCommand}"
-                                           StartImage="{Binding StartImage}" />
+                                           StartImageSource="{Binding StartImageSource}" />
                     </On>
                 </OnPlatform>
                 <ContentPresenter HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />

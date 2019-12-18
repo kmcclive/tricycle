@@ -2417,7 +2417,7 @@ namespace Tricycle.UI.Tests
         {
             SelectSource();
 
-            Assert.AreEqual("Images/play.png", _viewModel.StartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2426,7 +2426,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             Start();
 
-            Assert.AreEqual("Images/stop.png", _viewModel.StartImage);
+            Assert.AreEqual("Images/stop.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2436,7 +2436,7 @@ namespace Tricycle.UI.Tests
             Start();
             Stop();
 
-            Assert.AreEqual("Images/play.png", _viewModel.StartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2446,7 +2446,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.AreEqual("Images/play.png", _viewModel.StartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2456,7 +2456,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
 
-            Assert.AreEqual("Images/play.png", _viewModel.StartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]

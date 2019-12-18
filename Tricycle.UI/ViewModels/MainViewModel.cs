@@ -25,7 +25,7 @@ namespace Tricycle.UI.ViewModels
     public delegate void AlertEventHandler(string title, string message);
     public delegate Task<bool> ConfirmEventHandler(string title, string message);
 
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase, ITricycleViewModel
     {
         #region Constants
 
@@ -90,7 +90,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedContainerFormat;
         string _destinationName;
         double _progress;
-        string _startImage = PLAY_IMAGE;
+        string _startImageSource = PLAY_IMAGE;
         string _status;
         bool _isSpinnerVisible;
 
@@ -435,16 +435,16 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _destinationName, value); }
         }
 
-        public double Progress
-        {
-            get { return _progress; }
-            set { SetProperty(ref _progress, value); }
-        }
+        public ICommand SourceSelectCommand { get; }
 
-        public string StartImage
+        public ICommand DestinationSelectCommand { get; }
+
+        #region ITricycleViewModel Members
+
+        public bool IsSpinnerVisible
         {
-            get { return _startImage; }
-            set { SetProperty(ref _startImage, value); }
+            get { return _isSpinnerVisible; }
+            set { SetProperty(ref _isSpinnerVisible, value); }
         }
 
         public string Status
@@ -453,20 +453,31 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _status, value); }
         }
 
-        public bool IsSpinnerVisible
+        public double Progress
         {
-            get { return _isSpinnerVisible; }
-            set { SetProperty(ref _isSpinnerVisible, value); }
+            get { return _progress; }
+            set { SetProperty(ref _progress, value); }
         }
 
         public bool IsBackVisible => false;
+
+        public ICommand BackCommand { get; } = new Command(() => { }, () => false);
+
         public bool IsPreviewVisible => true;
+
+        public ICommand PreviewCommand { get; }
+
         public bool IsStartVisible => true;
 
-        public ICommand SourceSelectCommand { get; }
-        public ICommand DestinationSelectCommand { get; }
         public ICommand StartCommand { get; }
-        public ICommand PreviewCommand { get; }
+
+        public string StartImageSource
+        {
+            get { return _startImageSource; }
+            set { SetProperty(ref _startImageSource, value); }
+        }
+
+        #endregion
 
         #endregion
 
@@ -1117,7 +1128,7 @@ namespace Tricycle.UI.ViewModels
                 _mediaTranscoder.Start(job);
 
                 _isRunning = true;
-                StartImage = STOP_IMAGE;
+                StartImageSource = STOP_IMAGE;
 
                 _appManager.RaiseBusy();
                 EnableControls(false);
@@ -1177,7 +1188,7 @@ namespace Tricycle.UI.ViewModels
         void ResetJobState()
         {
             _isRunning = false;
-            StartImage = PLAY_IMAGE;
+            StartImageSource = PLAY_IMAGE;
 
             ResetProgress();
             EnableControls(true);
@@ -1558,7 +1569,7 @@ namespace Tricycle.UI.ViewModels
                 var byteSize = ByteSize.FromBytes(status.EstimatedTotalSize);
                 string sizeFormat = GetSizeFormat(byteSize);
 
-                builder.AppendFormat(" | ~{0,6}", byteSize.ToString(sizeFormat));
+                builder.AppendFormat(" | {0,7}", $"~{byteSize.ToString(sizeFormat)}");
             }
 
             var percent = status.Percent * 100;

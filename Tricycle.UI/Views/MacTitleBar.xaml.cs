@@ -45,8 +45,8 @@ namespace Tricycle.UI.Views
           nameof(StartCommand),
           typeof(ICommand),
           typeof(MacTitleBar));
-        public static readonly BindableProperty StartImageProperty = BindableProperty.Create(
-          nameof(StartImage),
+        public static readonly BindableProperty StartImageSourceProperty = BindableProperty.Create(
+          nameof(StartImageSource),
           typeof(ImageSource),
           typeof(MacTitleBar),
           ImageSource.FromFile("Images/start.png"));
@@ -105,10 +105,10 @@ namespace Tricycle.UI.Views
             set => SetValue(StartCommandProperty, value);
         }
 
-        public ImageSource StartImage
+        public ImageSource StartImageSource
         {
-            get => (ImageSource)GetValue(StartImageProperty);
-            set => SetValue(StartImageProperty, value);
+            get => (ImageSource)GetValue(StartImageSourceProperty);
+            set => SetValue(StartImageSourceProperty, value);
         }
 
         public MacTitleBar() 
@@ -153,8 +153,8 @@ namespace Tricycle.UI.Views
                 case nameof(StartCommand):
                     btnStart.Command = StartCommand;
                     break;
-                case nameof(StartImage):
-                    btnStart.Source = StartImage;
+                case nameof(StartImageSource):
+                    btnStart.Source = StartImageSource;
                     break;
             }
         }
