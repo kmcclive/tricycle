@@ -7,23 +7,6 @@
              ControlTemplate="{StaticResource PageTemplate}">
     <StackLayout Spacing="0">
         <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="15">
-            <ActivityIndicator IsVisible="{Binding IsLoading}"
-                               IsRunning="True"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center">
-                <ActivityIndicator.WidthRequest>
-                    <OnPlatform x:TypeArguments="x:Double">
-                        <On Platform="macOS" Value="32" />
-                        <On Platform="WPF" Value="150" />
-                    </OnPlatform>
-                </ActivityIndicator.WidthRequest>
-                <ActivityIndicator.HeightRequest>
-                    <OnPlatform x:TypeArguments="x:Double">
-                        <On Platform="macOS" Value="32" />
-                        <On Platform="WPF" Value="20" />
-                    </OnPlatform>
-                </ActivityIndicator.HeightRequest>
-            </ActivityIndicator>
             <Image IsVisible="{Binding IsImageVisible}"
                    Source="{Binding CurrentImageSource}"
                    Aspect="AspectFit"

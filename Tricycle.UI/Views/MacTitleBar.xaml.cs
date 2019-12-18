@@ -124,6 +124,7 @@ namespace Tricycle.UI.Views
             {
                 case nameof(IsSpinnerVisible):
                     actSpinner.IsVisible = IsSpinnerVisible;
+                    actSpinner.IsRunning = IsSpinnerVisible;
                     break;
                 case nameof(Status):
                     lblStatus.Text = Status;

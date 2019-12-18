@@ -22,6 +22,7 @@ namespace Tricycle.UI.ViewModels
 
         string _currentImageSource;
         bool _isLoading;
+        string _status;
 
         IList<string> _imageFileNames;
         int _currentIndex;
@@ -71,6 +72,7 @@ namespace Tricycle.UI.ViewModels
             {
                 SetProperty(ref _isLoading, value);
                 RaisePropertyChanged(nameof(IsImageVisible));
+                RaisePropertyChanged(nameof(IsSpinnerVisible));
 
                 if (_isLoading)
                 {
@@ -82,8 +84,17 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public string Status => "Preview";
-        public bool IsSpinnerVisible => false;
+        public bool IsSpinnerVisible
+        {
+            get => _isLoading;
+        }
+
+        public string Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
+        }
+
         public bool IsBackVisible => true;
         public bool IsPreviewVisible => false;
         public bool IsStartVisible => false;
@@ -112,6 +123,7 @@ namespace Tricycle.UI.ViewModels
             _device.BeginInvokeOnMainThread(() =>
             {
                 IsLoading = true;
+                Status = "Generating preview...";
                 RefreshButtons();
 
                 CurrentImageSource = null;
@@ -133,6 +145,7 @@ namespace Tricycle.UI.ViewModels
 
                 RefreshButtons();
                 IsLoading = false;
+                Status = "Preview";
 
                 if (_imageFileNames?.Any() != true)
                 {
