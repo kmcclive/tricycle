@@ -277,7 +277,6 @@
                     <ColumnDefinition Width="75" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -293,10 +292,6 @@
                 <local:PlatformButton Source="Images/folder-browse.png"
                                       Command="{Binding DestinationSelectCommand}"
                                       Grid.Column="3"
-                                      Grid.Row="0" />
-                <local:PlatformButton Source="{Binding ToggleStartImage}"
-                                      Command="{Binding StartCommand}"
-                                      Grid.Column="4"
                                       Grid.Row="0" />
             </Grid>
         </StackLayout>

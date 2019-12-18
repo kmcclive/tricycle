@@ -36,6 +36,20 @@ namespace Tricycle.UI.Views
           nameof(PreviewCommand),
           typeof(ICommand),
           typeof(MacTitleBar));
+        public static readonly BindableProperty IsStartVisibleProperty = BindableProperty.Create(
+          nameof(IsStartVisible),
+          typeof(bool),
+          typeof(MacTitleBar),
+          true);
+        public static readonly BindableProperty StartCommandProperty = BindableProperty.Create(
+          nameof(StartCommand),
+          typeof(ICommand),
+          typeof(MacTitleBar));
+        public static readonly BindableProperty StartImageProperty = BindableProperty.Create(
+          nameof(StartImage),
+          typeof(ImageSource),
+          typeof(MacTitleBar),
+          ImageSource.FromFile("Images/start.png"));
 
         public string Status
         {
@@ -79,7 +93,25 @@ namespace Tricycle.UI.Views
             set => SetValue(PreviewCommandProperty, value);
         }
 
-        public MacTitleBar()
+        public bool IsStartVisible
+        {
+            get => (bool)GetValue(IsStartVisibleProperty);
+            set => SetValue(IsStartVisibleProperty, value);
+        }
+
+        public ICommand StartCommand
+        {
+            get => (ICommand)GetValue(StartCommandProperty);
+            set => SetValue(StartCommandProperty, value);
+        }
+
+        public ImageSource StartImage
+        {
+            get => (ImageSource)GetValue(StartImageProperty);
+            set => SetValue(StartImageProperty, value);
+        }
+
+        public MacTitleBar() 
         {
             InitializeComponent();
         }
@@ -113,6 +145,15 @@ namespace Tricycle.UI.Views
                     break;
                 case nameof(PreviewCommand):
                     btnPreview.Command = PreviewCommand;
+                    break;
+                case nameof(IsStartVisible):
+                    btnStart.IsVisible = IsStartVisible;
+                    break;
+                case nameof(StartCommand):
+                    btnStart.Command = StartCommand;
+                    break;
+                case nameof(StartImage):
+                    btnStart.Source = StartImage;
                     break;
             }
         }

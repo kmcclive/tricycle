@@ -260,6 +260,7 @@ namespace Tricycle.UI.ViewModels
         public bool IsSpinnerVisible => false;
         public bool IsBackVisible => true;
         public bool IsPreviewVisible => false;
+        public bool IsStartVisible => false;
 
         public ICommand BackCommand { get; }
 

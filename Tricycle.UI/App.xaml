@@ -48,7 +48,10 @@
                                            IsBackVisible="{Binding IsBackVisible}"
                                            BackCommand="{Binding BackCommand}"
                                            IsPreviewVisible="{Binding IsPreviewVisible}"
-                                           PreviewCommand="{Binding PreviewCommand}" />
+                                           PreviewCommand="{Binding PreviewCommand}"
+                                           IsStartVisible="{Binding IsStartVisible}"
+                                           StartCommand="{Binding StartCommand}"
+                                           StartImage="{Binding StartImage}" />
                     </On>
                 </OnPlatform>
                 <ContentPresenter HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />

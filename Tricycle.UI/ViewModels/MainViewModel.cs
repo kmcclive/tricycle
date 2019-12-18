@@ -90,7 +90,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedContainerFormat;
         string _destinationName;
         double _progress;
-        string _toggleStartImage = PLAY_IMAGE;
+        string _startImage = PLAY_IMAGE;
         string _status;
         bool _isSpinnerVisible;
 
@@ -441,10 +441,10 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _progress, value); }
         }
 
-        public string ToggleStartImage
+        public string StartImage
         {
-            get { return _toggleStartImage; }
-            set { SetProperty(ref _toggleStartImage, value); }
+            get { return _startImage; }
+            set { SetProperty(ref _startImage, value); }
         }
 
         public string Status
@@ -461,6 +461,7 @@ namespace Tricycle.UI.ViewModels
 
         public bool IsBackVisible => false;
         public bool IsPreviewVisible => true;
+        public bool IsStartVisible => true;
 
         public ICommand SourceSelectCommand { get; }
         public ICommand DestinationSelectCommand { get; }
@@ -1113,7 +1114,7 @@ namespace Tricycle.UI.ViewModels
                 _mediaTranscoder.Start(job);
 
                 _isRunning = true;
-                ToggleStartImage = STOP_IMAGE;
+                StartImage = STOP_IMAGE;
 
                 _appManager.RaiseBusy();
                 EnableControls(false);
@@ -1172,7 +1173,7 @@ namespace Tricycle.UI.ViewModels
         void ResetJobState()
         {
             _isRunning = false;
-            ToggleStartImage = PLAY_IMAGE;
+            StartImage = PLAY_IMAGE;
 
             ResetProgress();
             EnableControls(true);

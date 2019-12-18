@@ -51,11 +51,13 @@
                 </StackLayout>
             </Frame>
             <StackLayout Orientation="Horizontal"
+                         Spacing="10"
                          HeightRequest="{StaticResource ToolbarHeight}"
                          Margin="10, 0"
                          VerticalOptions="Center"
                          FlexLayout.Grow="1">
                 <local:FramedImageButton x:Name="btnPreview" Source="Images/preview.png" />
+                <local:FramedImageButton x:Name="btnStart" Source="Images/start.png" />
             </StackLayout>
         </FlexLayout>
         <BoxView BackgroundColor="{StaticResource TitleBarBorderColor}" HeightRequest="1" />
