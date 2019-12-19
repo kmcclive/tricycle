@@ -23,7 +23,7 @@ namespace Tricycle.UI
 
             MainPage = _mainPage;
 
-            NavigationPage.SetHasNavigationBar(this, false);
+            NavigationPage.SetHasNavigationBar(_mainPage, false);
 
             _appManager.ModalOpened += async (modal) => await OnModalOpened(modal);
             _appManager.ModalClosed += async () => await OnModalClosed();
