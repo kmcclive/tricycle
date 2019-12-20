@@ -34,7 +34,7 @@ namespace Tricycle.UI.Windows
     /// </summary>
     public partial class MainWindow : FormsApplicationPage
     {
-        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.WhiteSmoke);
+        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.White);
         static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
 
         IAppManager _appManager;
@@ -67,18 +67,6 @@ namespace Tricycle.UI.Windows
             }
 
             base.OnClosing(e);
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-
-            var backButton = Template.FindName("PART_Previous_Modal", this) as Control;
-
-            if (backButton != null)
-            {
-                backButton.Visibility = Visibility.Collapsed;
-            }
         }
 
         protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
