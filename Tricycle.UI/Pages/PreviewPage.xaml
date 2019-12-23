@@ -17,5 +17,12 @@
             <local:PlatformButton Source="Images/previous.png" Command="{Binding PreviousCommand}" />
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />
         </FlexLayout>
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="WPF">
+                <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                        Status="{Binding Status}"
+                                        Progress="{Binding Progress}" />
+            </On>
+        </OnPlatform>
     </StackLayout>
 </ContentPage>

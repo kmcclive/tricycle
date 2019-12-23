@@ -310,8 +310,7 @@
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                         Status="{Binding Status}"
                                         Progress="{Binding Progress}"
-                                        Margin="0, 0, 0, 29"
-                                        HeightRequest="30" />
+                                        Margin="0, 0, 0, 29" />
             </On>
         </OnPlatform>
     </StackLayout>

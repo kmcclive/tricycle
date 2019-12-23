@@ -6,43 +6,55 @@
     x:Class="Tricycle.UI.Pages.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}"
     ControlTemplate="{StaticResource PageTemplate}">
-    <Grid ColumnSpacing="0"
+    <StackLayout Spacing="0">
+        <Grid ColumnSpacing="0"
           RowSpacing="0"
           Padding="10"
           HorizontalOptions="FillAndExpand"
           VerticalOptions="FillAndExpand">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="7*" />
-        </Grid.ColumnDefinitions>
-        <Frame BackgroundColor="{StaticResource BackgroundColor}"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="7*" />
+            </Grid.ColumnDefinitions>
+            <Frame BackgroundColor="{StaticResource BackgroundColor}"
                BorderColor="{StaticResource BorderColor}"
                HasShadow="False"
                Margin="0, 0, 5, 0"
                Padding="0"
                Grid.Row="0"
                Grid.Column="0">
-            <ListView x:Name="vwSections"
+                <ListView x:Name="vwSections"
                       HorizontalOptions="FillAndExpand"
                       VerticalOptions="FillAndExpand"
                       VerticalScrollBarVisibility="Never">
-                <ListView.Header>
-                    <FlexLayout />
-                </ListView.Header>
-            </ListView>
-        </Frame> 
-        <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 0, 0" Grid.Row="0" Grid.Column="1">
-            <ScrollView>
-                <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
-                    <local:GeneralConfigSection x:Name="sctGeneral" />
-                    <local:VideoConfigSection x:Name="sctVideo" />
-                    <local:AudioConfigSection x:Name="sctAudio" />
-                    <local:AdvancedConfigSection x:Name="sctAdvanced" />
-                </StackLayout>
-            </ScrollView>
-        </local:FramedPanel>
-    </Grid>
+                    <ListView.Header>
+                        <FlexLayout />
+                    </ListView.Header>
+                </ListView>
+            </Frame>
+            <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 0, 0" Grid.Row="0" Grid.Column="1">
+                <ScrollView>
+                    <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
+                        <local:GeneralConfigSection x:Name="sctGeneral" />
+                        <local:VideoConfigSection x:Name="sctVideo" />
+                        <local:AudioConfigSection x:Name="sctAudio" />
+                        <local:AdvancedConfigSection x:Name="sctAdvanced" />
+                    </StackLayout>
+                </ScrollView>
+            </local:FramedPanel>
+        </Grid>
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="WPF">
+                <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                        Status="{Binding Status}"
+                                        Progress="{Binding Progress}"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        Grid.Row="1"/>
+            </On>
+        </OnPlatform>
+    </StackLayout>
 </ContentPage>
