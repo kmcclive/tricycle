@@ -198,6 +198,27 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ShowsSpinnerWhenReadingSource()
+        {
+            _mediaInspector.When(x => x.Inspect(Arg.Any<string>()))
+                           .Do(x => Assert.IsTrue(_viewModel.IsSpinnerVisible));
+            SelectSource();
+
+            if (!_mediaInspector.ReceivedCalls().Any())
+            {
+                Assert.Inconclusive("Assert was not called.");
+            }
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenDoneReadingSource()
+        {
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
         public void DisplaysAlertWhenSourceInfoIsNull()
         {
             string actualTitle = null;
@@ -2732,6 +2753,45 @@ namespace Tricycle.UI.Tests
             Stop();
 
             Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ShowsSpinnerWhenJobIsStarted()
+        {
+            SelectSource();
+            Start();
+
+            Assert.IsTrue(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobIsStopped()
+        {
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobCompletes()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobFails()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
         }
 
         [TestMethod]
