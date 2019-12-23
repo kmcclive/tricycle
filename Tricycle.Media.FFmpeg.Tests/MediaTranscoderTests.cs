@@ -425,7 +425,6 @@ namespace Tricycle.Media.FFmpeg.Tests
         public void StopKillsProcess()
         {
             _transcoder.Start(_transcodeJob);
-            _process.HasExited.Returns(false);
 
             _transcoder.Stop();
 
@@ -433,10 +432,19 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StopWaitsForProcessToExit()
+        {
+            _transcoder.Start(_transcodeJob);
+
+            _transcoder.Stop();
+
+            _process.Received().WaitForExit(Arg.Any<int>());
+        }
+
+        [TestMethod]
         public void StopDisposesProcess()
         {
             _transcoder.Start(_transcodeJob);
-            _process.HasExited.Returns(false);
 
             _transcoder.Stop();
 

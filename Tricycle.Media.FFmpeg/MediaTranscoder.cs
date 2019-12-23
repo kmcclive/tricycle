@@ -101,6 +101,7 @@ namespace Tricycle.Media.FFmpeg
             UnsubscribeFromEvents(_process);
 
             _process.Kill();
+            _process.WaitForExit(500);
             _process.Dispose();
 
             _process = null;
