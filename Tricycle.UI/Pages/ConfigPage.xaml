@@ -20,10 +20,10 @@
             </On>
         </OnPlatform>
         <Grid ColumnSpacing="0"
-          RowSpacing="0"
-          Padding="10"
-          HorizontalOptions="FillAndExpand"
-          VerticalOptions="FillAndExpand">
+              RowSpacing="0"
+              Padding="10"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -32,16 +32,16 @@
                 <ColumnDefinition Width="7*" />
             </Grid.ColumnDefinitions>
             <Frame BackgroundColor="{StaticResource BackgroundColor}"
-               BorderColor="{StaticResource BorderColor}"
-               HasShadow="False"
-               Margin="0, 0, 5, 0"
-               Padding="0"
-               Grid.Row="0"
-               Grid.Column="0">
+                   BorderColor="{StaticResource BorderColor}"
+                   HasShadow="False"
+                   Margin="0, 0, 5, 0"
+                   Padding="0"
+                   Grid.Row="0"
+                   Grid.Column="0">
                 <ListView x:Name="vwSections"
-                      HorizontalOptions="FillAndExpand"
-                      VerticalOptions="FillAndExpand"
-                      VerticalScrollBarVisibility="Never">
+                          HorizontalOptions="FillAndExpand"
+                          VerticalOptions="FillAndExpand"
+                          VerticalScrollBarVisibility="Never">
                     <ListView.Header>
                         <FlexLayout />
                     </ListView.Header>
