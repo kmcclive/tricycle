@@ -3,9 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Pages.PreviewPage"
-             BackgroundColor="{StaticResource BackgroundColor}"
-             ControlTemplate="{StaticResource PageTemplate}">
+             BackgroundColor="{StaticResource BackgroundColor}">
     <StackLayout Spacing="0">
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <local:MacTitleBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                   Status="{Binding Status}"
+                                   IsBackVisible="True"
+                                   BackCommand="{Binding BackCommand}"
+                                   IsPreviewVisible="False"
+                                   IsStartVisible="False" />
+            </On>
+            <On Platform="WPF">
+                <BoxView IsVisible="False" />
+            </On>
+        </OnPlatform>
         <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="15">
             <Image IsVisible="{Binding IsImageVisible}"
                    Source="{Binding CurrentImageSource}"
@@ -23,8 +35,7 @@
             </On>
             <On Platform="WPF">
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
-                                        Status="{Binding Status}"
-                                        Progress="{Binding Progress}" />
+                                        Status="{Binding Status}" />
             </On>
         </OnPlatform>
     </StackLayout>

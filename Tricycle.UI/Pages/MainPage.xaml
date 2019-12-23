@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Pages.MainPage"
-             BackgroundColor="{StaticResource BackgroundColor}"
-             ControlTemplate="{StaticResource PageTemplate}">
+             BackgroundColor="{StaticResource BackgroundColor}">
     <ContentPage.Resources>
         <OnPlatform x:Key="PanelWidth" x:TypeArguments="FlexBasis">
             <On Platform="macOS" Value="370" />
@@ -19,7 +18,13 @@
     <StackLayout Spacing="0">
         <OnPlatform x:TypeArguments="View">
             <On Platform="macOS">
-                <BoxView IsVisible="False" />
+                <local:MacTitleBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                   Status="{Binding Status}"
+                                   Progress="{Binding Progress}"
+                                   IsBackVisible="False"
+                                   PreviewCommand="{Binding PreviewCommand}"
+                                   StartCommand="{Binding StartCommand}"
+                                   StartImageSource="{Binding StartImageSource}" />
             </On>
             <On Platform="WPF">
                 <local:WindowsToolbar PreviewCommand="{Binding PreviewCommand}"

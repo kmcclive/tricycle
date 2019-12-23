@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.App">
     <Application.Resources>
         <OnPlatform x:TypeArguments="Color" x:Key="BackgroundColor">
@@ -32,35 +31,10 @@
             <Setter Property="FontSize" Value="Micro" />
         </Style>
         <Thickness x:Key="PanelPadding">20, 0, 20, 20</Thickness>
-        <!-- macOS only -->
+        <!-- BEGIN macOS only -->
         <Color x:Key="BorderColor">#cccccc</Color>
         <Color x:Key="ButtonBackgroundColor">#f9f9f9</Color>
         <Color x:Key="TitleBarBorderColor">#b4b3b4</Color>
-        <!-- macOS only -->
-        <OnPlatform x:Key="PageTemplate"  x:TypeArguments="ControlTemplate">
-            <On Platform="macOS">
-                <ControlTemplate>
-                    <StackLayout Spacing="0">
-                        <local:MacTitleBar BindingContext="{TemplateBinding BindingContext}"
-                                           IsSpinnerVisible="{Binding IsSpinnerVisible}"
-                                           Status="{Binding Status}"
-                                           Progress="{Binding Progress}"
-                                           IsBackVisible="{Binding IsBackVisible}"
-                                           BackCommand="{Binding BackCommand}"
-                                           IsPreviewVisible="{Binding IsPreviewVisible}"
-                                           PreviewCommand="{Binding PreviewCommand}"
-                                           IsStartVisible="{Binding IsStartVisible}"
-                                           StartCommand="{Binding StartCommand}"
-                                           StartImageSource="{Binding StartImageSource}" />
-                        <ContentPresenter HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
-                    </StackLayout>
-                </ControlTemplate>
-            </On>
-            <On Platform="WPF">
-                <ControlTemplate>
-                    <ContentPresenter />
-                </ControlTemplate>
-            </On>
-        </OnPlatform>
+        <!-- END   macOS only -->
     </Application.Resources>
 </Application>

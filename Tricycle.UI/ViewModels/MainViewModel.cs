@@ -25,7 +25,7 @@ namespace Tricycle.UI.ViewModels
     public delegate void AlertEventHandler(string title, string message);
     public delegate Task<bool> ConfirmEventHandler(string title, string message);
 
-    public class MainViewModel : ViewModelBase, ITricycleViewModel
+    public class MainViewModel : ViewModelBase
     {
         #region Constants
 
@@ -435,12 +435,6 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _destinationName, value); }
         }
 
-        public ICommand SourceSelectCommand { get; }
-
-        public ICommand DestinationSelectCommand { get; }
-
-        #region ITricycleViewModel Members
-
         public bool IsSpinnerVisible
         {
             get { return _isSpinnerVisible; }
@@ -459,25 +453,19 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _progress, value); }
         }
 
-        public bool IsBackVisible => false;
-
-        public ICommand BackCommand { get; } = new Command(() => { }, () => false);
-
-        public bool IsPreviewVisible => true;
-
-        public ICommand PreviewCommand { get; }
-
-        public bool IsStartVisible => true;
-
-        public ICommand StartCommand { get; }
-
         public string StartImageSource
         {
             get { return _startImageSource; }
             set { SetProperty(ref _startImageSource, value); }
         }
 
-        #endregion
+        public ICommand SourceSelectCommand { get; }
+
+        public ICommand DestinationSelectCommand { get; }
+
+        public ICommand PreviewCommand { get; }
+
+        public ICommand StartCommand { get; }
 
         #endregion
 

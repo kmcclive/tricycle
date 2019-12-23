@@ -11,7 +11,7 @@ using Xamarin.Forms;
 
 namespace Tricycle.UI.ViewModels
 {
-    public class PreviewViewModel : ViewModelBase, ITricycleViewModel
+    public class PreviewViewModel : ViewModelBase
     {
         #region Fields
 
@@ -81,12 +81,6 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public ICommand PreviousCommand { get; }
-
-        public ICommand NextCommand { get; }
-
-        #region ITricycleViewModel Members
-
         public bool IsSpinnerVisible => _isLoading;
 
         public string Status
@@ -95,23 +89,11 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _status, value);
         }
 
-        public double Progress => 0;
+        public ICommand PreviousCommand { get; }
 
-        public bool IsBackVisible => true;
+        public ICommand NextCommand { get; }
 
         public ICommand BackCommand { get; }
-
-        public bool IsPreviewVisible => false;
-
-        public ICommand PreviewCommand { get; } = new Command(() => { }, () => false);
-
-        public bool IsStartVisible => false;
-
-        public ICommand StartCommand { get; } = new Command(() => { }, () => false);
-
-        public string StartImageSource => null;
-
-        #endregion
 
         #endregion
 
