@@ -318,7 +318,7 @@ namespace Tricycle.UI.Tests.ViewModels
             await _viewModel.Load(new TranscodeJob());
             _fileService.Exists(Arg.Any<string>()).Returns(true);
 
-            _viewModel.BackCommand.Execute(null);
+            _viewModel.Close();
 
             foreach (var fileName in fileNames)
             {
@@ -337,7 +337,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _fileService.Exists(Arg.Any<string>()).Returns(true);
             _fileService.Exists(doesNotExist).Returns(false);
 
-            _viewModel.BackCommand.Execute(null);
+            _viewModel.Close();
 
             foreach (var fileName in fileNames)
             {
@@ -353,7 +353,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void RaisesModalClosedEventWhenClosed()
+        public void RaisesModalClosedEventWhenBackButtonIsPressed()
         {
             _viewModel.BackCommand.Execute(null);
 

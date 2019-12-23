@@ -43,7 +43,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.Quitting += OnAppQuitting;
 
-            BackCommand = new Command(Close);
+            BackCommand = new Command(() => _appManager.RaiseModalClosed());
             PreviousCommand = new Command(Previous, () => _currentIndex > 0);
             NextCommand = new Command(Next, () => _currentIndex < (_imageFileNames?.Count ?? 0) - 1);
         }
@@ -164,16 +164,14 @@ namespace Tricycle.UI.ViewModels
             });
         }
 
+        public void Close()
+        {
+            DeleteImages();
+        }
+
         #endregion
 
         #region Command Actions
-
-        void Close()
-        {
-            DeleteImages();
-
-            _appManager.RaiseModalClosed();
-        }
 
         void Previous()
         {

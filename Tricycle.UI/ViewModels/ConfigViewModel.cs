@@ -106,7 +106,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.Quitting += OnAppQuitting;
 
-            BackCommand = new Command(new Action(Close));
+            BackCommand = new Command(() => _appManager.RaiseModalClosed());
         }
 
         #endregion
@@ -295,6 +295,14 @@ namespace Tricycle.UI.ViewModels
             _isLoading = false;
         }
 
+        public void Close()
+        {
+            if (_isDirty)
+            {
+                Save();
+            }
+        }
+
         #endregion
 
         #region Protected
@@ -304,20 +312,6 @@ namespace Tricycle.UI.ViewModels
             base.SetProperty(ref field, value, propertyName);
 
             _isDirty |= !_isLoading;
-        }
-
-        #endregion
-
-        #region Command Actions
-
-        void Close()
-        {
-            if (_isDirty)
-            {
-                Save();
-            }
-
-            _appManager.RaiseModalClosed();
         }
 
         #endregion

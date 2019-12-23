@@ -55,6 +55,7 @@ namespace Tricycle.UI.Pages
         {
             base.OnDisappearing();
 
+            _viewModel.Close();
             _viewModel.IsPageVisible = false;
         }
 
