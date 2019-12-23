@@ -18,6 +18,9 @@
     </ContentPage.Resources>
     <StackLayout Spacing="0">
         <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
             <On Platform="WPF">
                 <local:WindowsToolbar PreviewCommand="{Binding PreviewCommand}"
                                       StartCommand="{Binding StartCommand}"
@@ -306,6 +309,9 @@
             </StackLayout>
         </ScrollView>
         <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
             <On Platform="WPF">
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                         Status="{Binding Status}"

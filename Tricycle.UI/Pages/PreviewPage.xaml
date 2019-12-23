@@ -18,6 +18,9 @@
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />
         </FlexLayout>
         <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
             <On Platform="WPF">
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                         Status="{Binding Status}"

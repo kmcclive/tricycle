@@ -47,6 +47,9 @@
             </local:FramedPanel>
         </Grid>
         <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
             <On Platform="WPF">
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                         Status="{Binding Status}"

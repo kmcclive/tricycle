@@ -42,16 +42,16 @@
                 <ControlTemplate>
                     <StackLayout Spacing="0">
                         <local:MacTitleBar BindingContext="{TemplateBinding BindingContext}"
-                                               IsSpinnerVisible="{Binding IsSpinnerVisible}"
-                                               Status="{Binding Status}"
-                                               Progress="{Binding Progress}"
-                                               IsBackVisible="{Binding IsBackVisible}"
-                                               BackCommand="{Binding BackCommand}"
-                                               IsPreviewVisible="{Binding IsPreviewVisible}"
-                                               PreviewCommand="{Binding PreviewCommand}"
-                                               IsStartVisible="{Binding IsStartVisible}"
-                                               StartCommand="{Binding StartCommand}"
-                                               StartImageSource="{Binding StartImageSource}" />
+                                           IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                           Status="{Binding Status}"
+                                           Progress="{Binding Progress}"
+                                           IsBackVisible="{Binding IsBackVisible}"
+                                           BackCommand="{Binding BackCommand}"
+                                           IsPreviewVisible="{Binding IsPreviewVisible}"
+                                           PreviewCommand="{Binding PreviewCommand}"
+                                           IsStartVisible="{Binding IsStartVisible}"
+                                           StartCommand="{Binding StartCommand}"
+                                           StartImageSource="{Binding StartImageSource}" />
                         <ContentPresenter HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" />
                     </StackLayout>
                 </ControlTemplate>
