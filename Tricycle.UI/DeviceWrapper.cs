@@ -23,8 +23,6 @@ namespace Tricycle.UI
             }
         }
 
-        public string RuntimePlatform => Device.RuntimePlatform;
-
         private DeviceWrapper()
         {
 
