@@ -218,19 +218,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\tricycle.ico" />
-    <Content Include="Assets\Images\check.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Images\close.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\Images\next.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Images\previous.png">
+    <Content Include="Assets\Images\preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Images\save.png">
+    <Content Include="Assets\Images\previous.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Images\trash.png">

@@ -17,7 +17,6 @@ using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
-using Tricycle.UI.Pages;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
@@ -35,16 +34,13 @@ namespace Tricycle.UI.Windows
     /// </summary>
     public partial class MainWindow : FormsApplicationPage
     {
-        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.WhiteSmoke);
+        static readonly Brush MENU_BACKGROUND_BRUSH = new SolidColorBrush(Colors.White);
         static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
 
         IAppManager _appManager;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         MenuItem _previewItem;
-        MainPage _mainPage;
-        ConfigPage _configPage;
-        PreviewPage _previewPage;
 
         public MainWindow()
         {
@@ -58,12 +54,7 @@ namespace Tricycle.UI.Windows
             InitializeAppState();
             InitializeComponent();
             Forms.Init();
-
-            var app = new UI.App();
-
-            _mainPage = app.MainPage as MainPage;
-
-            LoadApplication(app);
+            LoadApplication(new UI.App(_appManager));
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -76,18 +67,6 @@ namespace Tricycle.UI.Windows
             }
 
             base.OnClosing(e);
-        }
-
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-
-            var backButton = Template.FindName("PART_Previous_Modal", this) as Control;
-
-            if (backButton != null)
-            {
-                backButton.Visibility = Visibility.Collapsed;
-            }
         }
 
         protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
@@ -262,12 +241,7 @@ namespace Tricycle.UI.Windows
 
         void OnOptionsClick(object sender, RoutedEventArgs e)
         {
-            if (_configPage == null)
-            {
-                _configPage = new ConfigPage();
-            }
-
-            _appManager.RaiseModalOpened(_configPage);
+            _appManager.RaiseModalOpened(Modal.Config);
         }
 
         void OnAboutClick(object sender, RoutedEventArgs e)
@@ -282,21 +256,7 @@ namespace Tricycle.UI.Windows
 
         void OnPreviewClick(object sender, RoutedEventArgs e)
         {
-            var job = _mainPage?.GetTranscodeJob();
-
-            if (job == null)
-            {
-                return;
-            }
-
-            if (_previewPage == null)
-            {
-                _previewPage = new PreviewPage();
-            }
-
-            _previewPage.TranscodeJob = job;
-
-            _appManager.RaiseModalOpened(_previewPage);
+            _appManager.RaiseModalOpened(Modal.Preview);
         }
     }
 }

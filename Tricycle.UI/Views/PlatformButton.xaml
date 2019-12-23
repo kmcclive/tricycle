@@ -13,7 +13,7 @@
                     <controls:FramedImageButton x:Name="macButton" />
                 </On>
                 <On Platform="WPF">
-                    <ImageButton x:Name="wpfButton" BackgroundColor="White" WidthRequest="36" HeightRequest="36" />
+                    <ImageButton x:Name="wpfButton" BackgroundColor="White" WidthRequest="32" HeightRequest="32" />
                 </On>
             </OnPlatform>
         </StackLayout>

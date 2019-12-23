@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -88,11 +89,10 @@ namespace Tricycle.UI.ViewModels
         IList<ListItem> _containerFormatOptions;
         ListItem _selectedContainerFormat;
         string _destinationName;
-        bool _isProgressVisible;
         double _progress;
-        string _progressText;
-        string _rateText;
-        string _toggleStartImage = PLAY_IMAGE;
+        string _startImageSource = PLAY_IMAGE;
+        string _status;
+        bool _isSpinnerVisible;
 
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
@@ -149,6 +149,8 @@ namespace Tricycle.UI.ViewModels
                                                    () => _isDestinationSelectionEnabled);
             StartCommand = new Command(async () => await ToggleRunning(),
                                        () => _isStartEnabled);
+            PreviewCommand = new Command(() => _appManager.RaiseModalOpened(Modal.Preview),
+                                         () => _isStartEnabled && !_isRunning);
 
             ContainerFormatOptions = GetContainerFormatOptions();
             SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault();
@@ -433,10 +435,16 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _destinationName, value); }
         }
 
-        public bool IsProgressVisible
+        public bool IsSpinnerVisible
         {
-            get { return _isProgressVisible; }
-            set { SetProperty(ref _isProgressVisible, value); }
+            get { return _isSpinnerVisible; }
+            set { SetProperty(ref _isSpinnerVisible, value); }
+        }
+
+        public string Status
+        {
+            get { return _status; }
+            set { SetProperty(ref _status, value); }
         }
 
         public double Progress
@@ -445,26 +453,18 @@ namespace Tricycle.UI.ViewModels
             set { SetProperty(ref _progress, value); }
         }
 
-        public string ProgressText
+        public string StartImageSource
         {
-            get { return _progressText; }
-            set { SetProperty(ref _progressText, value); }
-        }
-
-        public string RateText
-        {
-            get { return _rateText; }
-            set { SetProperty(ref _rateText, value); }
-        }
-
-        public string ToggleStartImage
-        {
-            get { return _toggleStartImage; }
-            set { SetProperty(ref _toggleStartImage, value); }
+            get { return _startImageSource; }
+            set { SetProperty(ref _startImageSource, value); }
         }
 
         public ICommand SourceSelectCommand { get; }
+
         public ICommand DestinationSelectCommand { get; }
+
+        public ICommand PreviewCommand { get; }
+
         public ICommand StartCommand { get; }
 
         #endregion
@@ -659,12 +659,17 @@ namespace Tricycle.UI.ViewModels
 
         async Task OpenSource(string fileName)
         {
-            Command startCommand = ((Command)StartCommand);
+            Command startCommand = (Command)StartCommand;
+            Command previewCommand = (Command)PreviewCommand;
+
             _isStartEnabled = false;
+            IsSpinnerVisible = true;
+            Status = "Scanning source...";
 
             _appManager.RaiseBusy();
             EnableControls(false);
             startCommand.ChangeCanExecute();
+            previewCommand.ChangeCanExecute();
 
             SourceName = fileName;
             _sourceInfo = await _mediaInspector.Inspect(fileName);
@@ -704,6 +709,9 @@ namespace Tricycle.UI.ViewModels
             PopulateAudioOptions(_sourceInfo);
             UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
 
+            IsSpinnerVisible = false;
+            Status = string.Empty;
+
             if (isValid)
             {
                 EnableControls(true);
@@ -721,6 +729,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             startCommand.ChangeCanExecute();
+            previewCommand.ChangeCanExecute();
             _appManager.RaiseReady();
             _appManager.RaiseSourceSelected(isValid);
         }
@@ -1096,6 +1105,9 @@ namespace Tricycle.UI.ViewModels
 
         void StartTranscode()
         {
+            IsSpinnerVisible = true;
+            Status = "Transcoding...";
+
             var job = CreateJob();
             bool success = false;
 
@@ -1104,11 +1116,11 @@ namespace Tricycle.UI.ViewModels
                 _mediaTranscoder.Start(job);
 
                 _isRunning = true;
-                IsProgressVisible = true;
-                ToggleStartImage = STOP_IMAGE;
+                StartImageSource = STOP_IMAGE;
 
                 _appManager.RaiseBusy();
                 EnableControls(false);
+                ((Command)PreviewCommand).ChangeCanExecute();
 
                 success = true;
             }
@@ -1164,19 +1176,19 @@ namespace Tricycle.UI.ViewModels
         void ResetJobState()
         {
             _isRunning = false;
-            ToggleStartImage = PLAY_IMAGE;
+            StartImageSource = PLAY_IMAGE;
 
             ResetProgress();
             EnableControls(true);
+            ((Command)PreviewCommand).ChangeCanExecute();
             _appManager.RaiseReady();
         }
 
         void ResetProgress()
         {
-            IsProgressVisible = false;
+            IsSpinnerVisible = false;
             Progress = 0;
-            ProgressText = string.Empty;
-            RateText = string.Empty;
+            Status = string.Empty;
         }
 
         void DeleteDestination()
@@ -1420,6 +1432,41 @@ namespace Tricycle.UI.ViewModels
             ((Command)DestinationSelectCommand).ChangeCanExecute();
         }
 
+        string GetPercentFormat(double percent)
+        {
+            if (percent >= 1)
+            {
+                return "#.#";
+            }
+
+            return "0.##";
+        }
+
+        string GetSizeFormat(ByteSize size)
+        {
+            if (size.LargestWholeNumberValue >= 100)
+            {
+                return "#";
+            }
+
+            return "#.#";
+        }
+
+        string GetSpeedFormat(double speed)
+        {
+            if (speed >= 10)
+            {
+                return "#";
+            }
+
+            if (speed >= 1)
+            {
+                return "#.#";
+            }
+
+            return "0.##";
+        }
+
         #endregion
 
         #region Event Handlers
@@ -1492,21 +1539,31 @@ namespace Tricycle.UI.ViewModels
                 return;
             }
 
-            string eta = null;
+            var builder = new StringBuilder("Transcoding... ");
+            string speedFormat = GetSpeedFormat(status.Speed);
+
+            builder.AppendFormat("{0,4}x", status.Speed.ToString(speedFormat));
 
             if (status.Eta > TimeSpan.Zero)
             {
-                eta = $"{Math.Floor(status.Eta.TotalHours):00}:{status.Eta.Minutes:00}:{status.Eta.Seconds:00}";
+                builder.AppendFormat(" | {0:00}:{1:00}:{2:00}",
+                                     Math.Floor(status.Eta.TotalHours),
+                                     status.Eta.Minutes,
+                                     status.Eta.Seconds);
             }
-
-            string progressText = string.Empty;
 
             if ((status.Size > 0) && (status.EstimatedTotalSize > 0))
             {
-                progressText = $"({ByteSize.FromBytes(status.Size)} / {ByteSize.FromBytes(status.EstimatedTotalSize)}) ";
+                var byteSize = ByteSize.FromBytes(status.EstimatedTotalSize);
+                string sizeFormat = GetSizeFormat(byteSize);
+
+                builder.AppendFormat(" | {0,7}", $"~{byteSize.ToString(sizeFormat)}");
             }
 
-            progressText += $"{status.Percent * 100:0.##}%";
+            var percent = status.Percent * 100;
+            string percentFormat = GetPercentFormat(percent);
+
+            builder.AppendFormat(" | {0,4}%", percent.ToString(percentFormat));
 
             _device.BeginInvokeOnMainThread(() =>
             {
@@ -1516,8 +1573,7 @@ namespace Tricycle.UI.ViewModels
                 }
 
                 Progress = status.Percent;
-                RateText = string.IsNullOrEmpty(eta) ? $"{status.Speed:0.###}x" : $"ETA {eta} ({status.Speed:0.###}x)";
-                ProgressText = progressText;
+                Status = builder.ToString();
             });
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Tricycle.UI
 {
     public interface IDevice

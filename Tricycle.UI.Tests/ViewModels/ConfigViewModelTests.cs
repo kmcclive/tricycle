@@ -681,7 +681,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = alertOnCompletion;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(alertOnCompletion, _tricycleConfigManager.Config?.CompletionAlert);
         }
@@ -693,7 +693,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.DeleteIncompleteFiles = deleteIncompleteFiles;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(deleteIncompleteFiles, _tricycleConfigManager.Config?.DeleteIncompleteFiles);
         }
@@ -705,7 +705,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.PreferForcedSubtitles = preferForcedSubtitles;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(preferForcedSubtitles, _tricycleConfigManager.Config?.ForcedSubtitlesOnly);
         }
@@ -717,7 +717,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.Mp4FileExtension = extension;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(extension,
                             _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4));
@@ -730,7 +730,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.MkvFileExtension = extension;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(extension,
                             _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv));
@@ -743,7 +743,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SizeDivisor = divisor.ToString();
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(divisor, _tricycleConfigManager.Config?.Video?.SizeDivisor);
         }
@@ -758,7 +758,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.AvcQualityScale.Min = range.Min.ToString();
             _viewModel.AvcQualityScale.Max = range.Max.ToString();
             _viewModel.AvcQualityScale.StepCount = steps.ToString();
-            Close();
+            _viewModel.Close();
 
             var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc);
 
@@ -776,7 +776,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.HevcQualityScale.Min = range.Min.ToString();
             _viewModel.HevcQualityScale.Max = range.Max.ToString();
             _viewModel.HevcQualityScale.StepCount = steps.ToString();
-            Close();
+            _viewModel.Close();
 
             var codec = _tricycleConfigManager.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
 
@@ -802,7 +802,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.Width = dimensions.Width.ToString();
             preset.Height = dimensions.Height.ToString();
 
-            Close();
+            _viewModel.Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Video?.SizePresets;
 
@@ -828,7 +828,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.Width = dimensions.Width.ToString();
             preset.Height = dimensions.Height.ToString();
 
-            Close();
+            _viewModel.Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Video?.AspectRatioPresets;
 
@@ -843,7 +843,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.PassthruMatchingTracks = passthruMatchingTracks;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(passthruMatchingTracks, _tricycleConfigManager.Config?.Audio?.PassthruMatchingTracks);
         }
@@ -871,7 +871,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
             preset.Quality = expectedPreset.Quality.ToString();
 
-            Close();
+            _viewModel.Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
 
@@ -903,7 +903,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.SelectedMixdown = new ListItem(expectedPreset.Mixdown);
             preset.Quality = expectedPreset.Quality.ToString();
 
-            Close();
+            _viewModel.Close();
 
             var savedPresets = _tricycleConfigManager.Config?.Audio?.Codecs?.GetValueOrDefault(format)?.Presets;
 
@@ -919,7 +919,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SelectedX264Preset = new ListItem(preset);
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(preset,
                             _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset);
@@ -932,7 +932,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.SelectedX265Preset = new ListItem(preset);
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(preset,
                             _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset);
@@ -945,7 +945,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.AacCodec = codec;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(codec,
                             _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name);
@@ -958,7 +958,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.Ac3Codec = codec;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(codec,
                             _ffmpegConfigManager?.Config?.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name);
@@ -971,7 +971,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.CropDetectOptions = options;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.CropDetectOptions);
         }
@@ -983,7 +983,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.DenoiseOptions = options;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.DenoiseOptions);
         }
@@ -995,7 +995,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _viewModel.Initialize();
             _viewModel.TonemapOptions = options;
-            Close();
+            _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.TonemapOptions);
         }
@@ -1005,7 +1005,7 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _viewModel.Initialize();
             _viewModel.AlertOnCompletion = true;
-            Close();
+            _viewModel.Close();
 
             _tricycleConfigManager.Received().Save();
         }
@@ -1014,7 +1014,7 @@ namespace Tricycle.UI.Tests.ViewModels
         public void DoesNotCallsSaveOnTricycleConfigManagerWhenClosedButNotDirty()
         {
             _viewModel.Initialize();
-            Close();
+            _viewModel.Close();
 
             _tricycleConfigManager.DidNotReceive().Save();
         }
@@ -1024,7 +1024,7 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _viewModel.Initialize();
             _viewModel.AacCodec = "aac";
-            Close();
+            _viewModel.Close();
 
             _ffmpegConfigManager.Received().Save();
         }
@@ -1033,21 +1033,18 @@ namespace Tricycle.UI.Tests.ViewModels
         public void DoesNotCallsSaveOnFFmpegConfigManagerWhenClosedButNotDirty()
         {
             _viewModel.Initialize();
-            Close();
+            _viewModel.Close();
 
             _ffmpegConfigManager.DidNotReceive().Save();
         }
 
         [TestMethod]
-        public void RaisesClosedEventWhenClosed()
+        public void RaisesModalClosedEventWhenBackButtonIsPressed()
         {
-            bool closed = false;
-
             _viewModel.Initialize();
-            _viewModel.Closed += () => closed = true;
-            Close();
+            _viewModel.BackCommand.Execute(null);
 
-            Assert.IsTrue(closed);
+            _appManager.Received().RaiseModalClosed();
         }
 
         [TestMethod]
@@ -1106,15 +1103,6 @@ namespace Tricycle.UI.Tests.ViewModels
             _appManager.Quitting += Raise.Event<Action>();
 
             _appManager.DidNotReceive().RaiseQuitConfirmed();
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        public void Close()
-        {
-            _viewModel.CloseCommand.Execute(null);
         }
 
         #endregion

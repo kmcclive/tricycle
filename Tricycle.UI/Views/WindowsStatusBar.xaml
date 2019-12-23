@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Tricycle.UI.Views.WindowsStatusBar">
+    <ContentView.Resources>
+        <x:Double x:Key="BarHeight">15</x:Double>
+        <x:Double x:Key="BarWidth">150</x:Double>
+    </ContentView.Resources>
+    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center" BackgroundColor="#3498db" Padding="10, 4">
+        <Label x:Name="lblStatus" FontFamily="Lucida Sans Typewriter" FontSize="Micro" TextColor="White" />
+        <ProgressBar x:Name="barProgress"
+                     ProgressColor="#06b025"
+                     IsVisible="False"
+                     HeightRequest="{StaticResource BarHeight}"
+                     WidthRequest="{StaticResource BarWidth}" />
+        <ActivityIndicator x:Name="actSpinner"
+                           IsVisible="False"
+                           HeightRequest="{StaticResource BarHeight}"
+                           WidthRequest="{StaticResource BarWidth}" />
+    </FlexLayout>
+</ContentView>

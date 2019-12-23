@@ -5,25 +5,20 @@
              x:Class="Tricycle.UI.Pages.PreviewPage"
              BackgroundColor="{StaticResource BackgroundColor}">
     <StackLayout Spacing="0">
-        <local:NavigationBar Title="Preview" BackCommand="{Binding CloseCommand}" />
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <local:MacTitleBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                   Status="{Binding Status}"
+                                   IsBackVisible="True"
+                                   BackCommand="{Binding BackCommand}"
+                                   IsPreviewVisible="False"
+                                   IsStartVisible="False" />
+            </On>
+            <On Platform="WPF">
+                <BoxView IsVisible="False" />
+            </On>
+        </OnPlatform>
         <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="15">
-            <ActivityIndicator IsVisible="{Binding IsLoading}"
-                               IsRunning="True"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center">
-                <ActivityIndicator.WidthRequest>
-                    <OnPlatform x:TypeArguments="x:Double">
-                        <On Platform="macOS" Value="32" />
-                        <On Platform="WPF" Value="150" />
-                    </OnPlatform>
-                </ActivityIndicator.WidthRequest>
-                <ActivityIndicator.HeightRequest>
-                    <OnPlatform x:TypeArguments="x:Double">
-                        <On Platform="macOS" Value="32" />
-                        <On Platform="WPF" Value="20" />
-                    </OnPlatform>
-                </ActivityIndicator.HeightRequest>
-            </ActivityIndicator>
             <Image IsVisible="{Binding IsImageVisible}"
                    Source="{Binding CurrentImageSource}"
                    Aspect="AspectFit"
@@ -34,5 +29,14 @@
             <local:PlatformButton Source="Images/previous.png" Command="{Binding PreviousCommand}" />
             <local:PlatformButton Source="Images/next.png" Command="{Binding NextCommand}" />
         </FlexLayout>
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
+            <On Platform="WPF">
+                <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
+                                        Status="{Binding Status}" />
+            </On>
+        </OnPlatform>
     </StackLayout>
 </ContentPage>

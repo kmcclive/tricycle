@@ -6,7 +6,7 @@
         <RelativeLayout>
             <Frame x:Name="frame"
                    BorderColor="{StaticResource BorderColor}"
-                   BackgroundColor="#f9f9f9"
+                   BackgroundColor="{StaticResource ButtonBackgroundColor}"
                    CornerRadius="5"
                    HasShadow="False"
                    Padding="12, 5">

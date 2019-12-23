@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Tricycle.UI.Views.WindowsToolbar">
+    <ContentView.Resources>
+        <x:Double x:Key="BorderWidth">0</x:Double>
+        <x:Double x:Key="ImageSize">24</x:Double>
+        <Color x:Key="ToolbarColor">White</Color>
+        <Thickness x:Key="ImagePadding">4</Thickness>
+    </ContentView.Resources>
+    <StackLayout Orientation="Horizontal" Spacing="5" BackgroundColor="{StaticResource ToolbarColor}" Padding="10, 0">
+        <ImageButton x:Name="btnPreview"
+                     Source="Images/preview.png"
+                     BorderWidth="{StaticResource BorderWidth}"
+                     BackgroundColor="{StaticResource ToolbarColor}"
+                     HeightRequest="{StaticResource ImageSize}"
+                     WidthRequest="{StaticResource ImageSize}"
+                     Padding="{StaticResource ImagePadding}" />
+        <ImageButton x:Name="btnStart"
+                     Source="Images/play.png"
+                     BorderWidth="{StaticResource BorderWidth}"
+                     BackgroundColor="{StaticResource ToolbarColor}"
+                     HeightRequest="{StaticResource ImageSize}"
+                     WidthRequest="{StaticResource ImageSize}"
+                     Padding="{StaticResource ImagePadding}" />
+    </StackLayout>
+</ContentView>

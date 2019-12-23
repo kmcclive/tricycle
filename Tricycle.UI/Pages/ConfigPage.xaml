@@ -6,17 +6,22 @@
     x:Class="Tricycle.UI.Pages.ConfigPage"
     BackgroundColor="{StaticResource BackgroundColor}">
     <StackLayout Spacing="0">
-        <local:NavigationBar BackCommand="{Binding CloseCommand}">
-            <local:NavigationBar.Title>
-                <OnPlatform x:TypeArguments="x:String">
-                    <On Platform="macOS" Value="Preferences" />
-                    <On Platform="WPF" Value="Options" />
-                </OnPlatform>
-            </local:NavigationBar.Title>
-        </local:NavigationBar>
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <local:MacTitleBar Status="Preferences"
+                                   IsBackVisible="True"
+                                   BackCommand="{Binding BackCommand}"
+                                   IsPreviewVisible="False"
+                                   IsStartVisible="False" />
+
+            </On>
+            <On Platform="WPF">
+                <BoxView IsVisible="False" />
+            </On>
+        </OnPlatform>
         <Grid ColumnSpacing="0"
               RowSpacing="0"
-              Margin="10"
+              Padding="10"
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
@@ -41,7 +46,7 @@
                         <FlexLayout />
                     </ListView.Header>
                 </ListView>
-            </Frame> 
+            </Frame>
             <local:FramedPanel x:Name="pnlSection" Margin="5, 0, 0, 0" Grid.Row="0" Grid.Column="1">
                 <ScrollView>
                     <StackLayout x:Name="stackSections" Padding="{StaticResource PanelPadding}">
@@ -53,5 +58,13 @@
                 </ScrollView>
             </local:FramedPanel>
         </Grid>
+        <OnPlatform x:TypeArguments="View">
+            <On Platform="macOS">
+                <BoxView IsVisible="False" />
+            </On>
+            <On Platform="WPF">
+                <local:WindowsStatusBar Status="Options" />
+            </On>
+        </OnPlatform>
     </StackLayout>
 </ContentPage>

@@ -20,19 +20,16 @@ namespace Tricycle.UI.Pages
             Advanced
         }
 
-        IAppManager _appManager;
         ConfigViewModel _viewModel;
 
-        public ConfigPage()
+        public ConfigPage(IAppManager appManager)
         {
             InitializeComponent();
-
-            _appManager = AppState.IocContainer.GetInstance<IAppManager>();
 
             _viewModel = new ConfigViewModel(
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>(),
-                _appManager,
+                appManager,
                 AppState.IocContainer.GetInstance<IDevice>());
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();
             var selectedSection = sections[0];
@@ -44,7 +41,6 @@ namespace Tricycle.UI.Pages
             SelectSection(selectedSection);
             _viewModel.Initialize();
 
-            _viewModel.Closed += async () => await OnClosed();
             vwSections.ItemSelected += OnSectionSelected;
         }
 
@@ -59,13 +55,8 @@ namespace Tricycle.UI.Pages
         {
             base.OnDisappearing();
 
+            _viewModel.Close();
             _viewModel.IsPageVisible = false;
-        }
-
-        async Task OnClosed()
-        {
-            await Navigation.PopModalAsync();
-            _appManager.RaiseModalClosed();
         }
 
         void OnSectionSelected(object sender, SelectedItemChangedEventArgs e)

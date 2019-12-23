@@ -139,6 +139,7 @@
     <Folder Include="Resources\Tools\" />
     <Folder Include="Resources\Tools\FFmpeg\" />
     <Folder Include="Resources\Config\" />
+    <Folder Include="Renderers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -149,6 +150,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="AppDocumentController.cs" />
+    <Compile Include="Renderers\GradientStackLayoutRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -226,12 +228,11 @@
     <BundleResource Include="..\tools\FFmpeg\source\x265.tar.bz2">
       <Link>Resources\Tools\FFmpeg\Source\x265.tar.bz2</Link>
     </BundleResource>
-    <BundleResource Include="Resources\Images\close.png" />
-    <BundleResource Include="Resources\Images\save.png" />
     <BundleResource Include="Resources\Images\trash.png" />
-    <BundleResource Include="Resources\Images\check.png" />
     <BundleResource Include="Resources\Images\next.png" />
     <BundleResource Include="Resources\Images\previous.png" />
+    <BundleResource Include="Resources\Images\preview.png" />
+    <BundleResource Include="Resources\Images\tricycle-gray.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets')" />

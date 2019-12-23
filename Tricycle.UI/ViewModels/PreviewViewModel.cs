@@ -22,6 +22,7 @@ namespace Tricycle.UI.ViewModels
 
         string _currentImageSource;
         bool _isLoading;
+        string _status;
 
         IList<string> _imageFileNames;
         int _currentIndex;
@@ -42,7 +43,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.Quitting += OnAppQuitting;
 
-            CloseCommand = new Command(Close);
+            BackCommand = new Command(() => _appManager.RaiseModalClosed());
             PreviousCommand = new Command(Previous, () => _currentIndex > 0);
             NextCommand = new Command(Next, () => _currentIndex < (_imageFileNames?.Count ?? 0) - 1);
         }
@@ -59,10 +60,7 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _currentImageSource, value);
         }
 
-        public bool IsImageVisible
-        {
-            get => !_isLoading;
-        }
+        public bool IsImageVisible => !_isLoading;
 
         public bool IsLoading
         {
@@ -71,6 +69,7 @@ namespace Tricycle.UI.ViewModels
             {
                 SetProperty(ref _isLoading, value);
                 RaisePropertyChanged(nameof(IsImageVisible));
+                RaisePropertyChanged(nameof(IsSpinnerVisible));
 
                 if (_isLoading)
                 {
@@ -82,16 +81,25 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        public ICommand CloseCommand { get; }
+        public bool IsSpinnerVisible => _isLoading;
+
+        public string Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
+        }
+
         public ICommand PreviousCommand { get; }
+
         public ICommand NextCommand { get; }
+
+        public ICommand BackCommand { get; }
 
         #endregion
 
         #region Events
 
         public event AlertEventHandler Alert;
-        public event Action Closed;
 
         #endregion
 
@@ -107,6 +115,7 @@ namespace Tricycle.UI.ViewModels
             _device.BeginInvokeOnMainThread(() =>
             {
                 IsLoading = true;
+                Status = "Generating preview...";
                 RefreshButtons();
 
                 CurrentImageSource = null;
@@ -128,6 +137,7 @@ namespace Tricycle.UI.ViewModels
 
                 RefreshButtons();
                 IsLoading = false;
+                Status = "Preview";
 
                 if (_imageFileNames?.Any() != true)
                 {
@@ -136,16 +146,14 @@ namespace Tricycle.UI.ViewModels
             });
         }
 
+        public void Close()
+        {
+            DeleteImages();
+        }
+
         #endregion
 
         #region Command Actions
-
-        void Close()
-        {
-            DeleteImages();
-
-            Closed?.Invoke();
-        }
 
         void Previous()
         {

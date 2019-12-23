@@ -20,13 +20,10 @@ namespace Tricycle.UI.Pages
     {
         MainViewModel _viewModel;
 
-        public MainPage()
+        public MainPage(IAppManager appManager)
         {
             InitializeComponent();
 
-            NavigationPage.SetHasNavigationBar(this, false);
-
-            var appManager = AppState.IocContainer.GetInstance<IAppManager>();
             _viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
@@ -39,7 +36,6 @@ namespace Tricycle.UI.Pages
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.DefaultDestinationDirectory);
 
-            appManager.ModalOpened += OnModalOpened;
             _viewModel.Alert += OnAlert;
             _viewModel.Confirm += OnConfirm;
 
@@ -73,14 +69,6 @@ namespace Tricycle.UI.Pages
         Task<bool> OnConfirm(string title, string message)
         {
             return DisplayAlert(title, message, "OK", "Cancel");
-        }
-
-        async void OnModalOpened(Page page)
-        {
-            if (!Navigation.ModalStack.Any(p => p == page))
-            {
-                await Navigation.PushModalAsync(page);
-            }
         }
     }
 }

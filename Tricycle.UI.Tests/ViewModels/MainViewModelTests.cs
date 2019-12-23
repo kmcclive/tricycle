@@ -148,11 +148,15 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void HidesStatusInitially()
+        {
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
         public void HidesProgressInitially()
         {
-            Assert.IsFalse(_viewModel.IsProgressVisible);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+            Assert.AreEqual(_viewModel.Progress, 0);
         }
 
         [TestMethod]
@@ -194,6 +198,27 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ShowsSpinnerWhenReadingSource()
+        {
+            _mediaInspector.When(x => x.Inspect(Arg.Any<string>()))
+                           .Do(x => Assert.IsTrue(_viewModel.IsSpinnerVisible));
+            SelectSource();
+
+            if (!_mediaInspector.ReceivedCalls().Any())
+            {
+                Assert.Inconclusive("Assert was not called.");
+            }
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenDoneReadingSource()
+        {
+            SelectSource();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
         public void DisplaysAlertWhenSourceInfoIsNull()
         {
             string actualTitle = null;
@@ -232,39 +257,27 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void RaisesSourceSelectedWithFalseWhenSourceIsNull()
         {
-            bool isValid = true;
-
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
             SelectSource();
 
-            Assert.IsFalse(isValid);
+            _appManager.Received().RaiseSourceSelected(false);
         }
 
         [TestMethod]
         public void RaisesSourceSelectedWithFalseWhenSourceHasNoVideo()
         {
-            bool isValid = true;
-
             _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
             SelectSource();
 
-            Assert.IsFalse(isValid);
+            _appManager.Received().RaiseSourceSelected(false);
         }
 
         [TestMethod]
         public void RaisesSourceSelectedWithTrueWhenSourceIsValid()
         {
-            bool isValid = false;
-
-            _appManager.When(x => x.RaiseSourceSelected(Arg.Any<bool>()))
-                       .Do(x => isValid = (bool)x[0]);
             SelectSource();
 
-            Assert.IsTrue(isValid);
+            _appManager.Received().RaiseSourceSelected(true);
         }
 
         [TestMethod]
@@ -273,6 +286,51 @@ namespace Tricycle.UI.Tests
             SelectSource();
 
             Assert.IsTrue(_viewModel.IsSourceInfoVisible);
+        }
+
+        [TestMethod]
+        public void EnablesPreviewCommandWhenSourceIsValid()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            SelectSource();
+
+            Assert.IsTrue(enabled);
+        }
+
+        [TestMethod]
+        public void DisablesPreviewCommandWhenSourceIsNull()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
+
+            SelectSource();
+
+            Assert.IsFalse(enabled);
+        }
+
+        [TestMethod]
+        public void DisablesPreviewCommandWhenSourceHasNoVideo()
+        {
+            bool enabled = false;
+
+            _viewModel.PreviewCommand.CanExecuteChanged += (s, e) => enabled = _viewModel.PreviewCommand.CanExecute(null);
+            _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
+            SelectSource();
+
+            Assert.IsFalse(enabled);
+        }
+
+        [TestMethod]
+        public void RaisesModalOpenedWhenPreviewIsClicked()
+        {
+            SelectSource();
+            _viewModel.PreviewCommand.Execute(null);
+
+            _appManager.Received().RaiseModalOpened(Modal.Preview);
         }
 
         [TestMethod]
@@ -2160,7 +2218,7 @@ namespace Tricycle.UI.Tests
 
         [TestMethod]
         public void SetsForcedSubtitlesForJobWhenEnabled()
-        {         
+        {
             var subtitle = new StreamInfo()
             {
                 Index = 2,
@@ -2380,7 +2438,7 @@ namespace Tricycle.UI.Tests
         {
             SelectSource();
 
-            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2389,7 +2447,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             Start();
 
-            Assert.AreEqual("Images/stop.png", _viewModel.ToggleStartImage);
+            Assert.AreEqual("Images/stop.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2399,7 +2457,7 @@ namespace Tricycle.UI.Tests
             Start();
             Stop();
 
-            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2409,7 +2467,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2419,7 +2477,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
 
-            Assert.AreEqual("Images/play.png", _viewModel.ToggleStartImage);
+            Assert.AreEqual("Images/play.png", _viewModel.StartImageSource);
         }
 
         [TestMethod]
@@ -2542,10 +2600,12 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void DisplaysProgressText()
+        public void DisplaysStatus()
         {
             var status = new TranscodeStatus()
             {
+                Eta = new TimeSpan(0, 2, 30, 35, 36),
+                Speed = 0.225,
                 Size = 881852416,
                 EstimatedTotalSize = 5583457485,
                 Percent = 0.1579
@@ -2555,53 +2615,42 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("(841 MB / 5.2 GB) 15.79%", _viewModel.ProgressText);
+            Assert.AreEqual("Transcoding... 0.23x | 02:30:35 | ~5.2 GB | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]
-        public void DisplaysEstimatedTotalSize()
+        public void DisplaysStatusWithoutEta()
         {
             var status = new TranscodeStatus()
             {
-                Percent = 0.34567,
+                Speed = 0.225,
+                Size = 881852416,
+                EstimatedTotalSize = 5583457485,
+                Percent = 0.1579
             };
 
             SelectSource();
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("34.57%", _viewModel.ProgressText);
+            Assert.AreEqual("Transcoding... 0.23x | ~5.2 GB | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]
-        public void DisplaysRateText()
-        {
-            var status = new TranscodeStatus()
-            {
-                Speed = 0.225
-            };
-
-            SelectSource();
-            Start();
-            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
-
-            Assert.AreEqual("0.225x", _viewModel.RateText);
-        }
-
-        [TestMethod]
-        public void DisplaysEtaText()
+        public void DisplaysStatusWithoutSize()
         {
             var status = new TranscodeStatus()
             {
                 Eta = new TimeSpan(0, 2, 30, 35, 36),
-                Speed = 0.139
+                Speed = 0.225,
+                Percent = 0.1579
             };
 
             SelectSource();
             Start();
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
 
-            Assert.AreEqual("ETA 02:30:35 (0.139x)", _viewModel.RateText);
+            Assert.AreEqual("Transcoding... 0.23x | 02:30:35 | 15.8%", _viewModel.Status);
         }
 
         [TestMethod]
@@ -2610,8 +2659,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2619,10 +2667,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
         }
 
         [TestMethod]
@@ -2631,8 +2676,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2640,10 +2684,7 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
         }
 
         [TestMethod]
@@ -2652,8 +2693,7 @@ namespace Tricycle.UI.Tests
             var status = new TranscodeStatus()
             {
                 Percent = 0.3,
-                Speed = 0.225,
-                FramesPerSecond = 5.39
+                Speed = 0.225
             };
 
             SelectSource();
@@ -2661,10 +2701,97 @@ namespace Tricycle.UI.Tests
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             Stop();
 
-            Assert.IsFalse(_viewModel.IsProgressVisible);
             Assert.AreEqual(0, _viewModel.Progress);
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.ProgressText));
-            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.RateText));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobCompletes()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobFails()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ResetsStatusWhenJobIsStopped()
+        {
+            var status = new TranscodeStatus()
+            {
+                Percent = 0.3,
+                Speed = 0.225
+            };
+
+            SelectSource();
+            Start();
+            _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
+            Stop();
+
+            Assert.IsTrue(string.IsNullOrEmpty(_viewModel.Status));
+        }
+
+        [TestMethod]
+        public void ShowsSpinnerWhenJobIsStarted()
+        {
+            SelectSource();
+            Start();
+
+            Assert.IsTrue(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobIsStopped()
+        {
+            SelectSource();
+            Start();
+            Stop();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobCompletes()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Completed += Raise.Event<Action>();
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
+        }
+
+        [TestMethod]
+        public void HidesSpinnerWhenJobFails()
+        {
+            SelectSource();
+            Start();
+            _mediaTranscoder.Failed += Raise.Event<Action<string>>(string.Empty);
+
+            Assert.IsFalse(_viewModel.IsSpinnerVisible);
         }
 
         [TestMethod]
