@@ -476,6 +476,30 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void ParsesFFmpegStatusWithAdditonalParameters()
+        {
+            TranscodeStatus status = null;
+
+            _transcodeJob.SourceInfo.Duration = new TimeSpan(1, 53, 23);
+
+            _transcoder.Start(_transcodeJob);
+            _transcoder.StatusChanged += s => status = s;
+
+            _process.ErrorDataReceived += Raise.Event<Action<string>>(
+                "frame=10697 fps= 32 q=25.0 size= 462080kB time=00:07:26.07 " +
+                "bitrate=8485.9kbits/s dup=1 drop=0 speed=1.35x");
+
+            Assert.IsNotNull(status);
+            Assert.AreEqual(0.0656, status.Percent, 0.0001);
+            Assert.AreEqual(32, status.FramesPerSecond);
+            Assert.AreEqual(473169920, status.Size);
+            Assert.AreEqual(7216300056, status.EstimatedTotalSize);
+            Assert.AreEqual(1.35, status.Speed);
+            Assert.AreEqual(new TimeSpan(0, 0, 7, 26, 70), status.Time);
+            Assert.AreEqual(new TimeSpan(0, 1, 18, 28, 837), status.Eta);
+        }
+
+        [TestMethod]
         public void RaisesCompletedEvent()
         {
             bool completed = false;
