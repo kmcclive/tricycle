@@ -325,14 +325,9 @@ namespace Tricycle.Media.FFmpeg
                 return;
             }
 
-            const string PATTERN =
-                @"frame\s*=\s*(?<frame>\d+)\s+fps\s*=\s*(?<fps>\d+(\.\d+)?)\s+q\s*=\s*(?<q>(\-)?\d+(\.\d+)?)\s+" +
-                @"size\s*=\s*(?<size>\w+)\s+time\s*=\s*(?<time>\d{2}\:\d{2}\:\d{2}(\.\d+)?)\s+" +
-                @"bitrate\s*=\s*(?<bitrate>\d+(.\d+)?\s*\w+/\w)\s+speed\s*=\s*(?<speed>\d+(.\d+)?)x";
+            var matches = Regex.Matches(data, @"(?<key>[^\s]+)\s*=\s*(?<value>[^\s]+)");
 
-            var match = Regex.Match(data, PATTERN, RegexOptions.IgnoreCase);
-
-            if (!match.Success)
+            if (matches.Count < 1)
             {
                 if (!Regex.IsMatch(data, @"conversion\s+failed", RegexOptions.IgnoreCase) || (_lastError == null))
                 {
@@ -342,42 +337,51 @@ namespace Tricycle.Media.FFmpeg
                 return;
             }
 
-            if (TimeSpan.TryParse(match.Groups["time"].Value, out var time) &&
-                double.TryParse(match.Groups["fps"].Value, out var fps) &&
-                double.TryParse(match.Groups["speed"].Value, out var speed) &&
-                TryParseSize(match.Groups["size"].Value, out var size))
+            var status = new TranscodeStatus();
+
+            foreach (Match match in matches)
             {
-                double percent = 0;
-                TimeSpan eta = TimeSpan.Zero;
+                var key = match.Groups["key"].Value;
+                var value = match.Groups["value"].Value;
 
-                if (_sourceDuration > TimeSpan.Zero)
+                switch (key?.ToLower())
                 {
-                    percent = time.TotalMilliseconds / _sourceDuration.TotalMilliseconds;
-
-                    if (speed > 0)
-                    {
-                        eta = CalculateEta(time, _sourceDuration, speed);
-                    }
+                    case "fps":
+                        status.FramesPerSecond = double.TryParse(value, out var fps) ? fps : default;
+                        break;
+                    case "size":
+                        status.Size = TryParseSize(value, out var size) ? size : default;
+                        break;
+                    case "speed":
+                        status.Speed = double.TryParse(value?.Replace("x", string.Empty), out var speed) ? speed : default;
+                        break;
+                    case "time":
+                        status.Time = TimeSpan.TryParse(value, out var time) ? time : default;
+                        break;
                 }
-
-                long totalSize = 0;
-
-                if ((percent > 0) && (size > 0))
-                {
-                    totalSize = CalculateEstimatedTotalSize(percent, size);
-                }
-
-                StatusChanged?.Invoke(new TranscodeStatus()
-                {
-                    Percent = percent,
-                    Time = time,
-                    FramesPerSecond = fps,
-                    Speed = speed,
-                    Size = size,
-                    EstimatedTotalSize = totalSize,
-                    Eta = eta
-                });
             }
+
+            if (status.Time == TimeSpan.Zero)
+            {
+                return;
+            }
+
+            if (_sourceDuration > TimeSpan.Zero)
+            {
+                status.Percent = status.Time.TotalMilliseconds / _sourceDuration.TotalMilliseconds;
+
+                if (status.Speed > 0)
+                {
+                    status.Eta = CalculateEta(status.Time, _sourceDuration, status.Speed);
+                }
+            }
+
+            if ((status.Percent > 0) && (status.Size > 0))
+            {
+                status.EstimatedTotalSize = CalculateEstimatedTotalSize(status.Percent, status.Size);
+            }
+
+            StatusChanged?.Invoke(status);
         }
 
         void OnExited()
