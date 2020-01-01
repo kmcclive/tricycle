@@ -32,6 +32,6 @@ This software uses executables from the FFmpeg project under the LGPLv2.1
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.0</string>
+	<string>2.0.1</string>
 </dict>
 </plist>
