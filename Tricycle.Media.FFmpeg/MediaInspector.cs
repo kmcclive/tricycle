@@ -191,9 +191,9 @@ namespace Tricycle.Media.FFmpeg
                     };
                     break;
                 case "subtitle":
-                    result = new StreamInfo()
+                    result = new SubtitleStreamInfo()
                     {
-                        StreamType = StreamType.Subtitle
+                        SubtitleType = GetSubtitleType(stream.CodecName)
                     };
                     break;
                 case "video":
@@ -278,6 +278,20 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return result;
+        }
+
+        SubtitleType GetSubtitleType(string codecName)
+        {
+            switch (codecName?.ToLower())
+            {
+                case "dvb_subtitle":
+                case "dvd_subtitle":
+                case "hdmv_pgs_subtitle":
+                case "xsub":
+                    return SubtitleType.Graphic;
+                default:
+                    return SubtitleType.Text;
+            }
         }
 
         Coordinate<int> ParseCoordinate(string xRatio, string yRatio)

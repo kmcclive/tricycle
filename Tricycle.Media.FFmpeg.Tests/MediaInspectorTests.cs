@@ -60,6 +60,15 @@ namespace Tricycle.Media.FFmpeg.Tests
                         ""tags"": {
                             ""language"": ""eng"",
                         }
+                    },
+                    {
+                        ""index"": 4,
+                        ""codec_name"": ""subrip"",
+                        ""codec_long_name"": ""SubRip subtitle"",
+                        ""codec_type"": ""subtitle"",
+                        ""tags"": {
+                            ""language"": ""eng"",
+                        }
                     }
                 ],
                 ""format"": {
@@ -190,7 +199,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(TimeSpan.FromSeconds(3186.808000), info.Duration);
 
             Assert.IsNotNull(info.Streams);
-            Assert.AreEqual(4, info.Streams.Count);
+            Assert.AreEqual(5, info.Streams.Count);
 
             StreamInfo stream = info.Streams[0];
 
@@ -248,7 +257,17 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual("hdmv_pgs_subtitle", stream.FormatName);
             Assert.AreEqual("eng", stream.Language);
             Assert.AreEqual(3, stream.Index);
-            Assert.AreEqual(StreamType.Subtitle, stream.StreamType);
+            Assert.IsInstanceOfType(stream, typeof(SubtitleStreamInfo));
+            Assert.AreEqual(SubtitleType.Graphic, ((SubtitleStreamInfo)stream).SubtitleType);
+
+            stream = info.Streams[4];
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("subrip", stream.FormatName);
+            Assert.AreEqual("eng", stream.Language);
+            Assert.AreEqual(4, stream.Index);
+            Assert.IsInstanceOfType(stream, typeof(SubtitleStreamInfo));
+            Assert.AreEqual(SubtitleType.Text, ((SubtitleStreamInfo)stream).SubtitleType);
 
             #endregion
 
