@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
@@ -62,9 +63,11 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         public void ConvertEscapesOptionValue()
         {
             var option = new Option("subtitles", "\"D:\\HD Small'.srt\"");
+            var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                           ? "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\'.srt\""
+                           : "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\\\\\'.srt\"";
 
-            Assert.AreEqual("-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\'.srt\"",
-                            _converter.Convert("-filter", new Option[] { option }));
+            Assert.AreEqual(expected, _converter.Convert("-filter", new Option[] { option }));
         }
 
         [TestMethod]

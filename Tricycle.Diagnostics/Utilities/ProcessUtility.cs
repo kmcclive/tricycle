@@ -20,7 +20,12 @@ namespace Tricycle.Diagnostics.Utilities
                 throw new ArgumentNullException(nameof(path));
             }
 
-            return $"\"{Regex.Replace(path, @"(\\+)$", @"$1$1")}\"";
+            string result = path;
+
+            result = result.Replace("\"", "\\\"");
+            result = Regex.Replace(result, @"(\\+)$", @"$1$1");
+
+            return $"\"{result}\"";
         }
     }
 }

@@ -1131,6 +1131,8 @@ namespace Tricycle.UI.ViewModels
             if (!success)
             {
                 Alert?.Invoke("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
+                IsSpinnerVisible = false;
+                Status = string.Empty;
             }
         }
 

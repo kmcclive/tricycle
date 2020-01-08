@@ -24,9 +24,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             public FFmpegConfig ConfigPassed { get; private set; }
 
             public MockJobRunner(IConfigManager<FFmpegConfig> configManager,
-                                 IFFmpegArgumentGenerator argumentGenerator,
-                                 IProcessUtility processUtility)
-                : base(configManager, argumentGenerator, processUtility)
+                                 IFFmpegArgumentGenerator argumentGenerator)
+                : base(configManager, argumentGenerator)
             {
 
             }
@@ -56,7 +55,6 @@ namespace Tricycle.Media.FFmpeg.Tests
         MockJobRunner _jobRunner;
         IConfigManager<FFmpegConfig> _configManager;
         IFFmpegArgumentGenerator _argumentGenerator;
-        IProcessUtility _processUtility;
         VideoStreamInfo _videoSource;
         VideoOutputStream _videoOutput;
         TranscodeJob _transcodeJob;
@@ -70,8 +68,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
-            _processUtility = Substitute.For<IProcessUtility>();
-            _jobRunner = new MockJobRunner(_configManager, _argumentGenerator, _processUtility);
+            _jobRunner = new MockJobRunner(_configManager, _argumentGenerator);
 
             _videoSource = new VideoStreamInfo()
             {
@@ -432,7 +429,6 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 SourceStreamIndex = subtitleStream.Index
             };
-            _processUtility.EscapeFilePath(Arg.Any<string>()).Returns(x => $"\"{x[0]}\"");
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
 

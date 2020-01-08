@@ -6,7 +6,6 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
-using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models.Jobs;
@@ -25,9 +24,8 @@ namespace Tricycle.Media.FFmpeg
                                      IProcessRunner processRunner,
                                      IConfigManager<FFmpegConfig> configManager,
                                      IFFmpegArgumentGenerator argumentGenerator,
-                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem)
-            : this(ffmpegFileName, processRunner, configManager, argumentGenerator, processUtility, fileSystem, 5)
+            : this(ffmpegFileName, processRunner, configManager, argumentGenerator, fileSystem, 5)
         {
 
         }
@@ -36,14 +34,12 @@ namespace Tricycle.Media.FFmpeg
                                      IProcessRunner processRunner,
                                      IConfigManager<FFmpegConfig> configManager,
                                      IFFmpegArgumentGenerator argumentGenerator,
-                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem,
                                      int imageCount)
             : this(ffmpegFileName,
                    processRunner,
                    configManager,
                    argumentGenerator,
-                   processUtility,
                    fileSystem,
                    imageCount,
                    TimeSpan.FromSeconds(30))
@@ -55,11 +51,10 @@ namespace Tricycle.Media.FFmpeg
                                      IProcessRunner processRunner,
                                      IConfigManager<FFmpegConfig> configManager,
                                      IFFmpegArgumentGenerator argumentGenerator,
-                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem,
                                      int imageCount,
                                      TimeSpan timeout)
-            : base(configManager, argumentGenerator, processUtility)
+            : base(configManager, argumentGenerator)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;

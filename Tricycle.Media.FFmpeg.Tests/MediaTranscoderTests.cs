@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
-using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -22,7 +21,6 @@ namespace Tricycle.Media.FFmpeg.Tests
         IProcess _process;
         IConfigManager<FFmpegConfig> _configManager;
         IFFmpegArgumentGenerator _argumentGenerator;
-        IProcessUtility _processUtility;
         MediaTranscoder _transcoder;
         VideoStreamInfo _videoSource;
         VideoOutputStream _videoOutput;
@@ -35,13 +33,11 @@ namespace Tricycle.Media.FFmpeg.Tests
             _ffmpegFileName = "usr/sbin/ffmpeg";
             _process = Substitute.For<IProcess>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
-            _processUtility = Substitute.For<IProcessUtility>();
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _transcoder = new MediaTranscoder(_ffmpegFileName,
                                               () => _process,
                                               _configManager,
-                                              _argumentGenerator,
-                                              _processUtility);       
+                                              _argumentGenerator);       
 
             _argumentGenerator.When(x => x.GenerateArguments(Arg.Any<FFmpegJob>()))
                               .Do(x => _ffmpegJob = x[0] as FFmpegJob);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -23,15 +22,12 @@ namespace Tricycle.Media.FFmpeg
 
         protected IConfigManager<FFmpegConfig> _configManager;
         protected IFFmpegArgumentGenerator _argumentGenerator;
-        protected IProcessUtility _processUtility;
 
         public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager,
-                                   IFFmpegArgumentGenerator argumentGenerator,
-                                   IProcessUtility processUtility)
+                                   IFFmpegArgumentGenerator argumentGenerator)
         {
             _configManager = configManager;
             _argumentGenerator = argumentGenerator;
-            _processUtility = processUtility;
         }
 
         protected virtual string GenerateArguments(TranscodeJob job)
@@ -302,7 +298,7 @@ namespace Tricycle.Media.FFmpeg
             {
                 Options = new Option[]
                 {
-                    Option.FromValue(_processUtility.EscapeFilePath(subtitleInfo.FileName)),
+                    Option.FromValue($"\"{subtitleInfo.FileName}\""),
                     new Option("si", subtitleInfo.RelativeIndex.ToString())
                 }
             };
