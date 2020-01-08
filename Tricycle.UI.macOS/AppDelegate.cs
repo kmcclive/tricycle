@@ -112,13 +112,15 @@ namespace Tricycle.UI.macOS
                 _.For<IMediaTranscoder>().Use(new MediaTranscoder(ffmpegFileName,
                                                                   processCreator,
                                                                   ffmpegConfigManager,
-                                                                  ffmpegArgumentGenerator));
+                                                                  ffmpegArgumentGenerator,
+                                                                  ProcessUtility.Self));
                 _.For<IDevice>().Use(DeviceWrapper.Self);
                 _.For<IAppManager>().Use(_appManager);
                 _.For<IPreviewImageGenerator>().Use(new PreviewImageGenerator(ffmpegFileName,
                                                                               processRunner,
-                                                                              ffmpegArgumentGenerator,
                                                                               ffmpegConfigManager,
+                                                                              ffmpegArgumentGenerator,
+                                                                              ProcessUtility.Self,
                                                                               fileSystem));
             });
             AppState.DefaultDestinationDirectory = Path.Combine(userPath, "Movies");

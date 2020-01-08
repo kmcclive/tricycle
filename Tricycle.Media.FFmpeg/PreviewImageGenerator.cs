@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Tricycle.Diagnostics;
+using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models.Jobs;
@@ -22,24 +23,27 @@ namespace Tricycle.Media.FFmpeg
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
+                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem)
-            : this(ffmpegFileName, processRunner, argumentGenerator, configManager, fileSystem, 5)
+            : this(ffmpegFileName, processRunner, configManager, argumentGenerator, processUtility, fileSystem, 5)
         {
 
         }
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
+                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem,
                                      int imageCount)
             : this(ffmpegFileName,
                    processRunner,
-                   argumentGenerator,
                    configManager,
+                   argumentGenerator,
+                   processUtility,
                    fileSystem,
                    imageCount,
                    TimeSpan.FromSeconds(30))
@@ -49,12 +53,13 @@ namespace Tricycle.Media.FFmpeg
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
+                                     IProcessUtility processUtility,
                                      IFileSystem fileSystem,
                                      int imageCount,
                                      TimeSpan timeout)
-            : base(configManager, argumentGenerator)
+            : base(configManager, argumentGenerator, processUtility)
         {
             _ffmpegFileName = ffmpegFileName;
             _processRunner = processRunner;

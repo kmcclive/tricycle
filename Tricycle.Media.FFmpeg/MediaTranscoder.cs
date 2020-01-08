@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Tricycle.Diagnostics;
+using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -30,8 +31,9 @@ namespace Tricycle.Media.FFmpeg
         public MediaTranscoder(string ffmpegFileName,
                                Func<IProcess> processCreator,
                                IConfigManager<FFmpegConfig> configManager,
-                               IFFmpegArgumentGenerator argumentGenerator)
-            : base(configManager, argumentGenerator)
+                               IFFmpegArgumentGenerator argumentGenerator,
+                               IProcessUtility processUtility)
+            : base(configManager, argumentGenerator, processUtility)
         {
             _ffmpegFileName = ffmpegFileName;
             _processCreator = processCreator;

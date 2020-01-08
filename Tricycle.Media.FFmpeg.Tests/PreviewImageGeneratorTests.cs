@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
+using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -22,8 +23,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         PreviewImageGenerator _imageGenerator;
         string _ffmpegFileName;
         IProcessRunner _processRunner;
-        IFFmpegArgumentGenerator _argumentGenerator;
         IConfigManager<FFmpegConfig> _configManager;
+        IFFmpegArgumentGenerator _argumentGenerator;
+        IProcessUtility _processUtility;
         IFileSystem _fileSystem;
         int _imageCount;
         IFile _fileService;
@@ -39,6 +41,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             _ffmpegFileName = "/usr/sbin/ffmpeg";
             _processRunner = Substitute.For<IProcessRunner>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
+            _processUtility = Substitute.For<IProcessUtility>();
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _fileSystem = Substitute.For<IFileSystem>();
             _fileService = Substitute.For<IFile>();
@@ -47,8 +50,9 @@ namespace Tricycle.Media.FFmpeg.Tests
             _timeout = TimeSpan.FromMilliseconds(10);
             _imageGenerator = new PreviewImageGenerator(_ffmpegFileName,
                                                         _processRunner,
-                                                        _argumentGenerator,
                                                         _configManager,
+                                                        _argumentGenerator,
+                                                        _processUtility,
                                                         _fileSystem,
                                                         _imageCount,
                                                         _timeout);

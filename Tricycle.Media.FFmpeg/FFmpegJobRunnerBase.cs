@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
@@ -12,13 +13,25 @@ namespace Tricycle.Media.FFmpeg
 {
     public abstract class FFmpegJobRunnerBase
     {
+        protected class SubtitleInfo
+        {
+            public int AbsoluteIndex { get; set; }
+            public int RelativeIndex { get; set; }
+            public SubtitleType SubtitleType { get; set; }
+            public string FileName { get; set; }
+        }
+
         protected IConfigManager<FFmpegConfig> _configManager;
         protected IFFmpegArgumentGenerator _argumentGenerator;
+        protected IProcessUtility _processUtility;
 
-        public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager, IFFmpegArgumentGenerator argumentGenerator)
+        public FFmpegJobRunnerBase(IConfigManager<FFmpegConfig> configManager,
+                                   IFFmpegArgumentGenerator argumentGenerator,
+                                   IProcessUtility processUtility)
         {
             _configManager = configManager;
             _argumentGenerator = argumentGenerator;
+            _processUtility = processUtility;
         }
 
         protected virtual string GenerateArguments(TranscodeJob job)
@@ -79,17 +92,28 @@ namespace Tricycle.Media.FFmpeg
                 OutputFileName = job.OutputFileName
             };
 
-            int? subtitlesIndex = null;
+            SubtitleInfo subtitleInfo = null;
 
             if (job.Subtitles != null)
             {
-                if (!job.SourceInfo.Streams.Any(s => s.StreamType == StreamType.Subtitle))
+                int i = 0;
+
+                subtitleInfo = job.SourceInfo.Streams.OfType<SubtitleStreamInfo>()
+                                                     .Select(s => new SubtitleInfo()
+                                                     {
+                                                         AbsoluteIndex = s.Index,
+                                                         RelativeIndex = i++,
+                                                         SubtitleType = s.SubtitleType,
+                                                         FileName = job.SourceInfo.FileName
+                                                     })
+                                                     .FirstOrDefault(s =>
+                                                        s.AbsoluteIndex == job.Subtitles.SourceStreamIndex);
+
+                if (subtitleInfo == null)
                 {
                     throw new ArgumentException(
                         $"{nameof(job)}.{nameof(job.Subtitles)} contains an invalid index.", nameof(job));
                 }
-
-                subtitlesIndex = job.Subtitles.SourceStreamIndex;
 
                 if (job.Subtitles.ForcedOnly)
                 {
@@ -106,7 +130,7 @@ namespace Tricycle.Media.FFmpeg
 
             if (videoOutput != null)
             {
-                result.Filters = GetVideoFilters(config, videoSource, videoOutput, subtitlesIndex);
+                result.Filters = GetVideoFilters(config, videoSource, videoOutput, subtitleInfo);
             }
 
             return result;
@@ -181,17 +205,24 @@ namespace Tricycle.Media.FFmpeg
         protected virtual IList<IFilter> GetVideoFilters(FFmpegConfig config,
                                                          VideoStreamInfo sourceStream,
                                                          VideoOutputStream outputStream,
-                                                         int? subtitlesIndex)
+                                                         SubtitleInfo subtitleInfo)
         {
             var result = new List<IFilter>();
 
-            if (subtitlesIndex.HasValue)
+            if (subtitleInfo != null)
             {
-                const string SUB_LABEL = "sub";
-                const string REF_LABEL = "ref";
+                if (subtitleInfo.SubtitleType == SubtitleType.Graphic)
+                {
+                    const string SUB_LABEL = "sub";
+                    const string REF_LABEL = "ref";
 
-                result.Add(GetScale2RefFilter(sourceStream, subtitlesIndex, SUB_LABEL, REF_LABEL));
-                result.Add(GetOverlayFilter(REF_LABEL, SUB_LABEL));
+                    result.Add(GetScale2RefFilter(sourceStream, subtitleInfo.AbsoluteIndex, SUB_LABEL, REF_LABEL));
+                    result.Add(GetOverlayFilter(REF_LABEL, SUB_LABEL));
+                }
+                else
+                {
+                    result.Add(GetSubtitlesFilter(subtitleInfo));
+                }
             }
 
             bool setSampleAspectRatio = false;
@@ -262,6 +293,18 @@ namespace Tricycle.Media.FFmpeg
                     new LabeledInput(topLabel)
                 },
                 ChainToPrevious = true
+            };
+        }
+
+        protected virtual IFilter GetSubtitlesFilter(SubtitleInfo subtitleInfo)
+        {
+            return new Filter("subtitles")
+            {
+                Options = new Option[]
+                {
+                    Option.FromValue(_processUtility.EscapeFilePath(subtitleInfo.FileName)),
+                    new Option("si", subtitleInfo.RelativeIndex.ToString())
+                }
             };
         }
 
