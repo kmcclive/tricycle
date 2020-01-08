@@ -59,6 +59,15 @@ namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
         }
 
         [TestMethod]
+        public void ConvertEscapesOptionValue()
+        {
+            var option = new Option("subtitles", "\"D:\\HD Small'.srt\"");
+
+            Assert.AreEqual("-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\'.srt\"",
+                            _converter.Convert("-filter", new Option[] { option }));
+        }
+
+        [TestMethod]
         public void ConvertDelimitsOptions()
         {
             var options = new Option[]
