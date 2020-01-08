@@ -22,24 +22,24 @@ namespace Tricycle.Media.FFmpeg
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IFileSystem fileSystem)
-            : this(ffmpegFileName, processRunner, argumentGenerator, configManager, fileSystem, 5)
+            : this(ffmpegFileName, processRunner, configManager, argumentGenerator, fileSystem, 5)
         {
 
         }
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IFileSystem fileSystem,
                                      int imageCount)
             : this(ffmpegFileName,
                    processRunner,
-                   argumentGenerator,
                    configManager,
+                   argumentGenerator,
                    fileSystem,
                    imageCount,
                    TimeSpan.FromSeconds(30))
@@ -49,8 +49,8 @@ namespace Tricycle.Media.FFmpeg
 
         public PreviewImageGenerator(string ffmpegFileName,
                                      IProcessRunner processRunner,
-                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IConfigManager<FFmpegConfig> configManager,
+                                     IFFmpegArgumentGenerator argumentGenerator,
                                      IFileSystem fileSystem,
                                      int imageCount,
                                      TimeSpan timeout)

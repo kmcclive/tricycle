@@ -22,7 +22,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             public FFmpegJob JobToMap { get; set; }
             public FFmpegConfig ConfigPassed { get; private set; }
 
-            public MockJobRunner(IConfigManager<FFmpegConfig> configManager, IFFmpegArgumentGenerator argumentGenerator)
+            public MockJobRunner(IConfigManager<FFmpegConfig> configManager,
+                                 IFFmpegArgumentGenerator argumentGenerator)
                 : base(configManager, argumentGenerator)
             {
 
@@ -266,10 +267,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void MapAssignsForcedSubtitlesOnly()
         {
-            var subtitleStream = new StreamInfo()
+            var subtitleStream = new SubtitleStreamInfo()
             {
-                Index = 1,
-                StreamType = StreamType.Subtitle
+                Index = 1
             };
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
@@ -287,10 +287,9 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void MapAssignsCanvasSize()
         {
-            var subtitleStream = new StreamInfo()
+            var subtitleStream = new SubtitleStreamInfo()
             {
-                Index = 1,
-                StreamType = StreamType.Subtitle
+                Index = 1
             };
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
@@ -352,12 +351,12 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void MapAddsSubtitleFilters()
+        public void MapAddsGraphicSubtitleFilters()
         {
-            var subtitleStream = new StreamInfo()
+            var subtitleStream = new SubtitleStreamInfo()
             {
                 Index = 1,
-                StreamType = StreamType.Subtitle
+                SubtitleType = SubtitleType.Graphic
             };
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
@@ -405,6 +404,52 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.IsNotNull(labeledInput);
             Assert.AreEqual(labeledInput.Label, scale2RefFilter.OutputLabels[0]);
+        }
+
+        [TestMethod]
+        public void MapAddsTextSubtitleFilter()
+        {
+            var subtitleStream = new SubtitleStreamInfo()
+            {
+                Index = 2,
+                SubtitleType = SubtitleType.Text
+            };
+
+            _transcodeJob.SourceInfo.Streams.Add(new SubtitleStreamInfo()
+            {
+                Index = 1
+            });
+            _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
+            _transcodeJob.SourceInfo.Streams.Add(new SubtitleStreamInfo()
+            {
+                Index = 3
+            });
+            _transcodeJob.Subtitles = new SubtitlesConfig()
+            {
+                SourceStreamIndex = subtitleStream.Index
+            };
+
+            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
+
+            Assert.AreEqual(1, ffmpegJob.Filters?.Count);
+
+            var filter = ffmpegJob.Filters[0] as Filter;
+
+            Assert.IsNotNull(filter);
+            Assert.AreEqual("subtitles", filter.Name);
+            Assert.AreEqual(2, filter.Options?.Count);
+
+            var option = filter.Options[0];
+
+            Assert.IsNotNull(option);
+            Assert.IsNull(option.Name);
+            Assert.AreEqual($"\"{_transcodeJob.SourceInfo.FileName}\"", option.Value);
+
+            option = filter.Options[1];
+
+            Assert.IsNotNull(option);
+            Assert.AreEqual("si", option.Name);
+            Assert.AreEqual("1", option.Value);
         }
 
         [TestMethod]

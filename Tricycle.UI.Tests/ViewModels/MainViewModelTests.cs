@@ -1303,7 +1303,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysCorrectNameForAacAudioTrack()
         {
-            _audioStream.FormatName = "aac";
+            _audioStream.Format = AudioFormat.Aac;
             _audioStream.ChannelCount = 2;
             SelectSource();
 
@@ -1315,7 +1315,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysCorrectNameForAc3AudioTrack()
         {
-            _audioStream.FormatName = "ac-3";
+            _audioStream.Format = AudioFormat.Ac3;
             _audioStream.ChannelCount = 6;
             _audioStream.Language = "eng";
             SelectSource();
@@ -2292,11 +2292,13 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PassesThruAudioWhenConfiguredTo()
         {
+            var format = AudioFormat.Ac3;
+
             _tricycleConfig.Audio.PassthruMatchingTracks = true;
             _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
             {
                 {
-                    AudioFormat.Ac3,
+                    format,
                     new AudioCodec()
                     {
                         Presets = new AudioPreset[]
@@ -2309,7 +2311,7 @@ namespace Tricycle.UI.Tests
                     }
                 }
             };
-            _audioStream.FormatName = "ac-3";
+            _audioStream.Format = format;
             _audioStream.ChannelCount = 6;
             SelectSource();
             Start();

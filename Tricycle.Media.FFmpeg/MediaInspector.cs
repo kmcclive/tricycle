@@ -186,14 +186,15 @@ namespace Tricycle.Media.FFmpeg
                 case "audio":
                     result = new AudioStreamInfo()
                     {
+                        Format = GetAudioFormat(stream.CodecName, stream.Profile),
                         ChannelCount = GetInt(stream.Channels),
                         ProfileName = stream.Profile
                     };
                     break;
                 case "subtitle":
-                    result = new StreamInfo()
+                    result = new SubtitleStreamInfo()
                     {
-                        StreamType = StreamType.Subtitle
+                        SubtitleType = GetSubtitleType(stream.CodecName)
                     };
                     break;
                 case "video":
@@ -275,6 +276,49 @@ namespace Tricycle.Media.FFmpeg
             if (match.Success && int.TryParse(match.Groups["depth"].Value, out var depth))
             {
                 result = depth;
+            }
+
+            return result;
+        }
+
+        SubtitleType GetSubtitleType(string codecName)
+        {
+            switch (codecName?.ToLower())
+            {
+                case "dvb_subtitle":
+                case "dvd_subtitle":
+                case "hdmv_pgs_subtitle":
+                case "xsub":
+                    return SubtitleType.Graphic;
+                default:
+                    return SubtitleType.Text;
+            }
+        }
+
+        AudioFormat? GetAudioFormat(string codecName, string profile)
+        {
+            if (string.IsNullOrWhiteSpace(codecName))
+            {
+                return null;
+            }
+
+            AudioFormat? result = null;
+
+            if (Regex.IsMatch(codecName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            {
+                result = AudioFormat.Ac3;
+            }
+            else if (Regex.IsMatch(codecName, @"aac", RegexOptions.IgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(profile) &&
+                    Regex.IsMatch(profile, "HE", RegexOptions.IgnoreCase))
+                {
+                    result = AudioFormat.HeAac;
+                }
+                else
+                {
+                    result = AudioFormat.Aac;
+                }
             }
 
             return result;

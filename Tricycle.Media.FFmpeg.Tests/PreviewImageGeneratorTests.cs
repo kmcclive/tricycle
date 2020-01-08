@@ -22,8 +22,8 @@ namespace Tricycle.Media.FFmpeg.Tests
         PreviewImageGenerator _imageGenerator;
         string _ffmpegFileName;
         IProcessRunner _processRunner;
-        IFFmpegArgumentGenerator _argumentGenerator;
         IConfigManager<FFmpegConfig> _configManager;
+        IFFmpegArgumentGenerator _argumentGenerator;
         IFileSystem _fileSystem;
         int _imageCount;
         IFile _fileService;
@@ -47,8 +47,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             _timeout = TimeSpan.FromMilliseconds(10);
             _imageGenerator = new PreviewImageGenerator(_ffmpegFileName,
                                                         _processRunner,
-                                                        _argumentGenerator,
                                                         _configManager,
+                                                        _argumentGenerator,
                                                         _fileSystem,
                                                         _imageCount,
                                                         _timeout);

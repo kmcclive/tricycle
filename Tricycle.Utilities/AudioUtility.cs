@@ -20,35 +20,6 @@ namespace Tricycle.Utilities
             }
         }
 
-        public static AudioFormat? GetAudioFormat(AudioStreamInfo stream)
-        {
-            if (string.IsNullOrWhiteSpace(stream?.FormatName))
-            {
-                return null;
-            }
-
-            AudioFormat? result = null;
-
-            if (Regex.IsMatch(stream.FormatName, @"ac(\-)?3", RegexOptions.IgnoreCase))
-            {
-                result = AudioFormat.Ac3;
-            }
-            else if (Regex.IsMatch(stream.FormatName, @"aac", RegexOptions.IgnoreCase))
-            {
-                if (!string.IsNullOrWhiteSpace(stream.ProfileName) &&
-                    Regex.IsMatch(stream.ProfileName, "HE", RegexOptions.IgnoreCase))
-                {
-                    result = AudioFormat.HeAac;
-                }
-                else
-                {
-                    result = AudioFormat.Aac;
-                }
-            }
-
-            return result;
-        }
-
         public static string GetFormatName(AudioFormat format)
         {
             switch (format)

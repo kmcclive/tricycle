@@ -24,6 +24,11 @@ namespace Tricycle.Diagnostics.Tests.Utilities
             expected = "\"C:\\Users\\Fred Mertz\\\\\"";
 
             Assert.AreEqual(expected, utility.EscapeFilePath(path));
+
+            path = "/Users/Fred Mertz/\"good movie\".mkv";
+            expected = "\"/Users/Fred Mertz/\\\"good movie\\\".mkv\"";
+
+            Assert.AreEqual(expected, utility.EscapeFilePath(path));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 
@@ -34,7 +35,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                         {
                             builder.Append("=");
                         }
-                        builder.Append(option.Value);
+                        builder.Append(EscapeValue(option.Value));
                     }
                 }
 
@@ -42,6 +43,31 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
             }
 
             throw new NotSupportedException($"{nameof(value)} must be of type IEnumerable<Option>.");
+        }
+
+        string EscapeValue(string value)
+        {
+            string result = value;
+            bool quoteDelimited = false;
+
+            if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
+            {
+                result = result.Substring(1, value.Length - 2);
+                quoteDelimited = true;
+            }
+
+            // backslash needs to be first
+            result = result.Replace(@"\", @"\\\\");
+            result = result.Replace("\"", "\\\\\\\"");
+            result = result.Replace("'", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\\'" : @"\\\\\'");
+            result = result.Replace(":", @"\\:");
+
+            if (quoteDelimited)
+            {
+                result = $"\"{result}\"";
+            }
+
+            return result;
         }
     }
 }

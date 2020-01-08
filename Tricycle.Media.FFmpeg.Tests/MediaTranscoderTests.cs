@@ -34,7 +34,10 @@ namespace Tricycle.Media.FFmpeg.Tests
             _process = Substitute.For<IProcess>();
             _argumentGenerator = Substitute.For<IFFmpegArgumentGenerator>();
             _configManager = Substitute.For<IConfigManager<FFmpegConfig>>();
-            _transcoder = new MediaTranscoder(_ffmpegFileName, () => _process, _configManager, _argumentGenerator);       
+            _transcoder = new MediaTranscoder(_ffmpegFileName,
+                                              () => _process,
+                                              _configManager,
+                                              _argumentGenerator);       
 
             _argumentGenerator.When(x => x.GenerateArguments(Arg.Any<FFmpegJob>()))
                               .Do(x => _ffmpegJob = x[0] as FFmpegJob);
