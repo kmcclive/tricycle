@@ -186,6 +186,7 @@ namespace Tricycle.Media.FFmpeg
                 case "audio":
                     result = new AudioStreamInfo()
                     {
+                        Format = GetAudioFormat(stream.CodecName, stream.Profile),
                         ChannelCount = GetInt(stream.Channels),
                         ProfileName = stream.Profile
                     };
@@ -292,6 +293,35 @@ namespace Tricycle.Media.FFmpeg
                 default:
                     return SubtitleType.Text;
             }
+        }
+
+        AudioFormat? GetAudioFormat(string codecName, string profile)
+        {
+            if (string.IsNullOrWhiteSpace(codecName))
+            {
+                return null;
+            }
+
+            AudioFormat? result = null;
+
+            if (Regex.IsMatch(codecName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            {
+                result = AudioFormat.Ac3;
+            }
+            else if (Regex.IsMatch(codecName, @"aac", RegexOptions.IgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(profile) &&
+                    Regex.IsMatch(profile, "HE", RegexOptions.IgnoreCase))
+                {
+                    result = AudioFormat.HeAac;
+                }
+                else
+                {
+                    result = AudioFormat.Aac;
+                }
+            }
+
+            return result;
         }
 
         Coordinate<int> ParseCoordinate(string xRatio, string yRatio)

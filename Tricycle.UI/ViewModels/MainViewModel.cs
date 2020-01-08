@@ -996,11 +996,10 @@ namespace Tricycle.UI.ViewModels
             }
 
             string format = audioStream.FormatName;
-            AudioFormat? knownFormat = AudioUtility.GetAudioFormat(audioStream);
 
-            if (knownFormat.HasValue)
+            if (audioStream.Format.HasValue)
             {
-                format = AudioUtility.GetFormatName(knownFormat.Value);
+                format = AudioUtility.GetFormatName(audioStream.Format.Value);
             }
             else if (Regex.IsMatch(audioStream.FormatName, @"truehd", RegexOptions.IgnoreCase))
             {
@@ -1413,7 +1412,7 @@ namespace Tricycle.UI.ViewModels
 
         bool Match(AudioStreamInfo sourceStream, AudioOutputStream outputStream)
         {
-            return outputStream.Format == AudioUtility.GetAudioFormat(sourceStream) &&
+            return outputStream.Format == sourceStream.Format &&
                 AudioUtility.GetChannelCount(outputStream.Mixdown ?? AudioMixdown.Mono) == sourceStream.ChannelCount;
         }
 

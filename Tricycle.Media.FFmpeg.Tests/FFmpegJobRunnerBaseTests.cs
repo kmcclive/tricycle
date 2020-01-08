@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using Tricycle.Diagnostics.Utilities;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Models.Jobs;
