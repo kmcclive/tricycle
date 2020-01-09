@@ -120,6 +120,40 @@ namespace Tricycle.Media.FFmpeg.Tests
                     ""duration"": ""1597.654000"",
                 }
             }";
+        const string FILE_OUTPUT_3 =
+            @"{
+                ""streams"": [
+                    {
+                        ""index"": 0,
+                        ""codec_name"": ""mpeg2video"",
+                        ""codec_long_name"": ""MPEG-2 video"",
+                        ""codec_type"": ""video"",
+                        ""width"": 720,
+                        ""height"": 480,
+                        ""sample_aspect_ratio"": ""8:9"",
+                        ""pix_fmt"": ""yuv420p"",
+                        ""color_transfer"": ""smpte170m"",
+                        ""tags"": {
+                            ""language"": ""und"",
+                        }
+                    },
+                    {
+                        ""index"": 1,
+                        ""codec_name"": ""ac3"",
+                        ""codec_long_name"": ""ATSC A/52A (AC-3)"",
+                        ""codec_type"": ""audio"",
+                        ""channels"": 2,
+                        ""tags"": {
+                            ""language"": ""eng"",
+                        }
+                    }
+                ],
+                ""format"": {
+                    ""format_name"": ""mov,mp4,m4a,3gp,3g2,mj2"",
+                    ""format_long_name"": ""QuickTime / MOV"",
+                    ""duration"": ""1547.168000"",
+                }
+            }";
         const string FRAME_OUTPUT =
             @"{
                 ""frames"": [
@@ -329,6 +363,56 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.IsInstanceOfType(stream, typeof(AudioStreamInfo));
             Assert.AreEqual(AudioFormat.Ac3, ((AudioStreamInfo)stream).Format);
             Assert.AreEqual(6, ((AudioStreamInfo)stream).ChannelCount);
+
+            #endregion
+
+            #region Test MP4 with anamorphic video
+
+            fileName = "/Users/fred/Documents/anamorphic.m4v";
+            escapedFileName = "escaped 3";
+
+            processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_3 });
+
+            info = await inspector.Inspect(fileName);
+
+            Assert.IsNotNull(info);
+            Assert.AreEqual(fileName, info.FileName);
+            Assert.AreEqual("QuickTime / MOV", info.FormatName);
+            Assert.AreEqual(TimeSpan.FromSeconds(1547.168000), info.Duration);
+
+            Assert.IsNotNull(info.Streams);
+            Assert.AreEqual(2, info.Streams.Count);
+
+            stream = info.Streams[0];
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("mpeg2video", stream.FormatName);
+            Assert.AreEqual("und", stream.Language);
+            Assert.AreEqual(0, stream.Index);
+            Assert.IsInstanceOfType(stream, typeof(VideoStreamInfo));
+
+            videoStream = (VideoStreamInfo)stream;
+
+            Assert.AreEqual(new Dimensions(640, 480), videoStream.Dimensions);
+            Assert.AreEqual(new Dimensions(720, 480), videoStream.StorageDimensions);
+            Assert.AreEqual(DynamicRange.Standard, videoStream.DynamicRange);
+            Assert.AreEqual(8, videoStream.BitDepth);
+            Assert.IsNull(videoStream.MasterDisplayProperties);
+            Assert.IsNull(videoStream.LightLevelProperties);
+
+            stream = info.Streams[1];
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("ac3", stream.FormatName);
+            Assert.AreEqual("eng", stream.Language);
+            Assert.AreEqual(1, stream.Index);
+            Assert.IsInstanceOfType(stream, typeof(AudioStreamInfo));
+            Assert.AreEqual(AudioFormat.Ac3, ((AudioStreamInfo)stream).Format);
+            Assert.AreEqual(2, ((AudioStreamInfo)stream).ChannelCount);
 
             #endregion
 

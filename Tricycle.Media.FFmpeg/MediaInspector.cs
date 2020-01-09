@@ -198,10 +198,12 @@ namespace Tricycle.Media.FFmpeg
                     };
                     break;
                 case "video":
+                    var storageDimensions = new Dimensions(GetInt(stream.Width), GetInt(stream.Height));
                     result = new VideoStreamInfo()
                     {
                         BitDepth = GetBitDepth(stream.PixFmt),
-                        Dimensions = new Dimensions(GetInt(stream.Width), GetInt(stream.Height)),
+                        Dimensions = GetActualDimensions(storageDimensions, stream.SampleAspectRatio),
+                        StorageDimensions = storageDimensions,
                         DynamicRange = stream.ColorTransfer == "smpte2084" ? DynamicRange.High : DynamicRange.Standard
                     };
                     break;
@@ -324,6 +326,20 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
+        Dimensions GetActualDimensions(Dimensions storageDimensions, string sampleAspectRatio)
+        {
+            var (numerator, denominator) = ParseRatio(sampleAspectRatio);
+            double ratio = numerator.HasValue && denominator.HasValue ? (double)numerator.Value / denominator.Value : 0;
+            int width = storageDimensions.Width;
+
+            if (ratio > 0)
+            {
+                width = (int)Math.Round(storageDimensions.Width * ratio, MidpointRounding.AwayFromZero);
+            }
+
+            return new Dimensions(width, storageDimensions.Height);
+        }
+
         Coordinate<int> ParseCoordinate(string xRatio, string yRatio)
         {
             var (x, y) = ParseTuple(xRatio, yRatio);
@@ -345,27 +361,42 @@ namespace Tricycle.Media.FFmpeg
 
             if (ratio1 != null)
             {
-                value1 = ParseValueFromRatio(ratio1);
+                value1 = ParseNumeratorFromRatio(ratio1);
             }
 
             if (ratio2 != null)
             {
-                value2 = ParseValueFromRatio(ratio2);
+                value2 = ParseNumeratorFromRatio(ratio2);
             }
 
             return (value1 ?? 0, value2 ?? 0);
         }
 
-        int? ParseValueFromRatio(string ratio)
+        int? ParseNumeratorFromRatio(string ratio)
         {
-            var match = Regex.Match(ratio, @"(?<value>\d+)/\d+");
+            var (numerator, _) = ParseRatio(ratio);
 
-            if (match.Success && int.TryParse(match.Groups["value"].Value, out var value))
+            return numerator;
+        }
+
+        (int?, int?) ParseRatio(string ratio)
+        {
+            if (string.IsNullOrWhiteSpace(ratio))
             {
-                return value;
+                return (null, null);
             }
 
-            return null;
+            var match = Regex.Match(ratio, @"(?<numerator>\d+)[:/](?<denominator>\d+)");
+            int? numerator = null;
+            int? denominator = null;
+
+            if (match.Success)
+            {
+                numerator = int.TryParse(match.Groups["numerator"].Value, out var temp1) ? temp1 : default(int?);
+                denominator = int.TryParse(match.Groups["denominator"].Value, out var temp2) ? temp2 : default(int?);
+            }
+
+            return (numerator, denominator);
         }
 
         #endregion
