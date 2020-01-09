@@ -334,7 +334,7 @@ namespace Tricycle.Media.FFmpeg
 
             if (ratio > 0)
             {
-                width = (int)Math.Round(storageDimensions.Width * ratio, MidpointRounding.AwayFromZero);
+                width = (int)Math.Round(storageDimensions.Width * ratio);
             }
 
             return new Dimensions(width, storageDimensions.Height);

@@ -157,7 +157,7 @@ namespace Tricycle.Media.FFmpeg.Tests
                 {
                     new VideoStreamInfo()
                     {
-                        Dimensions = new Dimensions(853, 480),
+                        Dimensions = new Dimensions(854, 480),
                         StorageDimensions = new Dimensions(720, 480)
                     }
                 }
@@ -171,7 +171,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.IsNotNull(parameters);
             Assert.AreEqual(new Coordinate<int>(0, 62), parameters.Start);
-            Assert.AreEqual(new Dimensions(853, 356), parameters.Size);
+            Assert.AreEqual(new Dimensions(854, 356), parameters.Size);
 
             #endregion
         }

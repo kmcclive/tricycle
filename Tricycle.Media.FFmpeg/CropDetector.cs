@@ -180,8 +180,7 @@ namespace Tricycle.Media.FFmpeg
 
             int width = (int)Math.Round((double)videoStream.Dimensions.Width
                                         / videoStream.StorageDimensions.Width
-                                        * parameters.Size.Width,
-                                        MidpointRounding.AwayFromZero);
+                                        * parameters.Size.Width);
 
             return new CropParameters()
             {
