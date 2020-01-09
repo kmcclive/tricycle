@@ -1320,13 +1320,16 @@ namespace Tricycle.UI.ViewModels
 
         Dimensions? GetScaledDimensions(CropParameters cropParameters, int divisor)
         {
-            if (SelectedSize == ORIGINAL_OPTION)
+            if ((SelectedSize == ORIGINAL_OPTION) &&
+                _primaryVideoStream.Dimensions.Equals(_primaryVideoStream.StorageDimensions))
             {
                 return null;
             }
 
             Dimensions sourceDimensions = cropParameters?.Size ?? _primaryVideoStream.Dimensions;
-            var targetDimensions = (Dimensions)SelectedSize.Value;
+            var targetDimensions = SelectedSize == ORIGINAL_OPTION
+                                   ? _primaryVideoStream.Dimensions
+                                   : (Dimensions)SelectedSize.Value;
 
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }

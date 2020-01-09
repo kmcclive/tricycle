@@ -232,8 +232,7 @@ namespace Tricycle.Media.FFmpeg
                 setSampleAspectRatio = true;
             }
 
-            if (outputStream.ScaledDimensions.HasValue &&
-                !outputStream.ScaledDimensions.Equals(sourceStream.Dimensions))
+            if (outputStream.ScaledDimensions.HasValue)
             {
                 result.Add(GetScaleFilter(outputStream.ScaledDimensions.Value));
 

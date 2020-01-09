@@ -2173,6 +2173,20 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void CallsCalculateScaledDimensionsForAnamorphicSource()
+        {
+            _videoStream.Dimensions = new Dimensions(640, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            SelectSource();
+            _viewModel.IsAutocropChecked = false;
+            Start();
+
+            _transcodeCalculator.Received().CalculateScaledDimensions(_videoStream.Dimensions,
+                                                                      _videoStream.Dimensions,
+                                                                      Arg.Any<int>());
+        }
+
+        [TestMethod]
         public void SetsSubtitlesForJobWhenSelected()
         {
             var subtitle = new StreamInfo()
