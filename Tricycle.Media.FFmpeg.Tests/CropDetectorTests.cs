@@ -146,12 +146,34 @@ namespace Tricycle.Media.FFmpeg.Tests
             }
 
             #endregion
-        }
 
-        bool IsMatch(string input, string pattern, out Match match)
-        {
-            match = Regex.Match(input, pattern);
-            return match.Success;
+            #region Test anamorphic video that has bars
+
+            mediaInfo = new MediaInfo()
+            {
+                FileName = "/Users/fred/Documents/video3.mkv",
+                Duration = TimeSpan.FromMinutes(104),
+                Streams = new StreamInfo[]
+                {
+                    new VideoStreamInfo()
+                    {
+                        Dimensions = new Dimensions(853, 480),
+                        StorageDimensions = new Dimensions(720, 480)
+                    }
+                }
+            };
+            output = "[Parsed_cropdetect_0 @ 0x7fce49600000] crop=720:356:0:62";
+
+            processRunner.Run(ffmpegFileName, ARGS, timeout)
+                         .Returns(new ProcessResult() { ErrorData = output });
+
+            parameters = await detector.Detect(mediaInfo);
+
+            Assert.IsNotNull(parameters);
+            Assert.AreEqual(new Coordinate<int>(0, 62), parameters.Start);
+            Assert.AreEqual(new Dimensions(853, 356), parameters.Size);
+
+            #endregion
         }
     }
 }
