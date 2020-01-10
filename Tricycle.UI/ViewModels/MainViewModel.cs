@@ -44,6 +44,7 @@ namespace Tricycle.UI.ViewModels
         readonly IMediaInspector _mediaInspector;
         readonly IMediaTranscoder _mediaTranscoder;
         readonly ICropDetector _cropDetector;
+        readonly IInterlaceDetector _interlaceDetector;
         readonly ITranscodeCalculator _transcodeCalculator;
         readonly IFileSystem _fileSystem;
         readonly IDevice _device;
@@ -97,6 +98,7 @@ namespace Tricycle.UI.ViewModels
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
+        bool _isInterlaced;
         string _defaultExtension = DEFAULT_EXTENSION;
         VideoStreamInfo _primaryVideoStream;
         IList<ListItem> _audioFormatOptions;
@@ -115,6 +117,7 @@ namespace Tricycle.UI.ViewModels
                              IMediaInspector mediaInspector,
                              IMediaTranscoder mediaTranscoder,
                              ICropDetector cropDetector,
+                             IInterlaceDetector interlaceDetector,
                              ITranscodeCalculator transcodeCalculator,
                              IFileSystem fileSystem,
                              IDevice device,
@@ -126,6 +129,7 @@ namespace Tricycle.UI.ViewModels
             _mediaInspector = mediaInspector;
             _mediaTranscoder = mediaTranscoder;
             _cropDetector = cropDetector;
+            _interlaceDetector = interlaceDetector;
             _transcodeCalculator = transcodeCalculator;
             _fileSystem = fileSystem;
             _device = device;
@@ -688,6 +692,7 @@ namespace Tricycle.UI.ViewModels
             if (_primaryVideoStream != null)
             {
                 _cropParameters = await _cropDetector.Detect(_sourceInfo);
+                _isInterlaced = await _interlaceDetector.Detect(_sourceInfo);
 
                 ProcessConfig(_tricycleConfig);
                 IsContainerFormatEnabled = true;
@@ -698,11 +703,12 @@ namespace Tricycle.UI.ViewModels
             {
                 _sourceInfo = null;
                 _cropParameters = null;
+                _isInterlaced = false;
                 IsContainerFormatEnabled = false;
                 DestinationName = null;
             }
 
-            DisplaySourceInfo(_sourceInfo, _primaryVideoStream);
+            DisplaySourceInfo(_sourceInfo, _primaryVideoStream, _isInterlaced);
             PopulateVideoOptions(_primaryVideoStream, _cropParameters);
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
@@ -734,7 +740,7 @@ namespace Tricycle.UI.ViewModels
             _appManager.RaiseSourceSelected(isValid);
         }
 
-        void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream)
+        void DisplaySourceInfo(MediaInfo sourceInfo, VideoStreamInfo videoStream, bool isInterlaced)
         {
             if (sourceInfo != null)
             {
@@ -742,7 +748,7 @@ namespace Tricycle.UI.ViewModels
 
                 SourceDuration = string.Format("{0:00}:{1:00}:{2:00}",
                     duration.Hours, duration.Minutes, duration.Seconds);
-                SourceSize = GetSizeName(videoStream.Dimensions);
+                SourceSize = GetSizeName(videoStream.Dimensions, isInterlaced);
                 IsSourceHdr = videoStream.DynamicRange == DynamicRange.High;
                 IsSourceInfoVisible = true;
             }
@@ -752,29 +758,31 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        string GetSizeName(Dimensions dimensions)
+        string GetSizeName(Dimensions dimensions, bool isInterlaced)
         {
             if ((dimensions.Width >= 3840) || (dimensions.Height >= 2160))
             {
                 return "4K";
             }
 
+            string suffix = isInterlaced ? "i" : "p";
+
             if ((dimensions.Width >= 1920) || (dimensions.Height >= 1080))
             {
-                return "1080p";
+                return $"1080{suffix}";
             }
 
             if ((dimensions.Width >= 1280) || (dimensions.Height >= 720))
             {
-                return "720p";
+                return $"720{suffix}";
             }
 
             if ((dimensions.Width >= 853) || (dimensions.Height >= 480))
             {
-                return "480p";
+                return $"480{suffix}";
             }
 
-            return $"{dimensions.Height}p";
+            return $"{dimensions.Height}{suffix}";
         }
 
         void PopulateVideoOptions(VideoStreamInfo videoStream, CropParameters cropParameters)

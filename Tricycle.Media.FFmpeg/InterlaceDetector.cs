@@ -99,11 +99,13 @@ namespace Tricycle.Media.FFmpeg
         {
             FrameStatistics result = null;
             int tff, bff, progressive, undetermined;
-            var match = Regex.Match(outputData, @"Multi frame detection:\s+" +
-                                                $"TFF:(?<{nameof(tff)}>\\d+)\\s+" +
-                                                $"BFF:(?<{nameof(bff)}>\\d+)\\s+" +
-                                                $"Progressive:(?<{nameof(progressive)}>\\d+)\\s+" +
-                                                $"Undetermined:(?<{nameof(undetermined)}>\\d+)");
+            var match = Regex.Match(outputData,
+                                    @"Multi frame detection:\s+" +
+                                    $"TFF:\\s*(?<{nameof(tff)}>\\d+)\\s+" +
+                                    $"BFF:\\s*(?<{nameof(bff)}>\\d+)\\s+" +
+                                    $"Progressive:\\s*(?<{nameof(progressive)}>\\d+)\\s+" +
+                                    $"Undetermined:\\s*(?<{nameof(undetermined)}>\\d+)",
+                                    RegexOptions.IgnoreCase | RegexOptions.RightToLeft); //get the last match
 
             if (match.Success &&
                 int.TryParse(match.Groups[nameof(tff)].Value, out tff) &&
