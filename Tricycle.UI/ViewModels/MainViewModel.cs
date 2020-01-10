@@ -1332,7 +1332,7 @@ namespace Tricycle.UI.ViewModels
             if (cropParameters != null)
             {
                 var sampleAspectRatio =
-                    (double)_primaryVideoStream.Dimensions.Width / _primaryVideoStream.StorageDimensions.Width;
+                    VideoUtility.GetSampleAspectRatio(_primaryVideoStream.Dimensions, _primaryVideoStream.StorageDimensions);
                 var width = (int)Math.Round(cropParameters.Size.Width * sampleAspectRatio);
 
                 sourceDimensions = new Dimensions(width, cropParameters.Size.Height);

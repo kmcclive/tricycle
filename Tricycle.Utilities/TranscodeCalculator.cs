@@ -17,7 +17,7 @@ namespace Tricycle.Utilities
                                                       double? aspectRatio,
                                                       int divisor)
         {
-            var sampleAspectRatio = (double)sourceDimensions.Width / storageDimensions.Width;
+            var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(sourceDimensions, storageDimensions);
             var start = autocropParameters?.Start ?? new Coordinate<int>(0, 0);
             int targetX = (int)Math.Round(start.X * sampleAspectRatio);
             int actualX = targetX;
