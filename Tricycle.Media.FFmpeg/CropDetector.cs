@@ -129,8 +129,6 @@ namespace Tricycle.Media.FFmpeg
                     Start = new Coordinate<int>(minX.Value, minY.Value),
                     Size = new Dimensions(maxWidth.Value, maxHeight.Value)
                 };
-
-                result = AdjustForAnamorphic(result, mediaInfo.Streams?.OfType<VideoStreamInfo>().FirstOrDefault());
             }
 
             return result;
@@ -169,24 +167,6 @@ namespace Tricycle.Media.FFmpeg
             }
 
             return result;
-        }
-
-        CropParameters AdjustForAnamorphic(CropParameters parameters, VideoStreamInfo videoStream)
-        {
-            if ((videoStream == null) || videoStream.Dimensions.Equals(videoStream.StorageDimensions))
-            {
-                return parameters;
-            }
-
-            int width = (int)Math.Round((double)videoStream.Dimensions.Width
-                                        / videoStream.StorageDimensions.Width
-                                        * parameters.Size.Width);
-
-            return new CropParameters()
-            {
-                Start = parameters.Start,
-                Size = new Dimensions(width, parameters.Size.Height)
-            };
         }
     }
 }
