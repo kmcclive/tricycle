@@ -990,8 +990,8 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ZeroesOutManualCropControlsWhenNoBarsAreFound()
         {
-            _videoStream.Dimensions = new Dimensions(3840, 2160);
-            _cropParameters.Size = _videoStream.Dimensions;
+            _videoStream.StorageDimensions = new Dimensions(3840, 2160);
+            _cropParameters.Size = _videoStream.StorageDimensions;
             SelectSource();
 
             Assert.AreEqual("0", _viewModel.CropTop);
@@ -1003,7 +1003,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PopulatesManualCropControlsWhenHorizontalBarsAreFound()
         {
-            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = new Dimensions(3840, 2160);
             _cropParameters.Size = new Dimensions(3840, 1606);
             _cropParameters.Start = new Coordinate<int>(0, 278);
             SelectSource();
@@ -1017,7 +1017,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PopulatesManualCropControlsWhenVerticalBarsAreFound()
         {
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = new Dimensions(1920, 1080);
             _cropParameters.Size = new Dimensions(1440, 1080);
             _cropParameters.Start = new Coordinate<int>(242, 0);
             SelectSource();
@@ -1823,49 +1823,40 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void CallsCalculateCropParametersForCropJob()
         {
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            _cropParameters.Size = new Dimensions(1920, 800);
-            _cropParameters.Start = new Coordinate<int>(0, 140);
-            SelectSource();
-            _viewModel.IsAutocropChecked = true;
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double?>(),
-                                                                    Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectSourceDimensionsToCalculateCropParametersForCropJob()
-        {
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            _cropParameters.Size = new Dimensions(1920, 800);
-            _cropParameters.Start = new Coordinate<int>(0, 140);
+            _videoStream.Dimensions = new Dimensions(853, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            _cropParameters.Size = new Dimensions(720, 464);
+            _cropParameters.Start = new Coordinate<int>(0, 6);
             SelectSource();
             _viewModel.IsAutocropChecked = true;
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
-                                                                    Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double?>(),
+                                                                    _videoStream.StorageDimensions,
+                                                                    _cropParameters,
+                                                                    null,
                                                                     Arg.Any<int>());
         }
 
         [TestMethod]
-        public void PassesCorrectCropParametersToCalculateCropParametersForCropJob()
+        public void PassesCorrectDivisorToCalculateCropParameters()
         {
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            _cropParameters.Size = new Dimensions(1920, 800);
-            _cropParameters.Start = new Coordinate<int>(0, 140);
+            int divisor = 4;
+
+            _tricycleConfig.Video.SizeDivisor = divisor;
+            _videoStream.Dimensions = new Dimensions(853, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            _cropParameters.Size = new Dimensions(720, 464);
+            _cropParameters.Start = new Coordinate<int>(0, 6);
             SelectSource();
             _viewModel.IsAutocropChecked = true;
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    _cropParameters,
+                                                                    Arg.Any<Dimensions>(),
+                                                                    Arg.Any<CropParameters>(),
                                                                     Arg.Any<double?>(),
-                                                                    Arg.Any<int>());
+                                                                    divisor);
         }
 
         [TestMethod]
@@ -1888,6 +1879,7 @@ namespace Tricycle.UI.Tests
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<Dimensions>(),
                                                                     expectedCropParameters,
                                                                     Arg.Any<double?>(),
                                                                     Arg.Any<int>());
@@ -1913,6 +1905,7 @@ namespace Tricycle.UI.Tests
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<Dimensions>(),
                                                                     expectedCropParameters,
                                                                     Arg.Any<double?>(),
                                                                     Arg.Any<int>());
@@ -1938,44 +1931,10 @@ namespace Tricycle.UI.Tests
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<Dimensions>(),
                                                                     expectedCropParameters,
                                                                     Arg.Any<double?>(),
                                                                     Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectAspectRatioToCalculateCropParametersForCropJob()
-        {
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            _cropParameters.Size = new Dimensions(1920, 800);
-            _cropParameters.Start = new Coordinate<int>(0, 140);
-            SelectSource();
-            _viewModel.IsAutocropChecked = true;
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    Arg.Any<CropParameters>(),
-                                                                    null,
-                                                                    Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectDivisorToCalculateCropParameters()
-        {
-            int divisor = 4;
-
-            _tricycleConfig.Video.SizeDivisor = divisor;
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            _cropParameters.Size = new Dimensions(1920, 800);
-            _cropParameters.Start = new Coordinate<int>(0, 140);
-            SelectSource();
-            _viewModel.IsAutocropChecked = true;
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double?>(),
-                                                                    divisor);
         }
 
         [TestMethod]
@@ -1988,76 +1947,15 @@ namespace Tricycle.UI.Tests
                 { "4:3", aspectRatio }
             };
             _videoStream.Dimensions = new Dimensions(1920, 1080);
-            SelectSource();
-            _viewModel.IsAutocropChecked = false;
-            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double?>(),
-                                                                    Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectSourceDimensionsToCalculateCropParametersForAspectRatioJob()
-        {
-            var aspectRatio = new Dimensions(4, 3);
-
-            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
-            {
-                { "4:3", aspectRatio }
-            };
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.StorageDimensions;
             SelectSource();
             _viewModel.IsAutocropChecked = false;
             _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(_videoStream.Dimensions,
-                                                                    Arg.Any<CropParameters>(),
-                                                                    Arg.Any<double?>(),
-                                                                    Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectCropParametersToCalculateCropParametersForAspectRatioJob()
-        {
-            var aspectRatio = new Dimensions(4, 3);
-
-            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
-            {
-                { "4:3", aspectRatio }
-            };
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            SelectSource();
-            _viewModel.IsAutocropChecked = false;
-            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    _videoStream.StorageDimensions,
                                                                     null,
-                                                                    Arg.Any<double?>(),
-                                                                    Arg.Any<int>());
-        }
-
-        [TestMethod]
-        public void PassesCorrectAspectRatioToCalculateCropParametersForAspectRatioJob()
-        {
-            var aspectRatio = new Dimensions(4, 3);
-
-            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
-            {
-                { "4:3", aspectRatio }
-            };
-            _videoStream.Dimensions = new Dimensions(1920, 1080);
-            SelectSource();
-            _viewModel.IsAutocropChecked = false;
-            _viewModel.SelectedAspectRatio = new ListItem(aspectRatio);
-            Start();
-
-            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
-                                                                    Arg.Any<CropParameters>(),
                                                                     4 / 3d,
                                                                     Arg.Any<int>());
         }
@@ -2113,12 +2011,14 @@ namespace Tricycle.UI.Tests
                 { "720p", size }
             };
             _videoStream.Dimensions = sourceDimensions;
+            _videoStream.StorageDimensions = sourceDimensions;
             _cropParameters.Size = new Dimensions(1920, 804);
             _cropParameters.Start = new Coordinate<int>(0, 138);
             SelectSource();
             _viewModel.IsAutocropChecked = true;
             _viewModel.SelectedSize = new ListItem(size);
             _transcodeCalculator.CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                         Arg.Any<Dimensions>(),
                                                          Arg.Any<CropParameters>(),
                                                          Arg.Any<double?>(),
                                                          Arg.Any<int>())

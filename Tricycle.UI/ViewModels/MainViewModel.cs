@@ -707,7 +707,7 @@ namespace Tricycle.UI.ViewModels
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
-            UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
+            UpdateManualCropCoordinates(_primaryVideoStream?.StorageDimensions ?? new Dimensions(), _cropParameters);
 
             IsSpinnerVisible = false;
             Status = string.Empty;
@@ -1313,6 +1313,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
+                                                                _primaryVideoStream.StorageDimensions,
                                                                 cropParameters,
                                                                 aspectRatio,
                                                                 divisor);
@@ -1326,10 +1327,18 @@ namespace Tricycle.UI.ViewModels
                 return null;
             }
 
-            Dimensions sourceDimensions = cropParameters?.Size ?? _primaryVideoStream.Dimensions;
-            var targetDimensions = SelectedSize == ORIGINAL_OPTION
-                                   ? _primaryVideoStream.Dimensions
-                                   : (Dimensions)SelectedSize.Value;
+            var sourceDimensions = _primaryVideoStream.Dimensions;
+
+            if (cropParameters != null)
+            {
+                var sampleAspectRatio =
+                    (double)_primaryVideoStream.Dimensions.Width / _primaryVideoStream.StorageDimensions.Width;
+                var width = (int)Math.Round(cropParameters.Size.Width * sampleAspectRatio);
+
+                sourceDimensions = new Dimensions(width, cropParameters.Size.Height);
+            }
+
+            var targetDimensions = SelectedSize == ORIGINAL_OPTION ? sourceDimensions : (Dimensions)SelectedSize.Value;
 
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }
