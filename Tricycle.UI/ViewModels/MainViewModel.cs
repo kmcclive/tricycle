@@ -875,10 +875,14 @@ namespace Tricycle.UI.ViewModels
         {
             if (cropParameters != null)
             {
+                var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(_primaryVideoStream.Dimensions,
+                                                                          _primaryVideoStream.StorageDimensions);
+
                 CropTop = cropParameters.Start.Y.ToString();
                 CropBottom = (sourceDimensions.Height - cropParameters.Size.Height - cropParameters.Start.Y).ToString();
-                CropLeft = cropParameters.Start.X.ToString();
-                CropRight = (sourceDimensions.Width - cropParameters.Size.Width - cropParameters.Start.X).ToString();
+                CropLeft =  (cropParameters.Start.X * sampleAspectRatio).ToString("0");
+                CropRight = ((sourceDimensions.Width - cropParameters.Size.Width - cropParameters.Start.X)
+                             * sampleAspectRatio).ToString("0");
             }
             else
             {
@@ -1281,17 +1285,19 @@ namespace Tricycle.UI.ViewModels
 
             if (object.Equals(SelectedCropOption?.Value, CropOption.Manual))
             {
+                var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(_primaryVideoStream.Dimensions,
+                                                                          _primaryVideoStream.StorageDimensions);
                 int value;
                 var top = int.TryParse(CropTop, out value) ? value : 0;
                 var bottom = int.TryParse(CropBottom, out value) ? value : 0;
-                var left = int.TryParse(CropLeft, out value) ? value : 0;
-                var right = int.TryParse(CropRight, out value) ? value : 0;
+                var left = int.TryParse(CropLeft, out value) ? (int)Math.Round(value / sampleAspectRatio) : 0;
+                var right = int.TryParse(CropRight, out value) ? (int)Math.Round(value / sampleAspectRatio) : 0;
 
                 cropParameters = new CropParameters()
                 {
                     Start = new Coordinate<int>(left, top),
-                    Size = new Dimensions(_primaryVideoStream.Dimensions.Width - left - right,
-                                          _primaryVideoStream.Dimensions.Height - top - bottom)
+                    Size = new Dimensions(_primaryVideoStream.StorageDimensions.Width - left - right,
+                                          _primaryVideoStream.StorageDimensions.Height - top - bottom)
                 };
             }
             else

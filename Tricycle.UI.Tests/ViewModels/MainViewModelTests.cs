@@ -1003,7 +1003,8 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PopulatesManualCropControlsWhenHorizontalBarsAreFound()
         {
-            _videoStream.StorageDimensions = new Dimensions(3840, 2160);
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(3840, 1606);
             _cropParameters.Start = new Coordinate<int>(0, 278);
             SelectSource();
@@ -1017,7 +1018,8 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void PopulatesManualCropControlsWhenVerticalBarsAreFound()
         {
-            _videoStream.StorageDimensions = new Dimensions(1920, 1080);
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(1440, 1080);
             _cropParameters.Start = new Coordinate<int>(242, 0);
             SelectSource();
@@ -1868,6 +1870,7 @@ namespace Tricycle.UI.Tests
                 Start = new Coordinate<int>(248, 138)
             };
             _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(1920, 800);
             _cropParameters.Start = new Coordinate<int>(0, 140);
             SelectSource();
@@ -1894,6 +1897,7 @@ namespace Tricycle.UI.Tests
                 Start = new Coordinate<int>(0, 0)
             };
             _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(1920, 800);
             _cropParameters.Start = new Coordinate<int>(0, 140);
             SelectSource();
@@ -1920,6 +1924,7 @@ namespace Tricycle.UI.Tests
                 Start = new Coordinate<int>(0, 0)
             };
             _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(1920, 800);
             _cropParameters.Start = new Coordinate<int>(0, 140);
             SelectSource();
