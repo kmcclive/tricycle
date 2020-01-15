@@ -23,6 +23,19 @@ namespace Tricycle.Utilities.Tests
         }
 
         [TestMethod]
+        public void TestGetSampleAspectRatio()
+        {
+            Assert.AreEqual(0.889,
+                            VideoUtility.GetSampleAspectRatio(new Dimensions(640, 480), new Dimensions(720, 480)),
+                            0.001);
+            Assert.AreEqual(1.185,
+                            VideoUtility.GetSampleAspectRatio(new Dimensions(853, 480), new Dimensions(720, 480)),
+                            0.001);
+            Assert.AreEqual(1,
+                            VideoUtility.GetSampleAspectRatio(new Dimensions(1920, 1080), new Dimensions(1920, 1080)));
+        }
+
+        [TestMethod]
         public void TestGetWidth()
         {
             Assert.AreEqual(1920, VideoUtility.GetWidth(800, 2.4));

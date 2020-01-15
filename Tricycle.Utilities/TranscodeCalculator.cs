@@ -12,12 +12,14 @@ namespace Tricycle.Utilities
         }
 
         public CropParameters CalculateCropParameters(Dimensions sourceDimensions,
+                                                      Dimensions storageDimensions,
                                                       CropParameters autocropParameters,
                                                       double? aspectRatio,
                                                       int divisor)
         {
+            var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(sourceDimensions, storageDimensions);
             var start = autocropParameters?.Start ?? new Coordinate<int>(0, 0);
-            int targetX = start.X;
+            int targetX = (int)Math.Round(start.X * sampleAspectRatio);
             int actualX = targetX;
             int targetY = start.Y;
             int actualY = targetY;
@@ -38,14 +40,24 @@ namespace Tricycle.Utilities
                 targetWidth = VideoUtility.GetWidth(actualHeight, aspectRatio.Value);
             }
 
-            var widthMethod = !aspectRatio.HasValue  && size.Width < sourceDimensions.Width
+            var widthMethod = !aspectRatio.HasValue && size.Width < sourceDimensions.Width
                 ? EstimationMethod.Floor
                 : EstimationMethod.Round;
             int actualWidth = GetClosestValue(targetWidth, divisor, widthMethod);
 
+            if (aspectRatio.HasValue)
+            {
+                actualWidth = (int)Math.Round(actualWidth / sampleAspectRatio);
+            }
+
             if (actualWidth > size.Width)
             {
                 actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Floor);
+
+                if (aspectRatio.HasValue)
+                {
+                    actualWidth = (int)Math.Round(actualWidth / sampleAspectRatio);
+                }
             }
 
             if (actualWidth < size.Width)

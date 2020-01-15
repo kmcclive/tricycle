@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -98,6 +98,7 @@ namespace Tricycle.UI.ViewModels
         TricycleConfig _tricycleConfig;
         MediaInfo _sourceInfo;
         CropParameters _cropParameters;
+        Dimensions _croppedDimensions;
         bool _isInterlaced;
         string _defaultExtension = DEFAULT_EXTENSION;
         VideoStreamInfo _primaryVideoStream;
@@ -324,7 +325,7 @@ namespace Tricycle.UI.ViewModels
             {
                 SetProperty(ref _isAutocropChecked, value);
 
-                PopulateAspectRatioOptions(_primaryVideoStream, _cropParameters, _isAutocropChecked);
+                PopulateAspectRatioOptions(_primaryVideoStream, _croppedDimensions, _isAutocropChecked);
             }
         }
 
@@ -692,6 +693,9 @@ namespace Tricycle.UI.ViewModels
             if (_primaryVideoStream != null)
             {
                 _cropParameters = await _cropDetector.Detect(_sourceInfo);
+                _croppedDimensions = GetCroppedDimensions(_primaryVideoStream.Dimensions,
+                                                          _primaryVideoStream.StorageDimensions,
+                                                          _cropParameters);
                 _isInterlaced = await _interlaceDetector.Detect(_sourceInfo);
 
                 ProcessConfig(_tricycleConfig);
@@ -703,17 +707,20 @@ namespace Tricycle.UI.ViewModels
             {
                 _sourceInfo = null;
                 _cropParameters = null;
+                _croppedDimensions = new Dimensions();
                 _isInterlaced = false;
                 IsContainerFormatEnabled = false;
                 DestinationName = null;
             }
 
             DisplaySourceInfo(_sourceInfo, _primaryVideoStream, _isInterlaced);
-            PopulateVideoOptions(_primaryVideoStream, _cropParameters);
+            PopulateVideoOptions(_primaryVideoStream, _croppedDimensions);
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
             PopulateAudioOptions(_sourceInfo);
-            UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions ?? new Dimensions(), _cropParameters);
+            UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions,
+                                        _primaryVideoStream?.StorageDimensions,
+                                        _cropParameters);
 
             IsSpinnerVisible = false;
             Status = string.Empty;
@@ -785,7 +792,7 @@ namespace Tricycle.UI.ViewModels
             return $"{dimensions.Height}{suffix}";
         }
 
-        void PopulateVideoOptions(VideoStreamInfo videoStream, CropParameters cropParameters)
+        void PopulateVideoOptions(VideoStreamInfo videoStream, Dimensions croppedDimensions)
         {
             if (videoStream != null)
             {
@@ -793,7 +800,7 @@ namespace Tricycle.UI.ViewModels
                 IsHdrChecked = _isHdrEnabled;
                 SizeOptions = GetSizeOptions(videoStream.Dimensions);
                 SelectedSize = SizeOptions?.FirstOrDefault();
-                IsAutocropEnabled = HasBars(videoStream.Dimensions, _cropParameters);
+                IsAutocropEnabled = HasBars(videoStream.Dimensions, croppedDimensions);
                 IsAutocropChecked = _isAutocropEnabled;
 
                 if (IsHdrChecked)
@@ -812,7 +819,7 @@ namespace Tricycle.UI.ViewModels
                 IsAutocropChecked = false;
             }
 
-            PopulateAspectRatioOptions(videoStream, cropParameters, IsAutocropChecked);
+            PopulateAspectRatioOptions(videoStream, croppedDimensions, IsAutocropChecked);
         }
 
         bool IsHdrSupported(ListItem selectedFormat, VideoStreamInfo videoStream)
@@ -836,14 +843,13 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        void PopulateAspectRatioOptions(VideoStreamInfo videoStream, CropParameters cropParameters, bool autoCrop)
+        void PopulateAspectRatioOptions(VideoStreamInfo videoStream, Dimensions croppedDimensions, bool autoCrop)
         {
             Dimensions? sourceDimensions = videoStream?.Dimensions;
 
             if (sourceDimensions.HasValue)
             {
-                AspectRatioOptions =
-                    GetAspectRatioOptions(sourceDimensions.Value, autoCrop ? cropParameters : null);
+                AspectRatioOptions = GetAspectRatioOptions(autoCrop ? croppedDimensions : sourceDimensions.Value);
                 SelectedAspectRatio = AspectRatioOptions?.FirstOrDefault();
             }
             else
@@ -853,9 +859,8 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        IList<ListItem> GetAspectRatioOptions(Dimensions sourceDimensions, CropParameters cropParameters)
+        IList<ListItem> GetAspectRatioOptions(Dimensions dimensions)
         {
-            var dimensions = cropParameters?.Size ?? sourceDimensions;
             double aspectRatio = VideoUtility.GetAspectRatio(dimensions);
 
             IList<ListItem> result =
@@ -869,24 +874,40 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        bool HasBars(Dimensions dimensions, CropParameters cropParameters)
+        bool HasBars(Dimensions dimensions, Dimensions croppedDimensions)
         {
-            if (cropParameters != null)
-            {
-                return !dimensions.Equals(cropParameters.Size);
-            }
-
-            return false;
+            return !dimensions.Equals(croppedDimensions);
         }
 
-        void UpdateManualCropCoordinates(Dimensions sourceDimensions, CropParameters cropParameters)
+        Dimensions GetCroppedDimensions(Dimensions dimensions, Dimensions storageDimensions, CropParameters cropParameters)
         {
-            if (cropParameters != null)
+            if (cropParameters == null)
             {
+                return dimensions;
+            }
+
+            var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(dimensions, storageDimensions);
+            var width = (int)Math.Round(cropParameters.Size.Width * sampleAspectRatio);
+
+            return new Dimensions(width, cropParameters.Size.Height);
+        }
+
+        void UpdateManualCropCoordinates(Dimensions? sourceDimensions,
+                                         Dimensions? storageDimensions,
+                                         CropParameters cropParameters)
+        {
+            if (sourceDimensions.HasValue && storageDimensions.HasValue && (cropParameters != null))
+            {
+                var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(sourceDimensions.Value,
+                                                                          storageDimensions.Value);
+
                 CropTop = cropParameters.Start.Y.ToString();
-                CropBottom = (sourceDimensions.Height - cropParameters.Size.Height - cropParameters.Start.Y).ToString();
-                CropLeft = cropParameters.Start.X.ToString();
-                CropRight = (sourceDimensions.Width - cropParameters.Size.Width - cropParameters.Start.X).ToString();
+                CropBottom = (sourceDimensions.Value.Height
+                              - cropParameters.Size.Height
+                              - cropParameters.Start.Y).ToString();
+                CropLeft =  (cropParameters.Start.X * sampleAspectRatio).ToString("0");
+                CropRight = ((sourceDimensions.Value.Width - cropParameters.Size.Width - cropParameters.Start.X)
+                             * sampleAspectRatio).ToString("0");
             }
             else
             {
@@ -1289,17 +1310,19 @@ namespace Tricycle.UI.ViewModels
 
             if (object.Equals(SelectedCropOption?.Value, CropOption.Manual))
             {
+                var sampleAspectRatio = VideoUtility.GetSampleAspectRatio(_primaryVideoStream.Dimensions,
+                                                                          _primaryVideoStream.StorageDimensions);
                 int value;
                 var top = int.TryParse(CropTop, out value) ? value : 0;
                 var bottom = int.TryParse(CropBottom, out value) ? value : 0;
-                var left = int.TryParse(CropLeft, out value) ? value : 0;
-                var right = int.TryParse(CropRight, out value) ? value : 0;
+                var left = int.TryParse(CropLeft, out value) ? (int)Math.Round(value / sampleAspectRatio) : 0;
+                var right = int.TryParse(CropRight, out value) ? (int)Math.Round(value / sampleAspectRatio) : 0;
 
                 cropParameters = new CropParameters()
                 {
                     Start = new Coordinate<int>(left, top),
-                    Size = new Dimensions(_primaryVideoStream.Dimensions.Width - left - right,
-                                          _primaryVideoStream.Dimensions.Height - top - bottom)
+                    Size = new Dimensions(_primaryVideoStream.StorageDimensions.Width - left - right,
+                                          _primaryVideoStream.StorageDimensions.Height - top - bottom)
                 };
             }
             else
@@ -1321,6 +1344,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             return _transcodeCalculator.CalculateCropParameters(_primaryVideoStream.Dimensions,
+                                                                _primaryVideoStream.StorageDimensions,
                                                                 cropParameters,
                                                                 aspectRatio,
                                                                 divisor);
@@ -1328,13 +1352,24 @@ namespace Tricycle.UI.ViewModels
 
         Dimensions? GetScaledDimensions(CropParameters cropParameters, int divisor)
         {
-            if (SelectedSize == ORIGINAL_OPTION)
+            if ((SelectedSize == ORIGINAL_OPTION) &&
+                _primaryVideoStream.Dimensions.Equals(_primaryVideoStream.StorageDimensions))
             {
                 return null;
             }
 
-            Dimensions sourceDimensions = cropParameters?.Size ?? _primaryVideoStream.Dimensions;
-            var targetDimensions = (Dimensions)SelectedSize.Value;
+            var sourceDimensions = _primaryVideoStream.Dimensions;
+
+            if (cropParameters != null)
+            {
+                var sampleAspectRatio =
+                    VideoUtility.GetSampleAspectRatio(_primaryVideoStream.Dimensions, _primaryVideoStream.StorageDimensions);
+                var width = (int)Math.Round(cropParameters.Size.Width * sampleAspectRatio);
+
+                sourceDimensions = new Dimensions(width, cropParameters.Size.Height);
+            }
+
+            var targetDimensions = SelectedSize == ORIGINAL_OPTION ? sourceDimensions : (Dimensions)SelectedSize.Value;
 
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }

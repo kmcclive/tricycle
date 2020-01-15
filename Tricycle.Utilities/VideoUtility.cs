@@ -12,7 +12,12 @@ namespace Tricycle.Utilities
 
         public static double GetAspectRatio(Dimensions dimensions)
         {
-            return dimensions.Width / (double)dimensions.Height;
+            return (double)dimensions.Width / dimensions.Height;
+        }
+
+        public static double GetSampleAspectRatio(Dimensions dimensions, Dimensions storageDimensions)
+        {
+            return (double)dimensions.Width / storageDimensions.Width;
         }
 
         public static int GetWidth(int height, double aspectRatio)

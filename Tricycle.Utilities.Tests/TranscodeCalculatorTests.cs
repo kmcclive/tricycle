@@ -17,8 +17,8 @@ namespace Tricycle.Utilities.Tests
                 Start = new Coordinate<int>(0, 138)
             };
 
-            CropParameters result =
-                calculator.CalculateCropParameters(sourceDimensions, autocropParameters, 16 / 9d, 8);
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, autocropParameters, 16 / 9d, 8);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(new Dimensions(1424, 800), result.Size);
@@ -37,7 +37,7 @@ namespace Tricycle.Utilities.Tests
             };
 
             var result =
-                calculator.CalculateCropParameters(sourceDimensions, autocropParameters, 21 / 9d, 16);
+                calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, autocropParameters, 21 / 9d, 16);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(new Dimensions(3808, 1632), result.Size);
@@ -50,7 +50,7 @@ namespace Tricycle.Utilities.Tests
             var calculator = new TranscodeCalculator();
             var sourceDimensions = new Dimensions(853, 480);
 
-            CropParameters result = calculator.CalculateCropParameters(sourceDimensions, null, 4 / 3d, 16);
+            var result = calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, null, 4 / 3d, 16);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(new Dimensions(640, 480), result.Size);
@@ -68,12 +68,52 @@ namespace Tricycle.Utilities.Tests
                 Start = new Coordinate<int>(0, 240)
             };
 
-            CropParameters result =
-                calculator.CalculateCropParameters(sourceDimensions, autocropParameters, 4 / 3d, 8);
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, autocropParameters, 4 / 3d, 8);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(autocropParameters.Size, result.Size);
             Assert.AreEqual(autocropParameters.Start, result.Start);
+        }
+
+        [TestMethod]
+        public void CalculatesCropParametersFor16x9WithBarsAndAnamorphicSource()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(853, 480);
+            var storageDimensions = new Dimensions(720, 480);
+            var autocropParameters = new CropParameters()
+            {
+                Size = new Dimensions(720, 464),
+                Start = new Coordinate<int>(0, 6)
+            };
+
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, storageDimensions, autocropParameters, 16 / 9d, 8);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(new Dimensions(696, 464), result.Size);
+            Assert.AreEqual(new Coordinate<int>(12, 6), result.Start);
+        }
+
+        [TestMethod]
+        public void CalculatesCropParametersWhenNoChangesAreRequiredForAnamorphic()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(853, 480);
+            var storageDimensions = new Dimensions(720, 480);
+            var autocropParameters = new CropParameters()
+            {
+                Size = new Dimensions(720, 464),
+                Start = new Coordinate<int>(0, 6)
+            };
+
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, storageDimensions, autocropParameters, null, 8);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(new Dimensions(720, 464), result.Size);
+            Assert.AreEqual(new Coordinate<int>(0, 6), result.Start);
         }
 
         [TestMethod]
@@ -88,7 +128,7 @@ namespace Tricycle.Utilities.Tests
             };
 
             var result =
-                calculator.CalculateCropParameters(sourceDimensions, autocropParameters, null, 8);
+                calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, autocropParameters, null, 8);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(new Dimensions(3840, 1600), result.Size);
@@ -106,7 +146,8 @@ namespace Tricycle.Utilities.Tests
                 Start = new Coordinate<int>(148, 0)
             };
 
-            CropParameters result = calculator.CalculateCropParameters(sourceDimensions, autocropParameters, null, 8);
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, sourceDimensions, autocropParameters, null, 8);
 
             Assert.IsNotNull(result);
             Assert.AreEqual(new Dimensions(1616, 1080), result.Size);
@@ -120,7 +161,7 @@ namespace Tricycle.Utilities.Tests
             var sourceDimensions = new Dimensions(3840, 1632);
             var targetDimensions = new Dimensions(1920, 1080);
 
-            Dimensions result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 8);
+            var result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 8);
 
             Assert.AreEqual(new Dimensions(1920, 816), result);
         }
@@ -132,7 +173,7 @@ namespace Tricycle.Utilities.Tests
             var sourceDimensions = new Dimensions(1440, 1080);
             var targetDimensions = new Dimensions(1280, 720);
 
-            Dimensions result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 16);
+            var result = calculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, 16);
 
             Assert.AreEqual(new Dimensions(960, 720), result);
         }
