@@ -77,6 +77,26 @@ namespace Tricycle.Utilities.Tests
         }
 
         [TestMethod]
+        public void CalculatesCropParametersFor16x9WithBarsAndAnamorphicSource()
+        {
+            var calculator = new TranscodeCalculator();
+            var sourceDimensions = new Dimensions(853, 480);
+            var storageDimensions = new Dimensions(720, 480);
+            var autocropParameters = new CropParameters()
+            {
+                Size = new Dimensions(720, 464),
+                Start = new Coordinate<int>(0, 6)
+            };
+
+            var result =
+                calculator.CalculateCropParameters(sourceDimensions, storageDimensions, autocropParameters, 16 / 9d, 8);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(new Dimensions(696, 464), result.Size);
+            Assert.AreEqual(new Coordinate<int>(12, 6), result.Start);
+        }
+
+        [TestMethod]
         public void CalculatesCropParametersWhenNoChangesAreRequiredForAnamorphic()
         {
             var calculator = new TranscodeCalculator();
