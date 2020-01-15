@@ -53,7 +53,11 @@ namespace Tricycle.Utilities
             if (actualWidth > size.Width)
             {
                 actualWidth = GetClosestValue(targetWidth, divisor, EstimationMethod.Floor);
-                actualWidth = (int)Math.Round(actualWidth / sampleAspectRatio);
+
+                if (aspectRatio.HasValue)
+                {
+                    actualWidth = (int)Math.Round(actualWidth / sampleAspectRatio);
+                }
             }
 
             if (actualWidth < size.Width)
