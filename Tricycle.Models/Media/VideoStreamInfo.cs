@@ -3,6 +3,7 @@
     public class VideoStreamInfo : StreamInfo
     {
         public Dimensions Dimensions { get; set; }
+        public Dimensions StorageDimensions { get; set; }
         public DynamicRange DynamicRange { get; set; }
         public int BitDepth { get; set; }
         public MasterDisplayProperties MasterDisplayProperties { get; set; }

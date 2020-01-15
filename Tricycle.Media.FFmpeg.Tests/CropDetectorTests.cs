@@ -147,11 +147,5 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             #endregion
         }
-
-        bool IsMatch(string input, string pattern, out Match match)
-        {
-            match = Regex.Match(input, pattern);
-            return match.Success;
-        }
     }
 }
