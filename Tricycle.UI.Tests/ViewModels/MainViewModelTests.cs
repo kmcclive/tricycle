@@ -887,6 +887,7 @@ namespace Tricycle.UI.Tests
         public void DisablesAutocropWhenNoBarsAreFound()
         {
             _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = _videoStream.Dimensions;
             SelectSource();
 
@@ -897,6 +898,7 @@ namespace Tricycle.UI.Tests
         public void UnchecksAutocropWhenNoBarsAreFound()
         {
             _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = _videoStream.Dimensions;
             SelectSource();
 
@@ -942,6 +944,7 @@ namespace Tricycle.UI.Tests
                 { "16:9", new Dimensions(16, 9) }
             };
             _videoStream.Dimensions = new Dimensions(3840, 1632);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = _videoStream.Dimensions;
             SelectSource();
 
@@ -961,6 +964,7 @@ namespace Tricycle.UI.Tests
                 { "4:3", new Dimensions(4, 3) }
             };
             _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = _videoStream.Dimensions;
             SelectSource();
 
@@ -979,6 +983,7 @@ namespace Tricycle.UI.Tests
                 { "4:3", new Dimensions(4, 3) }
             };
             _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
             _cropParameters.Size = new Dimensions(2880, 2160);
             SelectSource();
 
@@ -988,10 +993,31 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void LimitsAspectRatioOptionsForAnamorphicSource()
+        {
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { "21:9", new Dimensions(21, 9) },
+                { "16:9", new Dimensions(16, 9) },
+                { "4:3", new Dimensions(4, 3) }
+            };
+            _videoStream.Dimensions = new Dimensions(853, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            _cropParameters.Size = new Dimensions(853, 464);
+            SelectSource();
+
+            Assert.AreEqual(3, _viewModel.AspectRatioOptions?.Count);
+            Assert.AreEqual("Same as source", _viewModel.AspectRatioOptions[0]?.Name);
+            Assert.AreEqual("16:9", _viewModel.AspectRatioOptions[1]?.Name);
+            Assert.AreEqual("4:3", _viewModel.AspectRatioOptions[2]?.Name);
+        }
+
+        [TestMethod]
         public void ZeroesOutManualCropControlsWhenNoBarsAreFound()
         {
-            _videoStream.StorageDimensions = new Dimensions(3840, 2160);
-            _cropParameters.Size = _videoStream.StorageDimensions;
+            _videoStream.Dimensions = new Dimensions(3840, 2160);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = _videoStream.Dimensions;
             SelectSource();
 
             Assert.AreEqual("0", _viewModel.CropTop);
@@ -1933,6 +1959,31 @@ namespace Tricycle.UI.Tests
             _viewModel.CropBottom = null;
             _viewModel.CropLeft = null;
             _viewModel.CropRight = null;
+            Start();
+
+            _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
+                                                                    Arg.Any<Dimensions>(),
+                                                                    expectedCropParameters,
+                                                                    Arg.Any<double?>(),
+                                                                    Arg.Any<int>());
+        }
+
+        [TestMethod]
+        public void TranslatesCropParametersForManualAnamorphicCropJob()
+        {
+            var expectedCropParameters = new CropParameters()
+            {
+                Size = new Dimensions(587, 464),
+                Start = new Coordinate<int>(66, 6)
+            };
+            _videoStream.Dimensions = new Dimensions(853, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            SelectSource();
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.CropTop = "6";
+            _viewModel.CropBottom = "10";
+            _viewModel.CropLeft = "78";
+            _viewModel.CropRight = "79";
             Start();
 
             _transcodeCalculator.Received().CalculateCropParameters(Arg.Any<Dimensions>(),
