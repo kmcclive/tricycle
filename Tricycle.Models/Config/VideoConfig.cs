@@ -8,6 +8,6 @@ namespace Tricycle.Models.Config
         public IDictionary<string, Dimensions> SizePresets { get; set; }
         public IDictionary<string, Dimensions> AspectRatioPresets { get; set; }
         public int SizeDivisor { get; set; }
-        public SmartSwitchOption Deinterlace { get; set; }
+        public SmartSwitchOption Deinterlace { get; set; } = SmartSwitchOption.Auto;
     }
 }
