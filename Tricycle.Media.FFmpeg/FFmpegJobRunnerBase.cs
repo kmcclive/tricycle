@@ -244,6 +244,11 @@ namespace Tricycle.Media.FFmpeg
                 result.Add(GetSampleAspectRatioFilter(1, 1));
             }
 
+            if (outputStream.Deinterlace)
+            {
+                result.Add(GetDeinterlaceFilter(config));
+            }
+
             if (outputStream.Denoise)
             {
                 result.Add(GetDenoiseFilter(config));
@@ -339,6 +344,16 @@ namespace Tricycle.Media.FFmpeg
                     Option.FromValue(height)
                 }
             };
+        }
+
+        protected virtual IFilter GetDeinterlaceFilter(FFmpegConfig config)
+        {
+            if (!string.IsNullOrWhiteSpace(config?.Video?.DeinterlaceOptions))
+            {
+                return new CustomFilter(config.Video.DeinterlaceOptions);
+            }
+
+            return new Filter("bwdif");
         }
 
         protected virtual IFilter GetDenoiseFilter(FFmpegConfig config)

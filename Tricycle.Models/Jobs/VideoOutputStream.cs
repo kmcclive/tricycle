@@ -8,6 +8,7 @@ namespace Tricycle.Models.Jobs
         public Dimensions? ScaledDimensions { get; set; }
         public DynamicRange DynamicRange { get; set; }
         public bool CopyHdrMetadata { get; set; }
+        public bool Deinterlace { get; set; }
         public bool Denoise { get; set; }
         public bool Tonemap { get; set; }
     }
