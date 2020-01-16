@@ -1283,6 +1283,7 @@ namespace Tricycle.UI.ViewModels
                 ScaledDimensions = GetScaledDimensions(cropParameters, divisor),
                 DynamicRange = IsHdrChecked ? DynamicRange.High : DynamicRange.Standard,
                 CopyHdrMetadata = IsHdrChecked,
+                Deinterlace = GetDeinterlaceFlag(_isInterlaced),
                 Denoise = IsDenoiseChecked,
                 Tonemap = IsSourceHdr && !IsHdrChecked
             };
@@ -1386,6 +1387,20 @@ namespace Tricycle.UI.ViewModels
                 SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
                 ForcedOnly = IsForcedSubtitlesChecked
             };
+        }
+
+        bool GetDeinterlaceFlag(bool isInterlaced)
+        {
+            switch (_tricycleConfig.Video?.Deinterlace)
+            {
+                case SmartSwitchOption.Off:
+                    return false;
+                case SmartSwitchOption.On:
+                    return true;
+                case SmartSwitchOption.Auto:
+                default:
+                    return isInterlaced;
+            }
         }
 
         IList<OutputStream> GetAudioOutputStreams()

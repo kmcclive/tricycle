@@ -1845,6 +1845,62 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenOff()
+        {
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Off;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(true);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.IsFalse(videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenOn()
+        {
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.On;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(false);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.IsTrue(videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenAutoAndInterlaced()
+        {
+            bool interlaced = true;
+
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Auto;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(interlaced);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(interlaced, videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenAutoAndNotInterlaced()
+        {
+            bool interlaced = false;
+
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Auto;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(interlaced);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(interlaced, videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
         public void SetsVideoDenoiseForJobWhenChecked()
         {
             SelectSource();
