@@ -34,6 +34,7 @@ namespace Tricycle.UI.Tests
         IMediaTranscoder _mediaTranscoder;
         ICropDetector _cropDetector;
         CropParameters _cropParameters;
+        IInterlaceDetector _interlaceDetector;
         ITranscodeCalculator _transcodeCalculator;
         IFileSystem _fileSystem;
         IFile _fileService;
@@ -54,6 +55,7 @@ namespace Tricycle.UI.Tests
             _mediaInspector = Substitute.For<IMediaInspector>();
             _mediaTranscoder = Substitute.For<IMediaTranscoder>();
             _cropDetector = Substitute.For<ICropDetector>();
+            _interlaceDetector = Substitute.For<IInterlaceDetector>();
             _transcodeCalculator = Substitute.For<ITranscodeCalculator>();
             _fileSystem = Substitute.For<IFileSystem>();
             _appManager = Substitute.For<IAppManager>();
@@ -65,6 +67,7 @@ namespace Tricycle.UI.Tests
                                            _mediaInspector,
                                            _mediaTranscoder,
                                            _cropDetector,
+                                           _interlaceDetector,
                                            _transcodeCalculator,
                                            _fileSystem,
                                            MockDevice.Self,
@@ -195,6 +198,13 @@ namespace Tricycle.UI.Tests
         {
             SelectSource();
             _cropDetector.Received().Detect(_mediaInfo);
+        }
+
+        [TestMethod]
+        public void DetectsInterlacingOfCorrectSourceForConfirmedFileBrowser()
+        {
+            SelectSource();
+            _interlaceDetector.Received().Detect(_mediaInfo);
         }
 
         [TestMethod]
@@ -424,6 +434,16 @@ namespace Tricycle.UI.Tests
             SelectSource();
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays480iSourceSizeFor480Interlaced()
+        {
+            _videoStream.Dimensions = new Dimensions(640, 480);
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(true);
+            SelectSource();
+
+            Assert.AreEqual("480i", _viewModel.SourceSize);
         }
 
         [TestMethod]
