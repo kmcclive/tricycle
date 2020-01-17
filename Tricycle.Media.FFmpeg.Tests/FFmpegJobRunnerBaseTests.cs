@@ -610,7 +610,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 Video = new VideoConfig()
                 {
-                    DeinterlaceOptions = "kemdeint"
+                    DeinterlaceOptions = "kerndeint"
                 }
             };
 

@@ -430,7 +430,7 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void LoadsDeinterlaceOptionsFromConfig()
         {
-            _ffmpegConfig.Video.DeinterlaceOptions = "kemdeint";
+            _ffmpegConfig.Video.DeinterlaceOptions = "kerndeint";
             _viewModel.Initialize();
 
             Assert.AreEqual(_ffmpegConfig.Video.DeinterlaceOptions, _viewModel.DeinterlaceOptions);
@@ -1017,7 +1017,7 @@ namespace Tricycle.UI.Tests.ViewModels
         [TestMethod]
         public void SavesDeinterlaceOptionsToConfig()
         {
-            string options = "kemdeint";
+            string options = "kerndeint";
 
             _viewModel.Initialize();
             _viewModel.DeinterlaceOptions = options;
