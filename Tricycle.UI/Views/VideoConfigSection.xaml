@@ -16,10 +16,15 @@
             </Grid.Margin>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="75" />
             </Grid.ColumnDefinitions>
-            <Label Text="Require that all sizes be divisble by" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-            <local:NumberEntry Text="{Binding SizeDivisor}" Grid.Column="1" Grid.Row="0" />
+            <Label Text="Deinterlace" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+            <local:BindablePicker ItemsSource="{Binding DeinterlaceSwitchOptions}"
+                                  SelectedItem="{Binding SelectedDeinterlaceSwitchOption}"
+                                  Grid.Column="1"
+                                  Grid.Row="0" />
+            <Label Text="Require that all sizes be divisble by" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+            <local:NumberEntry Text="{Binding SizeDivisor}" Grid.Column="1" Grid.Row="1" />
         </Grid>
         <local:FramedPanel Title="Quality">
             <Grid Margin="20, -5, 20, 15" ColumnSpacing="20" RowSpacing="7">
@@ -82,8 +87,8 @@
                           ItemsSource="{Binding SizePresets}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="100" />
-                            <On Platform="WPF" Value="170" />
+                            <On Platform="macOS" Value="65" />
+                            <On Platform="WPF" Value="90" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Header>
