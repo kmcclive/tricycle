@@ -24,9 +24,11 @@
         <Entry Text="{Binding Ac3Codec}" Grid.Column="1" Grid.Row="3" />
         <Label Text="Crop Detect Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
         <Entry Text="{Binding CropDetectOptions}" Grid.Column="1" Grid.Row="4" />
-        <Label Text="Denoise Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-        <Entry Text="{Binding DenoiseOptions}" Grid.Column="1" Grid.Row="5" />
-        <Label Text="Tonemap Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
-        <Entry Text="{Binding TonemapOptions}" Grid.Column="1" Grid.Row="6" />
+        <Label Text="Deinterlace Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+        <Entry Text="{Binding DeinterlaceOptions}" Grid.Column="1" Grid.Row="5" />
+        <Label Text="Denoise Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+        <Entry Text="{Binding DenoiseOptions}" Grid.Column="1" Grid.Row="6" />
+        <Label Text="Tonemap Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
+        <Entry Text="{Binding TonemapOptions}" Grid.Column="1" Grid.Row="7" />
     </Grid>
 </ContentView>
