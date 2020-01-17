@@ -428,6 +428,15 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsDeinterlaceOptionsFromConfig()
+        {
+            _ffmpegConfig.Video.DeinterlaceOptions = "kemdeint";
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_ffmpegConfig.Video.DeinterlaceOptions, _viewModel.DeinterlaceOptions);
+        }
+
+        [TestMethod]
         public void LoadsDenoiseOptionsFromConfig()
         {
             _ffmpegConfig.Video.DenoiseOptions = "nlmeans";
@@ -1003,6 +1012,18 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.CropDetectOptions);
+        }
+
+        [TestMethod]
+        public void SavesDeinterlaceOptionsToConfig()
+        {
+            string options = "kemdeint";
+
+            _viewModel.Initialize();
+            _viewModel.DeinterlaceOptions = options;
+            _viewModel.Close();
+
+            Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.DeinterlaceOptions);
         }
 
         [TestMethod]

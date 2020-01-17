@@ -380,6 +380,7 @@ namespace Tricycle.UI.ViewModels
             AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name;
             Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name;
             CropDetectOptions = config.Video?.CropDetectOptions;
+            DeinterlaceOptions = config.Video?.DeinterlaceOptions;
             DenoiseOptions = config.Video?.DenoiseOptions;
             TonemapOptions = config.Video?.TonemapOptions;
         }
@@ -631,6 +632,7 @@ namespace Tricycle.UI.ViewModels
                     }
                 },
                 CropDetectOptions = string.IsNullOrWhiteSpace(CropDetectOptions) ? null : CropDetectOptions,
+                DeinterlaceOptions = string.IsNullOrWhiteSpace(DeinterlaceOptions) ? "bwdif" : DeinterlaceOptions,
                 DenoiseOptions = string.IsNullOrWhiteSpace(DenoiseOptions) ? "hqdn3d=4:4:3:3" : DenoiseOptions,
                 TonemapOptions = string.IsNullOrWhiteSpace(TonemapOptions) ? "hable:desat=0" : TonemapOptions
             };
