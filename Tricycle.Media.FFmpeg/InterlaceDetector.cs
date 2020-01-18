@@ -92,7 +92,8 @@ namespace Tricycle.Media.FFmpeg
                 Debug.WriteLine(ex);
             }
 
-            return statistics != null && (statistics.TffCount + statistics.BffCount) > statistics.ProgressiveCount;
+            return statistics != null &&
+                (statistics.TffCount + statistics.BffCount) > (statistics.ProgressiveCount + statistics.UndeterminedCount);
         }
 
         FrameStatistics Parse(string outputData)
