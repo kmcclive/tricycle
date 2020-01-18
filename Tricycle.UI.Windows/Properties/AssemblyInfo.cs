@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Tricycle")]
-[assembly: AssemblyCopyright("Copyright © 2019 Tricycle Team, GPLv2 License; This software uses executables from the FFmpeg project under the LGPLv2.1.")]
+[assembly: AssemblyCopyright("Copyright © 2020 Tricycle Team, GPLv2 License; This software uses executables from the FFmpeg project under the LGPLv2.1.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.1.0")]
-[assembly: AssemblyFileVersion("2.0.1.0")]
+[assembly: AssemblyVersion("2.1.0.0")]
+[assembly: AssemblyFileVersion("2.1.0.0")]
