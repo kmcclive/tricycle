@@ -106,6 +106,9 @@ namespace Tricycle.UI.macOS
                                                             processRunner,
                                                             ffmpegConfigManager,
                                                             ffmpegArgumentGenerator));
+                _.For<IInterlaceDetector>().Use(new InterlaceDetector(ffmpegFileName,
+                                                                      processRunner,
+                                                                      ffmpegArgumentGenerator));
                 _.For<IFileSystem>().Use(fileSystem);
                 _.For<ITranscodeCalculator>().Use<TranscodeCalculator>();
                 _.For<IArgumentPropertyReflector>().Use<ArgumentPropertyReflector>();

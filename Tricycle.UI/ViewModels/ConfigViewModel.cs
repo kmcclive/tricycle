@@ -42,6 +42,8 @@ namespace Tricycle.UI.ViewModels
         bool _preferForcedSubtitles;
         string _mp4FileExtension;
         string _mkvFileExtension;
+        IList<ListItem> _deinterlaceSwitchOptions;
+        ListItem _selectedDeinterlaceSwitchOption;
         string _sizeDivisor;
         QualityScaleViewModel _avcQualityScale;
         QualityScaleViewModel _hevcQualityScale;
@@ -56,6 +58,7 @@ namespace Tricycle.UI.ViewModels
         string _aacCodec;
         string _ac3Codec;
         string _cropDetectOptions;
+        string _deinterlaceOptions;
         string _denoiseOptions;
         string _tonemapOptions;
 
@@ -77,6 +80,10 @@ namespace Tricycle.UI.ViewModels
             _ffmpegConfigManager = ffmpegConfigManager;
             _appManager = appManager;
             _device = device;
+            _deinterlaceSwitchOptions = Enum.GetValues(typeof(SmartSwitchOption))
+                                            .Cast<SmartSwitchOption>()
+                                            .Select(o => new ListItem(o))
+                                            .ToList();
             _x264PresetOptions = new List<ListItem>()
             {
                 new ListItem("ultrafast"),
@@ -143,6 +150,18 @@ namespace Tricycle.UI.ViewModels
         {
             get => _mkvFileExtension;
             set => SetProperty(ref _mkvFileExtension, value);
+        }
+
+        public IList<ListItem> DeinterlaceSwitchOptions
+        {
+            get => _deinterlaceSwitchOptions;
+            set => SetProperty(ref _deinterlaceSwitchOptions, value);
+        }
+
+        public ListItem SelectedDeinterlaceSwitchOption
+        {
+            get => _selectedDeinterlaceSwitchOption;
+            set => SetProperty(ref _selectedDeinterlaceSwitchOption, value);
         }
 
         public string SizeDivisor
@@ -229,6 +248,12 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _cropDetectOptions, value);
         }
 
+        public string DeinterlaceOptions
+        {
+            get => _deinterlaceOptions;
+            set => SetProperty(ref _deinterlaceOptions, value);
+        }
+
         public string DenoiseOptions
         {
             get => _denoiseOptions;
@@ -293,6 +318,9 @@ namespace Tricycle.UI.ViewModels
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
             Mp4FileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4);
             MkvFileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv);
+            SelectedDeinterlaceSwitchOption = config.Video?.Deinterlace != null
+                                              ? new ListItem(config.Video?.Deinterlace)
+                                              : null;
             SizeDivisor = config.Video?.SizeDivisor.ToString();
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
             HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
@@ -352,6 +380,7 @@ namespace Tricycle.UI.ViewModels
             AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name;
             Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name;
             CropDetectOptions = config.Video?.CropDetectOptions;
+            DeinterlaceOptions = config.Video?.DeinterlaceOptions;
             DenoiseOptions = config.Video?.DenoiseOptions;
             TonemapOptions = config.Video?.TonemapOptions;
         }
@@ -490,6 +519,7 @@ namespace Tricycle.UI.ViewModels
         {
             return new TricycleVideoConfig()
             {
+                Deinterlace = SelectedDeinterlaceSwitchOption?.Value as SmartSwitchOption? ?? SmartSwitchOption.Auto,
                 SizeDivisor = int.TryParse(SizeDivisor, out var sizeDivisor) ? sizeDivisor : 8,
                 Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
                 {
@@ -602,6 +632,7 @@ namespace Tricycle.UI.ViewModels
                     }
                 },
                 CropDetectOptions = string.IsNullOrWhiteSpace(CropDetectOptions) ? null : CropDetectOptions,
+                DeinterlaceOptions = string.IsNullOrWhiteSpace(DeinterlaceOptions) ? "bwdif" : DeinterlaceOptions,
                 DenoiseOptions = string.IsNullOrWhiteSpace(DenoiseOptions) ? "hqdn3d=4:4:3:3" : DenoiseOptions,
                 TonemapOptions = string.IsNullOrWhiteSpace(TonemapOptions) ? "hable:desat=0" : TonemapOptions
             };

@@ -589,6 +589,44 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void MapAddsDeinterlaceFilter()
+        {
+            _videoOutput.Deinterlace = true;
+
+            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
+
+            Assert.AreEqual(1, ffmpegJob.Filters?.Count);
+
+            var filter = ffmpegJob.Filters[0] as Filter;
+
+            Assert.IsNotNull(filter);
+            Assert.AreEqual("bwdif", filter.Name);
+        }
+
+        [TestMethod]
+        public void MapUsesDeinterlaceOptionsFromConfig()
+        {
+            var config = new FFmpegConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    DeinterlaceOptions = "kerndeint"
+                }
+            };
+
+            _videoOutput.Deinterlace = true;
+
+            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, config);
+
+            Assert.AreEqual(1, ffmpegJob.Filters?.Count);
+
+            var filter = ffmpegJob.Filters[0] as CustomFilter;
+
+            Assert.IsNotNull(filter);
+            Assert.AreEqual(config.Video.DeinterlaceOptions, filter.Data);
+        }
+
+        [TestMethod]
         public void MapAddsDenoiseFilter()
         {
             _videoOutput.Denoise = true;

@@ -9,6 +9,7 @@
             }
         },
         "cropDetectOptions": "0.125:2:0",
+        "deinterlaceOptions": "bwdif",
         "denoiseOptions": "hqdn3d=4:4:3:3",
         "tonemapOptions": "hable:desat=0"
     },

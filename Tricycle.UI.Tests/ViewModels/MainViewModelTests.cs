@@ -34,6 +34,7 @@ namespace Tricycle.UI.Tests
         IMediaTranscoder _mediaTranscoder;
         ICropDetector _cropDetector;
         CropParameters _cropParameters;
+        IInterlaceDetector _interlaceDetector;
         ITranscodeCalculator _transcodeCalculator;
         IFileSystem _fileSystem;
         IFile _fileService;
@@ -54,6 +55,7 @@ namespace Tricycle.UI.Tests
             _mediaInspector = Substitute.For<IMediaInspector>();
             _mediaTranscoder = Substitute.For<IMediaTranscoder>();
             _cropDetector = Substitute.For<ICropDetector>();
+            _interlaceDetector = Substitute.For<IInterlaceDetector>();
             _transcodeCalculator = Substitute.For<ITranscodeCalculator>();
             _fileSystem = Substitute.For<IFileSystem>();
             _appManager = Substitute.For<IAppManager>();
@@ -65,6 +67,7 @@ namespace Tricycle.UI.Tests
                                            _mediaInspector,
                                            _mediaTranscoder,
                                            _cropDetector,
+                                           _interlaceDetector,
                                            _transcodeCalculator,
                                            _fileSystem,
                                            MockDevice.Self,
@@ -195,6 +198,13 @@ namespace Tricycle.UI.Tests
         {
             SelectSource();
             _cropDetector.Received().Detect(_mediaInfo);
+        }
+
+        [TestMethod]
+        public void DetectsInterlacingOfCorrectSourceForConfirmedFileBrowser()
+        {
+            SelectSource();
+            _interlaceDetector.Received().Detect(_mediaInfo);
         }
 
         [TestMethod]
@@ -424,6 +434,16 @@ namespace Tricycle.UI.Tests
             SelectSource();
 
             Assert.AreEqual("480p", _viewModel.SourceSize);
+        }
+
+        [TestMethod]
+        public void Displays480iSourceSizeFor480Interlaced()
+        {
+            _videoStream.Dimensions = new Dimensions(640, 480);
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(true);
+            SelectSource();
+
+            Assert.AreEqual("480i", _viewModel.SourceSize);
         }
 
         [TestMethod]
@@ -1822,6 +1842,62 @@ namespace Tricycle.UI.Tests
             var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
 
             Assert.AreEqual(true, videoOutput?.Tonemap);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenOff()
+        {
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Off;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(true);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.IsFalse(videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenOn()
+        {
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.On;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(false);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.IsTrue(videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenAutoAndInterlaced()
+        {
+            bool interlaced = true;
+
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Auto;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(interlaced);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(interlaced, videoOutput.Deinterlace);
+        }
+
+        [TestMethod]
+        public void SetsVideoDeinterlaceForJobWhenAutoAndNotInterlaced()
+        {
+            bool interlaced = false;
+
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.Auto;
+            _interlaceDetector.Detect(Arg.Any<MediaInfo>()).Returns(interlaced);
+            SelectSource();
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(interlaced, videoOutput.Deinterlace);
         }
 
         [TestMethod]

@@ -48,6 +48,7 @@
                 "height": 9
             }
         },
+        "deinterlace": "auto",
         "sizeDivisor": 8
     },
     "audio": {

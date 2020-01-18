@@ -7,6 +7,7 @@ namespace Tricycle.Media.FFmpeg.Models.Config
     {
         public IDictionary<VideoFormat, VideoCodec> Codecs { get; set; }
         public string CropDetectOptions { get; set; }
+        public string DeinterlaceOptions { get; set; }
         public string DenoiseOptions { get; set; }
         public string TonemapOptions { get; set; }
     }

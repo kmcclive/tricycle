@@ -29,6 +29,7 @@ namespace Tricycle.UI.Pages
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
                 AppState.IocContainer.GetInstance<IMediaTranscoder>(),
                 AppState.IocContainer.GetInstance<ICropDetector>(),
+                AppState.IocContainer.GetInstance<IInterlaceDetector>(),
                 AppState.IocContainer.GetInstance<ITranscodeCalculator>(),
                 AppState.IocContainer.GetInstance<IFileSystem>(),
                 AppState.IocContainer.GetInstance<IDevice>(),

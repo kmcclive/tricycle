@@ -124,6 +124,23 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void PopulatesDeinterlaceSwitchOptions()
+        {
+            Assert.AreEqual(Enum.GetValues(typeof(SmartSwitchOption)).Length, _viewModel.DeinterlaceSwitchOptions?.Count);
+            Assert.IsTrue(_viewModel.DeinterlaceSwitchOptions.Any(o => o?.ToString() == "Auto"));
+        }
+
+        [TestMethod]
+        public void LoadsSelectedDeinterlaceSwitchOptionFromConfig()
+        {
+            _tricycleConfig.Video.Deinterlace = SmartSwitchOption.On;
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_tricycleConfig.Video.Deinterlace.ToString(),
+                            _viewModel.SelectedDeinterlaceSwitchOption?.ToString());
+        }
+
+        [TestMethod]
         public void LoadsSizeDivisorFromConfig()
         {
             _tricycleConfig.Video.SizeDivisor = 2;
@@ -408,6 +425,15 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Initialize();
 
             Assert.AreEqual(_ffmpegConfig.Video.CropDetectOptions, _viewModel.CropDetectOptions);
+        }
+
+        [TestMethod]
+        public void LoadsDeinterlaceOptionsFromConfig()
+        {
+            _ffmpegConfig.Video.DeinterlaceOptions = "kerndeint";
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_ffmpegConfig.Video.DeinterlaceOptions, _viewModel.DeinterlaceOptions);
         }
 
         [TestMethod]
@@ -737,6 +763,18 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void SavesSelectedDeinterlaceSwitchOptionToConfig()
+        {
+            var option = SmartSwitchOption.On;
+
+            _viewModel.Initialize();
+            _viewModel.SelectedDeinterlaceSwitchOption = new ListItem(option);
+            _viewModel.Close();
+
+            Assert.AreEqual(option, _tricycleConfigManager.Config?.Video?.Deinterlace);
+        }
+
+        [TestMethod]
         public void SavesSizeDivisorToConfig()
         {
             int divisor = 2;
@@ -974,6 +1012,18 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.CropDetectOptions);
+        }
+
+        [TestMethod]
+        public void SavesDeinterlaceOptionsToConfig()
+        {
+            string options = "kerndeint";
+
+            _viewModel.Initialize();
+            _viewModel.DeinterlaceOptions = options;
+            _viewModel.Close();
+
+            Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.DeinterlaceOptions);
         }
 
         [TestMethod]
