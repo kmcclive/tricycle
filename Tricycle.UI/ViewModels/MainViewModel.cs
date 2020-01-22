@@ -1451,7 +1451,11 @@ namespace Tricycle.UI.ViewModels
             {
                 SourceStreamIndex = GetStream(viewModel).Index,
                 Format = (AudioFormat)viewModel.SelectedFormat.Value,
-                Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value
+                Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value,
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "title", viewModel.SelectedMixdown.ToString() }
+                }
             };
 
             AudioCodec codec = null;

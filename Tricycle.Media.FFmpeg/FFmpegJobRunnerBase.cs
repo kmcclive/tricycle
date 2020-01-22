@@ -153,6 +153,8 @@ namespace Tricycle.Media.FFmpeg
 
                 if (mappedStream != null)
                 {
+                    mappedStream.Metadata = outputStream.Metadata;
+
                     result.Add(mappedStream);
                 }
             }
