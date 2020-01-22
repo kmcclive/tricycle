@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models.Media;
 
@@ -17,6 +18,10 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
 
         [Argument("-b")]
         public string Bitrate { get; set; }
+
+        [Argument("-metadata:s")]
+        [ArgumentConverter(typeof(MetadataConverter))]
+        public IDictionary<string, string> Metadata { get; set; }
 
         public MappedStream()
         {
