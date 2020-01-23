@@ -1243,16 +1243,21 @@ namespace Tricycle.UI.ViewModels
 
         TranscodeJob CreateJob()
         {
+            var format = (ContainerFormat)SelectedContainerFormat.Value;
+
             return new TranscodeJob()
             {
                 SourceInfo = _sourceInfo,
                 OutputFileName = DestinationName,
-                Format = (ContainerFormat)SelectedContainerFormat.Value,
+                Format = format,
                 Streams = GetOutputStreams(),
                 Subtitles = GetSubtitles(),
                 Metadata = new Dictionary<string, string>()
                 {
-                    { "encoding_tool", $"{AppState.AppName} {AppState.AppVersion}" }
+                    {
+                        format == ContainerFormat.Mkv ? "encoder" : "encoding_tool",
+                        $"{AppState.AppName} {AppState.AppVersion}"
+                    }
                 }
             };
         }

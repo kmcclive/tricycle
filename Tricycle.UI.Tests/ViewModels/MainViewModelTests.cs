@@ -1712,15 +1712,29 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void SetsMetadataForJob()
+        public void SetsMetadataForMp4Job()
         {
             AppState.AppName = "Tricycle";
             AppState.AppVersion = new Version(1, 2, 3, 4);
 
             SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
             Start();
 
             Assert.AreEqual("Tricycle 1.2.3.4", _transcodeJob?.Metadata?.GetValueOrDefault("encoding_tool"));
+        }
+
+        [TestMethod]
+        public void SetsMetadataForMkvJob()
+        {
+            AppState.AppName = "Tricycle";
+            AppState.AppVersion = new Version(1, 2, 3, 4);
+
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+            Start();
+
+            Assert.AreEqual("Tricycle 1.2.3.4", _transcodeJob?.Metadata?.GetValueOrDefault("encoder"));
         }
 
         [TestMethod]
