@@ -10,5 +10,6 @@ namespace Tricycle.Models.Jobs
         public string OutputFileName { get; set; }
         public IList<OutputStream> Streams { get; set; }
         public SubtitlesConfig Subtitles { get; set; }
+        public IDictionary<string, string> Metadata { get; set; }
     }
 }

@@ -1249,7 +1249,11 @@ namespace Tricycle.UI.ViewModels
                 OutputFileName = DestinationName,
                 Format = (ContainerFormat)SelectedContainerFormat.Value,
                 Streams = GetOutputStreams(),
-                Subtitles = GetSubtitles()
+                Subtitles = GetSubtitles(),
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "encoding_tool", $"{AppState.AppName} {AppState.AppVersion}" }
+                }
             };
         }
 
