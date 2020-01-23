@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -184,7 +185,10 @@ namespace Tricycle.UI.Windows
             tricycleConfigManager.Load();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
+            var asm = Assembly.GetExecutingAssembly();
 
+            AppState.AppName = asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
+            AppState.AppVersion = asm.GetName().Version;
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);
