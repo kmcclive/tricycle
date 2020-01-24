@@ -137,7 +137,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             for (int i = 0; i < _ffmpegJobs.Count; i++)
             {
-                Assert.AreEqual(_ffmpegJobs[i].StartTime, expectedStartTimes[i]);
+                Assert.AreEqual(expectedStartTimes[i], _ffmpegJobs[i].StartTime);
             }
         }
 

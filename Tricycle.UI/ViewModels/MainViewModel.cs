@@ -1243,13 +1243,22 @@ namespace Tricycle.UI.ViewModels
 
         TranscodeJob CreateJob()
         {
+            var format = (ContainerFormat)SelectedContainerFormat.Value;
+
             return new TranscodeJob()
             {
                 SourceInfo = _sourceInfo,
                 OutputFileName = DestinationName,
-                Format = (ContainerFormat)SelectedContainerFormat.Value,
+                Format = format,
                 Streams = GetOutputStreams(),
-                Subtitles = GetSubtitles()
+                Subtitles = GetSubtitles(),
+                Metadata = new Dictionary<string, string>()
+                {
+                    {
+                        format == ContainerFormat.Mkv ? "encoder" : "encoding_tool",
+                        $"{AppState.AppName} {AppState.AppVersion}"
+                    }
+                }
             };
         }
 
@@ -1451,7 +1460,11 @@ namespace Tricycle.UI.ViewModels
             {
                 SourceStreamIndex = GetStream(viewModel).Index,
                 Format = (AudioFormat)viewModel.SelectedFormat.Value,
-                Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value
+                Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value,
+                Metadata = new Dictionary<string, string>()
+                {
+                    { "title", viewModel.SelectedMixdown.ToString() }
+                }
             };
 
             AudioCodec codec = null;

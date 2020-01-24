@@ -92,7 +92,13 @@ namespace Tricycle.UI.macOS
             tricycleConfigManager.Load();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
+            var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
+            var revision = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
 
+            AppState.AppName = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleName").ToString();
+            AppState.AppVersion = Version.TryParse(version, out var a) && int.TryParse(revision, out var b)
+                                  ? new Version(a.Major, a.Minor, a.Build, b)
+                                  : new Version();
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);

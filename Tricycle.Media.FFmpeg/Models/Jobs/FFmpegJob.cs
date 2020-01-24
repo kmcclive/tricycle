@@ -57,6 +57,11 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentOrder(2)]
         public string Format { get; set; }
 
+        [Argument("-metadata:g")]
+        [ArgumentConverter(typeof(MetadataConverter))]
+        [ArgumentOrder(2)]
+        public IDictionary<string, string> Metadata { get; set; }
+
         [Argument("-map")]
         [ArgumentConverter(typeof(MappedStreamListConverter))]
         [ArgumentOrder(2)]

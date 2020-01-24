@@ -156,7 +156,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             _transcoder.Start(_transcodeJob);
 
-            Assert.AreEqual(_ffmpegJob?.Format, "mp4");
+            Assert.AreEqual("mp4", _ffmpegJob?.Format);
         }
 
         [TestMethod]
@@ -166,7 +166,20 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             _transcoder.Start(_transcodeJob);
 
-            Assert.AreEqual(_ffmpegJob?.Format, "matroska");
+            Assert.AreEqual("matroska", _ffmpegJob?.Format);
+        }
+
+        [TestMethod]
+        public void StartAssignsMetadataOnJob()
+        {
+            _transcodeJob.Metadata = new Dictionary<string, string>()
+            {
+                { "title", "Test" }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(_transcodeJob.Metadata, _ffmpegJob?.Metadata);
         }
 
         [TestMethod]
@@ -241,17 +254,17 @@ namespace Tricycle.Media.FFmpeg.Tests
             var option = codec.Options.FirstOrDefault(o => o.Name == "colorprim");
 
             Assert.IsNotNull(option);
-            Assert.AreEqual(option.Value, "bt2020");
+            Assert.AreEqual("bt2020", option.Value);
 
             option = codec.Options.FirstOrDefault(o => o.Name == "colormatrix");
 
             Assert.IsNotNull(option);
-            Assert.AreEqual(option.Value, "bt2020nc");
+            Assert.AreEqual("bt2020nc", option.Value);
 
             option = codec.Options.FirstOrDefault(o => o.Name == "transfer");
 
             Assert.IsNotNull(option);
-            Assert.AreEqual(option.Value, "smpte2084");
+            Assert.AreEqual("smpte2084", option.Value);
         }
 
         [TestMethod]
@@ -399,6 +412,21 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(codec, stream.Codec?.Name);
             Assert.AreEqual(6, stream.ChannelCount);
             Assert.AreEqual("640k", stream.Bitrate);
+        }
+
+        [TestMethod]
+        public void StartAssignsStreamMetadataOnJob()
+        {
+            _videoOutput.Metadata = new Dictionary<string, string>()
+            {
+                { "title", "Video" }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.AreEqual(_videoOutput.Metadata, stream.Metadata);
         }
 
         [TestMethod]

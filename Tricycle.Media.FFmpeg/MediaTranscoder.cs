@@ -119,6 +119,7 @@ namespace Tricycle.Media.FFmpeg
             var result = base.Map(job, config);
 
             result.Format = GetFormatName(job.Format);
+            result.Metadata = job.Metadata;
 
             // This is a workaround for subtitle overlays with MKV reporting an incorrect duration
             if ((job.Format == ContainerFormat.Mkv) && (job.Subtitles?.SourceStreamIndex != null))
@@ -142,13 +143,22 @@ namespace Tricycle.Media.FFmpeg
                     case AudioOutputStream audioOutput:
                         if (sourceStream is AudioStreamInfo audioInput)
                         {
-                            return MapAudioStream(config, audioInput, audioOutput);
+                            result = MapAudioStream(config, audioInput, audioOutput);
                         }
-
-                        throw GetStreamMismatchException(nameof(sourceStream), nameof(outputStream));
+                        else
+                        {
+                            throw GetStreamMismatchException(nameof(sourceStream), nameof(outputStream));
+                        }
+                        break;
                     default:
-                        return MapPassthruStream(sourceStream, outputStream);
+                        result = MapPassthruStream(sourceStream, outputStream);
+                        break;
                 }
+            }
+
+            if (result != null)
+            {
+                result.Metadata = outputStream.Metadata;
             }
 
             return result;
