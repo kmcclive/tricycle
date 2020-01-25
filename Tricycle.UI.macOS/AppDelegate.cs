@@ -167,7 +167,9 @@ namespace Tricycle.UI.macOS
                 case "Open…":
                 case "Preferences…":
                     return !_appManager.IsBusy && !_appManager.IsModalOpen;
+                case "Manage…":
                 case "Preview…":
+                case "Save As…":
                     return !_appManager.IsBusy && !_appManager.IsModalOpen && _appManager.IsValidSourceSelected;
                 default:
                     return true;
@@ -190,6 +192,18 @@ namespace Tricycle.UI.macOS
             {
                 _appManager.RaiseFileOpened(result.FileName);
             }
+        }
+
+        [Action("saveTemplate:")]
+        public void SaveTemplate(NSObject sender)
+        {
+            
+        }
+
+        [Action("manageTemplates:")]
+        public void ManageTemplates(NSObject sender)
+        {
+
         }
 
         [Action("viewPreview:")]
