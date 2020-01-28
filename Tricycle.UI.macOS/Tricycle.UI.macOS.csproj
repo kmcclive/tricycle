@@ -233,7 +233,6 @@
     <BundleResource Include="Resources\Images\previous.png" />
     <BundleResource Include="Resources\Images\preview.png" />
     <BundleResource Include="Resources\Images\tricycle-gray.png" />
-    <BundleResource Include="Resources\Config\templates.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.3.0.991211\build\Xamarin.Forms.targets')" />

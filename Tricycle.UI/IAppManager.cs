@@ -24,6 +24,7 @@ namespace Tricycle.UI
         event Action<Modal> ModalOpened;
         event Action ModalClosed;
         event Action<bool> SourceSelected;
+        event Action<string> TemplateSaved;
 
         void RaiseReady();
         void RaiseBusy();
@@ -33,5 +34,6 @@ namespace Tricycle.UI
         void RaiseModalOpened(Modal modal);
         void RaiseModalClosed();
         void RaiseSourceSelected(bool isValid);
+        void RaiseTemplateSaved(string name);
     }
 }

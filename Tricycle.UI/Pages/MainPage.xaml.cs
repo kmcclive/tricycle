@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Tricycle.Media;
 using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Jobs;
+using Tricycle.Models.Templates;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -35,6 +37,7 @@ namespace Tricycle.UI.Pages
                 AppState.IocContainer.GetInstance<IDevice>(),
                 appManager,
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
+                AppState.IocContainer.GetInstance<IConfigManager<Dictionary<string, JobTemplate>>>(),
                 AppState.DefaultDestinationDirectory);
 
             _viewModel.Alert += OnAlert;

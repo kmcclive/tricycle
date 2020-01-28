@@ -31,6 +31,7 @@ namespace Tricycle.UI.macOS
 
         IAppManager _appManager;
         NSDocumentController _documentController;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
 
         public AppDelegate()
         {
@@ -91,7 +92,7 @@ namespace Tricycle.UI.macOS
                 new JsonConfigManager<TricycleConfig>(fileSystem,
                                                       Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
                                                       Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
-            var templateConfigManager =
+            _templateManager =
                 new JsonConfigManager<Dictionary<string, JobTemplate>>(
                     fileSystem,
                     Path.Combine(defaultConfigPath, TEMPLATE_CONFIG_NAME),
@@ -99,7 +100,7 @@ namespace Tricycle.UI.macOS
 
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
-            templateConfigManager.Load();
+            _templateManager.Load();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
             var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
@@ -113,7 +114,7 @@ namespace Tricycle.UI.macOS
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
-                _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(templateConfigManager);
+                _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(_templateManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
@@ -216,16 +217,51 @@ namespace Tricycle.UI.macOS
             {
                 using (var input = new NSTextField(new CGRect(0, 0, 200, 24)))
                 {
-                    input.StringValue = "Template 1";
                     alert.AccessoryView = input;
 
-                    var result = alert.RunSheetModal(MainWindow);
+                    string name = GetNewTemplateName();
+                    const int OK = 1;
+                    nint result;
 
-                    if (result == 1)
+                    do
                     {
-                        input.ValidateEditing();
+                        input.StringValue = name;
 
-                        MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(new NSMenuItem(input.StringValue));
+                        result = alert.RunSheetModal(MainWindow);
+
+                        input.ValidateEditing();
+                    }
+                    while ((result == OK) && string.IsNullOrWhiteSpace(input.StringValue));
+
+                    if (result == OK)
+                    {
+                        name = input.StringValue;
+
+                        bool overwrite = false;
+
+                        if (_templateManager.Config?.ContainsKey(name) == true)
+                        {
+                            using (var confirm = NSAlert.WithMessage("Overwrite Template",
+                                                                     "OK",
+                                                                     "Cancel",
+                                                                     null,
+                                                                     "A template with that name exists. " +
+                                                                     "Would you like to overwrite it?"))
+                            {
+                                overwrite = confirm.RunSheetModal(MainWindow) == OK;
+                                if (!overwrite)
+                                {
+                                    return;
+                                }
+                            }
+                        }
+
+                        _appManager.RaiseTemplateSaved(name);
+
+                        if (!overwrite)
+                        {
+                            MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(new NSMenuItem(name));
+                        }
                     }
                 }
             }
@@ -260,6 +296,23 @@ namespace Tricycle.UI.macOS
             }
 
             return _appManager.IsQuitConfirmed;
+        }
+
+        string GetNewTemplateName()
+        {
+            var templates = _templateManager.Config;
+            int i = 0;
+            string result;
+
+            do
+            {
+                string suffix = i > 0 ? $" {i}" : string.Empty;
+                result = $"New Template{suffix}";
+                i++;
+            }
+            while (templates.ContainsKey(result));
+
+            return result;
         }
     }
 }

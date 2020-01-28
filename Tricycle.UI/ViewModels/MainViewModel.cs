@@ -16,6 +16,7 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -50,6 +51,7 @@ namespace Tricycle.UI.ViewModels
         readonly IDevice _device;
         readonly IAppManager _appManager;
         readonly IConfigManager<TricycleConfig> _configManager;
+        readonly IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         readonly string _defaultDestinationDirectory;
 
         bool _isSourceInfoVisible;
@@ -124,6 +126,7 @@ namespace Tricycle.UI.ViewModels
                              IDevice device,
                              IAppManager appManager,
                              IConfigManager<TricycleConfig> configManager,
+                             IConfigManager<Dictionary<string, JobTemplate>> templateManager,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
@@ -137,6 +140,7 @@ namespace Tricycle.UI.ViewModels
             _appManager = appManager;
             _configManager = configManager;
             _tricycleConfig = configManager.Config;
+            _templateManager = templateManager;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
@@ -145,6 +149,7 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
             _appManager.Quitting += async () => await OnAppQuitting();
+            _appManager.TemplateSaved += SaveTemplate;
 
             _configManager.ConfigChanged += async config => await OnConfigChanged(config);
 
@@ -1485,6 +1490,104 @@ namespace Tricycle.UI.ViewModels
         {
             return outputStream.Format == sourceStream.Format &&
                 AudioUtility.GetChannelCount(outputStream.Mixdown ?? AudioMixdown.Mono) == sourceStream.ChannelCount;
+        }
+
+        void SaveTemplate(string name)
+        {
+            var template = new JobTemplate()
+            {
+                Format = (ContainerFormat)SelectedContainerFormat.Value,
+                Video = GetVideoTemplate(),
+                AudioTracks = GetAudioTemplates()
+            };
+
+            if (SelectedSubtitle != NONE_OPTION)
+            {
+                var subtitleStream = (StreamInfo)SelectedSubtitle.Value;
+
+                template.Subtitles = new SubtitleTemplate()
+                {
+                    ForcedOnly = IsForcedSubtitlesChecked,
+                    Language = _sourceInfo.Streams.FirstOrDefault(s => s.Index == subtitleStream.Index)?.Language
+                };
+            }
+
+            var templates = new Dictionary<string, JobTemplate>(_templateManager.Config); // clone the config
+
+            templates[name] = template;
+
+            _templateManager.Config = templates;
+            _templateManager.Save();
+        }
+
+        VideoTemplate GetVideoTemplate()
+        {
+            var format = (VideoFormat)SelectedVideoFormat.Value;
+
+            return new VideoTemplate()
+            {
+                AspectRatioPreset = SelectedAspectRatio != ORIGINAL_OPTION ? SelectedAspectRatio.ToString() : null,
+                CropBars = IsAutocropChecked,
+                Denoise = IsDenoiseChecked,
+                Format = format,
+                Hdr = IsHdrChecked,
+                ManualCrop = object.Equals(SelectedCropOption?.Value, CropOption.Manual)
+                             ? new ManualCropTemplate()
+                             {
+                                 Top = int.TryParse(CropTop, out var top) ? top : 0,
+                                 Bottom = int.TryParse(CropBottom, out var bottom) ? bottom : 0,
+                                 Left = int.TryParse(CropLeft, out var left) ? left : 0,
+                                 Right = int.TryParse(CropRight, out var right) ? right : 0
+                             }
+                             : null,
+                Quality = CalculateQuality(format, (decimal)Quality),
+                SizePreset = SelectedSize != ORIGINAL_OPTION ? SelectedSize?.ToString() : null
+            };
+        }
+
+        IList<AudioTemplate> GetAudioTemplates()
+        {
+            IList<AudioTemplate> result = new List<AudioTemplate>();
+
+            if (AudioOutputs?.Any() != true)
+            {
+                return result;
+            }
+
+            var audioStreamsByLanguage = _sourceInfo.Streams.Where(s => s.StreamType == StreamType.Audio)
+                                                            .GroupBy(s => s.Language)
+                                                            .ToDictionary(g => g.Key);
+
+            foreach (var viewModel in AudioOutputs)
+            {
+                AudioStreamInfo sourceStream = GetStream(viewModel);
+
+                if (sourceStream == null)
+                {
+                    continue;
+                }
+
+                int i = 0;
+                var template = new AudioTemplate()
+                {
+                    Format = (AudioFormat)viewModel.SelectedFormat.Value,
+                    Language = sourceStream.Language,
+                    Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value,
+                    RelativeIndex = audioStreamsByLanguage.GetValueOrDefault(sourceStream.Language)?
+                                                          .OrderBy(s => s.Index)
+                                                          .Select(s => new
+                                                          {
+                                                              RelativeIndex = i++,
+                                                              StreamIndex = s.Index
+                                                          })
+                                                         .FirstOrDefault(s => s.StreamIndex == sourceStream.Index)?
+                                                         .RelativeIndex ?? 0
+                };
+
+                result.Add(template);
+            }
+
+            return result;
         }
 
         void EnableControls(bool isEnabled)

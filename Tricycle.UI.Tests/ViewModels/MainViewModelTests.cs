@@ -13,6 +13,7 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
@@ -41,6 +42,7 @@ namespace Tricycle.UI.Tests
         IAppManager _appManager;
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         TricycleConfig _tricycleConfig;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
 
@@ -62,6 +64,7 @@ namespace Tricycle.UI.Tests
             _tricycleConfig = CreateDefaultTricycleConfig();
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _tricycleConfigManager.Config = _tricycleConfig;
+            _templateManager = Substitute.For<IConfigManager<Dictionary<string, JobTemplate>>>();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
@@ -73,6 +76,7 @@ namespace Tricycle.UI.Tests
                                            MockDevice.Self,
                                            _appManager,
                                            _tricycleConfigManager,
+                                           _templateManager,
                                            _defaultDestinationDirectory)
             {
                 IsPageVisible = true
