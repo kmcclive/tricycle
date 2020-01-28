@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AppKit;
@@ -14,6 +15,7 @@ using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Templates;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.MacOS;
@@ -69,6 +71,7 @@ namespace Tricycle.UI.macOS
         {
             const string FFMPEG_CONFIG_NAME = "ffmpeg.json";
             const string TRICYCLE_CONFIG_NAME = "tricycle.json";
+            const string TEMPLATE_CONFIG_NAME = "templates.json";
 
             string resourcePath = NSBundle.MainBundle.ResourcePath;
             string defaultConfigPath = Path.Combine(resourcePath, "Config");
@@ -87,9 +90,15 @@ namespace Tricycle.UI.macOS
                 new JsonConfigManager<TricycleConfig>(fileSystem,
                                                       Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
                                                       Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
+            var templateConfigManager =
+                new JsonConfigManager<Dictionary<string, JobTemplate>>(
+                    fileSystem,
+                    Path.Combine(defaultConfigPath, TEMPLATE_CONFIG_NAME),
+                    Path.Combine(userConfigPath, TEMPLATE_CONFIG_NAME));
 
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
+            templateConfigManager.Load();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
             var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
@@ -103,6 +112,7 @@ namespace Tricycle.UI.macOS
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
+                _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(templateConfigManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),

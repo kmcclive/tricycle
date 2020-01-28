@@ -5,6 +5,7 @@ namespace Tricycle.Models.Templates
     {
         public VideoFormat Format { get; set; }
         public decimal Quality { get; set; }
+        public bool Hdr { get; set; }
         public string SizePreset { get; set; }
         public ManualCropTemplate ManualCrop { get; set; }
         public string AspectRatioPreset { get; set; }
