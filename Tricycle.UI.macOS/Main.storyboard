@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -85,15 +85,32 @@
                                 </menu>
                             </menuItem>
                             <menuItem title="View" id="H8h-7b-M4v">
-                                <modifierMask key="keyEquivalentModifierMask" />
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="View" id="HyV-fh-RgO">
                                     <items>
                                         <menuItem title="Preview…" keyEquivalent="2" id="snW-S8-Cw5">
-                                            <modifierMask key="keyEquivalentModifierMask" command="YES" />
                                             <connections>
-                                                <action selector="viewPreview:" target="Ady-hI-5gd" id="BXY-wc-z0C" />
+                                                <action selector="viewPreview:" target="Ady-hI-5gd" id="BXY-wc-z0C"/>
                                             </connections>
                                         </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Templates" id="wSk-JA-54m">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Templates" id="3YY-bQ-Gef">
+                                    <items>
+                                        <menuItem title="Save As…" keyEquivalent="S" id="tx3-HL-XRI">
+                                            <connections>
+                                                <action selector="saveTemplate:" target="Ady-hI-5gd" id="eq2-el-k8o"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Manage…" id="jfE-i0-edB">
+                                            <connections>
+                                                <action selector="manageTemplates:" target="Ady-hI-5gd" id="Rh8-NW-gxt"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="QEe-vf-Yi2"/>
                                     </items>
                                 </menu>
                             </menuItem>

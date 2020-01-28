@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using AppKit;
+using CoreGraphics;
 using Foundation;
 using StructureMap;
 using Tricycle.Diagnostics;
@@ -174,10 +175,12 @@ namespace Tricycle.UI.macOS
         {
             switch (item.Title)
             {
+                case "Manage…":
                 case "Open…":
                 case "Preferences…":
                     return !_appManager.IsBusy && !_appManager.IsModalOpen;
                 case "Preview…":
+                case "Save As…":
                     return !_appManager.IsBusy && !_appManager.IsModalOpen && _appManager.IsValidSourceSelected;
                 default:
                     return true;
@@ -200,6 +203,38 @@ namespace Tricycle.UI.macOS
             {
                 _appManager.RaiseFileOpened(result.FileName);
             }
+        }
+
+        [Action("saveTemplate:")]
+        public void SaveTemplate(NSObject sender)
+        {
+            using (var alert = NSAlert.WithMessage("Save Template",
+                                                   "OK",
+                                                   "Cancel",
+                                                   null,
+                                                   "Please enter a name for the template:"))
+            {
+                using (var input = new NSTextField(new CGRect(0, 0, 200, 24)))
+                {
+                    input.StringValue = "Template 1";
+                    alert.AccessoryView = input;
+
+                    var result = alert.RunSheetModal(MainWindow);
+
+                    if (result == 1)
+                    {
+                        input.ValidateEditing();
+
+                        MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(new NSMenuItem(input.StringValue));
+                    }
+                }
+            }
+        }
+
+        [Action("manageTemplates:")]
+        public void ManageTemplates(NSObject sender)
+        {
+            _appManager.RaiseModalOpened(Modal.Config);
         }
 
         [Action("viewPreview:")]
