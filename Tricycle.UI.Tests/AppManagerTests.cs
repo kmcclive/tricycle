@@ -197,5 +197,17 @@ namespace Tricycle.UI.Tests
 
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void RaiseTemplateAppliedRaisesTemplateAppliedEvent()
+        {
+            string actual = null;
+            string expected = "New Template";
+
+            _appManager.TemplateApplied += name => actual = name;
+            _appManager.RaiseTemplateApplied(expected);
+
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

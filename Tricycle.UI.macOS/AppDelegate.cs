@@ -146,6 +146,7 @@ namespace Tricycle.UI.macOS
 
             Forms.Init();
             LoadApplication(new App(_appManager));
+            PopulateTemplateMenu();
 
             base.DidFinishLaunching(notification);
         }
@@ -313,6 +314,26 @@ namespace Tricycle.UI.macOS
             while (templates.ContainsKey(result));
 
             return result;
+        }
+
+        void PopulateTemplateMenu()
+        {
+            var menu = MainWindow.Menu.ItemWithTitle("Templates").Submenu;
+
+            foreach (var name in _templateManager.Config.Keys)
+            {
+                menu.AddItem(CreateTemplateMenuItem(name));
+            }
+        }
+
+        NSMenuItem CreateTemplateMenuItem(string name)
+        {
+            return new NSMenuItem(name, "", (s, e) => _appManager.RaiseTemplateApplied(name), IsTemplateMenuItemValid);
+        }
+
+        bool IsTemplateMenuItemValid(NSMenuItem item)
+        {
+            return !_appManager.IsBusy && !_appManager.IsModalOpen && _appManager.IsValidSourceSelected;
         }
     }
 }
