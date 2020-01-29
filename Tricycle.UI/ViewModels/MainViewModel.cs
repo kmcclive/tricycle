@@ -150,6 +150,7 @@ namespace Tricycle.UI.ViewModels
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
             _appManager.Quitting += async () => await OnAppQuitting();
             _appManager.TemplateSaved += SaveTemplate;
+            _appManager.TemplateApplied += ApplyTemplate;
 
             _configManager.ConfigChanged += async config => await OnConfigChanged(config);
 
@@ -1588,6 +1589,175 @@ namespace Tricycle.UI.ViewModels
             }
 
             return result;
+        }
+
+        void ApplyTemplate(string name)
+        {
+            var template = _templateManager.Config.GetValueOrDefault(name);
+
+            if (template == null)
+            {
+                return;
+            }
+
+            SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, template.Format));
+
+            if (template.Video != null)
+            {
+                ApplyTemplate(template.Video);
+            }
+
+            if (template.Subtitles != null)
+            {
+                var subtitles = template.Subtitles;
+
+                SelectedSubtitle = string.IsNullOrEmpty(subtitles.Language)
+                                   ? NONE_OPTION
+                                   : SubtitleOptions?.Where(s => s != NONE_OPTION)
+                                                     .FirstOrDefault(s =>
+                                                        (s.Value as StreamInfo)?.Language == subtitles.Language)
+                                   ?? NONE_OPTION;
+                IsForcedSubtitlesChecked = subtitles.ForcedOnly;
+            }
+
+            ApplyTemplates(template.AudioTracks);
+        }
+
+        void ApplyTemplate(VideoTemplate video)
+        {
+            SelectedVideoFormat = VideoFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, video.Format));
+            Quality = (double)GetQualityPercent(video.Format, video.Quality);
+            IsHdrChecked = video.Hdr && IsHdrSupported(SelectedVideoFormat, _primaryVideoStream);
+            SelectedSize = GetClosestSize(video.SizePreset);
+
+            if (video.ManualCrop != null)
+            {
+                var crop = video.ManualCrop;
+
+                SelectedCropOption = new ListItem(CropOption.Manual);
+                CropTop = crop.Top.ToString();
+                CropBottom = crop.Bottom.ToString();
+                CropLeft = crop.Left.ToString();
+                CropRight = crop.Right.ToString();
+            }
+            else
+            {
+                SelectedCropOption = new ListItem(CropOption.Auto);
+            }
+
+            IsAutocropChecked = video.CropBars && HasBars(_primaryVideoStream.Dimensions, _croppedDimensions);
+            SelectedAspectRatio = GetClosestAspectRatio(video.AspectRatioPreset);
+            IsDenoiseChecked = video.Denoise;
+        }
+
+        decimal GetQualityPercent(VideoFormat format, decimal quality)
+        {
+            decimal result = 0.5M;
+
+            if ((_tricycleConfig.Video?.Codecs != null) && _tricycleConfig.Video.Codecs.TryGetValue(format, out var codec))
+            {
+                decimal min = codec.QualityRange.Min ?? 22;
+                decimal max = codec.QualityRange.Max ?? 18;
+
+                result = (quality - min) /  (max - min);
+            }
+
+            return result;
+        }
+
+        void ApplyTemplates(IList<AudioTemplate> templates)
+        {
+            PopulateAudioOptions(_sourceInfo);
+
+            if (AudioOutputs?.Any() != true)
+            {
+                return;
+            }
+
+            var output = AudioOutputs.First();
+
+            output.SelectedTrack = NONE_OPTION;
+
+            var tracksByLanguage = output.TrackOptions.Where(t => t != NONE_OPTION)
+                                                      .Where(t => ((StreamInfo)t.Value).StreamType == StreamType.Audio)
+                                                      .GroupBy(t => ((StreamInfo)t.Value).Language)
+                                                      .ToDictionary(g => g.Key);
+
+            foreach (var template in templates)
+            {
+                if (string.IsNullOrEmpty(template?.Language))
+                {
+                    continue;
+                }
+
+                var tracks = tracksByLanguage.GetValueOrDefault(template.Language);
+
+                if (!tracks.Any())
+                {
+                    continue;
+                }
+
+                int i = 0;
+                var track = tracks.OrderBy(t => ((StreamInfo)t.Value).Index)
+                                  .Select(t => new
+                                  {
+                                    Track = t,
+                                    RelativeIndex = i++
+                                  })
+                                  .Where(t => t.RelativeIndex <= template.RelativeIndex)
+                                  .Select(t => t.Track)
+                                  .LastOrDefault();
+
+                if (track == null)
+                {
+                    continue;
+                }
+
+                var channelCount = AudioUtility.GetChannelCount(template.Mixdown);
+
+                output = AudioOutputs[AudioOutputs.Count - 1];
+                output.SelectedTrack = track;
+                output.SelectedFormat = output.FormatOptions?.FirstOrDefault(f => object.Equals(f.Value, template.Format))
+                                        ?? output.FormatOptions?.FirstOrDefault();
+                output.SelectedMixdown = output.MixdownOptions?.Where(m =>
+                                            AudioUtility.GetChannelCount((AudioMixdown)m.Value) <= channelCount)
+                                                               .FirstOrDefault();
+                // TODO: remove possible duplicates
+            }
+        }
+
+        ListItem GetClosestSize(string presetName)
+        {
+            return GetClosestPreset(presetName, _tricycleConfig?.Video?.SizePresets, SizeOptions);
+        }
+
+        ListItem GetClosestAspectRatio(string presetName)
+        {
+            return GetClosestPreset(presetName, _tricycleConfig?.Video?.AspectRatioPresets, AspectRatioOptions);
+        }
+
+        ListItem GetClosestPreset(string presetName, IDictionary<string, Dimensions> presets, IList<ListItem> options)
+        {
+            if (string.IsNullOrEmpty(presetName))
+            {
+                return ORIGINAL_OPTION;
+            }
+
+            ListItem result = options?.FirstOrDefault(s => s.Name == presetName);
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (presets?.ContainsKey(presetName) != true)
+            {
+                return ORIGINAL_OPTION;
+            }
+
+            result = options.FirstOrDefault(s => s != ORIGINAL_OPTION);
+
+            return result ?? ORIGINAL_OPTION;
         }
 
         void EnableControls(bool isEnabled)
