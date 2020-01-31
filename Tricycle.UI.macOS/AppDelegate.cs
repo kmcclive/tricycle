@@ -261,7 +261,7 @@ namespace Tricycle.UI.macOS
 
                         if (!overwrite)
                         {
-                            MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(new NSMenuItem(name));
+                            MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(CreateTemplateMenuItem(name));
                         }
                     }
                 }

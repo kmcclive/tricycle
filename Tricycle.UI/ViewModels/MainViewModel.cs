@@ -1722,8 +1722,9 @@ namespace Tricycle.UI.ViewModels
                 output.SelectedMixdown = output.MixdownOptions?.Where(m =>
                                             AudioUtility.GetChannelCount((AudioMixdown)m.Value) <= channelCount)
                                                                .FirstOrDefault();
-                // TODO: remove possible duplicates
             }
+
+            RemoveDuplicateAudioOutputs();
         }
 
         ListItem GetClosestSize(string presetName)
@@ -1758,6 +1759,26 @@ namespace Tricycle.UI.ViewModels
             result = options.FirstOrDefault(s => s != ORIGINAL_OPTION);
 
             return result ?? ORIGINAL_OPTION;
+        }
+
+        void RemoveDuplicateAudioOutputs()
+        {
+            for (int i = 0; i < AudioOutputs.Count; i++)
+            {
+                var output1 = AudioOutputs[i];
+
+                for (int j = AudioOutputs.Count - 1; j > i; j--)
+                {
+                    var output2 = AudioOutputs[j];
+
+                    if (object.Equals(output1.SelectedTrack, output2.SelectedTrack) &&
+                        object.Equals(output1.SelectedFormat, output2.SelectedFormat) &&
+                        object.Equals(output1.SelectedMixdown, output2.SelectedMixdown))
+                    {
+                        output2.SelectedTrack = NONE_OPTION;
+                    }
+                }
+            }
         }
 
         void EnableControls(bool isEnabled)
