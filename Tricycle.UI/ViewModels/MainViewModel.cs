@@ -1678,6 +1678,11 @@ namespace Tricycle.UI.ViewModels
 
             output.SelectedTrack = NONE_OPTION;
 
+            if (templates == null)
+            {
+                return;
+            }
+
             var tracksByLanguage = output.TrackOptions.Where(t => t != NONE_OPTION)
                                                       .Where(t => ((StreamInfo)t.Value).StreamType == StreamType.Audio)
                                                       .GroupBy(t => ((StreamInfo)t.Value).Language)

@@ -23,6 +23,12 @@ namespace Tricycle.UI.Tests
     [TestClass]
     public class MainViewModelTests
     {
+        #region Constants
+
+        const string DEFAULT_TEMPLATE_NAME = "Test";
+
+        #endregion
+
         #region Fields
 
         MainViewModel _viewModel;
@@ -43,6 +49,7 @@ namespace Tricycle.UI.Tests
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         TricycleConfig _tricycleConfig;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
+        JobTemplate _template;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
 
@@ -103,6 +110,7 @@ namespace Tricycle.UI.Tests
             };
             _cropParameters = new CropParameters();
             _fileService = Substitute.For<IFile>();
+            _template = new JobTemplate();
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
@@ -112,6 +120,10 @@ namespace Tricycle.UI.Tests
             _appManager.When(x => x.RaiseFileOpened(Arg.Any<string>()))
                        .Do(x => _appManager.FileOpened += Raise.Event<Action<string>>(x[0]));
             _fileService.Exists(Arg.Any<string>()).Returns(false);
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { DEFAULT_TEMPLATE_NAME, _template }
+            };
         }
 
         #endregion
@@ -1666,6 +1678,259 @@ namespace Tricycle.UI.Tests
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
             Assert.AreEqual("Mono", audioOutput?.SelectedMixdown?.Name);
+        }
+
+        [TestMethod]
+        public void SelectsContainerFormatForTemplate()
+        {
+            var format = ContainerFormat.Mkv;
+
+            _template.Format = format;
+            _templateManager.Config["Other"] = new JobTemplate() { Format = ContainerFormat.Mp4 };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(format), _viewModel.SelectedContainerFormat);
+        }
+
+        [TestMethod]
+        public void SelectsVideoFormatForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            _template.Video = new VideoTemplate { Format = format };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(format), _viewModel.SelectedVideoFormat);
+        }
+
+        [TestMethod]
+        public void SelectsVideoQualityForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            _tricycleConfig.Video.Codecs[format] = new VideoCodec()
+            {
+                QualityRange = new Range<decimal>(22, 18)
+            };
+            _template.Video = new VideoTemplate
+            {
+                Format = format,
+                Quality = 19,
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(0.75, _viewModel.Quality);
+        }
+
+        [TestMethod]
+        public void ChecksHdrForTemplateWhenAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                Format = VideoFormat.Hevc,
+                Hdr = true
+            };
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckHdrForTemplateWhenNotAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                Format = VideoFormat.Hevc,
+                Hdr = true
+            };
+            _videoStream.DynamicRange = DynamicRange.Standard;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsFalse(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void SetsManualCropParametersForTemplate()
+        {
+            _template.Video = new VideoTemplate
+            {
+                ManualCrop = new ManualCropTemplate()
+                {
+                    Top = 8,
+                    Bottom = 12,
+                    Left = 2,
+                    Right = 4
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(CropOption.Manual), _viewModel.SelectedCropOption);
+            Assert.AreEqual(_template.Video.ManualCrop.Top.ToString(), _viewModel.CropTop);
+            Assert.AreEqual(_template.Video.ManualCrop.Bottom.ToString(), _viewModel.CropBottom);
+            Assert.AreEqual(_template.Video.ManualCrop.Left.ToString(), _viewModel.CropLeft);
+            Assert.AreEqual(_template.Video.ManualCrop.Right.ToString(), _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void ChecksCropBarsForTemplateWhenAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                CropBars = true
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckCropBarsForTemplateWhenNotAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                CropBars = true
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsFalse(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void SelectsSizeForTemplate()
+        {
+            var size = "1080p";
+
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { size, _videoStream.Dimensions }
+            };
+            _template.Video = new VideoTemplate { SizePreset = size };
+            
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(_videoStream.Dimensions), _viewModel.SelectedSize);
+        }
+
+        [TestMethod]
+        public void SelectsNextBestSizeForTemplate()
+        {
+            var size = "1080p";
+            var expected = new Dimensions(1280, 720);
+
+            _videoStream.Dimensions = new Dimensions(1422, 800);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { size, new Dimensions(1920, 1080) },
+                { "720p",  expected }
+            };
+            _template.Video = new VideoTemplate { SizePreset = size };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(expected), _viewModel.SelectedSize);
+        }
+
+        [TestMethod]
+        public void SelectsAspectRatioForTemplate()
+        {
+            var name = "16:9";
+            var dimensions = new Dimensions(16, 9);
+
+            _videoStream.Dimensions = new Dimensions(1920, 800);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { name, dimensions }
+            };
+            _template.Video = new VideoTemplate { AspectRatioPreset = name };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(dimensions), _viewModel.SelectedAspectRatio);
+        }
+
+        [TestMethod]
+        public void SelectsNextBestAspectRatioForTemplate()
+        {
+            var name = "16:9";
+            var dimensions = new Dimensions(4, 3);
+
+            _videoStream.Dimensions = new Dimensions(1440, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = _videoStream.Dimensions;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { name, new Dimensions(16, 9) },
+                { "4:3", dimensions }
+            };
+            _template.Video = new VideoTemplate { AspectRatioPreset = name };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(dimensions), _viewModel.SelectedAspectRatio);
+        }
+
+        [TestMethod]
+        public void ChecksDenoiseForTemplate()
+        {
+            _template.Video = new VideoTemplate { Denoise = true };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsDenoiseChecked);
+        }
+
+        [TestMethod]
+        public void SelectsSubtitleForTemplate()
+        {
+            var language = "eng";
+            var stream = new SubtitleStreamInfo() { Index = 3, Language = language };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new SubtitleStreamInfo() { Index = 2, Language = "spa" },
+                stream
+            };
+            _template.Subtitles = new SubtitleTemplate() { Language = language };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(stream), _viewModel.SelectedSubtitle);
+        }
+
+        [TestMethod]
+        public void ChecksForcedSubtitlesForTemplate()
+        {
+            _tricycleConfig.ForcedSubtitlesOnly = false;
+            _template.Subtitles = new SubtitleTemplate() { ForcedOnly = true };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsForcedSubtitlesChecked);
         }
 
         [TestMethod]
@@ -3275,6 +3540,16 @@ namespace Tricycle.UI.Tests
         void Stop()
         {
             _viewModel.StartCommand.Execute(null);
+        }
+
+        void ApplyTemplate()
+        {
+            ApplyTemplate(DEFAULT_TEMPLATE_NAME);
+        }
+
+        void ApplyTemplate(string name)
+        {
+            _appManager.TemplateApplied += Raise.Event<Action<string>>(name);
         }
 
         #endregion
