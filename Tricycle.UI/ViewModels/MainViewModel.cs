@@ -1697,7 +1697,7 @@ namespace Tricycle.UI.ViewModels
 
                 var tracks = tracksByLanguage.GetValueOrDefault(template.Language);
 
-                if (!tracks.Any())
+                if (tracks?.Any() != true)
                 {
                     continue;
                 }

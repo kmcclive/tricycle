@@ -1934,6 +1934,319 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ClearsAudioForTemplate()
+        {
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(1, _viewModel.AudioOutputs?.Count);
+        }
+
+        [TestMethod]
+        public void AddsMatchingAudioOutputForTemplate()
+        {
+            var audioTemplate = new AudioTemplate()
+            {
+                Format = AudioFormat.Aac,
+                Language = "eng",
+                Mixdown = AudioMixdown.Stereo,
+                RelativeIndex = 1
+            };
+            var stream = new AudioStreamInfo()
+            {
+                Index = 3,
+                Language = audioTemplate.Language,
+                FormatName = "ac-3",
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    audioTemplate.Format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = audioTemplate.Mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                audioTemplate
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(audioTemplate.Format), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(audioTemplate.Mixdown), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void AddsNextBestAudioOutputForTemplate()
+        {
+            var audioTemplate = new AudioTemplate()
+            {
+                Format = AudioFormat.Aac,
+                Language = "eng",
+                Mixdown = AudioMixdown.Stereo,
+                RelativeIndex = 1
+            };
+            var stream = new AudioStreamInfo()
+            {
+                Index = 2,
+                Language = audioTemplate.Language,
+                FormatName = "ac-3",
+                ChannelCount = 1
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    audioTemplate.Format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Mono },
+                            new AudioPreset() { Mixdown = audioTemplate.Mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                audioTemplate
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(audioTemplate.Format), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Mono), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void AddsMultipleAudioOutputsForTemplate()
+        {
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                },
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 3,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                }
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Surround5dot1,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 1
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "spa",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(5, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[1]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[1];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[1]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Ac3), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Surround5dot1), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[2];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[3]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[3];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[2]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void RemovesDuplicateAudioOutputsForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo },
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Surround5dot1,
+                    RelativeIndex = 0
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Ac3), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+        }
+
+        [TestMethod]
         public void CallsTranscoderStartForStartCommand()
         {
             SelectSource();
