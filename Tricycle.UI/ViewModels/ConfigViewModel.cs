@@ -8,6 +8,7 @@ using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -34,6 +35,7 @@ namespace Tricycle.UI.ViewModels
 
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         IAppManager _appManager;
         IDevice _device;
 
@@ -42,6 +44,7 @@ namespace Tricycle.UI.ViewModels
         bool _preferForcedSubtitles;
         string _mp4FileExtension;
         string _mkvFileExtension;
+        IList<TemplateViewModel> _templates = new ObservableCollection<TemplateViewModel>();
         IList<ListItem> _deinterlaceSwitchOptions;
         ListItem _selectedDeinterlaceSwitchOption;
         string _sizeDivisor;
@@ -73,11 +76,13 @@ namespace Tricycle.UI.ViewModels
 
         public ConfigViewModel(IConfigManager<TricycleConfig> tricycleConfigManager,
                                IConfigManager<FFmpegConfig> ffmpegConfigManager,
+                               IConfigManager<Dictionary<string, JobTemplate>> templateManager,
                                IAppManager appManager,
                                IDevice device)
         {
             _tricycleConfigManager = tricycleConfigManager;
             _ffmpegConfigManager = ffmpegConfigManager;
+            _templateManager = templateManager;
             _appManager = appManager;
             _device = device;
             _deinterlaceSwitchOptions = Enum.GetValues(typeof(SmartSwitchOption))
@@ -150,6 +155,12 @@ namespace Tricycle.UI.ViewModels
         {
             get => _mkvFileExtension;
             set => SetProperty(ref _mkvFileExtension, value);
+        }
+
+        public IList<TemplateViewModel> Templates
+        {
+            get => _templates;
+            set => SetProperty(ref _templates, value);
         }
 
         public IList<ListItem> DeinterlaceSwitchOptions
@@ -281,6 +292,7 @@ namespace Tricycle.UI.ViewModels
 
             Load(_tricycleConfigManager.Config);
             Load(_ffmpegConfigManager.Config);
+            Load(_templateManager.Config);
 
             _isLoading = false;
         }
@@ -385,6 +397,16 @@ namespace Tricycle.UI.ViewModels
             TonemapOptions = config.Video?.TonemapOptions;
         }
 
+        void Load(Dictionary<string, JobTemplate> templates)
+        {
+            Templates.Clear();
+
+            foreach (var template in templates)
+            {
+                Templates.Add(GetTemplateViewModel(template));
+            }
+        }
+
         QualityScaleViewModel GetQualityScale(TricycleVideoCodec codec)
         {
             var result = new QualityScaleViewModel()
@@ -443,13 +465,25 @@ namespace Tricycle.UI.ViewModels
             return new ListItem(AudioUtility.GetMixdownName(mixdown), mixdown);
         }
 
+        TemplateViewModel GetTemplateViewModel(KeyValuePair<string, JobTemplate> template)
+        {
+            var result = new TemplateViewModel(template.Key);
+
+            result.Modified += () => OnTemplateModified(result);
+            result.Removed += () => OnTemplateRemoved(result);
+
+            return result;
+        }
+
         void Save()
         {
             _tricycleConfigManager.Config = GenerateTricycleConfig();
             _ffmpegConfigManager.Config = GenerateFFmpegConfig();
+            _templateManager.Config = GenerateTemplates();
 
             _tricycleConfigManager.Save();
             _ffmpegConfigManager.Save();
+            _templateManager.Save();
         }
 
         TricycleConfig GenerateTricycleConfig()
@@ -638,6 +672,28 @@ namespace Tricycle.UI.ViewModels
             };
         }
 
+        Dictionary<string, JobTemplate> GenerateTemplates()
+        {
+            var result = new Dictionary<string, JobTemplate>();
+
+            foreach (var viewModel in Templates)
+            {
+                if (string.IsNullOrWhiteSpace(viewModel.NewName) || string.IsNullOrWhiteSpace(viewModel.OldName))
+                {
+                    continue;
+                }
+
+                var template = _templateManager.Config.GetValueOrDefault(viewModel.OldName);
+
+                if (template != null)
+                {
+                    result[viewModel.NewName] = template;
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Event Handlers
@@ -692,6 +748,24 @@ namespace Tricycle.UI.ViewModels
 
             preset.ClearHandlers();
             presets.Remove(preset);
+        }
+
+        void OnTemplateModified(TemplateViewModel template)
+        {
+            if (_isLoading)
+            {
+                return;
+            }
+
+            _isDirty = true;
+        }
+
+        void OnTemplateRemoved(TemplateViewModel template)
+        {
+            _isDirty = true;
+
+            template.ClearHandlers();
+            Templates.Remove(template);
         }
 
         void OnAppQuitting()
