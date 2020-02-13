@@ -401,7 +401,7 @@ namespace Tricycle.UI.ViewModels
         {
             Templates.Clear();
 
-            foreach (var template in templates)
+            foreach (var template in templates.OrderBy(t => t.Key))
             {
                 Templates.Add(GetTemplateViewModel(template));
             }
