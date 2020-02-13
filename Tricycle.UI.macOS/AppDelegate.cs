@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using AppKit;
 using CoreGraphics;
 using Foundation;
@@ -101,6 +102,8 @@ namespace Tricycle.UI.macOS
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
             _templateManager.Load();
+
+            _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
             var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
@@ -261,7 +264,7 @@ namespace Tricycle.UI.macOS
 
                         if (!overwrite)
                         {
-                            MainWindow.Menu.ItemWithTitle("Templates").Submenu.AddItem(CreateTemplateMenuItem(name));
+                            PopulateTemplateMenu();
                         }
                     }
                 }
@@ -320,7 +323,13 @@ namespace Tricycle.UI.macOS
         {
             var menu = MainWindow.Menu.ItemWithTitle("Templates").Submenu;
 
-            foreach (var name in _templateManager.Config.Keys)
+            // There are 3 items that are static
+            for (int i = menu.Items.Length - 1; i > 2; i--)
+            {
+                menu.RemoveItemAt(i);
+            }
+
+            foreach (var name in _templateManager.Config.Keys.OrderBy(k => k))
             {
                 menu.AddItem(CreateTemplateMenuItem(name));
             }

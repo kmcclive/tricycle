@@ -48,6 +48,7 @@
                                     <Entry Text="{Binding NewName}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"
                                                           Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="1"
                                                           Grid.Row="0" />
                                 </Grid>

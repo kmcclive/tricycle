@@ -117,6 +117,7 @@
                                                        Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"
                                                           Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="4"
                                                           Grid.Row="0" />
                                 </Grid>
@@ -179,6 +180,7 @@
                                                        Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"
                                                           Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="4"
                                                           Grid.Row="0" />
                                 </Grid>

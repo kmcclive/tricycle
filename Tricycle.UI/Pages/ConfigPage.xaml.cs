@@ -42,7 +42,6 @@ namespace Tricycle.UI.Pages
             vwSections.SelectedItem = selectedSection;
 
             SelectSection(selectedSection);
-            _viewModel.Initialize();
 
             vwSections.ItemSelected += OnSectionSelected;
         }
@@ -51,6 +50,8 @@ namespace Tricycle.UI.Pages
         {
             base.OnAppearing();
 
+            SelectSection(Section.General);
+            _viewModel.Initialize();
             _viewModel.IsPageVisible = true;
         }
 
