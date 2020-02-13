@@ -30,8 +30,8 @@
                           ItemsSource="{Binding Templates}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="195" />
-                            <On Platform="WPF" Value="270" />
+                            <On Platform="macOS" Value="215" />
+                            <On Platform="WPF" Value="300" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Header>
@@ -41,6 +41,12 @@
                         <DataTemplate>
                             <ViewCell>
                                 <Grid Padding="5, 1, 7, 5">
+                                    <Grid.HeightRequest>
+                                        <OnPlatform x:TypeArguments="x:Double">
+                                            <On Platform="macOS" Value="28" />
+                                            <On Platform="WPF" Value="40" />
+                                        </OnPlatform>
+                                    </Grid.HeightRequest>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
