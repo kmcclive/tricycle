@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -18,6 +19,7 @@ using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Templates;
 using Tricycle.Utilities;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WPF;
@@ -39,9 +41,12 @@ namespace Tricycle.UI.Windows
         static readonly Thickness MENU_BORDER_THICKNESS = new Thickness(0);
 
         IAppManager _appManager;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         MenuItem _previewItem;
+        MenuItem _saveTemplateItem;
+        MenuItem _manageTemplatesItem;
 
         public MainWindow()
         {
@@ -137,6 +142,21 @@ namespace Tricycle.UI.Windows
             _optionsItem.Click += OnOptionsClick;
             toolsItem.Items.Add(_optionsItem);
 
+            var templatesItem = CreateMenuItem("T_emplates");
+
+            menu.Items.Add(templatesItem);
+
+            _saveTemplateItem = CreateMenuItem("_Save As…");
+            _saveTemplateItem.IsEnabled = false;
+
+            _saveTemplateItem.Click += OnSaveTemplateClick;
+            templatesItem.Items.Add(_saveTemplateItem);
+
+            _manageTemplatesItem = CreateMenuItem("_Manage…");
+
+            _manageTemplatesItem.Click += OnOptionsClick;
+            templatesItem.Items.Add(_manageTemplatesItem);
+
             var helpItem = CreateMenuItem("_Help");
 
             menu.Items.Add(helpItem);
@@ -145,6 +165,11 @@ namespace Tricycle.UI.Windows
 
             aboutItem.Click += OnAboutClick;
             helpItem.Items.Add(aboutItem);
+        }
+
+        void PopulateTemplateMenu()
+        {
+
         }
 
         MenuItem CreateMenuItem(string header)
@@ -161,6 +186,7 @@ namespace Tricycle.UI.Windows
         {
             const string FFMPEG_CONFIG_NAME = "ffmpeg.json";
             const string TRICYCLE_CONFIG_NAME = "tricycle.json";
+            const string TEMPLATE_CONFIG_NAME = "templates.json";
 
             string appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             string assetsPath = Path.Combine(appPath, "Assets");
@@ -180,9 +206,17 @@ namespace Tricycle.UI.Windows
                 new JsonConfigManager<TricycleConfig>(fileSystem,
                                                       Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
                                                       Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
+            _templateManager =
+                new JsonConfigManager<Dictionary<string, JobTemplate>>(
+                    fileSystem,
+                    Path.Combine(defaultConfigPath, TEMPLATE_CONFIG_NAME),
+                    Path.Combine(userConfigPath, TEMPLATE_CONFIG_NAME));
 
             ffmpegConfigManager.Load();
             tricycleConfigManager.Load();
+            _templateManager.Load();
+
+            _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
             var asm = Assembly.GetExecutingAssembly();
@@ -193,6 +227,7 @@ namespace Tricycle.UI.Windows
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
+                _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(_templateManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe.exe"),
@@ -223,16 +258,35 @@ namespace Tricycle.UI.Windows
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
         }
 
+        string GetNewTemplateName()
+        {
+            var templates = _templateManager.Config;
+            int i = 0;
+            string result;
+
+            do
+            {
+                string suffix = i > 0 ? $" {i}" : string.Empty;
+                result = $"New Template{suffix}";
+                i++;
+            }
+            while (templates.ContainsKey(result));
+
+            return result;
+        }
+
         void OnBusyChange()
         {
             _openFileItem.IsEnabled = !_appManager.IsBusy;
             _optionsItem.IsEnabled = !_appManager.IsBusy;
+            _manageTemplatesItem.IsEnabled = !_appManager.IsBusy;
             _previewItem.IsEnabled = !_appManager.IsBusy && _appManager.IsValidSourceSelected;
         }
 
         void OnSourceSelected(bool isValid)
         {
             _previewItem.IsEnabled = isValid && !_appManager.IsBusy;
+            _saveTemplateItem.IsEnabled = _previewItem.IsEnabled;
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
@@ -264,6 +318,11 @@ namespace Tricycle.UI.Windows
         void OnPreviewClick(object sender, RoutedEventArgs e)
         {
             _appManager.RaiseModalOpened(Modal.Preview);
+        }
+
+        void OnSaveTemplateClick(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
