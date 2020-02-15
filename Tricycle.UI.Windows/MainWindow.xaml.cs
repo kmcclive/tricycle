@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -45,6 +46,7 @@ namespace Tricycle.UI.Windows
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         MenuItem _previewItem;
+        MenuItem _templatesItem;
         MenuItem _saveTemplateItem;
         MenuItem _manageTemplatesItem;
 
@@ -142,20 +144,23 @@ namespace Tricycle.UI.Windows
             _optionsItem.Click += OnOptionsClick;
             toolsItem.Items.Add(_optionsItem);
 
-            var templatesItem = CreateMenuItem("T_emplates");
+            _templatesItem = CreateMenuItem("Temp_lates");
 
-            menu.Items.Add(templatesItem);
+            menu.Items.Add(_templatesItem);
 
             _saveTemplateItem = CreateMenuItem("_Save As…");
             _saveTemplateItem.IsEnabled = false;
 
             _saveTemplateItem.Click += OnSaveTemplateClick;
-            templatesItem.Items.Add(_saveTemplateItem);
+            _templatesItem.Items.Add(_saveTemplateItem);
 
             _manageTemplatesItem = CreateMenuItem("_Manage…");
 
             _manageTemplatesItem.Click += OnOptionsClick;
-            templatesItem.Items.Add(_manageTemplatesItem);
+            _templatesItem.Items.Add(_manageTemplatesItem);
+            _templatesItem.Items.Add(new Separator());
+
+            PopulateTemplateMenu();
 
             var helpItem = CreateMenuItem("_Help");
 
@@ -169,7 +174,25 @@ namespace Tricycle.UI.Windows
 
         void PopulateTemplateMenu()
         {
+            // There are 3 items that are static
+            for (int i = _templatesItem.Items.Count - 1; i > 2; i--)
+            {
+                _templatesItem.Items.RemoveAt(i);
+            }
 
+            foreach (var name in _templateManager.Config.Keys.OrderBy(k => k))
+            {
+                _templatesItem.Items.Add(CreateTemplateMenuItem(name));
+            }
+        }
+
+        MenuItem CreateTemplateMenuItem(string name)
+        {
+            var result = CreateMenuItem(name);
+
+            result.Click += (s, e) => _appManager.RaiseTemplateApplied(name);
+
+            return result;
         }
 
         MenuItem CreateMenuItem(string header)
@@ -180,6 +203,15 @@ namespace Tricycle.UI.Windows
                 BorderThickness = MENU_BORDER_THICKNESS,
                 Header = header
             };
+        }
+
+        void ToggleTemplateMenuItems(bool isEnabled)
+        {
+            // There are 3 items that are static
+            for (int i = _templatesItem.Items.Count - 1; i > 2; i--)
+            {
+                ((MenuItem)_templatesItem.Items[i]).IsEnabled = isEnabled;
+            }
         }
 
         void InitializeAppState()
@@ -281,12 +313,16 @@ namespace Tricycle.UI.Windows
             _optionsItem.IsEnabled = !_appManager.IsBusy;
             _manageTemplatesItem.IsEnabled = !_appManager.IsBusy;
             _previewItem.IsEnabled = !_appManager.IsBusy && _appManager.IsValidSourceSelected;
+
+            ToggleTemplateMenuItems(_previewItem.IsEnabled);
         }
 
         void OnSourceSelected(bool isValid)
         {
             _previewItem.IsEnabled = isValid && !_appManager.IsBusy;
             _saveTemplateItem.IsEnabled = _previewItem.IsEnabled;
+
+            ToggleTemplateMenuItems(_previewItem.IsEnabled);
         }
 
         void OnOpenFileClick(object sender, RoutedEventArgs e)
@@ -322,7 +358,41 @@ namespace Tricycle.UI.Windows
 
         void OnSaveTemplateClick(object sender, RoutedEventArgs e)
         {
-            
+            var window = new InputWindow()
+            {
+                Owner = this,
+                Title = "Save Template",
+                Message = "Please enter a name for the template:",
+                Value = GetNewTemplateName(),
+                IsValueRequired = true
+            };
+
+            if (window.ShowDialog() == true)
+            {
+                string name = window.Value;
+                bool overwrite = false;
+
+                if (_templateManager.Config?.ContainsKey(name) == true)
+                {
+                    overwrite = MessageBox.Show(this,
+                                                "A template with that name exists. Would you like to overwrite it?",
+                                                "Overwrite Template",
+                                                MessageBoxButton.OKCancel,
+                                                MessageBoxImage.Warning) == MessageBoxResult.OK;
+
+                    if (!overwrite)
+                    {
+                        return;
+                    }
+                }
+
+                _appManager.RaiseTemplateSaved(name);
+
+                if (!overwrite)
+                {
+                    PopulateTemplateMenu();
+                }
+            }
         }
     }
 }
