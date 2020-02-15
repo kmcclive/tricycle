@@ -161,6 +161,7 @@ namespace Tricycle.UI.Windows
             _templatesItem.Items.Add(new Separator());
 
             PopulateTemplateMenu();
+            ToggleTemplateMenuItems(false);
 
             var helpItem = CreateMenuItem("_Help");
 

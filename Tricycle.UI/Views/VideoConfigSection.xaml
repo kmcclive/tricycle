@@ -7,7 +7,7 @@
         <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
         <OnPlatform x:Key="PresetRowHeight" x:TypeArguments="x:Double">
             <On Platform="macOS" Value="28" />
-            <On Platform="WPF" Value="40" />
+            <On Platform="WPF" Value="32" />
         </OnPlatform>
     </ContentView.Resources>
     <StackLayout>

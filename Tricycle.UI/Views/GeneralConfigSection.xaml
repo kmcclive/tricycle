@@ -40,11 +40,11 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="5, 1, 7, 5">
+                                <Grid Padding="5, 1, 7, 5" HorizontalOptions="FillAndExpand">
                                     <Grid.HeightRequest>
                                         <OnPlatform x:TypeArguments="x:Double">
                                             <On Platform="macOS" Value="28" />
-                                            <On Platform="WPF" Value="40" />
+                                            <On Platform="WPF" Value="32" />
                                         </OnPlatform>
                                     </Grid.HeightRequest>
                                     <Grid.ColumnDefinitions>
