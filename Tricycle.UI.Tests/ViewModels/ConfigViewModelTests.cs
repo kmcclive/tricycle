@@ -1121,7 +1121,7 @@ namespace Tricycle.UI.Tests.ViewModels
                 Assert.Inconclusive("The templates were not populated.");
             }
 
-            _viewModel.Templates[1].NewName = "Mobile";
+            _viewModel.Templates[1].NewName = " Mobile ";
             _viewModel.Templates[2].RemoveCommand.Execute(null);
             _viewModel.Close();
 

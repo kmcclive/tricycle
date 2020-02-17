@@ -239,7 +239,7 @@ namespace Tricycle.UI.macOS
 
                     if (result == OK)
                     {
-                        name = input.StringValue;
+                        name = input.StringValue.Trim();
 
                         bool overwrite = false;
 

@@ -687,7 +687,7 @@ namespace Tricycle.UI.ViewModels
 
                 if (template != null)
                 {
-                    result[viewModel.NewName] = template;
+                    result[viewModel.NewName.Trim()] = template;
                 }
             }
 
