@@ -370,7 +370,7 @@ namespace Tricycle.UI.Windows
 
             if (window.ShowDialog() == true)
             {
-                string name = window.Value;
+                string name = window.Value.Trim();
                 bool overwrite = false;
 
                 if (_templateManager.Config?.ContainsKey(name) == true)
