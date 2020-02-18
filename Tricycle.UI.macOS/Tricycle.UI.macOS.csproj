@@ -151,6 +151,7 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="AppDocumentController.cs" />
     <Compile Include="Renderers\GradientStackLayoutRenderer.cs" />
+    <Compile Include="AppManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />

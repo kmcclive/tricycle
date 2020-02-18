@@ -27,6 +27,9 @@ namespace Tricycle.UI
         event Action<string> TemplateSaved;
         event Action<string> TemplateApplied;
 
+        void Alert(string title, string message);
+        bool Confirm(string title, string message);
+        string Ask(string title, string message, string defaultValue);
         void RaiseReady();
         void RaiseBusy();
         void RaiseFileOpened(string fileName);
