@@ -22,8 +22,6 @@ namespace Tricycle.UI.Pages
                 appManager,
                 AppState.IocContainer.GetInstance<IDevice>());
 
-            _viewModel.Alert += (title, message) => DisplayAlert(title, message, "OK");
-
             BindingContext = _viewModel;
         }
 

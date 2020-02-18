@@ -14,6 +14,11 @@ namespace Tricycle.UI.Tests
                 throw new NotImplementedException();
             }
 
+            public override string Ask(string title, string message, string defaultValue)
+            {
+                throw new NotImplementedException();
+            }
+
             public override bool Confirm(string title, string message)
             {
                 throw new NotImplementedException();

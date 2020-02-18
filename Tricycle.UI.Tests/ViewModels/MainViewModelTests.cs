@@ -247,37 +247,19 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysAlertWhenSourceInfoIsNull()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
             SelectSource();
 
-            Assert.AreEqual("Invalid Source", actualTitle);
-            Assert.AreEqual("The selected file could not be opened.", actualMessage);
+            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.");
         }
 
         [TestMethod]
         public void DisplaysAlertWhenSourceHasNoVideo()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
             _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
             SelectSource();
 
-            Assert.AreEqual("Invalid Source", actualTitle);
-            Assert.AreEqual("The selected file could not be opened.", actualMessage);
+            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.");
         }
 
         [TestMethod]
@@ -3136,6 +3118,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysCorrectButtonImageWhenStopped()
         {
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             Stop();
@@ -3181,6 +3164,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void EnablesControlsWhenStopped()
         {
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             Stop();
@@ -3229,42 +3213,25 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysAlertWhenJobFailsToStart()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
             _mediaTranscoder.When(x => x.Start(Arg.Any<TranscodeJob>()))
                             .Do(x => throw new NotSupportedException());
             SelectSource();
             Start();
 
-            Assert.AreEqual("Job Error", actualTitle);
-            Assert.AreEqual(@"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯", actualMessage);
+            _appManager.Received().Alert("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
         }
 
         [TestMethod]
         public void DisplaysAlertWhenJobFailsToStop()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             _mediaTranscoder.When(x => x.Stop())
                             .Do(x => throw new NotSupportedException());
             SelectSource();
             Start();
             Stop();
 
-            Assert.AreEqual("Job Error", actualTitle);
-            Assert.AreEqual(@"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯", actualMessage);
+            _appManager.Received().Alert("Job Error", @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯");
         }
 
         [TestMethod]
@@ -3381,6 +3348,7 @@ namespace Tricycle.UI.Tests
 
             SelectSource();
             Start();
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             Stop();
 
@@ -3432,6 +3400,7 @@ namespace Tricycle.UI.Tests
 
             SelectSource();
             Start();
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             _mediaTranscoder.StatusChanged += Raise.Event<Action<TranscodeStatus>>(status);
             Stop();
 
@@ -3450,6 +3419,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void HidesSpinnerWhenJobIsStopped()
         {
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             Stop();
@@ -3480,6 +3450,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void CallsTranscodeStopForStartCommandWhenRunning()
         {
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             Stop();
@@ -3494,6 +3465,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             _fileService.Exists(_viewModel.DestinationName).Returns(true);
             Start();
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             Stop();
 
             _fileService.Received().Delete(_viewModel.DestinationName);
@@ -3544,85 +3516,52 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DisplaysAlertWhenJobFails()
         {
-            string actualTitle = null;
-            string actualMessage = null;
             string expectedMessage = "Encountered bad sector";
 
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
             SelectSource();
             Start();
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(expectedMessage);
 
-            Assert.AreEqual("Transcode Failed", actualTitle);
-            Assert.AreEqual(expectedMessage, actualMessage);
+            _appManager.Received().Alert("Transcode Failed", expectedMessage);
         }
 
         [TestMethod]
         public void DisplaysAlertWhenJobCompletes()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
             _tricycleConfig.CompletionAlert = true;
-            _viewModel.Alert += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-            };
             SelectSource();
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.AreEqual("Transcode Complete", actualTitle);
-            Assert.AreEqual("Good news! Your shiny, new video is ready.", actualMessage);
+            _appManager.Received().Alert("Transcode Complete", "Good news! Your shiny, new video is ready.");
         }
 
         [TestMethod]
         public void DoesNotDisplayAlertWhenJobCompletesIfDisabled()
         {
-            bool alerted = false;
-
             _tricycleConfig.CompletionAlert = false;
-            _viewModel.Alert += (title, message) =>
-            {
-                alerted = true;
-            };
             SelectSource();
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            Assert.IsFalse(alerted);
+            _appManager.DidNotReceive().Alert(Arg.Any<string>(), Arg.Any<string>());
         }
 
         [TestMethod]
         public void ConfirmsBeforeJobIsStopped()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
-            _viewModel.Confirm += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-
-                return Task.FromResult(false);
-            };
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
             SelectSource();
             Start();
             Stop();
 
-            Assert.AreEqual("Stop Transcode", actualTitle);
-            Assert.AreEqual(@"Whoa... Are you sure you want to stop and lose your progress?", actualMessage);
+            _appManager.Received().Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
         }
 
         [TestMethod]
         public void StopsTranscodeWhenJobIsStoppedAndConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             Stop();
@@ -3633,7 +3572,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DoesNotStopTranscodeWhenJobIsStoppedButNotConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
             SelectSource();
             Start();
             Stop();
@@ -3644,28 +3583,18 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void ConfirmsWhenJobIsRunningAndAppIsQuit()
         {
-            string actualTitle = null;
-            string actualMessage = null;
-
-            _viewModel.Confirm += (title, message) =>
-            {
-                actualTitle = title;
-                actualMessage = message;
-
-                return Task.FromResult(false);
-            };
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
             SelectSource();
             Start();
             _appManager.Quitting += Raise.Event<Action>();
 
-            Assert.AreEqual("Stop Transcode", actualTitle);
-            Assert.AreEqual(@"Whoa... Are you sure you want to stop and lose your progress?", actualMessage);
+            _appManager.Received().Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
         }
 
         [TestMethod]
         public void StopsTranscodeWhenAppIsQuitAndConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             _appManager.Quitting += Raise.Event<Action>();
@@ -3676,7 +3605,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DoesNotStopTranscodeWhenAppIsQuitButNotConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
             SelectSource();
             Start();
             _appManager.Quitting += Raise.Event<Action>();
@@ -3687,7 +3616,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void CallsRaiseQuitConfirmedWhenAppIsQuitAndConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(true);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             SelectSource();
             Start();
             _appManager.Quitting += Raise.Event<Action>();
@@ -3698,7 +3627,7 @@ namespace Tricycle.UI.Tests
         [TestMethod]
         public void DoesNotCallRaiseQuitConfirmedWhenAppIsQuitButNotConfirmed()
         {
-            _viewModel.Confirm += (title, message) => Task.FromResult(false);
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
             SelectSource();
             Start();
             _appManager.Quitting += Raise.Event<Action>();
@@ -3769,6 +3698,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             Start();
             _appManager.ClearReceivedCalls();
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
             Stop();
 
             _appManager.Received().RaiseReady();
