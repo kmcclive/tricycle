@@ -250,7 +250,7 @@ namespace Tricycle.UI.Tests
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(default(MediaInfo));
             SelectSource();
 
-            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.");
+            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.", Severity.Warning);
         }
 
         [TestMethod]
@@ -259,7 +259,7 @@ namespace Tricycle.UI.Tests
             _mediaInfo.Streams = new StreamInfo[] { new AudioStreamInfo() };
             SelectSource();
 
-            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.");
+            _appManager.Received().Alert("Invalid Source", "The selected file could not be opened.", Severity.Warning);
         }
 
         [TestMethod]
@@ -3218,7 +3218,9 @@ namespace Tricycle.UI.Tests
             SelectSource();
             Start();
 
-            _appManager.Received().Alert("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
+            _appManager.Received().Alert("Job Error",
+                                         @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯",
+                                         Severity.Warning);
         }
 
         [TestMethod]
@@ -3231,7 +3233,9 @@ namespace Tricycle.UI.Tests
             Start();
             Stop();
 
-            _appManager.Received().Alert("Job Error", @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯");
+            _appManager.Received().Alert("Job Error",
+                                         @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯",
+                                         Severity.Warning);
         }
 
         [TestMethod]
@@ -3522,7 +3526,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Failed += Raise.Event<Action<string>>(expectedMessage);
 
-            _appManager.Received().Alert("Transcode Failed", expectedMessage);
+            _appManager.Received().Alert("Transcode Failed", expectedMessage, Severity.Warning);
         }
 
         [TestMethod]
@@ -3533,7 +3537,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            _appManager.Received().Alert("Transcode Complete", "Good news! Your shiny, new video is ready.");
+            _appManager.Received().Alert("Transcode Complete", "Good news! Your shiny, new video is ready.", Severity.Info);
         }
 
         [TestMethod]
@@ -3544,7 +3548,7 @@ namespace Tricycle.UI.Tests
             Start();
             _mediaTranscoder.Completed += Raise.Event<Action>();
 
-            _appManager.DidNotReceive().Alert(Arg.Any<string>(), Arg.Any<string>());
+            _appManager.DidNotReceive().Alert(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Severity>());
         }
 
         [TestMethod]

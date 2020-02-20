@@ -729,7 +729,7 @@ namespace Tricycle.UI.ViewModels
             }
             else
             {
-                _appManager.Alert("Invalid Source", "The selected file could not be opened.");
+                _appManager.Alert("Invalid Source", "The selected file could not be opened.", Severity.Warning);
 
                 _isSourceSelectionEnabled = true;
                 _isStartEnabled = false;
@@ -1154,7 +1154,9 @@ namespace Tricycle.UI.ViewModels
 
             if (!success)
             {
-                _appManager.Alert("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
+                _appManager.Alert("Job Error",
+                                  @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯",
+                                  Severity.Warning);
                 IsSpinnerVisible = false;
                 Status = string.Empty;
             }
@@ -1189,7 +1191,9 @@ namespace Tricycle.UI.ViewModels
 
             if (!success)
             {
-                _appManager.Alert("Job Error", @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯");
+                _appManager.Alert("Job Error",
+                                  @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯",
+                                  Severity.Warning);
             }
         }
 
@@ -1938,7 +1942,7 @@ namespace Tricycle.UI.ViewModels
             {
                 if (_tricycleConfig.CompletionAlert)
                 {
-                    _appManager.Alert("Transcode Complete", "Good news! Your shiny, new video is ready.");
+                    _appManager.Alert("Transcode Complete", "Good news! Your shiny, new video is ready.", Severity.Info);
                 }
 
                 ResetJobState();
@@ -1950,7 +1954,7 @@ namespace Tricycle.UI.ViewModels
         {
             _device.BeginInvokeOnMainThread(async () =>
             {
-                _appManager.Alert("Transcode Failed", error);
+                _appManager.Alert("Transcode Failed", error, Severity.Warning);
                 DeleteDestination();
                 ResetJobState();
                 await OpenSource(SourceName);

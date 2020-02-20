@@ -6,7 +6,7 @@ namespace Tricycle.UI.macOS
 {
     public class AppManager : AppManagerBase
     {
-        public override void Alert(string title, string message)
+        public override void Alert(string title, string message, Severity severity)
         {
             using (var alert = NSAlert.WithMessage(title,
                                                    "OK",
@@ -14,6 +14,11 @@ namespace Tricycle.UI.macOS
                                                    null,
                                                    message))
             {
+                if (severity == Severity.Warning)
+                {
+                    alert.Icon = new NSImage("Images/warning.png");
+                }
+
                 alert.RunSheetModal(NSApplication.SharedApplication.MainWindow);
             }
         }

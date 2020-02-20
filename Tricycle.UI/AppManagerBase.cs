@@ -22,7 +22,7 @@ namespace Tricycle.UI
         public event Action<string> TemplateSaved;
         public event Action<string> TemplateApplied;
 
-        public abstract void Alert(string title, string message);
+        public abstract void Alert(string title, string message, Severity severity);
         public abstract bool Confirm(string title, string message);
         public abstract string Ask(string title, string message, string defaultValue);
 

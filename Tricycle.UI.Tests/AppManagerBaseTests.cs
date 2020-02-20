@@ -9,7 +9,7 @@ namespace Tricycle.UI.Tests
     {
         public class MockAppManager : AppManagerBase
         {
-            public override void Alert(string title, string message)
+            public override void Alert(string title, string message, Severity severity)
             {
                 throw new NotImplementedException();
             }

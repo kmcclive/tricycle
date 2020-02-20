@@ -9,6 +9,12 @@ namespace Tricycle.UI
         Preview
     }
 
+    public enum Severity
+    {
+        Info,
+        Warning
+    }
+
     public interface IAppManager
     {
         bool IsBusy { get; }
@@ -27,7 +33,7 @@ namespace Tricycle.UI
         event Action<string> TemplateSaved;
         event Action<string> TemplateApplied;
 
-        void Alert(string title, string message);
+        void Alert(string title, string message, Severity severity);
         bool Confirm(string title, string message);
         string Ask(string title, string message, string defaultValue);
         void RaiseReady();

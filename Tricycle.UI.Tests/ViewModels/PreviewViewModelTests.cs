@@ -297,7 +297,9 @@ namespace Tricycle.UI.Tests.ViewModels
 
             await _viewModel.Load(new TranscodeJob());
 
-            _appManager.Received().Alert("Preview Error", @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯");
+            _appManager.Received().Alert("Preview Error",
+                                         @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯",
+                                         Severity.Warning);
         }
 
         [TestMethod]
