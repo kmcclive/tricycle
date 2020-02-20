@@ -1509,7 +1509,7 @@ namespace Tricycle.UI.ViewModels
                 template.Subtitles = new SubtitleTemplate()
                 {
                     ForcedOnly = IsForcedSubtitlesChecked,
-                    Language = _sourceInfo.Streams.FirstOrDefault(s => s.Index == subtitleStream.Index)?.Language
+                    Language = subtitleStream.Language
                 };
             }
 
@@ -1556,6 +1556,7 @@ namespace Tricycle.UI.ViewModels
             }
 
             var audioStreamsByLanguage = _sourceInfo.Streams.Where(s => s.StreamType == StreamType.Audio)
+                                                            .Where(s => s.Language != null)
                                                             .GroupBy(s => s.Language)
                                                             .ToDictionary(g => g.Key);
 
@@ -1563,7 +1564,7 @@ namespace Tricycle.UI.ViewModels
             {
                 AudioStreamInfo sourceStream = GetStream(viewModel);
 
-                if (sourceStream == null)
+                if (sourceStream?.Language == null)
                 {
                     continue;
                 }
