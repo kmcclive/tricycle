@@ -2466,6 +2466,214 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SavesEmptyAudioTracksForTemplate()
+        {
+            SelectSource();
+
+            SaveTemplate();
+
+            Assert.AreEqual(0, _template?.AudioTracks?.Count);
+        }
+
+        [TestMethod]
+        public void SavesCorrectNumberOfAudioTracksForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 },
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.Count > 1 ? _viewModel.AudioOutputs[1] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedMixdown = new ListItem(AudioMixdown.Stereo);
+
+            SaveTemplate();
+
+            Assert.AreEqual(2, _template?.AudioTracks?.Count);
+        }
+
+        [TestMethod]
+        public void SavesAudioIndexForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 3,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                },
+                stream
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+
+            SaveTemplate();
+
+            Assert.AreEqual(1, _template?.AudioTracks?.FirstOrDefault()?.RelativeIndex);
+        }
+
+        [TestMethod]
+        public void SavesAudioFormatForTemplate()
+        {
+            var format = AudioFormat.Aac;
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedFormat = new ListItem(format);
+
+            SaveTemplate();
+
+            Assert.AreEqual(format, _template?.AudioTracks?.FirstOrDefault()?.Format);
+        }
+
+        [TestMethod]
+        public void SavesAudioMixdownForTemplate()
+        {
+            var format = AudioFormat.Aac;
+            var mixdown = AudioMixdown.Stereo;
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedFormat = new ListItem(format);
+            audioOutput.SelectedMixdown = new ListItem(mixdown);
+
+            SaveTemplate();
+
+            Assert.AreEqual(mixdown, _template?.AudioTracks?.FirstOrDefault()?.Mixdown);
+        }
+
+        [TestMethod]
         public void CallsTranscoderStartForStartCommand()
         {
             SelectSource();
