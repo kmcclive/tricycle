@@ -299,7 +299,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _appManager.Received().Alert("Preview Error",
                                          @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯",
-                                         Severity.Warning);
+                                         Severity.Error);
         }
 
         [TestMethod]

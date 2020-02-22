@@ -3647,7 +3647,7 @@ namespace Tricycle.UI.Tests
 
             _appManager.Received().Alert("Job Error",
                                          @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯",
-                                         Severity.Warning);
+                                         Severity.Error);
         }
 
         [TestMethod]
@@ -3662,7 +3662,7 @@ namespace Tricycle.UI.Tests
 
             _appManager.Received().Alert("Job Error",
                                          @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯",
-                                         Severity.Warning);
+                                         Severity.Error);
         }
 
         [TestMethod]

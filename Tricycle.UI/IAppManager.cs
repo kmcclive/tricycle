@@ -12,7 +12,8 @@ namespace Tricycle.UI
     public enum Severity
     {
         Info,
-        Warning
+        Warning,
+        Error
     }
 
     public interface IAppManager

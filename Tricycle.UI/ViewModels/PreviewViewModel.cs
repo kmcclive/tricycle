@@ -135,7 +135,9 @@ namespace Tricycle.UI.ViewModels
 
                 if (_imageFileNames?.Any() != true)
                 {
-                    _appManager.Alert("Preview Error", @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯", Severity.Warning);
+                    _appManager.Alert("Preview Error",
+                                      @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯",
+                                      Severity.Error);
                 }
             });
         }

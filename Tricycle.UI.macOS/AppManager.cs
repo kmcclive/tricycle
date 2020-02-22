@@ -14,9 +14,14 @@ namespace Tricycle.UI.macOS
                                                    null,
                                                    message))
             {
-                if (severity == Severity.Warning)
+                switch (severity)
                 {
-                    alert.Icon = new NSImage("Images/warning.png");
+                    case Severity.Warning:
+                        alert.Icon = new NSImage("Images/warning.png");
+                        break;
+                    case Severity.Error:
+                        alert.Icon = new NSImage("Images/error.png");
+                        break;
                 }
 
                 alert.RunSheetModal(NSApplication.SharedApplication.MainWindow);
@@ -33,6 +38,8 @@ namespace Tricycle.UI.macOS
                                                    null,
                                                    message))
             {
+                alert.Icon = new NSImage("Images/warning.png");
+
                 return alert.RunSheetModal(NSApplication.SharedApplication.MainWindow) == OK;
             }
         }

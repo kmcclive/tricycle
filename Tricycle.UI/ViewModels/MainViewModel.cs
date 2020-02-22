@@ -1156,7 +1156,7 @@ namespace Tricycle.UI.ViewModels
             {
                 _appManager.Alert("Job Error",
                                   @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯",
-                                  Severity.Warning);
+                                  Severity.Error);
                 IsSpinnerVisible = false;
                 Status = string.Empty;
             }
@@ -1193,7 +1193,7 @@ namespace Tricycle.UI.ViewModels
             {
                 _appManager.Alert("Job Error",
                                   @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯",
-                                  Severity.Warning);
+                                  Severity.Error);
             }
         }
 
