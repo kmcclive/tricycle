@@ -1,6 +1,4 @@
 ﻿using System;
-using Tricycle.UI.Models;
-using Xamarin.Forms;
 
 namespace Tricycle.UI
 {
@@ -21,6 +19,13 @@ namespace Tricycle.UI
         public event Action<Modal> ModalOpened;
         public event Action ModalClosed;
         public event Action<bool> SourceSelected;
+        public event Action<string> TemplateSaved;
+        public event Action<string> TemplateApplied;
+
+        public void RaiseFileOpened(string fileName) => FileOpened?.Invoke(fileName);
+        public void RaiseQuitting() => Quitting?.Invoke();
+        public void RaiseTemplateSaved(string name) => TemplateSaved?.Invoke(name);
+        public void RaiseTemplateApplied(string name) => TemplateApplied?.Invoke(name);
 
         public void RaiseReady()
         {
@@ -33,9 +38,6 @@ namespace Tricycle.UI
             IsBusy = true;
             Busy?.Invoke();
         }
-
-        public void RaiseFileOpened(string fileName) => FileOpened?.Invoke(fileName);
-        public void RaiseQuitting() => Quitting?.Invoke();
 
         public void RaiseQuitConfirmed()
         {

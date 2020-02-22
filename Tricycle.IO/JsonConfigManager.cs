@@ -14,7 +14,13 @@ namespace Tricycle.IO
         static readonly JsonSerializerSettings SERIALIZER_SETTINGS = new JsonSerializerSettings
         {
             Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            ContractResolver = new DefaultContractResolver()
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+                {
+                    ProcessDictionaryKeys = false
+                }
+            },
             Formatting = Formatting.Indented
         };
 

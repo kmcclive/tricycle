@@ -1,21 +1,68 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Views.GeneralConfigSection">
-    <Grid ColumnSpacing="10" RowSpacing="20">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="75" />
-        </Grid.ColumnDefinitions>
-        <Label Text="Show alert on completion" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
-        <Switch IsToggled="{Binding AlertOnCompletion}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
-        <Label Text="Delete incomplete files" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
-        <Switch IsToggled="{Binding DeleteIncompleteFiles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
-        <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
-        <Switch IsToggled="{Binding PreferForcedSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="2" />
-        <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-        <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="3" />
-        <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-        <Entry Text="{Binding MkvFileExtension}" Grid.Column="1" Grid.Row="4" />
-    </Grid>
+    <StackLayout>
+        <Grid ColumnSpacing="10" RowSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="75" />
+            </Grid.ColumnDefinitions>
+            <Label Text="Show alert on completion" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+            <Switch IsToggled="{Binding AlertOnCompletion}" VerticalOptions="Center" Grid.Column="1" Grid.Row="0" />
+            <Label Text="Delete incomplete files" VerticalOptions="Center" Grid.Column="0" Grid.Row="1" />
+            <Switch IsToggled="{Binding DeleteIncompleteFiles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
+            <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+            <Switch IsToggled="{Binding PreferForcedSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="2" />
+            <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+            <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="3" />
+            <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+            <Entry Text="{Binding MkvFileExtension}" Grid.Column="1" Grid.Row="4" />
+        </Grid>
+        <local:FramedPanel Title="Templates" Margin="0, 10, 0, 0">
+            <StackLayout>
+                <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
+                          HasUnevenRows="True"
+                          HorizontalOptions="FillAndExpand"
+                          Margin="15, -5, 5, 10"
+                          SelectionMode="None"
+                          ItemsSource="{Binding Templates}">
+                    <ListView.HeightRequest>
+                        <OnPlatform x:TypeArguments="x:Double">
+                            <On Platform="macOS" Value="215" />
+                            <On Platform="WPF" Value="300" />
+                        </OnPlatform>
+                    </ListView.HeightRequest>
+                    <ListView.Header>
+                        <StackLayout />
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid Padding="5, 1, 7, 5" HorizontalOptions="FillAndExpand">
+                                    <Grid.HeightRequest>
+                                        <OnPlatform x:TypeArguments="x:Double">
+                                            <On Platform="macOS" Value="28" />
+                                            <On Platform="WPF" Value="32" />
+                                        </OnPlatform>
+                                    </Grid.HeightRequest>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Entry Text="{Binding NewName}" VerticalOptions="Center" Grid.Column="0" Grid.Row="0" />
+                                    <local:PlatformButton Source="Images/trash.png"
+                                                          Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
+                                                          Grid.Column="1"
+                                                          Grid.Row="0" />
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackLayout>
+        </local:FramedPanel>
+    </StackLayout>
 </ContentView>

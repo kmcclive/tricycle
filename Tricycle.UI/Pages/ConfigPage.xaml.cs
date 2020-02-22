@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Templates;
 using Tricycle.UI.ViewModels;
 using Xamarin.Forms;
 
@@ -29,6 +31,7 @@ namespace Tricycle.UI.Pages
             _viewModel = new ConfigViewModel(
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>(),
+                AppState.IocContainer.GetInstance<IConfigManager<Dictionary<string, JobTemplate>>>(),
                 appManager,
                 AppState.IocContainer.GetInstance<IDevice>());
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();
@@ -39,7 +42,6 @@ namespace Tricycle.UI.Pages
             vwSections.SelectedItem = selectedSection;
 
             SelectSection(selectedSection);
-            _viewModel.Initialize();
 
             vwSections.ItemSelected += OnSectionSelected;
         }
@@ -48,6 +50,8 @@ namespace Tricycle.UI.Pages
         {
             base.OnAppearing();
 
+            SelectSection(Section.General);
+            _viewModel.Initialize();
             _viewModel.IsPageVisible = true;
         }
 

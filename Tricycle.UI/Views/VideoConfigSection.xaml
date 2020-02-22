@@ -5,6 +5,10 @@
              x:Class="Tricycle.UI.Views.VideoConfigSection">
     <ContentView.Resources>
         <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
+        <OnPlatform x:Key="PresetRowHeight" x:TypeArguments="x:Double">
+            <On Platform="macOS" Value="28" />
+            <On Platform="WPF" Value="32" />
+        </OnPlatform>
     </ContentView.Resources>
     <StackLayout>
         <Grid>
@@ -97,7 +101,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="{StaticResource PresetGridPadding}">
+                                <Grid HeightRequest="{StaticResource PresetRowHeight}" Padding="{StaticResource PresetGridPadding}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -117,6 +121,7 @@
                                                        Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"
                                                           Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="4"
                                                           Grid.Row="0" />
                                 </Grid>
@@ -159,7 +164,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="{StaticResource PresetGridPadding}">
+                                <Grid HeightRequest="{StaticResource PresetRowHeight}" Padding="{StaticResource PresetGridPadding}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -179,6 +184,7 @@
                                                        Grid.Row="0" />
                                     <local:PlatformButton Source="Images/trash.png"
                                                           Command="{Binding RemoveCommand}"
+                                                          VerticalOptions="Center"
                                                           Grid.Column="4"
                                                           Grid.Row="0" />
                                 </Grid>

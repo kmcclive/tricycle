@@ -16,6 +16,7 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.Utilities;
 using Xamarin.Forms;
@@ -50,6 +51,7 @@ namespace Tricycle.UI.ViewModels
         readonly IDevice _device;
         readonly IAppManager _appManager;
         readonly IConfigManager<TricycleConfig> _configManager;
+        readonly IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         readonly string _defaultDestinationDirectory;
 
         bool _isSourceInfoVisible;
@@ -124,6 +126,7 @@ namespace Tricycle.UI.ViewModels
                              IDevice device,
                              IAppManager appManager,
                              IConfigManager<TricycleConfig> configManager,
+                             IConfigManager<Dictionary<string, JobTemplate>> templateManager,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
@@ -137,6 +140,7 @@ namespace Tricycle.UI.ViewModels
             _appManager = appManager;
             _configManager = configManager;
             _tricycleConfig = configManager.Config;
+            _templateManager = templateManager;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
@@ -145,6 +149,8 @@ namespace Tricycle.UI.ViewModels
 
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
             _appManager.Quitting += async () => await OnAppQuitting();
+            _appManager.TemplateSaved += SaveTemplate;
+            _appManager.TemplateApplied += ApplyTemplate;
 
             _configManager.ConfigChanged += async config => await OnConfigChanged(config);
 
@@ -1485,6 +1491,300 @@ namespace Tricycle.UI.ViewModels
         {
             return outputStream.Format == sourceStream.Format &&
                 AudioUtility.GetChannelCount(outputStream.Mixdown ?? AudioMixdown.Mono) == sourceStream.ChannelCount;
+        }
+
+        void SaveTemplate(string name)
+        {
+            var template = new JobTemplate()
+            {
+                Format = (ContainerFormat)SelectedContainerFormat.Value,
+                Video = GetVideoTemplate(),
+                AudioTracks = GetAudioTemplates()
+            };
+
+            if (SelectedSubtitle != NONE_OPTION)
+            {
+                var subtitleStream = (StreamInfo)SelectedSubtitle.Value;
+
+                template.Subtitles = new SubtitleTemplate()
+                {
+                    ForcedOnly = IsForcedSubtitlesChecked,
+                    Language = subtitleStream.Language
+                };
+            }
+
+            var templates = new Dictionary<string, JobTemplate>(_templateManager.Config); // clone the config
+
+            templates[name] = template;
+
+            _templateManager.Config = templates;
+            _templateManager.Save();
+        }
+
+        VideoTemplate GetVideoTemplate()
+        {
+            var format = (VideoFormat)SelectedVideoFormat.Value;
+
+            return new VideoTemplate()
+            {
+                AspectRatioPreset = SelectedAspectRatio != ORIGINAL_OPTION ? SelectedAspectRatio.ToString() : null,
+                CropBars = IsAutocropChecked,
+                Denoise = IsDenoiseChecked,
+                Format = format,
+                Hdr = IsHdrChecked,
+                ManualCrop = object.Equals(SelectedCropOption?.Value, CropOption.Manual)
+                             ? new ManualCropTemplate()
+                             {
+                                 Top = int.TryParse(CropTop, out var top) ? top : 0,
+                                 Bottom = int.TryParse(CropBottom, out var bottom) ? bottom : 0,
+                                 Left = int.TryParse(CropLeft, out var left) ? left : 0,
+                                 Right = int.TryParse(CropRight, out var right) ? right : 0
+                             }
+                             : null,
+                Quality = CalculateQuality(format, (decimal)Quality),
+                SizePreset = SelectedSize != ORIGINAL_OPTION ? SelectedSize?.ToString() : null
+            };
+        }
+
+        IList<AudioTemplate> GetAudioTemplates()
+        {
+            IList<AudioTemplate> result = new List<AudioTemplate>();
+
+            if (AudioOutputs?.Any() != true)
+            {
+                return result;
+            }
+
+            var audioStreamsByLanguage = _sourceInfo.Streams.Where(s => s.StreamType == StreamType.Audio)
+                                                            .Where(s => s.Language != null)
+                                                            .GroupBy(s => s.Language)
+                                                            .ToDictionary(g => g.Key);
+
+            foreach (var viewModel in AudioOutputs)
+            {
+                AudioStreamInfo sourceStream = GetStream(viewModel);
+
+                if (sourceStream?.Language == null)
+                {
+                    continue;
+                }
+
+                int i = 0;
+                var template = new AudioTemplate()
+                {
+                    Format = (AudioFormat)viewModel.SelectedFormat.Value,
+                    Language = sourceStream.Language,
+                    Mixdown = (AudioMixdown)viewModel.SelectedMixdown.Value,
+                    RelativeIndex = audioStreamsByLanguage.GetValueOrDefault(sourceStream.Language)?
+                                                          .OrderBy(s => s.Index)
+                                                          .Select(s => new
+                                                          {
+                                                              RelativeIndex = i++,
+                                                              StreamIndex = s.Index
+                                                          })
+                                                         .FirstOrDefault(s => s.StreamIndex == sourceStream.Index)?
+                                                         .RelativeIndex ?? 0
+                };
+
+                result.Add(template);
+            }
+
+            return result;
+        }
+
+        void ApplyTemplate(string name)
+        {
+            var template = _templateManager.Config.GetValueOrDefault(name);
+
+            if (template == null)
+            {
+                return;
+            }
+
+            SelectedContainerFormat = ContainerFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, template.Format));
+
+            if (template.Video != null)
+            {
+                ApplyTemplate(template.Video);
+            }
+
+            if (template.Subtitles != null)
+            {
+                var subtitles = template.Subtitles;
+
+                SelectedSubtitle = string.IsNullOrEmpty(subtitles.Language)
+                                   ? NONE_OPTION
+                                   : SubtitleOptions?.Where(s => s != NONE_OPTION)
+                                                     .FirstOrDefault(s =>
+                                                        (s.Value as StreamInfo)?.Language == subtitles.Language)
+                                   ?? NONE_OPTION;
+                IsForcedSubtitlesChecked = subtitles.ForcedOnly;
+            }
+
+            ApplyTemplates(template.AudioTracks);
+        }
+
+        void ApplyTemplate(VideoTemplate video)
+        {
+            SelectedVideoFormat = VideoFormatOptions?.FirstOrDefault(f => object.Equals(f.Value, video.Format));
+            Quality = (double)GetQualityPercent(video.Format, video.Quality);
+            IsHdrChecked = video.Hdr && IsHdrSupported(SelectedVideoFormat, _primaryVideoStream);
+            SelectedSize = GetClosestSize(video.SizePreset);
+
+            if (video.ManualCrop != null)
+            {
+                var crop = video.ManualCrop;
+
+                SelectedCropOption = new ListItem(CropOption.Manual);
+                CropTop = crop.Top.ToString();
+                CropBottom = crop.Bottom.ToString();
+                CropLeft = crop.Left.ToString();
+                CropRight = crop.Right.ToString();
+            }
+            else
+            {
+                SelectedCropOption = new ListItem(CropOption.Auto);
+            }
+
+            IsAutocropChecked = video.CropBars && HasBars(_primaryVideoStream.Dimensions, _croppedDimensions);
+            SelectedAspectRatio = GetClosestAspectRatio(video.AspectRatioPreset);
+            IsDenoiseChecked = video.Denoise;
+        }
+
+        decimal GetQualityPercent(VideoFormat format, decimal quality)
+        {
+            decimal result = 0.5M;
+
+            if ((_tricycleConfig.Video?.Codecs != null) && _tricycleConfig.Video.Codecs.TryGetValue(format, out var codec))
+            {
+                decimal min = codec.QualityRange.Min ?? 22;
+                decimal max = codec.QualityRange.Max ?? 18;
+
+                result = (quality - min) /  (max - min);
+            }
+
+            return result;
+        }
+
+        void ApplyTemplates(IList<AudioTemplate> templates)
+        {
+            PopulateAudioOptions(_sourceInfo);
+
+            if (AudioOutputs?.Any() != true)
+            {
+                return;
+            }
+
+            var output = AudioOutputs.First();
+
+            output.SelectedTrack = NONE_OPTION;
+
+            if (templates == null)
+            {
+                return;
+            }
+
+            var tracksByLanguage = output.TrackOptions.Where(t => t != NONE_OPTION)
+                                                      .Where(t => ((StreamInfo)t.Value).StreamType == StreamType.Audio)
+                                                      .GroupBy(t => ((StreamInfo)t.Value).Language)
+                                                      .ToDictionary(g => g.Key);
+
+            foreach (var template in templates)
+            {
+                if (string.IsNullOrEmpty(template?.Language))
+                {
+                    continue;
+                }
+
+                var tracks = tracksByLanguage.GetValueOrDefault(template.Language);
+
+                if (tracks?.Any() != true)
+                {
+                    continue;
+                }
+
+                int i = 0;
+                var track = tracks.OrderBy(t => ((StreamInfo)t.Value).Index)
+                                  .Select(t => new
+                                  {
+                                    Track = t,
+                                    RelativeIndex = i++
+                                  })
+                                  .Where(t => t.RelativeIndex <= template.RelativeIndex)
+                                  .Select(t => t.Track)
+                                  .LastOrDefault();
+
+                if (track == null)
+                {
+                    continue;
+                }
+
+                var channelCount = AudioUtility.GetChannelCount(template.Mixdown);
+
+                output = AudioOutputs[AudioOutputs.Count - 1];
+                output.SelectedTrack = track;
+                output.SelectedFormat = output.FormatOptions?.FirstOrDefault(f => object.Equals(f.Value, template.Format))
+                                        ?? output.FormatOptions?.FirstOrDefault();
+                output.SelectedMixdown = output.MixdownOptions?.Where(m =>
+                                            AudioUtility.GetChannelCount((AudioMixdown)m.Value) <= channelCount)
+                                                               .FirstOrDefault();
+            }
+
+            RemoveDuplicateAudioOutputs();
+        }
+
+        ListItem GetClosestSize(string presetName)
+        {
+            return GetClosestPreset(presetName, _tricycleConfig?.Video?.SizePresets, SizeOptions);
+        }
+
+        ListItem GetClosestAspectRatio(string presetName)
+        {
+            return GetClosestPreset(presetName, _tricycleConfig?.Video?.AspectRatioPresets, AspectRatioOptions);
+        }
+
+        ListItem GetClosestPreset(string presetName, IDictionary<string, Dimensions> presets, IList<ListItem> options)
+        {
+            if (string.IsNullOrEmpty(presetName))
+            {
+                return ORIGINAL_OPTION;
+            }
+
+            ListItem result = options?.FirstOrDefault(s => s.Name == presetName);
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (presets?.ContainsKey(presetName) != true)
+            {
+                return ORIGINAL_OPTION;
+            }
+
+            result = options.FirstOrDefault(s => s != ORIGINAL_OPTION);
+
+            return result ?? ORIGINAL_OPTION;
+        }
+
+        void RemoveDuplicateAudioOutputs()
+        {
+            for (int i = 0; i < AudioOutputs.Count; i++)
+            {
+                var output1 = AudioOutputs[i];
+
+                for (int j = AudioOutputs.Count - 1; j > i; j--)
+                {
+                    var output2 = AudioOutputs[j];
+
+                    if (object.Equals(output1.SelectedTrack, output2.SelectedTrack) &&
+                        object.Equals(output1.SelectedFormat, output2.SelectedFormat) &&
+                        object.Equals(output1.SelectedMixdown, output2.SelectedMixdown))
+                    {
+                        output2.SelectedTrack = NONE_OPTION;
+                    }
+                }
+            }
         }
 
         void EnableControls(bool isEnabled)

@@ -185,5 +185,29 @@ namespace Tricycle.UI.Tests
 
             Assert.AreEqual(isValid, _appManager.IsValidSourceSelected);
         }
+
+        [TestMethod]
+        public void RaiseTemplateSavedRaisesTemplateSavedEvent()
+        {
+            string actual = null;
+            string expected = "New Template";
+
+            _appManager.TemplateSaved += name => actual = name;
+            _appManager.RaiseTemplateSaved(expected);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void RaiseTemplateAppliedRaisesTemplateAppliedEvent()
+        {
+            string actual = null;
+            string expected = "New Template";
+
+            _appManager.TemplateApplied += name => actual = name;
+            _appManager.RaiseTemplateApplied(expected);
+
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

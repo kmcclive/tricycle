@@ -13,6 +13,7 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Jobs;
 using Tricycle.Models.Media;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
@@ -22,6 +23,12 @@ namespace Tricycle.UI.Tests
     [TestClass]
     public class MainViewModelTests
     {
+        #region Constants
+
+        const string DEFAULT_TEMPLATE_NAME = "Test";
+
+        #endregion
+
         #region Fields
 
         MainViewModel _viewModel;
@@ -41,6 +48,8 @@ namespace Tricycle.UI.Tests
         IAppManager _appManager;
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         TricycleConfig _tricycleConfig;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
+        JobTemplate _template;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
 
@@ -62,6 +71,7 @@ namespace Tricycle.UI.Tests
             _tricycleConfig = CreateDefaultTricycleConfig();
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _tricycleConfigManager.Config = _tricycleConfig;
+            _templateManager = Substitute.For<IConfigManager<Dictionary<string, JobTemplate>>>();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
@@ -73,6 +83,7 @@ namespace Tricycle.UI.Tests
                                            MockDevice.Self,
                                            _appManager,
                                            _tricycleConfigManager,
+                                           _templateManager,
                                            _defaultDestinationDirectory)
             {
                 IsPageVisible = true
@@ -99,6 +110,7 @@ namespace Tricycle.UI.Tests
             };
             _cropParameters = new CropParameters();
             _fileService = Substitute.For<IFile>();
+            _template = new JobTemplate();
 
             _fileBrowser.BrowseToOpen().Returns(_fileBrowserResult);
             _mediaInspector.Inspect(Arg.Any<string>()).Returns(_mediaInfo);
@@ -108,6 +120,12 @@ namespace Tricycle.UI.Tests
             _appManager.When(x => x.RaiseFileOpened(Arg.Any<string>()))
                        .Do(x => _appManager.FileOpened += Raise.Event<Action<string>>(x[0]));
             _fileService.Exists(Arg.Any<string>()).Returns(false);
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { DEFAULT_TEMPLATE_NAME, _template }
+            };
+            _templateManager.When(x => x.Save())
+                .Do(x => _template = DictionaryUtility.GetValueOrDefault(_templateManager.Config, DEFAULT_TEMPLATE_NAME));
         }
 
         #endregion
@@ -1662,6 +1680,997 @@ namespace Tricycle.UI.Tests
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
             Assert.AreEqual("Mono", audioOutput?.SelectedMixdown?.Name);
+        }
+
+        [TestMethod]
+        public void SelectsContainerFormatForTemplate()
+        {
+            var format = ContainerFormat.Mkv;
+
+            _template.Format = format;
+            _templateManager.Config["Other"] = new JobTemplate() { Format = ContainerFormat.Mp4 };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(format), _viewModel.SelectedContainerFormat);
+        }
+
+        [TestMethod]
+        public void SelectsVideoFormatForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            _template.Video = new VideoTemplate { Format = format };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(format), _viewModel.SelectedVideoFormat);
+        }
+
+        [TestMethod]
+        public void SelectsVideoQualityForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            _tricycleConfig.Video.Codecs[format] = new VideoCodec()
+            {
+                QualityRange = new Range<decimal>(22, 18)
+            };
+            _template.Video = new VideoTemplate
+            {
+                Format = format,
+                Quality = 19,
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(0.75, _viewModel.Quality);
+        }
+
+        [TestMethod]
+        public void ChecksHdrForTemplateWhenAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                Format = VideoFormat.Hevc,
+                Hdr = true
+            };
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckHdrForTemplateWhenNotAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                Format = VideoFormat.Hevc,
+                Hdr = true
+            };
+            _videoStream.DynamicRange = DynamicRange.Standard;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsFalse(_viewModel.IsHdrChecked);
+        }
+
+        [TestMethod]
+        public void SetsManualCropParametersForTemplate()
+        {
+            _template.Video = new VideoTemplate
+            {
+                ManualCrop = new ManualCropTemplate()
+                {
+                    Top = 8,
+                    Bottom = 12,
+                    Left = 2,
+                    Right = 4
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(CropOption.Manual), _viewModel.SelectedCropOption);
+            Assert.AreEqual(_template.Video.ManualCrop.Top.ToString(), _viewModel.CropTop);
+            Assert.AreEqual(_template.Video.ManualCrop.Bottom.ToString(), _viewModel.CropBottom);
+            Assert.AreEqual(_template.Video.ManualCrop.Left.ToString(), _viewModel.CropLeft);
+            Assert.AreEqual(_template.Video.ManualCrop.Right.ToString(), _viewModel.CropRight);
+        }
+
+        [TestMethod]
+        public void ChecksCropBarsForTemplateWhenAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                CropBars = true
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void DoesNotCheckCropBarsForTemplateWhenNotAllowed()
+        {
+            _template.Video = new VideoTemplate
+            {
+                CropBars = true
+            };
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = _videoStream.Dimensions;
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsFalse(_viewModel.IsAutocropChecked);
+        }
+
+        [TestMethod]
+        public void SelectsSizeForTemplate()
+        {
+            var size = "1080p";
+
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { size, _videoStream.Dimensions }
+            };
+            _template.Video = new VideoTemplate { SizePreset = size };
+            
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(_videoStream.Dimensions), _viewModel.SelectedSize);
+        }
+
+        [TestMethod]
+        public void SelectsNextBestSizeForTemplate()
+        {
+            var size = "1080p";
+            var expected = new Dimensions(1280, 720);
+
+            _videoStream.Dimensions = new Dimensions(1422, 800);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { size, new Dimensions(1920, 1080) },
+                { "720p",  expected }
+            };
+            _template.Video = new VideoTemplate { SizePreset = size };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(expected), _viewModel.SelectedSize);
+        }
+
+        [TestMethod]
+        public void SelectsAspectRatioForTemplate()
+        {
+            var name = "16:9";
+            var dimensions = new Dimensions(16, 9);
+
+            _videoStream.Dimensions = new Dimensions(1920, 800);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { name, dimensions }
+            };
+            _template.Video = new VideoTemplate { AspectRatioPreset = name };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(dimensions), _viewModel.SelectedAspectRatio);
+        }
+
+        [TestMethod]
+        public void SelectsNextBestAspectRatioForTemplate()
+        {
+            var name = "16:9";
+            var dimensions = new Dimensions(4, 3);
+
+            _videoStream.Dimensions = new Dimensions(1440, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = _videoStream.Dimensions;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { name, new Dimensions(16, 9) },
+                { "4:3", dimensions }
+            };
+            _template.Video = new VideoTemplate { AspectRatioPreset = name };
+
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(dimensions), _viewModel.SelectedAspectRatio);
+        }
+
+        [TestMethod]
+        public void ChecksDenoiseForTemplate()
+        {
+            _template.Video = new VideoTemplate { Denoise = true };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsDenoiseChecked);
+        }
+
+        [TestMethod]
+        public void SelectsSubtitleForTemplate()
+        {
+            var language = "eng";
+            var stream = new SubtitleStreamInfo() { Index = 3, Language = language };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new SubtitleStreamInfo() { Index = 2, Language = "spa" },
+                stream
+            };
+            _template.Subtitles = new SubtitleTemplate() { Language = language };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(new ListItem(stream), _viewModel.SelectedSubtitle);
+        }
+
+        [TestMethod]
+        public void ChecksForcedSubtitlesForTemplate()
+        {
+            _tricycleConfig.ForcedSubtitlesOnly = false;
+            _template.Subtitles = new SubtitleTemplate() { ForcedOnly = true };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsForcedSubtitlesChecked);
+        }
+
+        [TestMethod]
+        public void ClearsAudioForTemplate()
+        {
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(1, _viewModel.AudioOutputs?.Count);
+        }
+
+        [TestMethod]
+        public void AddsMatchingAudioOutputForTemplate()
+        {
+            var audioTemplate = new AudioTemplate()
+            {
+                Format = AudioFormat.Aac,
+                Language = "eng",
+                Mixdown = AudioMixdown.Stereo,
+                RelativeIndex = 1
+            };
+            var stream = new AudioStreamInfo()
+            {
+                Index = 3,
+                Language = audioTemplate.Language,
+                FormatName = "ac-3",
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    audioTemplate.Format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = audioTemplate.Mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                audioTemplate
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(audioTemplate.Format), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(audioTemplate.Mixdown), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void AddsNextBestAudioOutputForTemplate()
+        {
+            var audioTemplate = new AudioTemplate()
+            {
+                Format = AudioFormat.Aac,
+                Language = "eng",
+                Mixdown = AudioMixdown.Stereo,
+                RelativeIndex = 1
+            };
+            var stream = new AudioStreamInfo()
+            {
+                Index = 2,
+                Language = audioTemplate.Language,
+                FormatName = "ac-3",
+                ChannelCount = 1
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    audioTemplate.Format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Mono },
+                            new AudioPreset() { Mixdown = audioTemplate.Mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                audioTemplate
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(audioTemplate.Format), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Mono), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void AddsMultipleAudioOutputsForTemplate()
+        {
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                },
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 3,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                }
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Surround5dot1,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 1
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Aac,
+                    Language = "spa",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(5, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[1]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[1];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[1]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Ac3), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Surround5dot1), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[2];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[3]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+
+            output = _viewModel.AudioOutputs[3];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(_mediaInfo.Streams[2]), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Aac), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void RemovesDuplicateAudioOutputsForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo },
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            _template.AudioTracks = new AudioTemplate[]
+            {
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Stereo,
+                    RelativeIndex = 0
+                },
+                new AudioTemplate()
+                {
+                    Format = AudioFormat.Ac3,
+                    Language = "eng",
+                    Mixdown = AudioMixdown.Surround5dot1,
+                    RelativeIndex = 0
+                }
+            };
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            var output = _viewModel.AudioOutputs[0];
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(new ListItem(stream), output.SelectedTrack);
+            Assert.AreEqual(new ListItem(AudioFormat.Ac3), output.SelectedFormat);
+            Assert.AreEqual(new ListItem(AudioMixdown.Stereo), output.SelectedMixdown);
+        }
+
+        [TestMethod]
+        public void CallsSaveOnTemplateManager()
+        {
+            SelectSource();
+            SaveTemplate();
+
+            _templateManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void AddsTemplateOnSave()
+        {
+            var name = "Other";
+
+            SelectSource();
+            SaveTemplate(name);
+
+            Assert.IsTrue(_templateManager.Config?.ContainsKey(name) == true);
+        }
+
+        [TestMethod]
+        public void SavesContainerFormatForTemplate()
+        {
+            var format = ContainerFormat.Mkv;
+
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(format);
+
+            SaveTemplate();
+
+            Assert.AreEqual(format, _template?.Format);
+        }
+
+        [TestMethod]
+        public void SavesVideoFormatForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(format);
+
+            SaveTemplate();
+
+            Assert.AreEqual(format, _template?.Video?.Format);
+        }
+
+        [TestMethod]
+        public void SavesVideoQualityForTemplate()
+        {
+            var format = VideoFormat.Hevc;
+
+            _tricycleConfig.Video.Codecs[format] = new VideoCodec()
+            {
+                QualityRange = new Range<decimal>(22, 18)
+            };
+            SelectSource();
+            _viewModel.Quality = 0.75;
+
+            SaveTemplate();
+
+            Assert.AreEqual(19, _template?.Video?.Quality);
+        }
+
+        [TestMethod]
+        public void SavesHdrForTemplate()
+        {
+            var hdr = true;
+
+            _videoStream.DynamicRange = DynamicRange.High;
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(VideoFormat.Hevc);
+            _viewModel.IsHdrChecked = hdr;
+
+            SaveTemplate();
+
+            Assert.AreEqual(hdr, _template?.Video?.Hdr);
+        }
+
+        [TestMethod]
+        public void SavesManualCropParametersForTemplate()
+        {
+            var expected = new ManualCropTemplate()
+            {
+                Top = 8,
+                Bottom = 12,
+                Left = 2,
+                Right = 4
+            };
+
+            SelectSource();
+            _viewModel.SelectedCropOption = new ListItem(CropOption.Manual);
+            _viewModel.CropTop = expected.Top.ToString();
+            _viewModel.CropBottom = expected.Bottom.ToString();
+            _viewModel.CropLeft = expected.Left.ToString();
+            _viewModel.CropRight = expected.Right.ToString();
+
+            SaveTemplate();
+
+            var actual = _template?.Video?.ManualCrop;
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected.Top, actual.Top);
+            Assert.AreEqual(expected.Bottom, actual.Bottom);
+            Assert.AreEqual(expected.Left, actual.Left);
+            Assert.AreEqual(expected.Right, actual.Right);
+        }
+
+        [TestMethod]
+        public void SavesCropBarsForTemplate()
+        {
+            var cropBars = true;
+
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _cropParameters.Size = new Dimensions(1920, 800);
+            _cropParameters.Start = new Coordinate<int>(0, 140);
+            SelectSource();
+            _viewModel.IsAutocropChecked = cropBars;
+
+            SaveTemplate();
+
+            Assert.AreEqual(cropBars, _template?.Video?.CropBars);
+        }
+
+        [TestMethod]
+        public void SavesSizeForTemplate()
+        {
+            var size = "1080p";
+
+            _videoStream.Dimensions = new Dimensions(1920, 1080);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.SizePresets = new Dictionary<string, Dimensions>()
+            {
+                { size, _videoStream.Dimensions }
+            };
+            SelectSource();
+            _viewModel.SelectedSize = new ListItem(size, _videoStream.Dimensions);
+
+            SaveTemplate();
+
+            Assert.AreEqual(size, _template?.Video?.SizePreset);
+        }
+
+        [TestMethod]
+        public void SavesAspectRatioForTemplate()
+        {
+            var name = "16:9";
+            var dimensions = new Dimensions(16, 9);
+
+            _videoStream.Dimensions = new Dimensions(1920, 800);
+            _videoStream.StorageDimensions = _videoStream.Dimensions;
+            _tricycleConfig.Video.AspectRatioPresets = new Dictionary<string, Dimensions>()
+            {
+                { name, dimensions }
+            };
+            SelectSource();
+            _viewModel.SelectedAspectRatio = new ListItem(name, dimensions);
+
+            SaveTemplate();
+
+            Assert.AreEqual(name, _template?.Video?.AspectRatioPreset);
+        }
+
+        [TestMethod]
+        public void SavesDenoiseForTemplate()
+        {
+            var denoise = true;
+
+            SelectSource();
+            _viewModel.IsDenoiseChecked = denoise;
+
+            SaveTemplate();
+
+            Assert.AreEqual(denoise, _template?.Video?.Denoise);
+        }
+
+        [TestMethod]
+        public void SavesSubtitleLanguageForTemplate()
+        {
+            var language = "eng";
+            var stream = new SubtitleStreamInfo() { Index = 1, Language = language };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream,
+                new SubtitleStreamInfo() { Index = 2, Language = "spa" }
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(stream);
+
+            SaveTemplate();
+
+            Assert.AreEqual(language, _template?.Subtitles?.Language);
+        }
+
+        [TestMethod]
+        public void SavesForcedSubtitlesForTemplate()
+        {
+            var forced = true;
+            var stream = new SubtitleStreamInfo() { Index = 1, Language = "eng" };
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream,
+                new SubtitleStreamInfo() { Index = 2, Language = "spa" }
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(stream);
+            _viewModel.IsForcedSubtitlesChecked = true;
+
+            SaveTemplate();
+
+            Assert.AreEqual(forced, _template?.Subtitles?.ForcedOnly);
+        }
+
+        [TestMethod]
+        public void SavesEmptyAudioTracksForTemplate()
+        {
+            SelectSource();
+
+            SaveTemplate();
+
+            Assert.AreEqual(0, _template?.AudioTracks?.Count);
+        }
+
+        [TestMethod]
+        public void SavesCorrectNumberOfAudioTracksForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Surround5dot1 },
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.Count > 1 ? _viewModel.AudioOutputs[1] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedMixdown = new ListItem(AudioMixdown.Stereo);
+
+            SaveTemplate();
+
+            Assert.AreEqual(2, _template?.AudioTracks?.Count);
+        }
+
+        [TestMethod]
+        public void SavesAudioIndexForTemplate()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 3,
+                Language = "eng",
+                FormatName = "ac-3",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+                new AudioStreamInfo()
+                {
+                    Index = 2,
+                    Language = "spa",
+                    FormatName = "ac-3",
+                    ChannelCount = 2
+                },
+                stream
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+
+            SaveTemplate();
+
+            Assert.AreEqual(1, _template?.AudioTracks?.FirstOrDefault()?.RelativeIndex);
+        }
+
+        [TestMethod]
+        public void SavesAudioFormatForTemplate()
+        {
+            var format = AudioFormat.Aac;
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = AudioMixdown.Stereo }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedFormat = new ListItem(format);
+
+            SaveTemplate();
+
+            Assert.AreEqual(format, _template?.AudioTracks?.FirstOrDefault()?.Format);
+        }
+
+        [TestMethod]
+        public void SavesAudioMixdownForTemplate()
+        {
+            var format = AudioFormat.Aac;
+            var mixdown = AudioMixdown.Stereo;
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    format,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset() { Mixdown = mixdown }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    Index = 1,
+                    Language = "eng",
+                    FormatName = "ac-3",
+                    ChannelCount = 6
+                },
+            };
+
+            SelectSource();
+            var audioOutput = _viewModel.AudioOutputs?.Count > 0 ? _viewModel.AudioOutputs[0] : null;
+
+            if (audioOutput == null)
+            {
+                Assert.Inconclusive("The audio outputs were not populated.");
+            }
+
+            audioOutput.SelectedFormat = new ListItem(format);
+            audioOutput.SelectedMixdown = new ListItem(mixdown);
+
+            SaveTemplate();
+
+            Assert.AreEqual(mixdown, _template?.AudioTracks?.FirstOrDefault()?.Mixdown);
         }
 
         [TestMethod]
@@ -3271,6 +4280,26 @@ namespace Tricycle.UI.Tests
         void Stop()
         {
             _viewModel.StartCommand.Execute(null);
+        }
+
+        void ApplyTemplate()
+        {
+            ApplyTemplate(DEFAULT_TEMPLATE_NAME);
+        }
+
+        void ApplyTemplate(string name)
+        {
+            _appManager.TemplateApplied += Raise.Event<Action<string>>(name);
+        }
+
+        void SaveTemplate()
+        {
+            SaveTemplate(DEFAULT_TEMPLATE_NAME);
+        }
+
+        void SaveTemplate(string name)
+        {
+            _appManager.TemplateSaved += Raise.Event<Action<string>>(name);
         }
 
         #endregion

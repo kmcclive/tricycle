@@ -8,6 +8,7 @@ using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
+using Tricycle.Models.Templates;
 using Tricycle.UI.Models;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
@@ -30,6 +31,7 @@ namespace Tricycle.UI.Tests.ViewModels
         ConfigViewModel _viewModel;
         IConfigManager<TricycleConfig> _tricycleConfigManager;
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
+        IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         IAppManager _appManager;
         TricycleConfig _tricycleConfig;
         FFmpegConfig _ffmpegConfig;
@@ -43,8 +45,13 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _ffmpegConfigManager = Substitute.For<IConfigManager<FFmpegConfig>>();
+            _templateManager = Substitute.For<IConfigManager<Dictionary<string, JobTemplate>>>();
             _appManager = Substitute.For<IAppManager>();
-            _viewModel = new ConfigViewModel(_tricycleConfigManager, _ffmpegConfigManager, _appManager, MockDevice.Self)
+            _viewModel = new ConfigViewModel(_tricycleConfigManager,
+                                             _ffmpegConfigManager,
+                                             _templateManager,
+                                             _appManager,
+                                             MockDevice.Self)
             {
                 IsPageVisible = true
             };
@@ -62,6 +69,7 @@ namespace Tricycle.UI.Tests.ViewModels
 
             _tricycleConfigManager.Config = _tricycleConfig;
             _ffmpegConfigManager.Config = _ffmpegConfig;
+            _templateManager.Config = new Dictionary<string, JobTemplate>();
         }
 
         #endregion
@@ -455,6 +463,29 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsTemplatesFromConfig()
+        {
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { "Mobile", new JobTemplate() },
+                { "Home Theater", new JobTemplate() }
+            };
+            _viewModel.Initialize();
+
+            Assert.AreEqual(2, _viewModel.Templates?.Count);
+
+            var template = _viewModel.Templates[0];
+
+            Assert.AreEqual("Home Theater", template.OldName);
+            Assert.AreEqual(template.OldName, template.NewName);
+
+            template = _viewModel.Templates[1];
+
+            Assert.AreEqual("Mobile", template.OldName);
+            Assert.AreEqual(template.OldName, template.NewName);
+        }
+
+        [TestMethod]
         public void PopulatesFormatOptionsForAudioQualityPresets()
         {
             _viewModel.Initialize();
@@ -698,6 +729,29 @@ namespace Tricycle.UI.Tests.ViewModels
             preset.RemoveCommand.Execute(null);
 
             Assert.AreEqual(1, _viewModel.AudioQualityPresets?.Count);
+        }
+
+        [TestMethod]
+        public void RemovesTemplateFromListWhenRemoved()
+        {
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { "Home Theater", new JobTemplate() },
+                { "Mobile", new JobTemplate() }
+            };
+            _viewModel.Initialize();
+
+            var template = _viewModel.Templates?.Count == 2 ? _viewModel.Templates[0] : null;
+
+            if (template == null)
+            {
+                Assert.Inconclusive("Templates were not populated.");
+            }
+
+            template.RemoveCommand.Execute(null);
+
+            Assert.AreEqual(1, _viewModel.Templates?.Count);
+            Assert.AreEqual("Mobile", _viewModel.Templates[0]?.NewName);
         }
 
         [TestMethod]
@@ -1051,6 +1105,34 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void SavesTemplatesToConfig()
+        {
+            var oldTemplates = new Dictionary<string, JobTemplate>()
+            {
+                { "Home Theater", new JobTemplate() },
+                { "Portable", new JobTemplate() },
+                { "Test", new JobTemplate() }
+            };
+            _templateManager.Config = oldTemplates;
+            _viewModel.Initialize();
+
+            if (_viewModel.Templates?.Count != 3)
+            {
+                Assert.Inconclusive("The templates were not populated.");
+            }
+
+            _viewModel.Templates[1].NewName = " Mobile ";
+            _viewModel.Templates[2].RemoveCommand.Execute(null);
+            _viewModel.Close();
+
+            IDictionary<string, JobTemplate> newTemplates = _templateManager.Config;
+
+            Assert.AreEqual(2, newTemplates?.Count);
+            Assert.AreEqual(oldTemplates["Home Theater"], newTemplates["Home Theater"]);
+            Assert.AreEqual(oldTemplates["Portable"], newTemplates?.GetValueOrDefault("Mobile"));
+        }
+
+        [TestMethod]
         public void CallsSaveOnTricycleConfigManagerWhenClosedAndDirty()
         {
             _viewModel.Initialize();
@@ -1061,7 +1143,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotCallsSaveOnTricycleConfigManagerWhenClosedButNotDirty()
+        public void DoesNotCallSaveOnTricycleConfigManagerWhenClosedButNotDirty()
         {
             _viewModel.Initialize();
             _viewModel.Close();
@@ -1080,12 +1162,43 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotCallsSaveOnFFmpegConfigManagerWhenClosedButNotDirty()
+        public void DoesNotCallSaveOnFFmpegConfigManagerWhenClosedButNotDirty()
         {
             _viewModel.Initialize();
             _viewModel.Close();
 
             _ffmpegConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void CallsSaveOnTemplateManagerWhenClosedAndDirty()
+        {
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { "Test", new JobTemplate() }
+            };
+            _viewModel.Initialize();
+
+            var template = _viewModel.Templates.FirstOrDefault();
+
+            if (template == null)
+            {
+                Assert.Inconclusive("The templates were not populated.");
+            }
+
+            template.RemoveCommand.Execute(null);
+            _viewModel.Close();
+
+            _templateManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallSaveOnTemplateManagerWhenClosedButNotDirty()
+        {
+            _viewModel.Initialize();
+            _viewModel.Close();
+
+            _templateManager.DidNotReceive().Save();
         }
 
         [TestMethod]
@@ -1108,7 +1221,7 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotCallsSaveOnTricycleConfigManagerWhenAppIsQuittingButNotDirty()
+        public void DoesNotCallSaveOnTricycleConfigManagerWhenAppIsQuittingButNotDirty()
         {
             _viewModel.Initialize();
             _appManager.Quitting += Raise.Event<Action>();
@@ -1127,12 +1240,43 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void DoesNotCallsSaveOnFFmpegConfigManagerWhenAppIsQuittingButNotDirty()
+        public void DoesNotCallSaveOnFFmpegConfigManagerWhenAppIsQuittingButNotDirty()
         {
             _viewModel.Initialize();
             _appManager.Quitting += Raise.Event<Action>();
 
             _ffmpegConfigManager.DidNotReceive().Save();
+        }
+
+        [TestMethod]
+        public void CallsSaveOnTemplateManagerWhenAppIsQuitting()
+        {
+            _templateManager.Config = new Dictionary<string, JobTemplate>()
+            {
+                { "Test", new JobTemplate() }
+            };
+            _viewModel.Initialize();
+
+            var template = _viewModel.Templates.FirstOrDefault();
+
+            if (template == null)
+            {
+                Assert.Inconclusive("The templates were not populated.");
+            }
+
+            template.RemoveCommand.Execute(null);
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _templateManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotCallSaveOnTemplateManagerWhenAppIsQuittingButNotDirty()
+        {
+            _viewModel.Initialize();
+            _appManager.Quitting += Raise.Event<Action>();
+
+            _templateManager.DidNotReceive().Save();
         }
 
         [TestMethod]
