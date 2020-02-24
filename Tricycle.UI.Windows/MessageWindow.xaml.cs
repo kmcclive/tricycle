@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Media;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -77,6 +78,24 @@ namespace Tricycle.UI.Windows
                 Severity = severity,
                 Buttons = buttons
             };
+
+            SystemSound sound;
+
+            switch (severity)
+            {
+                case Severity.Info:
+                default:
+                    sound = SystemSounds.Beep;
+                    break;
+                case Severity.Warning:
+                    sound = SystemSounds.Exclamation;
+                    break;
+                case Severity.Error:
+                    sound = SystemSounds.Hand;
+                    break;
+            }
+
+            sound.Play();
 
             return window.ShowDialog();
         }

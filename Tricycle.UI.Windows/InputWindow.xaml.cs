@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Media;
 using System.Windows;
 
 namespace Tricycle.UI.Windows
@@ -36,6 +37,22 @@ namespace Tricycle.UI.Windows
 
                 btnOK.IsEnabled = !_isValueRequired || !string.IsNullOrWhiteSpace(txtValue.Text);
             }
+        }
+
+        public static string Show(Window owner, string title, string message, string defaultValue, bool isValueRequired)
+        {
+            var window = new InputWindow()
+            {
+                Owner = owner,
+                Title = title,
+                Message = message,
+                Value = defaultValue,
+                IsValueRequired = isValueRequired
+            };
+
+            SystemSounds.Beep.Play();
+
+            return window.ShowDialog() == true ? window.Value : null;
         }
 
         protected override void OnSourceInitialized(EventArgs e)

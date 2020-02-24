@@ -18,16 +18,7 @@ namespace Tricycle.UI.Windows
 
         public override string Ask(string title, string message, string defaultValue)
         {
-            var window = new InputWindow()
-            {
-                Owner = _mainWindow,
-                Title = "Save Template",
-                Message = "Please enter a name for the template:",
-                Value = defaultValue,
-                IsValueRequired = true
-            };
-
-            return window.ShowDialog() == true ? window.Value : null;
+            return InputWindow.Show(_mainWindow, title, message, defaultValue, true);
         }
 
         public override bool Confirm(string title, string message)
