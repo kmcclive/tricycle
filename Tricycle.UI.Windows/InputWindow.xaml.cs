@@ -50,6 +50,15 @@ namespace Tricycle.UI.Windows
                 IsValueRequired = isValueRequired
             };
 
+            if (!isValueRequired || !string.IsNullOrWhiteSpace(defaultValue))
+            {
+                window.btnOK.Focus();
+            }
+            else
+            {
+                window.btnCancel.Focus();
+            }
+
             SystemSounds.Beep.Play();
 
             return window.ShowDialog() == true ? window.Value : null;

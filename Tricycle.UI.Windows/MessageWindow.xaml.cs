@@ -79,6 +79,15 @@ namespace Tricycle.UI.Windows
                 Buttons = buttons
             };
 
+            if (buttons == MessageWindowButtons.OkCancel)
+            {
+                window.btnCancel.Focus();
+            }
+            else
+            {
+                window.btnOK.Focus();
+            }
+
             SystemSound sound;
 
             switch (severity)
