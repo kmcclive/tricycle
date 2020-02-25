@@ -4,20 +4,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Height="120"
-        Width="480"
+        Height="140"
+        Width="640"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="10">
+    <StackPanel Margin="{StaticResource DialogPadding}">
         <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 10">
-            <Image x:Name="imgSeverity" Source="Assets\Images\info.png" Width="32" Height="32" Margin="0, 0, 10, 0" />
-            <Label Width="460" VerticalContentAlignment="Center">
-                <TextBlock x:Name="txtMessage" TextWrapping="Wrap" Text="This is an example message."/>
+            <Image x:Name="imgSeverity"
+                   Source="Assets\Images\info.png"
+                   Width="{StaticResource IconSize}"
+                   Height="{StaticResource IconSize}"
+                   Margin="0, 0, 10, 0" />
+            <Label Width="546" VerticalContentAlignment="Center">
+                <TextBlock x:Name="txtMessage"
+                           FontSize="{StaticResource MessageFontSize}"
+                           TextWrapping="Wrap"
+                           Text="This is an example message."/>
             </Label>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnOK" Width="50" Click="btnOK_Click">OK</Button>
-            <Button x:Name="btnCancel" Margin="10, 0, 0, 0" Width="50" Click="btnCancel_Click" Visibility="Collapsed">Cancel</Button>
+            <Button x:Name="btnOK"
+                    FontSize="{StaticResource ButtonFontSize}"
+                    Width="{StaticResource ButtonWidth}"
+                    Click="btnOK_Click">OK</Button>
+            <Button x:Name="btnCancel"
+                    FontSize="{StaticResource ButtonFontSize}"
+                    Margin="10, 0, 0, 0"
+                    Width="{StaticResource ButtonWidth}"
+                    Click="btnCancel_Click"
+                    Visibility="Collapsed">Cancel</Button>
         </StackPanel>
     </StackPanel>
 </Window>

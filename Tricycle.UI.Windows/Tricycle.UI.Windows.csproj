@@ -248,6 +248,9 @@
     <Content Include="Assets\Images\previous.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Images\question.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Images\trash.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

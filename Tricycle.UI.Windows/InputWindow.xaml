@@ -4,16 +4,36 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Height="130"
+        Height="145"
         Width="480"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="10">
-        <Label x:Name="lblMessage" Padding="0">Please enter a value:</Label>
-        <TextBox x:Name="txtValue" Margin="0, 10" TextChanged="txtValue_TextChanged" />
+    <StackPanel Margin="{StaticResource DialogPadding}">
+        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 10">
+            <Image Source="Assets\Images\question.png"
+                   Width="{StaticResource IconSize}"
+                   Height="{StaticResource IconSize}"
+                   Margin="0, 0, 10, 0" />
+            <StackPanel Width="379">
+                <Label x:Name="lblMessage"
+                       FontSize="{StaticResource MessageFontSize}"
+                       Padding="0">Please enter a value:</Label>
+                <TextBox x:Name="txtValue"
+                         FontSize="{StaticResource InputFontSize}"
+                         Margin="0, 5, 0, 0"
+                         TextChanged="txtValue_TextChanged" />
+            </StackPanel>
+        </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="btnOK" Margin="10, 0" Width="50" Click="btnOK_Click">OK</Button>
-            <Button x:Name="btnCancel" Width="50" Click="btnCancel_Click">Cancel</Button>
+            <Button x:Name="btnOK" 
+                    FontSize="{StaticResource ButtonFontSize}"
+                    Margin="10, 0"
+                    Width="{StaticResource ButtonWidth}"
+                    Click="btnOK_Click">OK</Button>
+            <Button x:Name="btnCancel"
+                    FontSize="{StaticResource ButtonFontSize}"
+                    Width="{StaticResource ButtonWidth}"
+                    Click="btnCancel_Click">Cancel</Button>
         </StackPanel>
     </StackPanel>
 </Window>
