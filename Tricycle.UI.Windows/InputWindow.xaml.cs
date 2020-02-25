@@ -59,7 +59,7 @@ namespace Tricycle.UI.Windows
                 window.btnCancel.Focus();
             }
 
-            SystemSounds.Beep.Play();
+            SystemSounds.Question.Play();
 
             return window.ShowDialog() == true ? window.Value : null;
         }
