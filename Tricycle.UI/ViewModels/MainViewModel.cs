@@ -908,11 +908,11 @@ namespace Tricycle.UI.ViewModels
                                                                           storageDimensions.Value);
 
                 CropTop = cropParameters.Start.Y.ToString();
-                CropBottom = (sourceDimensions.Value.Height
+                CropBottom = (storageDimensions.Value.Height
                               - cropParameters.Size.Height
                               - cropParameters.Start.Y).ToString();
                 CropLeft =  (cropParameters.Start.X * sampleAspectRatio).ToString("0");
-                CropRight = ((sourceDimensions.Value.Width - cropParameters.Size.Width - cropParameters.Start.X)
+                CropRight = ((storageDimensions.Value.Width - cropParameters.Size.Width - cropParameters.Start.X)
                              * sampleAspectRatio).ToString("0");
             }
             else
