@@ -1095,6 +1095,21 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void PopulatesManualCropControlsWhenAnamorphicHorizontalBarsAreFound()
+        {
+            _videoStream.Dimensions = new Dimensions(854, 480);
+            _videoStream.StorageDimensions = new Dimensions(720, 480);
+            _cropParameters.Size = new Dimensions(720, 464);
+            _cropParameters.Start = new Coordinate<int>(0, 6);
+            SelectSource();
+
+            Assert.AreEqual("6", _viewModel.CropTop);
+            Assert.AreEqual("10", _viewModel.CropBottom);
+            Assert.AreEqual("0", _viewModel.CropLeft);
+            Assert.AreEqual("0", _viewModel.CropRight);
+        }
+
+        [TestMethod]
         public void PopulatesSubtitleOptions()
         {
             _mediaInfo.Streams = new StreamInfo[]
