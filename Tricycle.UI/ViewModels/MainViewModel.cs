@@ -23,9 +23,6 @@ using Xamarin.Forms;
 
 namespace Tricycle.UI.ViewModels
 {
-    public delegate void AlertEventHandler(string title, string message);
-    public delegate Task<bool> ConfirmEventHandler(string title, string message);
-
     public class MainViewModel : ViewModelBase
     {
         #region Constants
@@ -148,7 +145,7 @@ namespace Tricycle.UI.ViewModels
             _mediaTranscoder.StatusChanged += OnTranscodeStatusChanged;
 
             _appManager.FileOpened += async fileName => await OpenSource(fileName);
-            _appManager.Quitting += async () => await OnAppQuitting();
+            _appManager.Quitting += OnAppQuitting;
             _appManager.TemplateSaved += SaveTemplate;
             _appManager.TemplateApplied += ApplyTemplate;
 
@@ -158,7 +155,7 @@ namespace Tricycle.UI.ViewModels
                                               () => _isSourceSelectionEnabled);
             DestinationSelectCommand = new Command(async () => await SelectDestination(),
                                                    () => _isDestinationSelectionEnabled);
-            StartCommand = new Command(async () => await ToggleRunning(),
+            StartCommand = new Command(ToggleRunning,
                                        () => _isStartEnabled);
             PreviewCommand = new Command(() => _appManager.RaiseModalOpened(Modal.Preview),
                                          () => _isStartEnabled && !_isRunning);
@@ -480,13 +477,6 @@ namespace Tricycle.UI.ViewModels
 
         #endregion
 
-        #region Events
-
-        public event AlertEventHandler Alert;
-        public event ConfirmEventHandler Confirm;
-
-        #endregion
-
         #region Methods
 
         #region Public
@@ -529,11 +519,11 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        async Task ToggleRunning()
+        void ToggleRunning()
         {
             if (_isRunning)
             {
-                await ConfirmStopTranscode();
+                ConfirmStopTranscode();
             }
             else
             {
@@ -739,7 +729,7 @@ namespace Tricycle.UI.ViewModels
             }
             else
             {
-                Alert?.Invoke("Invalid Source", "The selected file could not be opened.");
+                _appManager.Alert("Invalid Source", "The selected file could not be opened.", Severity.Warning);
 
                 _isSourceSelectionEnabled = true;
                 _isStartEnabled = false;
@@ -1164,27 +1154,23 @@ namespace Tricycle.UI.ViewModels
 
             if (!success)
             {
-                Alert?.Invoke("Job Error", @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯");
+                _appManager.Alert("Job Error",
+                                  @"Oops! Your job couldn't be started for some reason. ¯\_(ツ)_/¯",
+                                  Severity.Error);
                 IsSpinnerVisible = false;
                 Status = string.Empty;
             }
         }
 
-        async Task<bool> ConfirmStopTranscode()
+        bool ConfirmStopTranscode()
         {
-            bool proceed = true;
-
-            if (Confirm != null)
-            {
-                proceed = await Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?");
-            }
-
-            if (proceed)
+            if (_appManager.Confirm("Stop Transcode", "Whoa... Are you sure you want to stop and lose your progress?"))
             {
                 StopTranscode();
+                return true;
             }
 
-            return proceed;
+            return false;
         }
 
         void StopTranscode()
@@ -1205,7 +1191,9 @@ namespace Tricycle.UI.ViewModels
 
             if (!success)
             {
-                Alert?.Invoke("Job Error", @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯");
+                _appManager.Alert("Job Error",
+                                  @"Oops! Your job couldn't be stopped for some reason. ¯\_(ツ)_/¯",
+                                  Severity.Error);
             }
         }
 
@@ -1955,7 +1943,7 @@ namespace Tricycle.UI.ViewModels
             {
                 if (_tricycleConfig.CompletionAlert)
                 {
-                    Alert?.Invoke("Transcode Complete", "Good news! Your shiny, new video is ready.");
+                    _appManager.Alert("Transcode Complete", "Good news! Your shiny, new video is ready.", Severity.Info);
                 }
 
                 ResetJobState();
@@ -1967,16 +1955,16 @@ namespace Tricycle.UI.ViewModels
         {
             _device.BeginInvokeOnMainThread(async () =>
             {
-                Alert?.Invoke("Transcode Failed", error);
+                _appManager.Alert("Transcode Failed", error, Severity.Warning);
                 DeleteDestination();
                 ResetJobState();
                 await OpenSource(SourceName);
             });
         }
 
-        async Task OnAppQuitting()
+        void OnAppQuitting()
         {
-            if (IsPageVisible && (!_isRunning || await ConfirmStopTranscode()))
+            if (IsPageVisible && (!_isRunning || ConfirmStopTranscode()))
             {
                 // This raises the event outside of the current closing call stack
                 _device.StartTimer(TimeSpan.FromTicks(1), () =>

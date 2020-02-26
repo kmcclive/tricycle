@@ -40,9 +40,6 @@ namespace Tricycle.UI.Pages
                 AppState.IocContainer.GetInstance<IConfigManager<Dictionary<string, JobTemplate>>>(),
                 AppState.DefaultDestinationDirectory);
 
-            _viewModel.Alert += OnAlert;
-            _viewModel.Confirm += OnConfirm;
-
             BindingContext = _viewModel;
         }
 
@@ -63,16 +60,6 @@ namespace Tricycle.UI.Pages
             base.OnDisappearing();
 
             _viewModel.IsPageVisible = false;
-        }
-
-        void OnAlert(string title, string message)
-        {
-            DisplayAlert(title, message, "OK");
-        }
-
-        Task<bool> OnConfirm(string title, string message)
-        {
-            return DisplayAlert(title, message, "OK", "Cancel");
         }
     }
 }

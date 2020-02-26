@@ -7,12 +7,30 @@ namespace Tricycle.UI.Tests
     [TestClass]
     public class AppManagerTests
     {
-        AppManager _appManager;
+        public class MockAppManager : AppManagerBase
+        {
+            public override void Alert(string title, string message, Severity severity)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override string Ask(string title, string message, string defaultValue)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool Confirm(string title, string message)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        AppManagerBase _appManager;
 
         [TestInitialize]
         public void Setup()
         {
-            _appManager = new AppManager();
+            _appManager = new MockAppManager();
         }
 
         [TestMethod]

@@ -52,7 +52,7 @@ namespace Tricycle.UI.Windows
 
         public MainWindow()
         {
-            _appManager = new AppManager();
+            _appManager = new AppManager(this);
 
             _appManager.Busy += OnBusyChange;
             _appManager.Ready += OnBusyChange;
@@ -359,27 +359,16 @@ namespace Tricycle.UI.Windows
 
         void OnSaveTemplateClick(object sender, RoutedEventArgs e)
         {
-            var window = new InputWindow()
-            {
-                Owner = this,
-                Title = "Save Template",
-                Message = "Please enter a name for the template:",
-                Value = GetNewTemplateName(),
-                IsValueRequired = true
-            };
+            string name = _appManager.Ask("Save Template", "Please enter a name for the template:", GetNewTemplateName());
 
-            if (window.ShowDialog() == true)
+            if (name != null)
             {
-                string name = window.Value.Trim();
+                name = name.Trim();
                 bool overwrite = false;
 
                 if (_templateManager.Config?.ContainsKey(name) == true)
                 {
-                    overwrite = MessageBox.Show(this,
-                                                "A template with that name exists. Would you like to overwrite it?",
-                                                "Overwrite Template",
-                                                MessageBoxButton.OKCancel,
-                                                MessageBoxImage.Warning) == MessageBoxResult.OK;
+                    overwrite = _appManager.Confirm("Overwrite Template", "A template with that name exists. Would you like to overwrite it?");
 
                     if (!overwrite)
                     {

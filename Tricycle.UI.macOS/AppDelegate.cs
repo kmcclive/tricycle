@@ -213,60 +213,29 @@ namespace Tricycle.UI.macOS
         [Action("saveTemplate:")]
         public void SaveTemplate(NSObject sender)
         {
-            using (var alert = NSAlert.WithMessage("Save Template",
-                                                   "OK",
-                                                   "Cancel",
-                                                   null,
-                                                   "Please enter a name for the template:"))
+            string name = _appManager.Ask("Save Template", "Please enter a name for the template:", GetNewTemplateName());
+
+            if (name != null)
             {
-                using (var input = new NSTextField(new CGRect(0, 0, 200, 24)))
+                name = name.Trim();
+                bool overwrite = false;
+
+                if (_templateManager.Config?.ContainsKey(name) == true)
                 {
-                    alert.AccessoryView = input;
+                    overwrite = _appManager.Confirm("Overwrite Template",
+                                                    "A template with that name exists. Would you like to overwrite it?");
 
-                    string name = GetNewTemplateName();
-                    const int OK = 1;
-                    nint result;
-
-                    do
+                    if (!overwrite)
                     {
-                        input.StringValue = name;
-
-                        result = alert.RunSheetModal(MainWindow);
-
-                        input.ValidateEditing();
+                        return;
                     }
-                    while ((result == OK) && string.IsNullOrWhiteSpace(input.StringValue));
+                }
 
-                    if (result == OK)
-                    {
-                        name = input.StringValue.Trim();
+                _appManager.RaiseTemplateSaved(name);
 
-                        bool overwrite = false;
-
-                        if (_templateManager.Config?.ContainsKey(name) == true)
-                        {
-                            using (var confirm = NSAlert.WithMessage("Overwrite Template",
-                                                                     "OK",
-                                                                     "Cancel",
-                                                                     null,
-                                                                     "A template with that name exists. " +
-                                                                     "Would you like to overwrite it?"))
-                            {
-                                overwrite = confirm.RunSheetModal(MainWindow) == OK;
-                                if (!overwrite)
-                                {
-                                    return;
-                                }
-                            }
-                        }
-
-                        _appManager.RaiseTemplateSaved(name);
-
-                        if (!overwrite)
-                        {
-                            PopulateTemplateMenu();
-                        }
-                    }
+                if (!overwrite)
+                {
+                    PopulateTemplateMenu();
                 }
             }
         }

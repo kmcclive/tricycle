@@ -97,12 +97,6 @@ namespace Tricycle.UI.ViewModels
 
         #endregion
 
-        #region Events
-
-        public event AlertEventHandler Alert;
-
-        #endregion
-
         #region Methods
 
         #region Public
@@ -141,7 +135,9 @@ namespace Tricycle.UI.ViewModels
 
                 if (_imageFileNames?.Any() != true)
                 {
-                    Alert?.Invoke("Preview Error", @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯");
+                    _appManager.Alert("Preview Error",
+                                      @"Oops! Your preview didn't show up for some reason. ¯\_(ツ)_/¯",
+                                      Severity.Error);
                 }
             });
         }

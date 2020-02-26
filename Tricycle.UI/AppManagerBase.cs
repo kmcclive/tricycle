@@ -2,7 +2,7 @@
 
 namespace Tricycle.UI
 {
-    public class AppManager : IAppManager
+    public abstract class AppManagerBase : IAppManager
     {
         int _modalCount;
 
@@ -21,6 +21,10 @@ namespace Tricycle.UI
         public event Action<bool> SourceSelected;
         public event Action<string> TemplateSaved;
         public event Action<string> TemplateApplied;
+
+        public abstract void Alert(string title, string message, Severity severity);
+        public abstract bool Confirm(string title, string message);
+        public abstract string Ask(string title, string message, string defaultValue);
 
         public void RaiseFileOpened(string fileName) => FileOpened?.Invoke(fileName);
         public void RaiseQuitting() => Quitting?.Invoke();
