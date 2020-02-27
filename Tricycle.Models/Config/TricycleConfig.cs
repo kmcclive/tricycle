@@ -10,5 +10,7 @@ namespace Tricycle.Models.Config
         public IDictionary<ContainerFormat, string> DefaultFileExtensions { get; set; }
         public bool CompletionAlert { get; set; }
         public bool DeleteIncompleteFiles { get; set; }
+        public AutomationMode DestinationDirectoryMode { get; set; }
+        public string DestinationDirectory { get; set; }
     }
 }

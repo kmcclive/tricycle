@@ -515,6 +515,16 @@ namespace Tricycle.UI.ViewModels
 
             if (result.Confirmed)
             {
+                if (_configManager.Config.DestinationDirectoryMode == AutomationMode.Auto)
+                {
+                    try
+                    {
+                        _configManager.Config.DestinationDirectory = Path.GetDirectoryName(result.FileName);
+                        _configManager.Save();
+                    }
+                    catch (ArgumentException) { }
+                }
+                
                 DestinationName = result.FileName;
             }
         }
@@ -1074,14 +1084,32 @@ namespace Tricycle.UI.ViewModels
                 fileName = Path.GetFileNameWithoutExtension(sourceInfo.FileName);
             }
 
+            string directory = _configManager.Config.DestinationDirectory;
+
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                try
+                {
+                    Path.Combine(directory, fileName);
+                }
+                catch (ArgumentException)
+                {
+                    directory = null;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                directory = _defaultDestinationDirectory;
+            }
+
             string result;
             int count = 1;
 
             do
             {
                 string number = count > 1 ? $" {count}" : string.Empty;
-                result = Path.Combine(_defaultDestinationDirectory,
-                                     $"{fileName}{number}.{extension}");
+                result = Path.Combine(directory, $"{fileName}{number}.{extension}");
                 count++;
             } while (_fileSystem.File.Exists(result));
 
