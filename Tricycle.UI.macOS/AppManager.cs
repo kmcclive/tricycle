@@ -21,16 +21,6 @@ namespace Tricycle.UI.macOS
                                                    null,
                                                    message))
             {
-                switch (severity)
-                {
-                    case Severity.Warning:
-                        alert.Icon = new NSImage("Images/warning.png");
-                        break;
-                    case Severity.Error:
-                        alert.Icon = new NSImage("Images/error.png");
-                        break;
-                }
-
                 alert.RunSheetModal(_mainWindow);
             }
         }
@@ -45,7 +35,7 @@ namespace Tricycle.UI.macOS
                                                    null,
                                                    message))
             {
-                alert.Icon = new NSImage("Images/warning.png");
+                alert.AlertStyle = NSAlertStyle.Critical;
 
                 return alert.RunSheetModal(_mainWindow) == OK;
             }
@@ -53,12 +43,12 @@ namespace Tricycle.UI.macOS
 
         public override string Ask(string title, string message, string defaultValue)
         {
-            const int OK = 0;
+            const int OK = 1;
             string response = null;
 
             using (var alert = NSAlert.WithMessage(title,
-                                                   "Cancel",
                                                    "OK",
+                                                   "Cancel",
                                                    null,
                                                    message))
             {
