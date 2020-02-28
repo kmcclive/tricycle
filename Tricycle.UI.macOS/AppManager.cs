@@ -6,6 +6,13 @@ namespace Tricycle.UI.macOS
 {
     public class AppManager : AppManagerBase
     {
+        NSWindow _mainWindow;
+
+        public AppManager(NSWindow mainWindow)
+        {
+            _mainWindow = mainWindow;
+        }
+
         public override void Alert(string title, string message, Severity severity)
         {
             using (var alert = NSAlert.WithMessage(title,
@@ -24,34 +31,34 @@ namespace Tricycle.UI.macOS
                         break;
                 }
 
-                alert.RunSheetModal(NSApplication.SharedApplication.MainWindow);
+                alert.RunSheetModal(_mainWindow);
             }
         }
 
         public override bool Confirm(string title, string message)
         {
-            const int OK = 1;
+            const int OK = 0;
 
             using (var alert = NSAlert.WithMessage(title,
-                                                   "OK",
                                                    "Cancel",
+                                                   "OK",
                                                    null,
                                                    message))
             {
                 alert.Icon = new NSImage("Images/warning.png");
 
-                return alert.RunSheetModal(NSApplication.SharedApplication.MainWindow) == OK;
+                return alert.RunSheetModal(_mainWindow) == OK;
             }
         }
 
         public override string Ask(string title, string message, string defaultValue)
         {
-            const int OK = 1;
+            const int OK = 0;
             string response = null;
 
             using (var alert = NSAlert.WithMessage(title,
-                                                   "OK",
                                                    "Cancel",
+                                                   "OK",
                                                    null,
                                                    message))
             {
@@ -64,7 +71,7 @@ namespace Tricycle.UI.macOS
                     {
                         input.StringValue = defaultValue;
 
-                        result = alert.RunSheetModal(NSApplication.SharedApplication.MainWindow);
+                        result = alert.RunSheetModal(_mainWindow);
 
                         input.ValidateEditing();
                     }
