@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.IO;
+using Tricycle.IO.Models;
 using Tricycle.Media.FFmpeg.Models.Config;
 using Tricycle.Models;
 using Tricycle.Models.Config;
@@ -33,6 +35,8 @@ namespace Tricycle.UI.Tests.ViewModels
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         IAppManager _appManager;
+        IFolderBrowser _folderBrowser;
+        string _defaultDestinationDirectory;
         TricycleConfig _tricycleConfig;
         FFmpegConfig _ffmpegConfig;
 
@@ -47,11 +51,15 @@ namespace Tricycle.UI.Tests.ViewModels
             _ffmpegConfigManager = Substitute.For<IConfigManager<FFmpegConfig>>();
             _templateManager = Substitute.For<IConfigManager<Dictionary<string, JobTemplate>>>();
             _appManager = Substitute.For<IAppManager>();
+            _folderBrowser = Substitute.For<IFolderBrowser>();
+            _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new ConfigViewModel(_tricycleConfigManager,
                                              _ffmpegConfigManager,
                                              _templateManager,
                                              _appManager,
-                                             MockDevice.Self)
+                                             _folderBrowser,
+                                             MockDevice.Self,
+                                             _defaultDestinationDirectory)
             {
                 IsPageVisible = true
             };
@@ -129,6 +137,33 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Initialize();
 
             Assert.AreEqual(extension, _viewModel.MkvFileExtension);
+        }
+
+        [TestMethod]
+        public void LoadsDestinationDirectoryModeFromConfig()
+        {
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Auto;
+            _viewModel.Initialize();
+
+            Assert.AreEqual(new ListItem(_tricycleConfig.DestinationDirectoryMode),
+                            _viewModel.SelectedDestinationDirectoryMode);
+        }
+
+        [TestMethod]
+        public void LoadsDestinationDirectoryFromDefault()
+        {
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_defaultDestinationDirectory, _viewModel.DestinationDirectory);
+        }
+
+        [TestMethod]
+        public void LoadsDestinationDirectoryFromConfig()
+        {
+            _tricycleConfig.DestinationDirectory = Path.Combine("Volumes", "Media");
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_tricycleConfig.DestinationDirectory, _viewModel.DestinationDirectory);
         }
 
         [TestMethod]
@@ -486,6 +521,14 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void PopulatesDestinationDirectoryModeOptions()
+        {
+            Assert.AreEqual(2, _viewModel.DestinationDirectoryModeOptions?.Count);
+            Assert.AreEqual(1, _viewModel.DestinationDirectoryModeOptions.Count(o => o?.ToString() == "Auto"));
+            Assert.AreEqual(1, _viewModel.DestinationDirectoryModeOptions.Count(o => o?.ToString() == "Manual"));
+        }
+
+        [TestMethod]
         public void PopulatesFormatOptionsForAudioQualityPresets()
         {
             _viewModel.Initialize();
@@ -606,6 +649,104 @@ namespace Tricycle.UI.Tests.ViewModels
             Assert.AreEqual(string.Empty, newPreset?.SelectedFormat?.ToString());
             Assert.AreEqual(string.Empty, newPreset?.SelectedMixdown?.ToString());
             Assert.IsNull(newPreset?.Quality);
+        }
+
+        [TestMethod]
+        public void EnablesDestinationBrowseWhenModeInConfigIsManual()
+        {
+            bool canExecute = false;
+
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Manual;
+            _viewModel.DestinationBrowseCommand.CanExecuteChanged += (s, e) =>
+                canExecute = _viewModel.DestinationBrowseCommand.CanExecute(null);
+            _viewModel.Initialize();
+
+            Assert.IsTrue(canExecute);
+        }
+
+        [TestMethod]
+        public void DisablesDestinationBrowseWhenModeInConfigIsAuto()
+        {
+            bool canExecute = true;
+
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Auto;
+            _viewModel.DestinationBrowseCommand.CanExecuteChanged += (s, e) =>
+                canExecute = _viewModel.DestinationBrowseCommand.CanExecute(null);
+            _viewModel.Initialize();
+
+            Assert.IsFalse(canExecute);
+        }
+
+        [TestMethod]
+        public void EnablesDestinationBrowseWhenModeChangesToManual()
+        {
+            bool canExecute = false;
+
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Auto;
+            _viewModel.Initialize();
+            _viewModel.DestinationBrowseCommand.CanExecuteChanged += (s, e) =>
+                canExecute = _viewModel.DestinationBrowseCommand.CanExecute(null);
+
+            _viewModel.SelectedDestinationDirectoryMode = new ListItem(AutomationMode.Manual);
+
+            Assert.IsTrue(canExecute);
+        }
+
+        [TestMethod]
+        public void DisablesDestinationBrowseWhenModeChangesToAuto()
+        {
+            bool canExecute = true;
+
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Manual;
+            _viewModel.Initialize();
+            _viewModel.DestinationBrowseCommand.CanExecuteChanged += (s, e) =>
+                canExecute = _viewModel.DestinationBrowseCommand.CanExecute(null);
+
+            _viewModel.SelectedDestinationDirectoryMode = new ListItem(AutomationMode.Auto);
+
+            Assert.IsFalse(canExecute);
+        }
+
+        [TestMethod]
+        public void CallsFolderBrowserWhenDestinationIsBrowsed()
+        {
+            _viewModel.Initialize();
+            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(new FolderBrowserResult());
+            _viewModel.DestinationBrowseCommand.Execute(null);
+
+            _folderBrowser.Received().BrowseToSave(_defaultDestinationDirectory);
+        }
+
+        [TestMethod]
+        public void UpdatesDestinationDirectoryWhenFolderBrowserIsConfirmed()
+        {
+            var result = new FolderBrowserResult()
+            {
+                Confirmed = true,
+                FolderName = Path.Combine("Volumes", "Media")
+            };
+
+            _viewModel.Initialize();
+            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(result);
+            _viewModel.DestinationBrowseCommand.Execute(null);
+
+            Assert.AreEqual(result.FolderName, _viewModel.DestinationDirectory);
+        }
+
+        [TestMethod]
+        public void DoesNotUpdateDestinationDirectoryWhenFolderBrowserIsNotConfirmed()
+        {
+            var result = new FolderBrowserResult()
+            {
+                Confirmed = false,
+                FolderName = Path.Combine("Volumes", "Media")
+            };
+
+            _viewModel.Initialize();
+            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(result);
+            _viewModel.DestinationBrowseCommand.Execute(null);
+
+            Assert.AreEqual(_defaultDestinationDirectory, _viewModel.DestinationDirectory);
         }
 
         [TestMethod]
@@ -814,6 +955,30 @@ namespace Tricycle.UI.Tests.ViewModels
 
             Assert.AreEqual(extension,
                             _tricycleConfigManager.Config?.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv));
+        }
+
+        [TestMethod]
+        public void SavesDestinationDirectoryModeToConfig()
+        {
+            var mode = AutomationMode.Auto;
+
+            _viewModel.Initialize();
+            _viewModel.SelectedDestinationDirectoryMode = new ListItem(mode);
+            _viewModel.Close();
+
+            Assert.AreEqual(mode, _tricycleConfigManager.Config?.DestinationDirectoryMode);
+        }
+
+        [TestMethod]
+        public void SavesDestinationDirectoryToConfig()
+        {
+            var directory = Path.Combine("Volumes", "Media");
+
+            _viewModel.Initialize();
+            _viewModel.DestinationDirectory = directory;
+            _viewModel.Close();
+
+            Assert.AreEqual(directory, _tricycleConfigManager.Config?.DestinationDirectory);
         }
 
         [TestMethod]
