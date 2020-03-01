@@ -33,6 +33,7 @@ namespace Tricycle.UI.Pages
                 AppState.IocContainer.GetInstance<IConfigManager<FFmpegConfig>>(),
                 AppState.IocContainer.GetInstance<IConfigManager<Dictionary<string, JobTemplate>>>(),
                 appManager,
+                AppState.IocContainer.GetInstance<IFolderBrowser>(),
                 AppState.IocContainer.GetInstance<IDevice>(),
                 AppState.DefaultDestinationDirectory);
             var sections = Enum.GetValues(typeof(Section)).Cast<Section>().ToArray();

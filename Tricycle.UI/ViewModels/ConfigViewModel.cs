@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
@@ -37,6 +38,7 @@ namespace Tricycle.UI.ViewModels
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         IAppManager _appManager;
+        IFolderBrowser _folderBrowser;
         IDevice _device;
         string _defaultDestinationDirectory;
 
@@ -82,6 +84,7 @@ namespace Tricycle.UI.ViewModels
                                IConfigManager<FFmpegConfig> ffmpegConfigManager,
                                IConfigManager<Dictionary<string, JobTemplate>> templateManager,
                                IAppManager appManager,
+                               IFolderBrowser folderBrowser,
                                IDevice device,
                                string defaultDestinationDirectory)
         {
@@ -89,6 +92,7 @@ namespace Tricycle.UI.ViewModels
             _ffmpegConfigManager = ffmpegConfigManager;
             _templateManager = templateManager;
             _appManager = appManager;
+            _folderBrowser = folderBrowser;
             _device = device;
             _defaultDestinationDirectory = defaultDestinationDirectory;
             _destinationDirectoryModeOptions = Enum.GetValues(typeof(AutomationMode))
@@ -129,6 +133,9 @@ namespace Tricycle.UI.ViewModels
             _appManager.Quitting += OnAppQuitting;
 
             BackCommand = new Command(() => _appManager.RaiseModalClosed());
+            DestinationBrowseCommand =
+                new Command(async () => await SelectDestinationDirectory(),
+                            () => object.Equals(SelectedDestinationDirectoryMode?.Value, AutomationMode.Manual));
         }
 
         #endregion
@@ -176,7 +183,11 @@ namespace Tricycle.UI.ViewModels
         public ListItem SelectedDestinationDirectoryMode
         {
             get => _selectedDestinationDirectoryMode;
-            set => SetProperty(ref _selectedDestinationDirectoryMode, value);
+            set
+            {
+                SetProperty(ref _selectedDestinationDirectoryMode, value);
+                ((Command)DestinationBrowseCommand).ChangeCanExecute();
+            }
         }
 
         public string DestinationDirectory
@@ -306,6 +317,7 @@ namespace Tricycle.UI.ViewModels
         }
 
         public ICommand BackCommand { get; }
+        public ICommand DestinationBrowseCommand { get; }
 
         #endregion
 
@@ -342,6 +354,20 @@ namespace Tricycle.UI.ViewModels
             base.SetProperty(ref field, value, propertyName);
 
             _isDirty |= !_isLoading;
+        }
+
+        #endregion
+
+        #region Command Actions
+
+        async Task SelectDestinationDirectory()
+        {
+            var result = await _folderBrowser.BrowseToSave(DestinationDirectory);
+
+            if (result.Confirmed)
+            {
+                DestinationDirectory = result.FolderName;
+            }
         }
 
         #endregion
