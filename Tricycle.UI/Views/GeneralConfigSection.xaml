@@ -42,7 +42,7 @@
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="140" />
-                            <On Platform="WPF" Value="205" />
+                            <On Platform="WPF" Value="215" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Header>

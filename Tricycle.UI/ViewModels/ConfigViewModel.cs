@@ -362,7 +362,7 @@ namespace Tricycle.UI.ViewModels
 
         async Task SelectDestinationDirectory()
         {
-            var result = await _folderBrowser.BrowseToSave(DestinationDirectory);
+            var result = await _folderBrowser.Browse(DestinationDirectory);
 
             if (result.Confirmed)
             {

@@ -711,10 +711,10 @@ namespace Tricycle.UI.Tests.ViewModels
         public void CallsFolderBrowserWhenDestinationIsBrowsed()
         {
             _viewModel.Initialize();
-            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(new FolderBrowserResult());
+            _folderBrowser.Browse(Arg.Any<string>()).Returns(new FolderBrowserResult());
             _viewModel.DestinationBrowseCommand.Execute(null);
 
-            _folderBrowser.Received().BrowseToSave(_defaultDestinationDirectory);
+            _folderBrowser.Received().Browse(_defaultDestinationDirectory);
         }
 
         [TestMethod]
@@ -727,7 +727,7 @@ namespace Tricycle.UI.Tests.ViewModels
             };
 
             _viewModel.Initialize();
-            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(result);
+            _folderBrowser.Browse(Arg.Any<string>()).Returns(result);
             _viewModel.DestinationBrowseCommand.Execute(null);
 
             Assert.AreEqual(result.FolderName, _viewModel.DestinationDirectory);
@@ -743,7 +743,7 @@ namespace Tricycle.UI.Tests.ViewModels
             };
 
             _viewModel.Initialize();
-            _folderBrowser.BrowseToSave(Arg.Any<string>()).Returns(result);
+            _folderBrowser.Browse(Arg.Any<string>()).Returns(result);
             _viewModel.DestinationBrowseCommand.Execute(null);
 
             Assert.AreEqual(_defaultDestinationDirectory, _viewModel.DestinationDirectory);
