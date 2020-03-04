@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
@@ -37,13 +38,18 @@ namespace Tricycle.UI.ViewModels
         IConfigManager<FFmpegConfig> _ffmpegConfigManager;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         IAppManager _appManager;
+        IFolderBrowser _folderBrowser;
         IDevice _device;
+        string _defaultDestinationDirectory;
 
         bool _alertOnCompletion;
         bool _deleteIncompleteFiles;
         bool _preferForcedSubtitles;
         string _mp4FileExtension;
         string _mkvFileExtension;
+        string _destinationDirectory;
+        IList<ListItem> _destinationDirectoryModeOptions;
+        ListItem _selectedDestinationDirectoryMode;
         IList<TemplateViewModel> _templates = new ObservableCollection<TemplateViewModel>();
         IList<ListItem> _deinterlaceSwitchOptions;
         ListItem _selectedDeinterlaceSwitchOption;
@@ -78,13 +84,21 @@ namespace Tricycle.UI.ViewModels
                                IConfigManager<FFmpegConfig> ffmpegConfigManager,
                                IConfigManager<Dictionary<string, JobTemplate>> templateManager,
                                IAppManager appManager,
-                               IDevice device)
+                               IFolderBrowser folderBrowser,
+                               IDevice device,
+                               string defaultDestinationDirectory)
         {
             _tricycleConfigManager = tricycleConfigManager;
             _ffmpegConfigManager = ffmpegConfigManager;
             _templateManager = templateManager;
             _appManager = appManager;
+            _folderBrowser = folderBrowser;
             _device = device;
+            _defaultDestinationDirectory = defaultDestinationDirectory;
+            _destinationDirectoryModeOptions = Enum.GetValues(typeof(AutomationMode))
+                                                   .Cast<AutomationMode>()
+                                                   .Select(o => new ListItem(o))
+                                                   .ToList();
             _deinterlaceSwitchOptions = Enum.GetValues(typeof(SmartSwitchOption))
                                             .Cast<SmartSwitchOption>()
                                             .Select(o => new ListItem(o))
@@ -119,6 +133,9 @@ namespace Tricycle.UI.ViewModels
             _appManager.Quitting += OnAppQuitting;
 
             BackCommand = new Command(() => _appManager.RaiseModalClosed());
+            DestinationBrowseCommand =
+                new Command(async () => await SelectDestinationDirectory(),
+                            () => object.Equals(SelectedDestinationDirectoryMode?.Value, AutomationMode.Manual));
         }
 
         #endregion
@@ -155,6 +172,28 @@ namespace Tricycle.UI.ViewModels
         {
             get => _mkvFileExtension;
             set => SetProperty(ref _mkvFileExtension, value);
+        }
+
+        public IList<ListItem> DestinationDirectoryModeOptions
+        {
+            get => _destinationDirectoryModeOptions;
+            set => SetProperty(ref _destinationDirectoryModeOptions, value);
+        }
+
+        public ListItem SelectedDestinationDirectoryMode
+        {
+            get => _selectedDestinationDirectoryMode;
+            set
+            {
+                SetProperty(ref _selectedDestinationDirectoryMode, value);
+                ((Command)DestinationBrowseCommand).ChangeCanExecute();
+            }
+        }
+
+        public string DestinationDirectory
+        {
+            get => _destinationDirectory;
+            set => SetProperty(ref _destinationDirectory, value);
         }
 
         public IList<TemplateViewModel> Templates
@@ -278,6 +317,7 @@ namespace Tricycle.UI.ViewModels
         }
 
         public ICommand BackCommand { get; }
+        public ICommand DestinationBrowseCommand { get; }
 
         #endregion
 
@@ -318,6 +358,20 @@ namespace Tricycle.UI.ViewModels
 
         #endregion
 
+        #region Command Actions
+
+        async Task SelectDestinationDirectory()
+        {
+            var result = await _folderBrowser.Browse(DestinationDirectory);
+
+            if (result.Confirmed)
+            {
+                DestinationDirectory = result.FolderName;
+            }
+        }
+
+        #endregion
+
         #region Helpers
 
         void Load(TricycleConfig config)
@@ -330,6 +384,10 @@ namespace Tricycle.UI.ViewModels
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
             Mp4FileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4);
             MkvFileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv);
+            SelectedDestinationDirectoryMode = new ListItem(config.DestinationDirectoryMode);
+            DestinationDirectory = string.IsNullOrWhiteSpace(config.DestinationDirectory)
+                                   ? _defaultDestinationDirectory
+                                   : config.DestinationDirectory;
             SelectedDeinterlaceSwitchOption = config.Video?.Deinterlace != null
                                               ? new ListItem(config.Video?.Deinterlace)
                                               : null;
@@ -499,7 +557,9 @@ namespace Tricycle.UI.ViewModels
                 {
                     { ContainerFormat.Mp4, string.IsNullOrWhiteSpace(Mp4FileExtension) ? "mp4" : Mp4FileExtension },
                     { ContainerFormat.Mkv, string.IsNullOrWhiteSpace(MkvFileExtension) ? "mkv" : MkvFileExtension }
-                }
+                },
+                DestinationDirectoryMode = (AutomationMode)SelectedDestinationDirectoryMode.Value,
+                DestinationDirectory = DestinationDirectory
             };
         }
 

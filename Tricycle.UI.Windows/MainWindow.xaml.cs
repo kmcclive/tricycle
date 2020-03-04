@@ -262,6 +262,7 @@ namespace Tricycle.UI.Windows
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
                 _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(_templateManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
+                _.For<IFolderBrowser>().Use<FolderBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe.exe"),
                                                                 processRunner,

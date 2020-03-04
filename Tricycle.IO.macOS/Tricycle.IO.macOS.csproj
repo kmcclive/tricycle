@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileBrowser.cs" />
+    <Compile Include="FolderBrowser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj">

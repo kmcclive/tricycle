@@ -40,7 +40,16 @@ namespace Tricycle.UI.macOS
             var rect = new CoreGraphics.CGRect(center.X, center.Y, WINDOW_WIDTH, WINDOW_HEIGHT);
             var style = NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 
-            _appManager = new AppManager();
+            MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
+            {
+                Title = "Tricycle",
+                TitlebarAppearsTransparent = true,
+                BackgroundColor = NSColor.FromSrgb(225 / 255f, 224 / 255f, 225 / 255f, 1),
+                MovableByWindowBackground = true
+            };
+            MainWindow.WindowShouldClose += sender => ShouldClose();
+
+            _appManager = new AppManager(MainWindow);
 
             _appManager.FileOpened += fileName =>
             {
@@ -52,15 +61,6 @@ namespace Tricycle.UI.macOS
             {
                 NSApplication.SharedApplication.Terminate(this);
             };
-
-            MainWindow = new NSWindow(rect, style, NSBackingStore.Buffered, false)
-            {
-                Title = "Tricycle",
-                TitlebarAppearsTransparent = true,
-                BackgroundColor = NSColor.FromSrgb(225 / 255f, 224 / 255f, 225 / 255f, 1),
-                MovableByWindowBackground = true
-            };
-            MainWindow.WindowShouldClose += sender => ShouldClose();
         }
 
         public override NSWindow MainWindow { get; }
@@ -119,6 +119,7 @@ namespace Tricycle.UI.macOS
                 _.For<IConfigManager<TricycleConfig>>().Use(tricycleConfigManager);
                 _.For<IConfigManager<Dictionary<string, JobTemplate>>>().Use(_templateManager);
                 _.For<IFileBrowser>().Use<FileBrowser>();
+                _.For<IFolderBrowser>().Use<FolderBrowser>();
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,

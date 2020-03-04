@@ -94,5 +94,6 @@
         "mkv": "mkv"
     },
     "completionAlert": true,
-    "deleteIncompleteFiles": true
+    "deleteIncompleteFiles": true,
+    "destinationDirectoryMode": "auto"
 }

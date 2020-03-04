@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tricycle.IO;
@@ -508,6 +507,24 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsDefaultDestinationNameUsingConfig()
+        {
+            var fileName = Path.Combine("Volumes", "Media", "test.mkv");
+            var directory = Path.Combine("Volumes", "Temp");
+
+            _tricycleConfig.DestinationDirectory = directory;
+            _tricycleConfig.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+            {
+                { ContainerFormat.Mp4, "m4v" }
+            };
+            _fileBrowserResult.FileName = fileName;
+            _mediaInfo.FileName = fileName;
+            SelectSource();
+
+            Assert.AreEqual(Path.Combine(directory, "test.m4v"), _viewModel.DestinationName);
+        }
+
+        [TestMethod]
         public void IncrementsDestinationNameWhenFileExists()
         {
             var sourceFileName = Path.Combine("Volumes", "Media", "test.mkv");
@@ -604,6 +621,45 @@ namespace Tricycle.UI.Tests
             SelectDestination();
 
             Assert.AreEqual(fileName, _viewModel.DestinationName);
+        }
+
+        [TestMethod]
+        public void SavesDestinationDirectoryForConfirmedFileBrowserWhenAuto()
+        {
+            var directory = Path.Combine("Volumes", "Media");
+            var fileName = Path.Combine(directory, "test.m4v");
+
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Auto;
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            SelectDestination();
+
+            Assert.AreEqual(directory, _tricycleConfigManager.Config?.DestinationDirectory);
+            _tricycleConfigManager.Received().Save();
+        }
+
+        [TestMethod]
+        public void DoesNotSaveDestinationDirectoryForConfirmedFileBrowserWhenManual()
+        {
+            var directory = Path.Combine("Users", "fred", "Movies");
+            var fileName = Path.Combine("Volumes", "Media", "test.m4v");
+
+            _tricycleConfig.DestinationDirectory = directory;
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Manual;
+            SelectSource();
+            _fileBrowser.BrowseToSave(Arg.Any<string>(), Arg.Any<string>()).Returns(new FileBrowserResult()
+            {
+                Confirmed = true,
+                FileName = fileName
+            });
+            SelectDestination();
+
+            Assert.AreEqual(directory, _tricycleConfigManager.Config?.DestinationDirectory);
+            _tricycleConfigManager.DidNotReceive().Save();
         }
 
         [TestMethod]
