@@ -3,6 +3,12 @@ Tricycle is an open-source video transcoder for macOS and Windows.  It takes the
 
 ![Tricycle Screenshot](/images/screenshot.png)
 
+## Download
+### Latest Version (2.2.0)
+* [macOS](https://github.com/kmcclive/tricycle/releases/download/release%2F2-2-0/Tricycle-macOS.dmg)
+* [Windows](https://github.com/kmcclive/tricycle/releases/download/release%2F2-2-0/Tricycle-Windows.msi)
+### [All Versions](https://github.com/kmcclive/tricycle/releases)
+
 ## Features
 * Reads/decodes most video and audio formats
 * Writes/encodes to the following formats
