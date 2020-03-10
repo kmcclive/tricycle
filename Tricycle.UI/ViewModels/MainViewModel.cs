@@ -952,11 +952,6 @@ namespace Tricycle.UI.ViewModels
         {
             ClearAudioOutputs();
 
-            if (_audioFormatOptions?.Any() != true)
-            {
-                return;
-            }
-
             _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams);
 
             if (_audioTrackOptions.Count < 2) //only none

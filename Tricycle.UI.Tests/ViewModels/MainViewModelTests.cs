@@ -1394,6 +1394,78 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ExpandsAudioTrackOptionsWhenPassthruIsEnabled()
+        {
+            var audioStream1 = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+            var audioStream2 = new AudioStreamInfo()
+            {
+                FormatName = "LPCM",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream1,
+                audioStream2
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(2, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream1, audioOutput.TrackOptions[1]?.Value);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioTrackOptionsWhenPassthruIsEnabled()
+        {
+            var audioStream = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(2, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream, audioOutput.TrackOptions[1]?.Value);
+        }
+
+        [TestMethod]
         public void DisplaysCorrectNameForAudioTrackWithUniqueProfile()
         {
             _audioStream.FormatName = "DTS";
@@ -1561,6 +1633,67 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ExpandsAudioFormatOptionsWhenPassthruIsEnabled()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.FormatOptions?.Count);
+            Assert.AreEqual("AAC", audioOutput.FormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioFormatOptionsWhenPassthruIsEnabled()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.FormatOptions?.Count);
+            Assert.AreEqual("AAC", audioOutput.FormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
         public void SelectsAudioFormatByDefault()
         {
             _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
@@ -1659,6 +1792,51 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(2, audioOutput?.MixdownOptions?.Count);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Mono", audioOutput.MixdownOptions[1]?.Name);
+        }
+
+        [TestMethod]
+        public void ExpandsAudioMixdownOptionsWhenPassthruIsEnabled()
+        {
+            _audioStream.Format = AudioFormat.Aac;
+            _audioStream.ChannelCount = 2;
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.MixdownOptions?.Count);
+            Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioMixdownOptionsWhenPassthruIsEnabled()
+        {
+            _audioStream.Format = AudioFormat.Aac;
+            _audioStream.ChannelCount = 2;
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            }
+                        }
+                    }
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.MixdownOptions?.Count);
+            Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
         }
 
         [TestMethod]
