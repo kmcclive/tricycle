@@ -1,6 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Linq;
 using Tricycle.Models;
-using Tricycle.Models.Media;
 
 namespace Tricycle.Utilities
 {
@@ -48,6 +48,13 @@ namespace Tricycle.Utilities
                 default:
                     return null;
             }
+        }
+
+        public static AudioMixdown? GetMixdown(int channelCount)
+        {
+            return Enum.GetValues(typeof(AudioMixdown))
+                       .Cast<AudioMixdown>()
+                       .FirstOrDefault(m => GetChannelCount(m) == channelCount);
         }
     }
 }

@@ -653,13 +653,7 @@ namespace Tricycle.UI.ViewModels
 
         IList<ListItem> GetAudioMixdownOptions(IList<AudioPreset> presets)
         {
-            return presets?.Select(p =>
-            {
-                string name = AudioUtility.GetMixdownName(p.Mixdown);
-
-                return string.IsNullOrEmpty(name) ? new ListItem(string.Empty) : new ListItem(name, p.Mixdown);
-
-            }).OrderByDescending(p => p.Name).ToArray();
+            return presets?.Select(p => new ListItem(AudioUtility.GetMixdownName(p.Mixdown), p.Mixdown)).ToArray();
         }
 
         VideoStreamInfo GetPrimaryVideoStream(IList<StreamInfo> streams)
@@ -1010,7 +1004,10 @@ namespace Tricycle.UI.ViewModels
         {
             return !string.IsNullOrWhiteSpace(audioStream.FormatName) &&
                 (audioStream.ChannelCount > 0) &&
-                GetAudioFormatOptions(audioStream).Any();
+                ((_tricycleConfig.Audio?.PassthruMatchingTracks == true &&
+                  audioStream.Format.HasValue &&
+                  AudioUtility.GetMixdown(audioStream.ChannelCount).HasValue)
+                 || GetAudioFormatOptions(audioStream).Any());
         }
 
         string GetAudioTrackName(AudioStreamInfo audioStream, int index)
@@ -1132,21 +1129,52 @@ namespace Tricycle.UI.ViewModels
 
         IEnumerable<ListItem> GetAudioFormatOptions(AudioStreamInfo stream)
         {
-            return _audioFormatOptions?.Where(f =>
-                GetAudioMixdownOptions(stream, (AudioFormat)f.Value).Any())
-                ?? Enumerable.Empty<ListItem>();
+            var result = _audioFormatOptions ?? new List<ListItem>();
+
+            if ((_tricycleConfig.Audio?.PassthruMatchingTracks == true) && stream.Format.HasValue)
+            {
+                var option = new ListItem(AudioUtility.GetFormatName(stream.Format.Value), stream.Format.Value);
+
+                if (!result.Contains(option))
+                {
+                    result.Add(option);
+                }
+            }
+
+            return result.Where(f => GetAudioMixdownOptions(stream, (AudioFormat)f.Value).Any())
+                         .OrderBy(o => o.Name);
         }
 
         IEnumerable<ListItem> GetAudioMixdownOptions(AudioStreamInfo stream, AudioFormat format)
         {
-            IEnumerable<ListItem> result = null;
+            IList<ListItem> result = null;
 
             if (_audioMixdownOptionsByFormat.TryGetValue(format, out var allOptions))
             {
-                result = allOptions.Where(o => AudioUtility.GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount);
+                result = allOptions.Where(o => AudioUtility.GetChannelCount((AudioMixdown)o.Value) <= stream.ChannelCount)
+                                   .ToList();
+            }
+            else
+            {
+                result = new List<ListItem>();
             }
 
-            return result ?? Enumerable.Empty<ListItem>();
+            if (_tricycleConfig.Audio?.PassthruMatchingTracks == true)
+            {
+                var mixdown = AudioUtility.GetMixdown(stream.ChannelCount);
+
+                if (mixdown.HasValue)
+                {
+                    var option = new ListItem(AudioUtility.GetMixdownName(mixdown.Value), mixdown.Value);
+
+                    if (!result.Contains(option))
+                    {
+                        result.Add(option);
+                    }
+                }
+            }
+
+            return result.OrderByDescending(o => o.Value);
         }
 
         void UnsubscribeFromAudioOutputEvents(AudioOutputViewModel audioOutput)
