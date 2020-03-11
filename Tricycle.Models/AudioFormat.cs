@@ -4,6 +4,9 @@
     {
         Aac,
         HeAac,
-        Ac3
+        Ac3,
+        DolbyTrueHd,
+        Dts,
+        DtsMasterAudio,
     }
 }
