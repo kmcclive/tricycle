@@ -306,11 +306,7 @@ namespace Tricycle.Media.FFmpeg
 
             AudioFormat? result = null;
 
-            if (Regex.IsMatch(codecName, @"ac(\-)?3", RegexOptions.IgnoreCase))
-            {
-                result = AudioFormat.Ac3;
-            }
-            else if (Regex.IsMatch(codecName, @"aac", RegexOptions.IgnoreCase))
+            if (Regex.IsMatch(codecName, @"aac", RegexOptions.IgnoreCase))
             {
                 if (!string.IsNullOrWhiteSpace(profile) &&
                     Regex.IsMatch(profile, "HE", RegexOptions.IgnoreCase))
@@ -321,6 +317,26 @@ namespace Tricycle.Media.FFmpeg
                 {
                     result = AudioFormat.Aac;
                 }
+            }
+            else if (Regex.IsMatch(codecName, @"ac(\-)?3", RegexOptions.IgnoreCase))
+            {
+                result = AudioFormat.Ac3;
+            }
+            else if (Regex.IsMatch(codecName, @"dts", RegexOptions.IgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(profile) &&
+                    Regex.IsMatch(profile, "MA", RegexOptions.IgnoreCase))
+                {
+                    result = AudioFormat.DtsMasterAudio;
+                }
+                else
+                {
+                    result = AudioFormat.Dts;
+                }
+            }
+            else if (Regex.IsMatch(codecName, @"true([\s-])?hd", RegexOptions.IgnoreCase))
+            {
+                result = AudioFormat.DolbyTrueHd;
             }
 
             return result;

@@ -28,6 +28,15 @@ namespace Tricycle.Utilities.Tests
         }
 
         [TestMethod]
+        public void TestIsEncodable()
+        {
+            Assert.IsTrue(AudioUtility.IsEncodable(AudioMixdown.Mono));
+            Assert.IsTrue(AudioUtility.IsEncodable(AudioMixdown.Stereo));
+            Assert.IsTrue(AudioUtility.IsEncodable(AudioMixdown.Surround5dot1));
+            Assert.IsFalse(AudioUtility.IsEncodable(AudioMixdown.Surround7dot1));
+        }
+
+        [TestMethod]
         public void TestIsSupportedByContainer()
         {
             foreach (AudioFormat audioFormat in Enum.GetValues(typeof(AudioFormat)))

@@ -125,6 +125,7 @@ namespace Tricycle.UI.ViewModels
             };
             _audioMixdownOptions = Enum.GetValues(typeof(AudioMixdown))
                                        .Cast<AudioMixdown>()
+                                       .Where(m => AudioUtility.IsEncodable(m))
                                        .Select(m => GetAudioMixdownOption(m))
                                        .ToList();
 

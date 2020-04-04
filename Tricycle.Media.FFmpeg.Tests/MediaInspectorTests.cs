@@ -274,7 +274,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual("eng", stream.Language);
             Assert.AreEqual(1, stream.Index);
             Assert.IsInstanceOfType(stream, typeof(AudioStreamInfo));
-            Assert.IsNull(((AudioStreamInfo)stream).Format);
+            Assert.AreEqual(AudioFormat.Dts, ((AudioStreamInfo)stream).Format);
             Assert.AreEqual(6, ((AudioStreamInfo)stream).ChannelCount);
 
             stream = info.Streams[2];
@@ -284,7 +284,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual("eng", stream.Language);
             Assert.AreEqual(2, stream.Index);
             Assert.IsInstanceOfType(stream, typeof(AudioStreamInfo));
-            Assert.IsNull(((AudioStreamInfo)stream).Format);
+            Assert.AreEqual(AudioFormat.Dts, ((AudioStreamInfo)stream).Format);
             Assert.AreEqual(6, ((AudioStreamInfo)stream).ChannelCount);
 
             stream = info.Streams[3];

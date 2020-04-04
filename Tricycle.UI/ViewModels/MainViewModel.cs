@@ -428,11 +428,18 @@ namespace Tricycle.UI.ViewModels
             {
                 SetProperty(ref _selectedContainerFormat, value);
 
-                _defaultExtension = GetDefaultExtension((ContainerFormat)value.Value);
+                var containerFormat = (ContainerFormat)value.Value;
+
+                _defaultExtension = GetDefaultExtension(containerFormat);
 
                 if (!string.IsNullOrWhiteSpace(DestinationName))
                 {
                     DestinationName = Path.ChangeExtension(DestinationName, _defaultExtension);
+                }
+
+                if (_primaryVideoStream != null)
+                {
+                    PopulateAudioOptions(_sourceInfo, containerFormat);
                 }
             }
         }
@@ -717,7 +724,7 @@ namespace Tricycle.UI.ViewModels
             PopulateVideoOptions(_primaryVideoStream, _croppedDimensions);
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
-            PopulateAudioOptions(_sourceInfo);
+            PopulateAudioOptions(_sourceInfo, (ContainerFormat)SelectedContainerFormat.Value);
             UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions,
                                         _primaryVideoStream?.StorageDimensions,
                                         _cropParameters);
@@ -948,11 +955,11 @@ namespace Tricycle.UI.ViewModels
             return $"{index}: {Language.FromPart2(stream.Language)?.Name ?? stream.Language}";
         }
 
-        void PopulateAudioOptions(MediaInfo sourceInfo)
+        void PopulateAudioOptions(MediaInfo sourceInfo, ContainerFormat containerFormat)
         {
             ClearAudioOutputs();
 
-            _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams);
+            _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams, containerFormat);
 
             if (_audioTrackOptions.Count < 2) //only none
             {
@@ -982,11 +989,11 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
-        IList<ListItem> GetAudioTrackOptions(IList<StreamInfo> sourceStreams)
+        IList<ListItem> GetAudioTrackOptions(IList<StreamInfo> sourceStreams, ContainerFormat containerFormat)
         {
             int index = 1;
             IList<ListItem> result = sourceStreams?.OfType<AudioStreamInfo>()
-                                                   .Where(s => IsAudioTrackSupported(s))
+                                                   .Where(s => IsAudioTrackSupported(s, containerFormat))
                                                    .Select(s => new ListItem(GetAudioTrackName(s, index++), s))
                                                    .ToList() ?? new List<ListItem>();
 
@@ -995,14 +1002,20 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        bool IsAudioTrackSupported(AudioStreamInfo audioStream)
+        bool IsAudioTrackSupported(AudioStreamInfo audioStream, ContainerFormat containerFormat)
         {
             return !string.IsNullOrWhiteSpace(audioStream.FormatName) &&
                 (audioStream.ChannelCount > 0) &&
-                ((_tricycleConfig.Audio?.PassthruMatchingTracks == true &&
-                  audioStream.Format.HasValue &&
-                  AudioUtility.GetMixdown(audioStream.ChannelCount).HasValue)
-                 || GetAudioFormatOptions(audioStream).Any());
+                (CanAudioBePassedThru(audioStream, containerFormat)
+                 || GetAudioFormatOptions(audioStream, containerFormat).Any());
+        }
+
+        bool CanAudioBePassedThru(AudioStreamInfo audioStream, ContainerFormat containerFormat)
+        {
+            return _tricycleConfig.Audio?.PassthruMatchingTracks == true &&
+                audioStream.Format.HasValue &&
+                AudioUtility.IsSupportedByContainer(containerFormat, audioStream.Format.Value) &&
+                AudioUtility.GetMixdown(audioStream.ChannelCount).HasValue;
         }
 
         string GetAudioTrackName(AudioStreamInfo audioStream, int index)
@@ -1122,11 +1135,11 @@ namespace Tricycle.UI.ViewModels
             return result;
         }
 
-        IEnumerable<ListItem> GetAudioFormatOptions(AudioStreamInfo stream)
+        IEnumerable<ListItem> GetAudioFormatOptions(AudioStreamInfo stream, ContainerFormat containerFormat)
         {
             var result = _audioFormatOptions ?? new List<ListItem>();
 
-            if ((_tricycleConfig.Audio?.PassthruMatchingTracks == true) && stream.Format.HasValue)
+            if (CanAudioBePassedThru(stream, containerFormat))
             {
                 var option = new ListItem(AudioUtility.GetFormatName(stream.Format.Value), stream.Format.Value);
 
@@ -1136,11 +1149,13 @@ namespace Tricycle.UI.ViewModels
                 }
             }
 
-            return result.Where(f => GetAudioMixdownOptions(stream, (AudioFormat)f.Value).Any())
+            return result.Where(f => GetAudioMixdownOptions(stream, (AudioFormat)f.Value, containerFormat).Any())
                          .OrderBy(o => o.Name);
         }
 
-        IEnumerable<ListItem> GetAudioMixdownOptions(AudioStreamInfo stream, AudioFormat format)
+        IEnumerable<ListItem> GetAudioMixdownOptions(AudioStreamInfo stream,
+                                                     AudioFormat format,
+                                                     ContainerFormat containerFormat)
         {
             IList<ListItem> result = null;
 
@@ -1154,7 +1169,7 @@ namespace Tricycle.UI.ViewModels
                 result = new List<ListItem>();
             }
 
-            if (_tricycleConfig.Audio?.PassthruMatchingTracks == true)
+            if (stream.Format == format && CanAudioBePassedThru(stream, containerFormat))
             {
                 var mixdown = AudioUtility.GetMixdown(stream.ChannelCount);
 
@@ -1707,7 +1722,7 @@ namespace Tricycle.UI.ViewModels
 
         void ApplyTemplates(IList<AudioTemplate> templates)
         {
-            PopulateAudioOptions(_sourceInfo);
+            PopulateAudioOptions(_sourceInfo, (ContainerFormat)SelectedContainerFormat.Value);
 
             if (AudioOutputs?.Any() != true)
             {
@@ -1910,7 +1925,9 @@ namespace Tricycle.UI.ViewModels
             if ((args.NewItem != null) &&
                 !args.NewItem.Equals(NONE_OPTION))
             {
-                model.FormatOptions = GetAudioFormatOptions((AudioStreamInfo)args.NewItem.Value).ToArray();
+                var containerFormat = (ContainerFormat)SelectedContainerFormat.Value;
+
+                model.FormatOptions = GetAudioFormatOptions((AudioStreamInfo)args.NewItem.Value, containerFormat).ToArray();
                 model.SelectedFormat = model.FormatOptions.FirstOrDefault();
             }
             else
@@ -1935,8 +1952,9 @@ namespace Tricycle.UI.ViewModels
             {
                 var stream = (AudioStreamInfo)model.SelectedTrack.Value;
                 var format = (AudioFormat)args.NewItem.Value;
+                var containerFormat = (ContainerFormat)SelectedContainerFormat.Value;
 
-                mixdownOptions = GetAudioMixdownOptions(stream, format).ToArray();
+                mixdownOptions = GetAudioMixdownOptions(stream, format, containerFormat).ToArray();
             }
 
             model.MixdownOptions = mixdownOptions;

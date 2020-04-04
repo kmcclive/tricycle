@@ -1752,7 +1752,7 @@ namespace Tricycle.UI.Tests
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
             Assert.AreEqual(3, audioOutput?.MixdownOptions?.Count);
-            Assert.AreEqual("Surround", audioOutput.MixdownOptions[0]?.Name);
+            Assert.AreEqual("Surround 5.1", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[1]?.Name);
             Assert.AreEqual("Mono", audioOutput.MixdownOptions[2]?.Name);
         }
@@ -1883,7 +1883,7 @@ namespace Tricycle.UI.Tests
             audioOutput.SelectedFormat = new ListItem(AudioFormat.Ac3);
 
             Assert.AreEqual(2, audioOutput?.MixdownOptions?.Count);
-            Assert.AreEqual("Surround", audioOutput.MixdownOptions[0]?.Name);
+            Assert.AreEqual("Surround 5.1", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[1]?.Name);
         }
 

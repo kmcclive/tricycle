@@ -53,7 +53,9 @@ namespace Tricycle.Utilities
                 case AudioMixdown.Stereo:
                     return "Stereo";
                 case AudioMixdown.Surround5dot1:
-                    return "Surround";
+                    return "Surround 5.1";
+                case AudioMixdown.Surround7dot1:
+                    return "Surround 7.1";
                 default:
                     return null;
             }
@@ -64,6 +66,17 @@ namespace Tricycle.Utilities
             return Enum.GetValues(typeof(AudioMixdown))
                        .Cast<AudioMixdown?>()
                        .FirstOrDefault(m => GetChannelCount(m.Value) == channelCount);
+        }
+
+        public static bool IsEncodable(AudioMixdown mixdown)
+        {
+            switch (mixdown)
+            {
+                case AudioMixdown.Surround7dot1:
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         public static bool IsSupportedByContainer(ContainerFormat containerFormat, AudioFormat audioFormat)
