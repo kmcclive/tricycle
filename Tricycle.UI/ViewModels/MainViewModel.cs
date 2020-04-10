@@ -426,9 +426,28 @@ namespace Tricycle.UI.ViewModels
             get { return _selectedContainerFormat; }
             set
             {
-                SetProperty(ref _selectedContainerFormat, value);
-
                 var containerFormat = (ContainerFormat)value.Value;
+
+                if (HasUnsupportedAudioOutputs(containerFormat))
+                {
+                    var formatName = GetContainerFormatName(containerFormat);
+                    var message = $"Whoa... Some of your audio selections are not supported by {formatName} " +
+                                  "and will be removed." + Environment.NewLine + Environment.NewLine +
+                                  "Are you sure you want to change file formats?";
+
+                    if (_appManager.Confirm("Unsupported Audio", message))
+                    {
+                        RemoveUnsupportedAudioOutputs(containerFormat);
+                    }
+                    else
+                    {
+                        _device.BeginInvokeOnMainThread(() =>
+                            SetProperty(ref _selectedContainerFormat, _selectedContainerFormat));
+                        return;
+                    }
+                }
+
+                SetProperty(ref _selectedContainerFormat, value);
 
                 _defaultExtension = GetDefaultExtension(containerFormat);
 
@@ -439,7 +458,7 @@ namespace Tricycle.UI.ViewModels
 
                 if (_primaryVideoStream != null)
                 {
-                    PopulateAudioOptions(_sourceInfo, containerFormat);
+                    RefreshAudioOptions(_sourceInfo, containerFormat);
                 }
             }
         }
@@ -610,16 +629,30 @@ namespace Tricycle.UI.ViewModels
         {
             return Enum.GetValues(typeof(ContainerFormat)).Cast<ContainerFormat>().Select(f =>
             {
-                switch (f)
+                var name = GetContainerFormatName(f);
+
+                if (name != null)
                 {
-                    case ContainerFormat.Mkv:
-                        return new ListItem("MKV", f);
-                    case ContainerFormat.Mp4:
-                        return new ListItem("MP4", f);
-                    default:
-                        return new ListItem(string.Empty);
+                    return new ListItem(name, f);
+                }
+                else
+                {
+                    return new ListItem(string.Empty);
                 }
             }).ToArray();
+        }
+
+        string GetContainerFormatName(ContainerFormat format)
+        {
+            switch (format)
+            {
+                case ContainerFormat.Mkv:
+                    return "MKV";
+                case ContainerFormat.Mp4:
+                    return "MP4";
+                default:
+                    return null;
+            }
         }
 
         IList<ListItem> GetCropOptions()
@@ -977,6 +1010,25 @@ namespace Tricycle.UI.ViewModels
             }
         }
 
+        void RefreshAudioOptions(MediaInfo sourceInfo, ContainerFormat containerFormat)
+        {
+            _audioTrackOptions = GetAudioTrackOptions(sourceInfo?.Streams, containerFormat);
+
+            foreach (var output in AudioOutputs)
+            {
+                output.TrackOptions = _audioTrackOptions;
+
+                if (output.SelectedTrack != NONE_OPTION)
+                {
+                    var stream = (AudioStreamInfo)output.SelectedTrack.Value;
+                    var format = (AudioFormat)output.SelectedFormat.Value;
+
+                    output.FormatOptions = GetAudioFormatOptions(stream, containerFormat).ToArray();
+                    output.MixdownOptions = GetAudioMixdownOptions(stream, format, containerFormat).ToArray();
+                }
+            }
+        }
+
         void ClearAudioOutputs()
         {
             for (int i = AudioOutputs.Count - 1; i >= 0; i--)
@@ -1185,6 +1237,56 @@ namespace Tricycle.UI.ViewModels
             }
 
             return result.OrderByDescending(o => o.Value);
+        }
+
+        bool HasUnsupportedAudioOutputs(ContainerFormat containerFormat)
+        {
+            if (AudioOutputs?.Any() == false)
+            {
+                return false;
+            }
+
+            foreach (var output in AudioOutputs)
+            {
+                if (output.SelectedTrack == NONE_OPTION)
+                {
+                    continue;
+                }
+
+                var audioFormat = (AudioFormat)output.SelectedFormat.Value;
+
+                if (!AudioUtility.IsSupportedByContainer(containerFormat, audioFormat))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void RemoveUnsupportedAudioOutputs(ContainerFormat containerFormat)
+        {
+            if (AudioOutputs?.Any() == false)
+            {
+                return;
+            }
+
+            for (int i = AudioOutputs.Count - 1; i >= 0; i--)
+            {
+                var output = AudioOutputs[i];
+
+                if (output.SelectedTrack == NONE_OPTION)
+                {
+                    continue;
+                }
+
+                var audioFormat = (AudioFormat)output.SelectedFormat.Value;
+
+                if (!AudioUtility.IsSupportedByContainer(containerFormat, audioFormat))
+                {
+                    AudioOutputs.RemoveAt(i);
+                }
+            }
         }
 
         void UnsubscribeFromAudioOutputEvents(AudioOutputViewModel audioOutput)
