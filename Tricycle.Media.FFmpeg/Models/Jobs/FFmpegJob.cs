@@ -71,5 +71,9 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentConverter(typeof(FilterListConverter))]
         [ArgumentOrder(2)]
         public IList<IFilter> Filters { get; set; }
+
+        [Argument("-max_muxing_queue_size")]
+        [ArgumentOrder(2)]
+        public int? MaxMuxingQueueSize { get; set; }
     }
 }
