@@ -1394,6 +1394,147 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ExpandsAudioTrackOptionsWhenPassthruIsEnabled()
+        {
+            var audioStream1 = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+            var audioStream2 = new AudioStreamInfo()
+            {
+                FormatName = "LPCM",
+                ChannelCount = 2
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream1,
+                audioStream2
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(2, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream1, audioOutput.TrackOptions[1]?.Value);
+        }
+
+        [TestMethod]
+        public void LimitsAudioTrackOptionsWhenContainerIsMp4()
+        {
+            var audioStream1 = new AudioStreamInfo()
+            {
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+            var audioStream2 = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream1,
+                audioStream2
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(2, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream2, audioOutput.TrackOptions[1]?.Value);
+        }
+
+        [TestMethod]
+        public void ExpandsAudioTrackOptionsWhenContainerIsMkv()
+        {
+            var audioStream1 = new AudioStreamInfo()
+            {
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+            var audioStream2 = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream1,
+                audioStream2
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(3, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream1, audioOutput.TrackOptions[1]?.Value);
+            Assert.AreEqual(audioStream2, audioOutput.TrackOptions[2]?.Value);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioTrackOptionsWhenPassthruIsEnabled()
+        {
+            var audioStream = new AudioStreamInfo()
+            {
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                audioStream
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(2, audioOutput?.TrackOptions?.Count);
+            Assert.AreEqual("None", audioOutput.TrackOptions[0]?.Name);
+            Assert.AreEqual(audioStream, audioOutput.TrackOptions[1]?.Value);
+        }
+
+        [TestMethod]
         public void DisplaysCorrectNameForAudioTrackWithUniqueProfile()
         {
             _audioStream.FormatName = "DTS";
@@ -1561,6 +1702,104 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ExpandsAudioFormatOptionsWhenPassthruIsEnabled()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.FormatOptions?.Count);
+            Assert.AreEqual("AAC", audioOutput.FormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void ExpandsAudioFormatOptionsWhenContainerIsMkv()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "Dolby TrueHD",
+                    Format = AudioFormat.DolbyTrueHd,
+                    ChannelCount = 8
+                },
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            if (audioOutput?.TrackOptions?.Count != 3)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(_mediaInfo.Streams[1]);
+
+            Assert.AreEqual(1, audioOutput?.FormatOptions?.Count);
+            Assert.AreEqual("Dolby TrueHD", audioOutput.FormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioFormatOptionsWhenPassthruIsEnabled()
+        {
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            }
+                        }
+                    }
+                }
+            };
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.FormatOptions?.Count);
+            Assert.AreEqual("AAC", audioOutput.FormatOptions[0]?.Name);
+        }
+
+        [TestMethod]
         public void SelectsAudioFormatByDefault()
         {
             _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
@@ -1619,7 +1858,7 @@ namespace Tricycle.UI.Tests
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
             Assert.AreEqual(3, audioOutput?.MixdownOptions?.Count);
-            Assert.AreEqual("Surround", audioOutput.MixdownOptions[0]?.Name);
+            Assert.AreEqual("Surround 5.1", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[1]?.Name);
             Assert.AreEqual("Mono", audioOutput.MixdownOptions[2]?.Name);
         }
@@ -1659,6 +1898,91 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(2, audioOutput?.MixdownOptions?.Count);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Mono", audioOutput.MixdownOptions[1]?.Name);
+        }
+
+        [TestMethod]
+        public void ExpandsAudioMixdownOptionsWhenPassthruIsEnabled()
+        {
+            _audioStream.Format = AudioFormat.Aac;
+            _audioStream.ChannelCount = 2;
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.MixdownOptions?.Count);
+            Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void ExpandsAudioMixdownOptionsWhenContainerIsMkv()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = null;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream,
+                new AudioStreamInfo()
+                {
+                    FormatName = "AAC",
+                    Format = AudioFormat.Aac,
+                    ChannelCount = 2
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            if (audioOutput?.TrackOptions?.Count != 3)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedFormat = new ListItem(stream.Format);
+
+            Assert.AreEqual(1, audioOutput?.MixdownOptions?.Count);
+            Assert.AreEqual("Surround 7.1", audioOutput.MixdownOptions[0]?.Name);
+        }
+
+        [TestMethod]
+        public void DoesNotDuplicateAudioMixdownOptionsWhenPassthruIsEnabled()
+        {
+            _audioStream.Format = AudioFormat.Aac;
+            _audioStream.ChannelCount = 2;
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Aac,
+                    new AudioCodec()
+                    {
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Stereo
+                            }
+                        }
+                    }
+                }
+            };
+            SelectSource();
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            Assert.AreEqual(1, audioOutput?.MixdownOptions?.Count);
+            Assert.AreEqual("Stereo", audioOutput.MixdownOptions[0]?.Name);
         }
 
         [TestMethod]
@@ -1705,7 +2029,7 @@ namespace Tricycle.UI.Tests
             audioOutput.SelectedFormat = new ListItem(AudioFormat.Ac3);
 
             Assert.AreEqual(2, audioOutput?.MixdownOptions?.Count);
-            Assert.AreEqual("Surround", audioOutput.MixdownOptions[0]?.Name);
+            Assert.AreEqual("Surround 5.1", audioOutput.MixdownOptions[0]?.Name);
             Assert.AreEqual("Stereo", audioOutput.MixdownOptions[1]?.Name);
         }
 
@@ -1733,6 +2057,175 @@ namespace Tricycle.UI.Tests
             var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
 
             Assert.AreEqual("Mono", audioOutput?.SelectedMixdown?.Name);
+        }
+
+        [TestMethod]
+        public void ConfirmsContainerFormatSelectionWhenUnsupportedAudioIsSelected()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            if (audioOutput?.TrackOptions?.Count != 2)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedFormat = new ListItem(stream.Format);
+
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
+
+            _appManager.Received().Confirm("Unsupported Audio", Arg.Any<string>());
+        }
+
+        [TestMethod]
+        public void DoesNotConfirmContainerFormatSelectionWhenUnsupportedAudioIsNotSelected()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            if (audioOutput?.TrackOptions?.Count != 2)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedFormat = new ListItem(stream.Format);
+
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
+
+            _appManager.DidNotReceive().Confirm(Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [TestMethod]
+        public void ResetsContainerFormatSelectionWhenUnsupportedAudioIsSelectedAndNotConfirmed()
+        {
+            var stream = new AudioStreamInfo()
+            {
+                Index = 1,
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                stream
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            var audioOutput = _viewModel.AudioOutputs?.FirstOrDefault();
+
+            if (audioOutput?.TrackOptions?.Count != 2)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(stream);
+            audioOutput.SelectedFormat = new ListItem(stream.Format);
+
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(false);
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
+
+            Assert.AreEqual(new ListItem(ContainerFormat.Mkv), _viewModel.SelectedContainerFormat);
+        }
+
+        [TestMethod]
+        public void RemovesUnsupportedAudioWhenContainerFormatSelectionIsConfirmed()
+        {
+            var unsupportedStream = new AudioStreamInfo()
+            {
+                Index = 1,
+                FormatName = "Dolby TrueHD",
+                Format = AudioFormat.DolbyTrueHd,
+                ChannelCount = 8
+            };
+            var supportedStream = new AudioStreamInfo()
+            {
+                Index = 2,
+                FormatName = "AC-3",
+                Format = AudioFormat.Ac3,
+                ChannelCount = 6
+            };
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                unsupportedStream,
+                supportedStream,
+            };
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mkv);
+
+            if (_viewModel.AudioOutputs?.Count != 2)
+            {
+                Assert.Inconclusive("The default audio outputs were not populated as expected.");
+            }
+
+            var audioOutput = _viewModel.AudioOutputs[0];
+
+            if (audioOutput?.TrackOptions?.Count != 3)
+            {
+                Assert.Inconclusive("The audio track options were not populated as expected.");
+            }
+
+            audioOutput.SelectedTrack = new ListItem(unsupportedStream);
+            audioOutput.SelectedFormat = new ListItem(unsupportedStream.Format);
+
+            audioOutput = _viewModel.AudioOutputs[1];
+
+            audioOutput.SelectedTrack = new ListItem(supportedStream);
+            audioOutput.SelectedFormat = new ListItem(supportedStream.Format);
+
+            _appManager.Confirm(Arg.Any<string>(), Arg.Any<string>()).Returns(true);
+            _viewModel.SelectedContainerFormat = new ListItem(ContainerFormat.Mp4);
+
+            Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
+
+            audioOutput = _viewModel.AudioOutputs[0];
+
+            Assert.AreEqual(new ListItem(supportedStream), audioOutput.SelectedTrack);
+            Assert.AreEqual(new ListItem(supportedStream.Format), audioOutput.SelectedFormat);
+
+            audioOutput = _viewModel.AudioOutputs[1];
+
+            Assert.AreEqual("None", audioOutput?.SelectedTrack?.ToString());
         }
 
         [TestMethod]

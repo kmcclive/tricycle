@@ -183,6 +183,34 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StartDoesNotAssignMaxMuxingQueueSizeOnJobByDefault()
+        {
+            _transcoder.Start(_transcodeJob);
+
+            Assert.IsNull(_ffmpegJob?.MaxMuxingQueueSize);
+        }
+
+        [TestMethod]
+        public void StartAssignsMaxMuxingQueueSizeOnJobForDolbyTrueHd()
+        {
+            var index = 1;
+
+            _transcodeJob.SourceInfo.Streams.Add(new AudioStreamInfo()
+            {
+                Index = index,
+                Format = AudioFormat.DolbyTrueHd
+            });
+            _transcodeJob.Streams.Add(new OutputStream()
+            {
+                SourceStreamIndex = index
+            });
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(1024, _ffmpegJob?.MaxMuxingQueueSize);
+        }
+
+        [TestMethod]
         public void StartAssignsX264CodecOnJobVideoStream()
         {
             var preset = "fast";

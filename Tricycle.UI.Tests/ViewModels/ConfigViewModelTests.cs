@@ -369,7 +369,7 @@ namespace Tricycle.UI.Tests.ViewModels
             preset = _viewModel.AudioQualityPresets[2];
 
             Assert.AreEqual("Dolby Digital", preset?.SelectedFormat?.ToString());
-            Assert.AreEqual("Surround", preset?.SelectedMixdown?.ToString());
+            Assert.AreEqual("Surround 5.1", preset?.SelectedMixdown?.ToString());
             Assert.AreEqual("640", preset?.Quality);
 
             preset = _viewModel.AudioQualityPresets[3];
@@ -562,7 +562,7 @@ namespace Tricycle.UI.Tests.ViewModels
             Assert.AreEqual(string.Empty, preset?.MixdownOptions[0]?.ToString());
             Assert.AreEqual("Mono", preset?.MixdownOptions[1]?.ToString());
             Assert.AreEqual("Stereo", preset?.MixdownOptions[2]?.ToString());
-            Assert.AreEqual("Surround", preset?.MixdownOptions[3]?.ToString());
+            Assert.AreEqual("Surround 5.1", preset?.MixdownOptions[3]?.ToString());
         }
 
         [TestMethod]

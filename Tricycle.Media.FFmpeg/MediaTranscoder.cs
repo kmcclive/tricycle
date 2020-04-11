@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Tricycle.Diagnostics;
 using Tricycle.IO;
@@ -125,6 +126,18 @@ namespace Tricycle.Media.FFmpeg
             if ((job.Format == ContainerFormat.Mkv) && (job.Subtitles?.SourceStreamIndex != null))
             {
                 result.Duration = job.SourceInfo.Duration;
+            }
+
+            var trueHdStreams =
+                from o in job.Streams
+                where o.GetType() == typeof(OutputStream)
+                join s in job.SourceInfo.Streams.OfType<AudioStreamInfo>() on o.SourceStreamIndex equals s.Index
+                where s.Format == AudioFormat.DolbyTrueHd
+                select o;
+
+            if (trueHdStreams.Any())
+            {
+                result.MaxMuxingQueueSize = 1024;
             }
 
             return result;
