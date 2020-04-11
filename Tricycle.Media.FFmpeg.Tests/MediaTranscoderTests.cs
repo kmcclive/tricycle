@@ -183,7 +183,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void StartDoesNotAssignsMaxMuxingQueueSizeOnJobByDefault()
+        public void StartDoesNotAssignMaxMuxingQueueSizeOnJobByDefault()
         {
             _transcoder.Start(_transcodeJob);
 
