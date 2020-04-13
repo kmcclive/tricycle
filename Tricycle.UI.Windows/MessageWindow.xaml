@@ -4,18 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Height="140"
+        Height="200"
         Width="640"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">
     <StackPanel Margin="{StaticResource DialogPadding}">
-        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 10">
+        <StackPanel Orientation="Horizontal" Height="108" Margin="0, 0, 0, 10">
             <Image x:Name="imgSeverity"
                    Source="Assets\Images\info.png"
                    Width="{StaticResource IconSize}"
                    Height="{StaticResource IconSize}"
-                   Margin="0, 0, 10, 0" />
-            <Label Width="546" VerticalContentAlignment="Center">
+                   Margin="0, 0, 10, 0"
+                   VerticalAlignment="Top"/>
+            <Label Width="546" VerticalContentAlignment="Top" Padding="0, 14, 0, 0">
                 <TextBlock x:Name="txtMessage"
                            FontSize="{StaticResource MessageFontSize}"
                            TextWrapping="Wrap"
