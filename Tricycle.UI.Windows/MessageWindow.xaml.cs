@@ -27,7 +27,21 @@ namespace Tricycle.UI.Windows
         public string Message
         {
             get => txtMessage.Text?.ToString();
-            set => txtMessage.Text = value;
+            set
+            {
+                txtMessage.Text = value;
+
+                lblMessage.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+                var height = lblMessage.DesiredSize.Height;
+
+                if (height < imgSeverity.Height)
+                {
+                    height = imgSeverity.Height;
+                }
+
+                Height = height + 92;
+            }
         }
 
         public Severity Severity
