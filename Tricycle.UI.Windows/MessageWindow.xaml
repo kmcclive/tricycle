@@ -14,8 +14,9 @@
                    Source="Assets\Images\info.png"
                    Width="{StaticResource IconSize}"
                    Height="{StaticResource IconSize}"
-                   Margin="0, 0, 10, 0" />
-            <Label Width="546" VerticalContentAlignment="Center">
+                   Margin="0, 0, 10, 0"
+                   VerticalAlignment="Top"/>
+            <Label x:Name="lblMessage" Width="546" VerticalContentAlignment="Center">
                 <TextBlock x:Name="txtMessage"
                            FontSize="{StaticResource MessageFontSize}"
                            TextWrapping="Wrap"
