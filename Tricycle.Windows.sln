@@ -33,6 +33,10 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Tricycle.Windows.Setup", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.IO.Tests", "Tricycle.IO.Tests\Tricycle.IO.Tests.csproj", "{18CCE755-25DF-405C-9E3C-FD694AD70C42}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Globalization", "Tricycle.Globalization\Tricycle.Globalization.csproj", "{A84A5B36-AE20-4B84-AC24-0F5DAC89D832}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Globalization.Tests", "Tricycle.Globalization.Tests\Tricycle.Globalization.Tests.csproj", "{B74ACEEE-1390-42EF-AB4E-ED93C89AC8B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +101,14 @@ Global
 		{18CCE755-25DF-405C-9E3C-FD694AD70C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18CCE755-25DF-405C-9E3C-FD694AD70C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18CCE755-25DF-405C-9E3C-FD694AD70C42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A84A5B36-AE20-4B84-AC24-0F5DAC89D832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A84A5B36-AE20-4B84-AC24-0F5DAC89D832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A84A5B36-AE20-4B84-AC24-0F5DAC89D832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A84A5B36-AE20-4B84-AC24-0F5DAC89D832}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B74ACEEE-1390-42EF-AB4E-ED93C89AC8B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74ACEEE-1390-42EF-AB4E-ED93C89AC8B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74ACEEE-1390-42EF-AB4E-ED93C89AC8B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74ACEEE-1390-42EF-AB4E-ED93C89AC8B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
