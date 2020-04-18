@@ -9,6 +9,7 @@ using Foundation;
 using StructureMap;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.IO.macOS;
 using Tricycle.Media;
@@ -145,6 +146,7 @@ namespace Tricycle.UI.macOS
                                                                               ffmpegConfigManager,
                                                                               ffmpegArgumentGenerator,
                                                                               fileSystem));
+                _.For<ILanguageService>().Use<LanguageService>();
             });
             AppState.DefaultDestinationDirectory = Path.Combine(userPath, "Movies");
 
