@@ -202,6 +202,10 @@
       <Project>{b08428f2-a465-42d6-97ea-0215b8dc374c}</Project>
       <Name>Tricycle.Diagnostics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Globalization\Tricycle.Globalization.csproj">
+      <Project>{a84a5b36-ae20-4b84-ac24-0f5dac89d832}</Project>
+      <Name>Tricycle.Globalization</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tricycle.IO.Windows\Tricycle.IO.Windows.csproj">
       <Project>{b60d6b8b-e1e5-4344-ae78-050d7631787f}</Project>
       <Name>Tricycle.IO.Windows</Name>

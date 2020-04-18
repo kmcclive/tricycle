@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ByteSizeLib;
-using Iso639;
+using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
@@ -49,6 +49,7 @@ namespace Tricycle.UI.ViewModels
         readonly IAppManager _appManager;
         readonly IConfigManager<TricycleConfig> _configManager;
         readonly IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
+        readonly ILanguageService _languageService;
         readonly string _defaultDestinationDirectory;
 
         bool _isSourceInfoVisible;
@@ -124,6 +125,7 @@ namespace Tricycle.UI.ViewModels
                              IAppManager appManager,
                              IConfigManager<TricycleConfig> configManager,
                              IConfigManager<Dictionary<string, JobTemplate>> templateManager,
+                             ILanguageService languageService,
                              string defaultDestinationDirectory)
         {
             _fileBrowser = fileBrowser;
@@ -138,6 +140,7 @@ namespace Tricycle.UI.ViewModels
             _configManager = configManager;
             _tricycleConfig = configManager.Config;
             _templateManager = templateManager;
+            _languageService = languageService;
             _defaultDestinationDirectory = defaultDestinationDirectory;
 
             _mediaTranscoder.Completed += OnTranscodeCompleted;
@@ -985,7 +988,17 @@ namespace Tricycle.UI.ViewModels
                 return index.ToString();
             }
 
-            return $"{index}: {Language.FromPart2(stream.Language)?.Name ?? stream.Language}";
+            return $"{index}: {GetLanguageName(stream.Language)}";
+        }
+
+        string GetLanguageName(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return string.Empty;
+            }
+
+            return _languageService.Find(code)?.Name ?? code;
         }
 
         void PopulateAudioOptions(MediaInfo sourceInfo, ContainerFormat containerFormat)
@@ -1110,10 +1123,11 @@ namespace Tricycle.UI.ViewModels
             }
 
             string result = $"{index}: {format} {mixdown}";
+            string language = GetLanguageName(audioStream.Language);
 
-            if (!string.IsNullOrWhiteSpace(audioStream.Language))
+            if (!string.IsNullOrWhiteSpace(language))
             {
-                result += $" ({Language.FromPart2(audioStream.Language)?.Name ?? audioStream.Language})";
+                result += $" ({language})";
             }
 
             return result;

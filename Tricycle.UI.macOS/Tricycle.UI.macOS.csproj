@@ -189,6 +189,10 @@
       <Project>{0ED0381E-0215-4814-8B3E-DCE3EDC555A6}</Project>
       <Name>Tricycle.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Tricycle.Globalization\Tricycle.Globalization.csproj">
+      <Project>{D3D4FED4-BE82-4144-81DA-605110421742}</Project>
+      <Name>Tricycle.Globalization</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Images\folder-browse.png" />

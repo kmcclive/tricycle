@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.IO.Windows;
 using Tricycle.Media;
@@ -287,6 +288,7 @@ namespace Tricycle.UI.Windows
                                                                               ffmpegConfigManager,
                                                                               ffmpegArgumentGenerator,
                                                                               fileSystem));
+                _.For<ILanguageService>().Use<LanguageService>();
             });
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
