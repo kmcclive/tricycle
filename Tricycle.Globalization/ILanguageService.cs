@@ -1,5 +1,5 @@
 ﻿using System;
-using Iso639;
+using Tricycle.Globalization.Models;
 
 namespace Tricycle.Globalization
 {

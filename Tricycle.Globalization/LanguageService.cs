@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Iso639;
 
 namespace Tricycle.Globalization
 {
     public class LanguageService : ILanguageService
     {
-        public Language Find(string code)
+        public Models.Language Find(string code)
         {
             if (code == null)
             {
@@ -18,20 +18,30 @@ namespace Tricycle.Globalization
                 return null;
             }
 
+            IEnumerable<Iso639.Language> languages = null;
+
             if (code.Length == 2)
             {
-                return Language.Database.FirstOrDefault(l => code.Equals(l.Part1, StringComparison.OrdinalIgnoreCase));
+                languages = Iso639.Language.Database.Where(l => code.Equals(l.Part1, StringComparison.OrdinalIgnoreCase));
             }
 
             if (code.Length == 3)
             {
-                return Language.Database.FirstOrDefault(l =>
-                    code.Equals(l.Part3, StringComparison.OrdinalIgnoreCase) ||
-                    code.Equals(l.Part2, StringComparison.OrdinalIgnoreCase) ||
-                    code.Equals(l.Part2B, StringComparison.OrdinalIgnoreCase));
+#pragma warning disable 612
+                languages = Iso639.Language.Database.Where(l => code.Equals(l.Part3, StringComparison.OrdinalIgnoreCase) ||
+                                                                code.Equals(l.Part2, StringComparison.OrdinalIgnoreCase) ||
+                                                                code.Equals(l.Part2B, StringComparison.OrdinalIgnoreCase));
+#pragma warning restore 612
             }
 
-            return null;
+            return languages?.Select(l => Map(l)).FirstOrDefault();
+        }
+
+        Models.Language Map(Iso639.Language language)
+        {
+#pragma warning disable 612
+            return new Models.Language(language.Name, language.Part3, language.Part2B, language.Part2, language.Part1);
+#pragma warning restore 612
         }
     }
 }
