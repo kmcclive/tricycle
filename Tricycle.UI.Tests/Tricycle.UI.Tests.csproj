@@ -24,5 +24,6 @@
     <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
     <ProjectReference Include="..\Tricycle.Models\Tricycle.Models.csproj" />
     <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj" />
+    <ProjectReference Include="..\Tricycle.Globalization\Tricycle.Globalization.csproj" />
   </ItemGroup>
 </Project>

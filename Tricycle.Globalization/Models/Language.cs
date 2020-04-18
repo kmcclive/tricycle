@@ -38,10 +38,15 @@ namespace Tricycle.Globalization.Models
 
         }
 
-        public Language(string name, string part3, string part2B, string part2, string part1)
+        public Language(string name, string part3)
         {
             Name = name;
             Part3 = part3;
+        }
+
+        public Language(string name, string part3, string part2B, string part2, string part1)
+            : this(name, part3)
+        {
             Part2B = part2B;
             Part2 = part2;
             Part1 = part1;

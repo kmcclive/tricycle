@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
+using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.Media;
 using Tricycle.Models;
@@ -38,6 +39,7 @@ namespace Tricycle.UI.Pages
                 appManager,
                 AppState.IocContainer.GetInstance<IConfigManager<TricycleConfig>>(),
                 AppState.IocContainer.GetInstance<IConfigManager<Dictionary<string, JobTemplate>>>(),
+                AppState.IocContainer.GetInstance<ILanguageService>(),
                 AppState.DefaultDestinationDirectory);
 
             BindingContext = _viewModel;

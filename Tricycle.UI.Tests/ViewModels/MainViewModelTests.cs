@@ -5,6 +5,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Tricycle.Globalization;
+using Tricycle.Globalization.Models;
 using Tricycle.IO;
 using Tricycle.IO.Models;
 using Tricycle.Media;
@@ -25,6 +27,8 @@ namespace Tricycle.UI.Tests
         #region Constants
 
         const string DEFAULT_TEMPLATE_NAME = "Test";
+        static readonly Language ENGLISH = new Language("English", "eng");
+        static readonly Language SPANISH = new Language("Spanish", "spa");
 
         #endregion
 
@@ -49,6 +53,7 @@ namespace Tricycle.UI.Tests
         TricycleConfig _tricycleConfig;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
         JobTemplate _template;
+        ILanguageService _languageService;
         string _defaultDestinationDirectory;
         TranscodeJob _transcodeJob;
 
@@ -71,6 +76,7 @@ namespace Tricycle.UI.Tests
             _tricycleConfigManager = Substitute.For<IConfigManager<TricycleConfig>>();
             _tricycleConfigManager.Config = _tricycleConfig;
             _templateManager = Substitute.For<IConfigManager<Dictionary<string, JobTemplate>>>();
+            _languageService = Substitute.For<ILanguageService>();
             _defaultDestinationDirectory = Path.Combine("Users", "fred", "Movies");
             _viewModel = new MainViewModel(_fileBrowser,
                                            _mediaInspector,
@@ -83,6 +89,7 @@ namespace Tricycle.UI.Tests
                                            _appManager,
                                            _tricycleConfigManager,
                                            _templateManager,
+                                           _languageService,
                                            _defaultDestinationDirectory)
             {
                 IsPageVisible = true
@@ -125,6 +132,8 @@ namespace Tricycle.UI.Tests
             };
             _templateManager.When(x => x.Save())
                 .Do(x => _template = DictionaryUtility.GetValueOrDefault(_templateManager.Config, DEFAULT_TEMPLATE_NAME));
+            _languageService.Find(ENGLISH.Part3).Returns(ENGLISH);
+            _languageService.Find(SPANISH.Part3).Returns(SPANISH);
         }
 
         #endregion
