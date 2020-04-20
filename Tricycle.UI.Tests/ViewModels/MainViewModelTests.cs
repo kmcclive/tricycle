@@ -569,6 +569,27 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void DoesNotUseExistingFileAsDestinationWhenContainerFormatChanges()
+        {
+            var directory = Path.Combine("Volumes", "Media");
+            var sourceFileName = Path.Combine(directory, "test.mkv");
+
+            _tricycleConfig.DestinationDirectory = directory;
+            _tricycleConfig.DestinationDirectoryMode = AutomationMode.Manual;
+            _tricycleConfig.DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
+            {
+                { ContainerFormat.Mkv, "mkv" }
+            };
+            _fileService.Exists(sourceFileName).Returns(true);
+            _fileBrowserResult.FileName = sourceFileName;
+            _mediaInfo.FileName = sourceFileName;
+            SelectSource();
+            _viewModel.SelectedContainerFormat = new ListItem("MKV", ContainerFormat.Mkv);
+
+            Assert.AreEqual(Path.Combine(directory, "test 2.mkv"), _viewModel.DestinationName);
+        }
+
+        [TestMethod]
         public void EnablesDestinationSelectionWhenSourceIsValid()
         {
             SelectSource();
