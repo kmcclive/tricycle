@@ -456,7 +456,8 @@ namespace Tricycle.UI.ViewModels
 
                 if (!string.IsNullOrWhiteSpace(DestinationName))
                 {
-                    DestinationName = Path.ChangeExtension(DestinationName, _defaultExtension);
+                    var destination = Path.ChangeExtension(DestinationName, _defaultExtension);
+                    DestinationName = GetAvailableDestinationName(destination);
                 }
 
                 if (_primaryVideoStream != null)
@@ -1174,13 +1175,21 @@ namespace Tricycle.UI.ViewModels
                 directory = _defaultDestinationDirectory;
             }
 
-            string result;
+            return GetAvailableDestinationName(Path.Combine(directory, $"{fileName}.{extension}"));
+        }
+
+        string GetAvailableDestinationName(string preferredFileName)
+        {
+            var directory = Path.GetDirectoryName(preferredFileName);
+            var fileName = Path.GetFileNameWithoutExtension(preferredFileName);
+            var extension = Path.GetExtension(preferredFileName);
             int count = 1;
 
+            string result;
             do
             {
                 string number = count > 1 ? $" {count}" : string.Empty;
-                result = Path.Combine(directory, $"{fileName}{number}.{extension}");
+                result = Path.Combine(directory, $"{fileName}{number}{extension}");
                 count++;
             } while (_fileSystem.File.Exists(result));
 
