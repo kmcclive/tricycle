@@ -44,7 +44,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>true</EnableCodeSigning>
-    <CreatePackage>true</CreatePackage>
+    <CreatePackage>false</CreatePackage>
     <EnablePackageSigning>false</EnablePackageSigning>
     <IncludeMonoRuntime>true</IncludeMonoRuntime>
     <UseSGen>true</UseSGen>
@@ -63,6 +63,16 @@
         <Command>
           <type>AfterBuild</type>
           <command>rm -f Tricycle.dmg</command>
+          <workingdir>${TargetDir}</workingdir>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>codesign -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffmpeg</command>
+          <workingdir>${TargetDir}</workingdir>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>codesign -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffprobe</command>
           <workingdir>${TargetDir}</workingdir>
         </Command>
         <Command>
@@ -145,6 +155,7 @@
     <None Include="Info.plist" />
     <None Include="Entitlements.plist" />
     <None Include="packages.config" />
+    <None Include="makefile" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
