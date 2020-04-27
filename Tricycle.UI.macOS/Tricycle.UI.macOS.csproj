@@ -67,17 +67,17 @@
         </Command>
         <Command>
           <type>AfterBuild</type>
-          <command>codesign -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffmpeg</command>
+          <command>codesign -f -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffmpeg</command>
           <workingdir>${TargetDir}</workingdir>
         </Command>
         <Command>
           <type>AfterBuild</type>
-          <command>codesign -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffprobe</command>
+          <command>codesign -f -s "Developer ID" -o runtime Tricycle.app/Contents/Resources/Tools/FFmpeg/ffprobe</command>
           <workingdir>${TargetDir}</workingdir>
         </Command>
         <Command>
           <type>AfterBuild</type>
-          <command>codesign -s "Developer ID" -o runtime --entitlements Entitlements.plist bin/Release/Tricycle.app</command>
+          <command>codesign -f -s "Developer ID" -o runtime --entitlements Entitlements.plist bin/Release/Tricycle.app</command>
           <workingdir>${ProjectDir}</workingdir>
         </Command>
         <Command>
