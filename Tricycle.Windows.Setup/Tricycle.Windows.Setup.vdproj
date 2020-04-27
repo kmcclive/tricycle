@@ -688,6 +688,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8544AED14854C9496EC4331DBDB34363"
+        "OwnerKey" = "8:_BB54ECA4D44D22F14DE6AD2FBC2E5332"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8544AED14854C9496EC4331DBDB34363"
         "OwnerKey" = "8:_FAE398A3CA11BC584823622DA74E6874"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1348,7 +1354,7 @@
         "Entry"
         {
         "MsmKey" = "8:_A0585A9C8D1ABE76E3D492D74E940EF7"
-        "OwnerKey" = "8:_25C4740AE89E770E5E0AFA1668E6D17D"
+        "OwnerKey" = "8:_BB54ECA4D44D22F14DE6AD2FBC2E5332"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1457,6 +1463,18 @@
         {
         "MsmKey" = "8:_BAE50942D1DE4033C779072350E43C47"
         "OwnerKey" = "8:_7C5B038C2877430BABFE13A99FF87847"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BB54ECA4D44D22F14DE6AD2FBC2E5332"
+        "OwnerKey" = "8:_7C5B038C2877430BABFE13A99FF87847"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BB54ECA4D44D22F14DE6AD2FBC2E5332"
+        "OwnerKey" = "8:_25C4740AE89E770E5E0AFA1668E6D17D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4475,7 +4493,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Tricycle.IO.Windows, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Tricycle.IO.Windows, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_69EFC39C02EE4AB2C6B0D60AB26FF7B3"
@@ -6227,6 +6245,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BB54ECA4D44D22F14DE6AD2FBC2E5332"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Tricycle.Globalization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_BB54ECA4D44D22F14DE6AD2FBC2E5332"
+                    {
+                    "Name" = "8:Tricycle.Globalization.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Tricycle.Globalization.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_21E610AF21C14877AAB989C56F9B4B40"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BDBC6D4FAA4732A1DAC54AB78381F956"
             {
             "AssemblyRegister" = "3:1"
@@ -7769,15 +7818,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tricycle"
-        "ProductCode" = "8:{1B3D29CF-0C4F-43B6-9748-58A6073695FE}"
-        "PackageCode" = "8:{08834831-8795-4D78-B378-CEE921DE8F62}"
+        "ProductCode" = "8:{A3887837-8494-49BE-B8E4-03007F9E740B}"
+        "PackageCode" = "8:{EB1D25CE-4B91-406A-89FF-073388B2216E}"
         "UpgradeCode" = "8:{D12CFAFF-0049-4FB5-85E7-EEE6E1F2BECE}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.0"
+        "ProductVersion" = "8:2.3.0"
         "Manufacturer" = "8:Tricycle Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/kmcclive/tricycle/issues"
