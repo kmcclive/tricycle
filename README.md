@@ -21,9 +21,9 @@ Tricycle is an open-source video transcoder for macOS and Windows.  It takes the
   * Audio formats:
     * AAC
     * Dolby Digital (AC-3)
-    * Dolby TrueHD (copy/passthru only)
+    * Dolby TrueHD (copy/passthru to MKV only)
     * DTS (copy/passthru only)
-    * DTS Master Audio (copy/passthru only)
+    * DTS Master Audio (copy/passthru to MKV only)
 * Supports 4K resolution and HDR (HDR10)
 * Tonemaps HDR to SDR
 * Scales video to standard resolutions
@@ -31,7 +31,7 @@ Tricycle is an open-source video transcoder for macOS and Windows.  It takes the
 * Crops to a selected aspect ratio
 * Reduces noise in video
 * Overlays subtitles (all or forced only)
-* Supports mutliple audio tracks in mono, stereo, 5.1 surround, or 7.1 surround
+* Supports mutliple audio tracks in mono, stereo, 5.1 surround, or 7.1 surround (copy/passthru to MKV only)
 
 ## System Requirements
 ### macOS
