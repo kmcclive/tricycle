@@ -70,6 +70,7 @@ namespace Tricycle.UI.ViewModels
         string _deinterlaceOptions;
         string _denoiseOptions;
         string _tonemapOptions;
+        bool _isDebugLoggingEnabled;
 
         bool _isLoading;
         bool _isDirty;
@@ -317,6 +318,12 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _tonemapOptions, value);
         }
 
+        public bool IsDebugLoggingEnabled
+        {
+            get => _isDebugLoggingEnabled;
+            set => SetProperty(ref _isDebugLoggingEnabled, value);
+        }
+
         public ICommand BackCommand { get; }
         public ICommand DestinationBrowseCommand { get; }
 
@@ -396,6 +403,7 @@ namespace Tricycle.UI.ViewModels
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
             HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
             PassthruMatchingTracks = config.Audio?.PassthruMatchingTracks ?? false;
+            IsDebugLoggingEnabled = config.Debug;
 
             Load(SizePresets, config.Video?.SizePresets);
             Load(AspectRatioPresets, config.Video?.AspectRatioPresets);
@@ -560,7 +568,8 @@ namespace Tricycle.UI.ViewModels
                     { ContainerFormat.Mkv, string.IsNullOrWhiteSpace(MkvFileExtension) ? "mkv" : MkvFileExtension }
                 },
                 DestinationDirectoryMode = (AutomationMode)SelectedDestinationDirectoryMode.Value,
-                DestinationDirectory = DestinationDirectory
+                DestinationDirectory = DestinationDirectory,
+                Debug = IsDebugLoggingEnabled
             };
         }
 

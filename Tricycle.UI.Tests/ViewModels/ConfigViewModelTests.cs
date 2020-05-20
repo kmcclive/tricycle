@@ -498,6 +498,15 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsDebugLoggingFromConfig()
+        {
+            _tricycleConfig.Debug = true;
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_tricycleConfig.Debug, _viewModel.IsDebugLoggingEnabled);
+        }
+
+        [TestMethod]
         public void LoadsTemplatesFromConfig()
         {
             _templateManager.Config = new Dictionary<string, JobTemplate>()
@@ -1267,6 +1276,18 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(options, _ffmpegConfigManager?.Config?.Video?.TonemapOptions);
+        }
+
+        [TestMethod]
+        public void SavesDebugLoggingToConfig()
+        {
+            bool debug = true;
+
+            _viewModel.Initialize();
+            _viewModel.IsDebugLoggingEnabled = debug;
+            _viewModel.Close();
+
+            Assert.AreEqual(debug, _tricycleConfigManager.Config?.Debug);
         }
 
         [TestMethod]
