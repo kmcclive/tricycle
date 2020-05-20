@@ -44,6 +44,7 @@ namespace Tricycle.UI.Windows
 
         IAppManager _appManager;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
+        TextWriterTraceListener _debugListener;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         MenuItem _previewItem;
@@ -68,7 +69,14 @@ namespace Tricycle.UI.Windows
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (!_appManager.IsQuitConfirmed)
+            if (_appManager.IsQuitConfirmed)
+            {
+                if (_debugListener != null)
+                {
+                    _debugListener.Flush();
+                }
+            }
+            else
             {
                 e.Cancel = true;
 
@@ -250,6 +258,11 @@ namespace Tricycle.UI.Windows
             tricycleConfigManager.Load();
             _templateManager.Load();
 
+            if (tricycleConfigManager.Config.Debug)
+            {
+                EnableLogging();
+            }
+
             _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
@@ -292,6 +305,29 @@ namespace Tricycle.UI.Windows
             });
             AppState.DefaultDestinationDirectory =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
+        }
+
+        void EnableLogging()
+        {
+            string userLogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Tricycle", "Logs");
+
+            if (!Directory.Exists(userLogPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(userLogPath);
+                }
+                catch { }
+            }
+
+            if (Directory.Exists(userLogPath))
+            {
+                string logFileName = Path.Combine(userLogPath, $"tricycle-{DateTime.Now:yyyy-MM-dd}.log");
+
+                _debugListener = new TextWriterTraceListener(logFileName);
+
+                Debug.Listeners.Add(_debugListener);
+            }
         }
 
         string GetNewTemplateName()

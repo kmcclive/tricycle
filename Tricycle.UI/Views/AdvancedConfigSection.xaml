@@ -30,5 +30,10 @@
         <Entry Text="{Binding DenoiseOptions}" Grid.Column="1" Grid.Row="6" />
         <Label Text="Tonemap Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
         <Entry Text="{Binding TonemapOptions}" Grid.Column="1" Grid.Row="7" />
+        <Label Text="Debug Logging" VerticalOptions="Center" Grid.Column="0" Grid.Row="8" />
+        <StackLayout Orientation="Horizontal" VerticalOptions="Center" Grid.Column="1" Grid.Row="8">
+            <Switch IsToggled="{Binding IsDebugLoggingEnabled}" VerticalOptions="Center" />
+            <Label Text="(Restart Required)" />
+        </StackLayout>
     </Grid>
 </ContentView>

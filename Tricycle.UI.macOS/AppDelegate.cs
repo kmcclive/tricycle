@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
+        TextWriterTraceListener _debugListener;
 
         public AppDelegate()
         {
@@ -104,6 +106,11 @@ namespace Tricycle.UI.macOS
             tricycleConfigManager.Load();
             _templateManager.Load();
 
+            if (tricycleConfigManager.Config.Debug)
+            {
+                EnableLogging(userPath);
+            }
+
             _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
@@ -164,7 +171,10 @@ namespace Tricycle.UI.macOS
 
         public override void WillTerminate(NSNotification notification)
         {
-            // Insert code here to tear down your application
+            if (_debugListener != null)
+            {
+                _debugListener.Flush();
+            }
         }
 
         public override bool OpenFile(NSApplication sender, string filename)
@@ -262,6 +272,29 @@ namespace Tricycle.UI.macOS
             var y = frame.Y + (frame.Height - WINDOW_HEIGHT) / 2f;
 
             return new Coordinate<nfloat>(x, y);
+        }
+
+        void EnableLogging(string userPath)
+        {
+            string userLogPath = Path.Combine(userPath, "Library", "Logs", "Tricycle");
+
+            if (!Directory.Exists(userLogPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(userLogPath);
+                }
+                catch { }
+            }
+
+            if (Directory.Exists(userLogPath))
+            {
+                string logFileName = Path.Combine(userLogPath, $"tricycle-{DateTime.Now:yyyy-MM-dd}.log");
+
+                _debugListener = new TextWriterTraceListener(logFileName);
+
+                Debug.Listeners.Add(_debugListener);
+            }
         }
 
         bool ShouldClose()
