@@ -121,11 +121,13 @@ namespace Tricycle.Media.FFmpeg
             }
             catch (ArgumentException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (InvalidOperationException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
 
             return result;
@@ -148,7 +150,8 @@ namespace Tricycle.Media.FFmpeg
                 }
                 else
                 {
-                    Debug.WriteLine(ex);
+                    Trace.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
                 }
             }
 

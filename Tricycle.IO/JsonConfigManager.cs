@@ -95,11 +95,13 @@ namespace Tricycle.IO
             }
             catch (IOException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
 
             return result;
@@ -122,23 +124,28 @@ namespace Tricycle.IO
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (IOException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (NotSupportedException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (UnauthorizedAccessException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             catch (SecurityException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
         }
     }
