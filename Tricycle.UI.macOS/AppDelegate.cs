@@ -35,7 +35,7 @@ namespace Tricycle.UI.macOS
         IAppManager _appManager;
         NSDocumentController _documentController;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
-        TextWriterTraceListener _debugListener;
+        TextWriterTraceListener _traceListener;
 
         public AppDelegate()
         {
@@ -106,7 +106,7 @@ namespace Tricycle.UI.macOS
             tricycleConfigManager.Load();
             _templateManager.Load();
 
-            if (tricycleConfigManager.Config.Debug)
+            if (tricycleConfigManager.Config.Trace)
             {
                 EnableLogging(userPath);
             }
@@ -171,9 +171,9 @@ namespace Tricycle.UI.macOS
 
         public override void WillTerminate(NSNotification notification)
         {
-            if (_debugListener != null)
+            if (_traceListener != null)
             {
-                _debugListener.Flush();
+                _traceListener.Flush();
             }
         }
 
@@ -291,9 +291,10 @@ namespace Tricycle.UI.macOS
             {
                 string logFileName = Path.Combine(userLogPath, $"tricycle-{DateTime.Now:yyyy-MM-dd}.log");
 
-                _debugListener = new TextWriterTraceListener(logFileName);
+                _traceListener = new TimestampTextWriterTraceListener(logFileName);
 
-                Debug.Listeners.Add(_debugListener);
+                Trace.Listeners.Add(_traceListener);
+                Trace.AutoFlush = true;
             }
         }
 

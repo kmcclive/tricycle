@@ -103,11 +103,13 @@ namespace Tricycle.Media.FFmpeg
                 }
                 catch (ArgumentException ex)
                 {
-                    Debug.WriteLine(ex);
+                    Trace.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
                 }
                 catch (InvalidOperationException ex)
                 {
-                    Debug.WriteLine(ex);
+                    Trace.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
                 }
             });
 

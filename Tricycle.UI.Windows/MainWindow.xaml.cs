@@ -44,7 +44,7 @@ namespace Tricycle.UI.Windows
 
         IAppManager _appManager;
         IConfigManager<Dictionary<string, JobTemplate>> _templateManager;
-        TextWriterTraceListener _debugListener;
+        TextWriterTraceListener _traceListener;
         MenuItem _openFileItem;
         MenuItem _optionsItem;
         MenuItem _previewItem;
@@ -71,9 +71,9 @@ namespace Tricycle.UI.Windows
         {
             if (_appManager.IsQuitConfirmed)
             {
-                if (_debugListener != null)
+                if (_traceListener != null)
                 {
-                    _debugListener.Flush();
+                    _traceListener.Flush();
                 }
             }
             else
@@ -258,7 +258,7 @@ namespace Tricycle.UI.Windows
             tricycleConfigManager.Load();
             _templateManager.Load();
 
-            if (tricycleConfigManager.Config.Debug)
+            if (tricycleConfigManager.Config.Trace)
             {
                 EnableLogging();
             }
@@ -324,9 +324,10 @@ namespace Tricycle.UI.Windows
             {
                 string logFileName = Path.Combine(userLogPath, $"tricycle-{DateTime.Now:yyyy-MM-dd}.log");
 
-                _debugListener = new TextWriterTraceListener(logFileName);
+                _traceListener = new TimestampTextWriterTraceListener(logFileName);
 
-                Debug.Listeners.Add(_debugListener);
+                Trace.Listeners.Add(_traceListener);
+                Trace.AutoFlush = true;
             }
         }
 

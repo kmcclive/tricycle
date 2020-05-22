@@ -68,7 +68,7 @@ namespace Tricycle.Diagnostics
 
                     if (!complete)
                     {
-                        Debug.WriteLine($"Process ({fileName}) timed out. Killing...");
+                        Trace.WriteLine($"Process ({fileName}) timed out. Killing...");
                         process.Kill();
                     }
 

@@ -30,12 +30,12 @@ namespace Tricycle.Diagnostics
             _process.Exited += (sender, e) => Exited?.Invoke();
             _process.ErrorDataReceived += (sender, e) =>
             {
-                Debug.WriteLine(e?.Data);
+                Trace.WriteLine(e?.Data);
                 ErrorDataReceived?.Invoke(e?.Data);
             };
             _process.OutputDataReceived += (sender, e) =>
             {
-                Debug.WriteLine(e?.Data);
+                Trace.WriteLine(e?.Data);
                 OutputDataReceived?.Invoke(e?.Data);
             };
         }
@@ -53,12 +53,14 @@ namespace Tricycle.Diagnostics
             }
             catch (NotSupportedException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred killing the process.", ex);
             }
             catch (Win32Exception ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred killing the process.", ex);
             }
         }
@@ -72,7 +74,7 @@ namespace Tricycle.Diagnostics
 
             _process.StartInfo = startInfo;
 
-            Debug.WriteLine($"Starting process: {startInfo.FileName} {startInfo.Arguments}");
+            Trace.WriteLine($"Starting process: {startInfo.FileName} {startInfo.Arguments}");
 
             try
             {
@@ -95,22 +97,26 @@ namespace Tricycle.Diagnostics
             }
             catch (ObjectDisposedException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
             }
             catch (InvalidOperationException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new ArgumentException($"{nameof(startInfo)} is invalid.", ex);
             }
             catch (FileNotFoundException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
             }
             catch (Win32Exception ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred starting the process.", ex);
             }
         }
@@ -142,12 +148,14 @@ namespace Tricycle.Diagnostics
             }
             catch (Win32Exception ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred waiting for the process.", ex);
             }
             catch (SystemException ex)
             {
-                Debug.WriteLine(ex);
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 throw new InvalidOperationException("An error occurred waiting for the process.", ex);
             }
         }
