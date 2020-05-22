@@ -12,6 +12,6 @@ namespace Tricycle.Models.Config
         public bool DeleteIncompleteFiles { get; set; }
         public AutomationMode DestinationDirectoryMode { get; set; }
         public string DestinationDirectory { get; set; }
-        public bool Debug { get; set; }
+        public bool Trace { get; set; }
     }
 }

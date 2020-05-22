@@ -70,7 +70,7 @@ namespace Tricycle.UI.ViewModels
         string _deinterlaceOptions;
         string _denoiseOptions;
         string _tonemapOptions;
-        bool _isDebugLoggingEnabled;
+        bool _isTraceLoggingEnabled;
 
         bool _isLoading;
         bool _isDirty;
@@ -318,10 +318,10 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _tonemapOptions, value);
         }
 
-        public bool IsDebugLoggingEnabled
+        public bool IsTraceLoggingEnabled
         {
-            get => _isDebugLoggingEnabled;
-            set => SetProperty(ref _isDebugLoggingEnabled, value);
+            get => _isTraceLoggingEnabled;
+            set => SetProperty(ref _isTraceLoggingEnabled, value);
         }
 
         public ICommand BackCommand { get; }
@@ -403,7 +403,7 @@ namespace Tricycle.UI.ViewModels
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
             HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
             PassthruMatchingTracks = config.Audio?.PassthruMatchingTracks ?? false;
-            IsDebugLoggingEnabled = config.Debug;
+            IsTraceLoggingEnabled = config.Trace;
 
             Load(SizePresets, config.Video?.SizePresets);
             Load(AspectRatioPresets, config.Video?.AspectRatioPresets);
@@ -569,7 +569,7 @@ namespace Tricycle.UI.ViewModels
                 },
                 DestinationDirectoryMode = (AutomationMode)SelectedDestinationDirectoryMode.Value,
                 DestinationDirectory = DestinationDirectory,
-                Debug = IsDebugLoggingEnabled
+                Trace = IsTraceLoggingEnabled
             };
         }
 

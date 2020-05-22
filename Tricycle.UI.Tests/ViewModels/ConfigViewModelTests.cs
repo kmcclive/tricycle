@@ -503,7 +503,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _tricycleConfig.Debug = true;
             _viewModel.Initialize();
 
-            Assert.AreEqual(_tricycleConfig.Debug, _viewModel.IsDebugLoggingEnabled);
+            Assert.AreEqual(_tricycleConfig.Debug, _viewModel.IsTraceLoggingEnabled);
         }
 
         [TestMethod]
@@ -1284,7 +1284,7 @@ namespace Tricycle.UI.Tests.ViewModels
             bool debug = true;
 
             _viewModel.Initialize();
-            _viewModel.IsDebugLoggingEnabled = debug;
+            _viewModel.IsTraceLoggingEnabled = debug;
             _viewModel.Close();
 
             Assert.AreEqual(debug, _tricycleConfigManager.Config?.Debug);
