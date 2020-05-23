@@ -267,32 +267,45 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void StartAddsOptionsOnJobVideoCodecForHdr()
+        public void StartAssignsColorPrimariesOnJobVideoStreamForHdr()
         {
             _videoOutput.Format = VideoFormat.Hevc;
             _videoOutput.DynamicRange = DynamicRange.High;
 
             _transcoder.Start(_transcodeJob);
 
-            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X265Codec;
+            var stream = _ffmpegJob.Streams.FirstOrDefault() as MappedVideoStream;
 
-            Assert.IsNotNull(codec);
-            Assert.AreEqual(3, codec.Options?.Count);
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("bt2020", stream.ColorPrimaries);
+        }
 
-            var option = codec.Options.FirstOrDefault(o => o.Name == "colorprim");
+        [TestMethod]
+        public void StartAssignsColorTransferOnJobVideoStreamForHdr()
+        {
+            _videoOutput.Format = VideoFormat.Hevc;
+            _videoOutput.DynamicRange = DynamicRange.High;
 
-            Assert.IsNotNull(option);
-            Assert.AreEqual("bt2020", option.Value);
+            _transcoder.Start(_transcodeJob);
 
-            option = codec.Options.FirstOrDefault(o => o.Name == "colormatrix");
+            var stream = _ffmpegJob.Streams.FirstOrDefault() as MappedVideoStream;
 
-            Assert.IsNotNull(option);
-            Assert.AreEqual("bt2020nc", option.Value);
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("smpte2084", stream.ColorTransfer);
+        }
 
-            option = codec.Options.FirstOrDefault(o => o.Name == "transfer");
+        [TestMethod]
+        public void StartAssignsColorSpaceOnJobVideoStreamForHdr()
+        {
+            _videoOutput.Format = VideoFormat.Hevc;
+            _videoOutput.DynamicRange = DynamicRange.High;
 
-            Assert.IsNotNull(option);
-            Assert.AreEqual("smpte2084", option.Value);
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault() as MappedVideoStream;
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("bt2020nc", stream.ColorSpace);
         }
 
         [TestMethod]
@@ -320,7 +333,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X265Codec;
 
             Assert.IsNotNull(codec);
-            Assert.AreEqual(5, codec.Options?.Count);
+            Assert.AreEqual(2, codec.Options?.Count);
 
             var option = codec.Options.FirstOrDefault(o => o.Name == "master-display");
 

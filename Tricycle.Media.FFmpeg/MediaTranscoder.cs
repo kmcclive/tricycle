@@ -183,6 +183,18 @@ namespace Tricycle.Media.FFmpeg
         {
             var result = base.MapVideoStream(config, sourceStream, outputStream);
 
+            if (outputStream.DynamicRange == DynamicRange.High)
+            {
+                if (outputStream.Format != VideoFormat.Hevc)
+                {
+                    throw new NotSupportedException($"HDR is not supported with the video format {outputStream.Format}.");
+                }
+
+                result.ColorPrimaries = "bt2020";
+                result.ColorTransfer = "smpte2084";
+                result.ColorSpace = "bt2020nc";
+            }
+
             result.Codec = GetVideoCodec(config, sourceStream, outputStream);
 
             return result;
@@ -215,42 +227,29 @@ namespace Tricycle.Media.FFmpeg
             result.Preset = codec.Preset;
             result.Crf = outputStream.Quality;
 
-            if (outputStream.DynamicRange == DynamicRange.High)
+            if (outputStream.DynamicRange == DynamicRange.High && outputStream.CopyHdrMetadata)
             {
-                if (outputStream.Format != VideoFormat.Hevc)
+                var options = new List<Option>();
+
+                if (sourceStream.MasterDisplayProperties != null)
                 {
-                    throw new NotSupportedException($"HDR is not supported with the video format {outputStream.Format}.");
+                    var properties = sourceStream.MasterDisplayProperties;
+                    var value = string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
+                                                properties.Green,
+                                                properties.Blue,
+                                                properties.Red,
+                                                properties.WhitePoint,
+                                                properties.Luminance.Max,
+                                                properties.Luminance.Min);
+
+                    options.Add(new Option("master-display", value));
                 }
 
-                var options = new List<Option>()
+                if (sourceStream.LightLevelProperties != null)
                 {
-                    new Option("colorprim", "bt2020"),
-                    new Option("colormatrix", "bt2020nc"),
-                    new Option("transfer", "smpte2084")
-                };
+                    var properties = sourceStream.LightLevelProperties;
 
-                if (outputStream.CopyHdrMetadata)
-                {
-                    if (sourceStream.MasterDisplayProperties != null)
-                    {
-                        var properties = sourceStream.MasterDisplayProperties;
-                        var value = string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
-                                                  properties.Green,
-                                                  properties.Blue,
-                                                  properties.Red,
-                                                  properties.WhitePoint,
-                                                  properties.Luminance.Max,
-                                                  properties.Luminance.Min);
-
-                        options.Add(new Option("master-display", value));
-                    }
-
-                    if (sourceStream.LightLevelProperties != null)
-                    {
-                        var properties = sourceStream.LightLevelProperties;
-
-                        options.Add(new Option("max-cll", $"\"{properties.MaxCll},{properties.MaxFall}\""));
-                    }
+                    options.Add(new Option("max-cll", $"\"{properties.MaxCll},{properties.MaxFall}\""));
                 }
 
                 ((X265Codec)result).Options = options;
