@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -726,9 +727,15 @@ namespace Tricycle.UI.ViewModels
             if (_sourceInfo != null)
             {
                 _primaryVideoStream = GetPrimaryVideoStream(_sourceInfo.Streams);
+
+                if (_primaryVideoStream == null)
+                {
+                    Trace.WriteLine("No valid video streams were found in the source.");
+                }
             }
             else
             {
+                Trace.WriteLine("No source info was provided by the media inspector.");
                 _primaryVideoStream = null;
             }
 
