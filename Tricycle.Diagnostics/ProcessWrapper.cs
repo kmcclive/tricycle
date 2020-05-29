@@ -30,12 +30,12 @@ namespace Tricycle.Diagnostics
             _process.Exited += (sender, e) => Exited?.Invoke();
             _process.ErrorDataReceived += (sender, e) =>
             {
-                Trace.WriteLine(e?.Data);
+                Trace.WriteLine($"[stderr] {e?.Data}");
                 ErrorDataReceived?.Invoke(e?.Data);
             };
             _process.OutputDataReceived += (sender, e) =>
             {
-                Trace.WriteLine(e?.Data);
+                Trace.WriteLine($"[stdout] {e?.Data}");
                 OutputDataReceived?.Invoke(e?.Data);
             };
         }
