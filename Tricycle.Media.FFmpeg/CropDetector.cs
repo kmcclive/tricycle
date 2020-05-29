@@ -109,6 +109,10 @@ namespace Tricycle.Media.FFmpeg
                             }
                         }
                     }
+                    else
+                    {
+                        Trace.WriteLine("No ffmpeg data on stderr to parse.");
+                    }
                 }
                 catch (ArgumentException ex)
                 {
@@ -166,6 +170,10 @@ namespace Tricycle.Media.FFmpeg
                     Start = new Coordinate<int>(x, y),
                     Size = new Dimensions(width, height)
                 };
+            }
+            else
+            {
+                Trace.WriteLine("No crop data was found.");
             }
 
             return result;

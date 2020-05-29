@@ -82,6 +82,10 @@ namespace Tricycle.Media.FFmpeg
                 {
                     statistics = Parse(processResult.ErrorData);
                 }
+                else
+                {
+                    Trace.WriteLine("No ffmpeg data on stderr to parse.");
+                }
             }
             catch (ArgumentException ex)
             {
@@ -123,6 +127,10 @@ namespace Tricycle.Media.FFmpeg
                     ProgressiveCount = progressive,
                     UndeterminedCount = undetermined
                 };
+            }
+            else
+            {
+                Trace.WriteLine("No interlace data was found.");
             }
 
             return result;

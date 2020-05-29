@@ -118,6 +118,10 @@ namespace Tricycle.Media.FFmpeg
                 {
                     result = DeserializeOutput<T>(processResult.OutputData, true);
                 }
+                else
+                {
+                    Trace.WriteLine("No ffprobe data on stdout to parse.");
+                }
             }
             catch (ArgumentException ex)
             {
@@ -168,6 +172,7 @@ namespace Tricycle.Media.FFmpeg
                 (seconds < 1) ||
                 (output.Streams?.Any() != true))
             {
+                Trace.WriteLine("File doesn't appear to be media.");
                 return null;
             }
 
