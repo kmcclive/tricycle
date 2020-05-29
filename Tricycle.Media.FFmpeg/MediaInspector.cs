@@ -172,7 +172,7 @@ namespace Tricycle.Media.FFmpeg
                 (seconds < 1) ||
                 (output.Streams?.Any() != true))
             {
-                Trace.WriteLine("File doesn't appear to be media.");
+                Trace.WriteLine("File doesn't appear to contain media.");
                 return null;
             }
 
