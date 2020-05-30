@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -168,7 +169,7 @@ namespace Tricycle.Media.FFmpeg
 
             // ffprobe can identify lots of files that aren't even videos
             // so we are doing some basic validation here
-            if (!double.TryParse(output.Format?.Duration, out seconds) ||
+            if (!double.TryParse(output.Format?.Duration, NumberStyles.Any, CultureInfo.InvariantCulture, out seconds) ||
                 (seconds < 1) ||
                 (output.Streams?.Any() != true))
             {
