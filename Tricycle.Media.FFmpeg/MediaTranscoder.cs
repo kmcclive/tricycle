@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Tricycle.Diagnostics;
@@ -370,16 +371,26 @@ namespace Tricycle.Media.FFmpeg
                 switch (key?.ToLower())
                 {
                     case "fps":
-                        status.FramesPerSecond = double.TryParse(value, out var fps) ? fps : default;
+                        status.FramesPerSecond =
+                            double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var fps)
+                            ? fps
+                            : default;
                         break;
                     case "size":
                         status.Size = TryParseSize(value, out var size) ? size : default;
                         break;
                     case "speed":
-                        status.Speed = double.TryParse(value?.Replace("x", string.Empty), out var speed) ? speed : default;
+                        var val = value?.Replace("x", string.Empty);
+                        status.Speed =
+                            double.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var speed)
+                            ? speed
+                            : default;
                         break;
                     case "time":
-                        status.Time = TimeSpan.TryParse(value, out var time) ? time : default;
+                        status.Time =
+                            TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var time)
+                            ? time
+                            : default;
                         break;
                 }
             }
@@ -438,7 +449,10 @@ namespace Tricycle.Media.FFmpeg
                 var match = Regex.Match(size, @"(?<amount>\d+(\.\d+)?)(?<unit>\w+)");
 
                 if (match.Success &&
-                    double.TryParse(match.Groups["amount"].Value, out var amount))
+                    double.TryParse(match.Groups["amount"].Value,
+                                    NumberStyles.Any,
+                                    CultureInfo.InvariantCulture,
+                                    out var amount))
                 {
                     string unit = match.Groups["unit"].Value;
                     int exponent = 0;
