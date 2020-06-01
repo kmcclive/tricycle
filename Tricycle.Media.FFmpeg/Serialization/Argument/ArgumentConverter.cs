@@ -31,7 +31,7 @@ namespace Tricycle.Media.FFmpeg.Serialization.Argument
                                ? string.Empty
                                : " ";
 
-            return $"{argName}{delimiter}{value}";
+            return $"{argName}{delimiter}{stringValue}";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using Xamarin.Forms;
 
 namespace Tricycle.UI.Views
@@ -33,7 +34,7 @@ namespace Tricycle.UI.Views
 
                 if (AllowDecimals)
                 {
-                    pattern += @"(\.\d*)?";
+                    pattern += $"({Regex.Escape(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)}\\d*)?";
                 }
 
                 if (!Regex.IsMatch(e.NewTextValue, $"^{pattern}$"))
