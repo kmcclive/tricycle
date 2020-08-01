@@ -100,6 +100,10 @@ namespace Tricycle.Media.FFmpeg
                     {
                         dictionary[position] = ffmpegJob.OutputFileName;
                     }
+                    else
+                    {
+                        Trace.WriteLine("Failed to generate preview image.");
+                    }
                 }
                 catch (ArgumentException ex)
                 {
