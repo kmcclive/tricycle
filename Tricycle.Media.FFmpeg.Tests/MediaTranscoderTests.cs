@@ -309,15 +309,15 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void StartAddsOptionsOnJobVideoCodecForCopyHdrMetadata()
+        public void StartAssignsHdrMetadataOnJobVideoStreamForCopyHdrMetadata()
         {
             _videoSource.MasterDisplayProperties = new MasterDisplayProperties()
             {
-                Red = new Coordinate<int>(34000, 16000),
-                Green = new Coordinate<int>(13250, 34500),
-                Blue = new Coordinate<int>(7500, 3000),
-                WhitePoint = new Coordinate<int>(15635, 16450),
-                Luminance = new Range<int>(1, 10000000)
+                Red = new Coordinate<decimal>(0.68M, 0.32M),
+                Green = new Coordinate<decimal>(0.265M, 0.69M),
+                Blue = new Coordinate<decimal>(0.15M, 0.06M),
+                WhitePoint = new Coordinate<decimal>(0.3127M, 0.329M),
+                Luminance = new Range<decimal>(0.0001M, 1000M)
             };
             _videoSource.LightLevelProperties = new LightLevelProperties()
             {
@@ -330,20 +330,21 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             _transcoder.Start(_transcodeJob);
 
-            var codec = _ffmpegJob.Streams.FirstOrDefault()?.Codec as X265Codec;
+            var stream = _ffmpegJob.Streams.FirstOrDefault() as MappedVideoStream;
 
-            Assert.IsNotNull(codec);
-            Assert.AreEqual(2, codec.Options?.Count);
-
-            var option = codec.Options.FirstOrDefault(o => o.Name == "master-display");
-
-            Assert.IsNotNull(option);
-            Assert.AreEqual("\"G(13250,34500)B(7500,3000)R(34000,16000)WP(15635,16450)L(10000000,1)\"", option.Value);
-
-            option = codec.Options.FirstOrDefault(o => o.Name == "max-cll");
-
-            Assert.IsNotNull(option);
-            Assert.AreEqual("\"1000,400\"", option.Value);
+            Assert.IsNotNull(stream);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Red.X, stream.MasterDisplayRedX);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Red.Y, stream.MasterDisplayRedY);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Green.X, stream.MasterDisplayGreenX);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Green.Y, stream.MasterDisplayGreenY);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Blue.X, stream.MasterDisplayBlueX);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Blue.Y, stream.MasterDisplayBlueY);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.WhitePoint.X, stream.MasterDisplayWhiteX);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.WhitePoint.Y, stream.MasterDisplayWhiteY);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Luminance.Min, stream.MasterDisplayMinLuminance);
+            Assert.AreEqual(_videoSource.MasterDisplayProperties.Luminance.Max, stream.MasterDisplayMaxLuminance);
+            Assert.AreEqual(_videoSource.LightLevelProperties.MaxCll, stream.MaxCll);
+            Assert.AreEqual(_videoSource.LightLevelProperties.MaxFall, stream.MaxFall);
         }
 
         [TestMethod]

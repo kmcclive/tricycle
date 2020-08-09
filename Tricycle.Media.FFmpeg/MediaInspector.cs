@@ -382,43 +382,48 @@ namespace Tricycle.Media.FFmpeg
             return new Dimensions(width, storageDimensions.Height);
         }
 
-        Coordinate<int> ParseCoordinate(string xRatio, string yRatio)
+        Coordinate<decimal> ParseCoordinate(string xRatio, string yRatio)
         {
             var (x, y) = ParseTuple(xRatio, yRatio);
 
-            return new Coordinate<int>(x, y);
+            return new Coordinate<decimal>(x, y);
         }
 
-        Range<int> ParseRange(string minRatio, string maxRatio)
+        Range<decimal> ParseRange(string minRatio, string maxRatio)
         {
             var (min, max) = ParseTuple(minRatio, maxRatio);
 
-            return new Range<int>(min, max);
+            return new Range<decimal>(min, max);
         }
 
-        (int, int) ParseTuple(string ratio1, string ratio2)
+        (decimal, decimal) ParseTuple(string ratio1, string ratio2)
         {
-            int? value1 = null;
-            int? value2 = null;
+            decimal? value1 = null;
+            decimal? value2 = null;
 
             if (ratio1 != null)
             {
-                value1 = ParseNumeratorFromRatio(ratio1);
+                value1 = ParseDecimalFromRatio(ratio1);
             }
 
             if (ratio2 != null)
             {
-                value2 = ParseNumeratorFromRatio(ratio2);
+                value2 = ParseDecimalFromRatio(ratio2);
             }
 
             return (value1 ?? 0, value2 ?? 0);
         }
 
-        int? ParseNumeratorFromRatio(string ratio)
+        decimal? ParseDecimalFromRatio(string ratio)
         {
-            var (numerator, _) = ParseRatio(ratio);
+            var (numerator, denominator) = ParseRatio(ratio);
 
-            return numerator;
+            if (numerator.HasValue && denominator.HasValue && denominator.Value != 0)
+            {
+                return (decimal)numerator / denominator;
+            }
+
+            return null;
         }
 
         (int?, int?) ParseRatio(string ratio)

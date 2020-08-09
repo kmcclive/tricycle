@@ -171,22 +171,22 @@ namespace Tricycle.Media.FFmpeg.Tests
                         },
                         ""side_data_list"": [
                             {
-                                ""side_data_type"": ""Mastering display metadata"",
-                                ""red_x"": ""34000/50000"",
-                                ""red_y"": ""16000/50000"",
-                                ""green_x"": ""13250/50000"",
-                                ""green_y"": ""34500/50000"",
-                                ""blue_x"": ""7500/50000"",
-                                ""blue_y"": ""3000/50000"",
-                                ""white_point_x"": ""15635/50000"",
-                                ""white_point_y"": ""16450/50000"",
-                                ""min_luminance"": ""1/10000"",
-                                ""max_luminance"": ""10000000/10000""
+                                ""side_data_type"": ""Content light level metadata"",
+                                ""max_content"": 845,
+                                ""max_average"": 196
                             },
                             {
-                                ""side_data_type"": ""Content light level metadata"",
-                                ""max_content"": 1000,
-                                ""max_average"": 400
+                                ""side_data_type"": ""Mastering display metadata"",
+                                ""red_x"": ""17/25"",
+                                ""red_y"": ""8/25"",
+                                ""green_x"": ""53/200"",
+                                ""green_y"": ""69/100"",
+                                ""blue_x"": ""3/20"",
+                                ""blue_y"": ""3/50"",
+                                ""white_point_x"": ""3127/10000"",
+                                ""white_point_y"": ""329/1000"",
+                                ""min_luminance"": ""1/200"",
+                                ""max_luminance"": ""1000/1""
                             }
                         ]
                     }
@@ -295,14 +295,16 @@ namespace Tricycle.Media.FFmpeg.Tests
             var displayProperties = videoStream.MasterDisplayProperties;
 
             Assert.IsNotNull(displayProperties);
-            Assert.AreEqual(34000, displayProperties.Red.X);
-            Assert.AreEqual(16000, displayProperties.Red.Y);
-            Assert.AreEqual(13250, displayProperties.Green.X);
-            Assert.AreEqual(34500, displayProperties.Green.Y);
-            Assert.AreEqual(7500, displayProperties.Blue.X);
-            Assert.AreEqual(3000, displayProperties.Blue.Y);
-            Assert.AreEqual(15635, displayProperties.WhitePoint.X);
-            Assert.AreEqual(16450, displayProperties.WhitePoint.Y);
+            Assert.AreEqual(0.68M, displayProperties.Red.X);
+            Assert.AreEqual(0.32M, displayProperties.Red.Y);
+            Assert.AreEqual(0.265M, displayProperties.Green.X);
+            Assert.AreEqual(0.69M, displayProperties.Green.Y);
+            Assert.AreEqual(0.15M, displayProperties.Blue.X);
+            Assert.AreEqual(0.06M, displayProperties.Blue.Y);
+            Assert.AreEqual(0.3127M, displayProperties.WhitePoint.X);
+            Assert.AreEqual(0.329M, displayProperties.WhitePoint.Y);
+            Assert.AreEqual(0.0001M, displayProperties.Luminance.Min);
+            Assert.AreEqual(1000M, displayProperties.Luminance.Max);
 
             var lightProperties = videoStream.LightLevelProperties;
 
@@ -514,20 +516,20 @@ namespace Tricycle.Media.FFmpeg.Tests
             displayProperties = videoStream.MasterDisplayProperties;
 
             Assert.IsNotNull(displayProperties);
-            Assert.AreEqual(34000, displayProperties.Red.X);
-            Assert.AreEqual(16000, displayProperties.Red.Y);
-            Assert.AreEqual(13250, displayProperties.Green.X);
-            Assert.AreEqual(34500, displayProperties.Green.Y);
-            Assert.AreEqual(7500, displayProperties.Blue.X);
-            Assert.AreEqual(3000, displayProperties.Blue.Y);
-            Assert.AreEqual(15635, displayProperties.WhitePoint.X);
-            Assert.AreEqual(16450, displayProperties.WhitePoint.Y);
+            Assert.AreEqual(0.68M, displayProperties.Red.X);
+            Assert.AreEqual(0.32M, displayProperties.Red.Y);
+            Assert.AreEqual(0.265M, displayProperties.Green.X);
+            Assert.AreEqual(0.69M, displayProperties.Green.Y);
+            Assert.AreEqual(0.15M, displayProperties.Blue.X);
+            Assert.AreEqual(0.06M, displayProperties.Blue.Y);
+            Assert.AreEqual(0.3127M, displayProperties.WhitePoint.X);
+            Assert.AreEqual(0.329M, displayProperties.WhitePoint.Y);
 
             lightProperties = videoStream.LightLevelProperties;
 
             Assert.IsNotNull(lightProperties);
-            Assert.AreEqual(1000, lightProperties.MaxCll);
-            Assert.AreEqual(400, lightProperties.MaxFall);
+            Assert.AreEqual(845, lightProperties.MaxCll);
+            Assert.AreEqual(196, lightProperties.MaxFall);
 
             #endregion
         }

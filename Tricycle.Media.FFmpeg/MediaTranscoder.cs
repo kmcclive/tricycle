@@ -194,6 +194,33 @@ namespace Tricycle.Media.FFmpeg
                 result.ColorPrimaries = "bt2020";
                 result.ColorTransfer = "smpte2084";
                 result.ColorSpace = "bt2020nc";
+
+                if (outputStream.CopyHdrMetadata)
+                {
+                    if (sourceStream.MasterDisplayProperties != null)
+                    {
+                        var properties = sourceStream.MasterDisplayProperties;
+
+                        result.MasterDisplayRedX = properties.Red.X;
+                        result.MasterDisplayRedY = properties.Red.Y;
+                        result.MasterDisplayGreenX = properties.Green.X;
+                        result.MasterDisplayGreenY = properties.Green.Y;
+                        result.MasterDisplayBlueX = properties.Blue.X;
+                        result.MasterDisplayBlueY = properties.Blue.Y;
+                        result.MasterDisplayWhiteX = properties.WhitePoint.X;
+                        result.MasterDisplayWhiteY = properties.WhitePoint.Y;
+                        result.MasterDisplayMinLuminance = properties.Luminance.Min;
+                        result.MasterDisplayMaxLuminance = properties.Luminance.Max;
+                    }
+
+                    if (sourceStream.LightLevelProperties != null)
+                    {
+                        var properties = sourceStream.LightLevelProperties;
+
+                        result.MaxCll = properties.MaxCll;
+                        result.MaxFall = properties.MaxFall;
+                    }
+                }
             }
 
             result.Codec = GetVideoCodec(config, sourceStream, outputStream);
@@ -227,34 +254,6 @@ namespace Tricycle.Media.FFmpeg
 
             result.Preset = codec.Preset;
             result.Crf = outputStream.Quality;
-
-            if (outputStream.DynamicRange == DynamicRange.High && outputStream.CopyHdrMetadata)
-            {
-                var options = new List<Option>();
-
-                if (sourceStream.MasterDisplayProperties != null)
-                {
-                    var properties = sourceStream.MasterDisplayProperties;
-                    var value = string.Format("\"G{0}B{1}R{2}WP{3}L({4},{5})\"",
-                                                properties.Green,
-                                                properties.Blue,
-                                                properties.Red,
-                                                properties.WhitePoint,
-                                                properties.Luminance.Max,
-                                                properties.Luminance.Min);
-
-                    options.Add(new Option("master-display", value));
-                }
-
-                if (sourceStream.LightLevelProperties != null)
-                {
-                    var properties = sourceStream.LightLevelProperties;
-
-                    options.Add(new Option("max-cll", $"\"{properties.MaxCll},{properties.MaxFall}\""));
-                }
-
-                ((X265Codec)result).Options = options;
-            }
 
             return result;
         }
