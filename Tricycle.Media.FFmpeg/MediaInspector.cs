@@ -72,10 +72,11 @@ namespace Tricycle.Media.FFmpeg
 
             if (result != null)
             {
-                var hdrVideoStreams = result.Streams.OfType<VideoStreamInfo>()
-                                                    .Where(s => s.DynamicRange == DynamicRange.High);
+                var incompleteHdrVideoStreams = result.Streams.OfType<VideoStreamInfo>()
+                                                              .Where(s => s.DynamicRange == DynamicRange.High)
+                                                              .Where(s => s.MasterDisplayProperties == null);
 
-                foreach (VideoStreamInfo videoStream in hdrVideoStreams)
+                foreach (VideoStreamInfo videoStream in incompleteHdrVideoStreams)
                 {
                     var options = $"-show_frames -select_streams {videoStream.Index} -read_intervals %+#1";
                     var frameOutput = await RunFFprobe<FrameOutput>(fileName, options);
@@ -208,12 +209,15 @@ namespace Tricycle.Media.FFmpeg
                     break;
                 case "video":
                     var storageDimensions = new Dimensions(GetInt(stream.Width), GetInt(stream.Height));
+                    var (displayProperties, lightProperties) = Map(stream.SideDataList);
                     result = new VideoStreamInfo()
                     {
                         BitDepth = GetBitDepth(stream.PixFmt),
                         Dimensions = GetActualDimensions(storageDimensions, stream.SampleAspectRatio),
                         StorageDimensions = storageDimensions,
-                        DynamicRange = stream.ColorTransfer == "smpte2084" ? DynamicRange.High : DynamicRange.Standard
+                        DynamicRange = stream.ColorTransfer == "smpte2084" ? DynamicRange.High : DynamicRange.Standard,
+                        MasterDisplayProperties = displayProperties,
+                        LightLevelProperties = lightProperties
                     };
                     break;
                 default:
@@ -240,7 +244,20 @@ namespace Tricycle.Media.FFmpeg
 
             if (frame != null)
             {
-                foreach (SideData data in frame.SideDataList)
+                (displayProperties, lightProperties) = Map(frame.SideDataList);
+            }
+
+            return (displayProperties, lightProperties);
+        }
+
+        (MasterDisplayProperties, LightLevelProperties) Map(SideData[] sideDataList)
+        {
+            MasterDisplayProperties displayProperties = null;
+            LightLevelProperties lightProperties = null;
+
+            if (sideDataList != null)
+            {
+                foreach (SideData data in sideDataList)
                 {
                     switch (data.SideDataType)
                     {

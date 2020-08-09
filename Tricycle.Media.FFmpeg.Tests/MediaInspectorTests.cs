@@ -154,6 +154,49 @@ namespace Tricycle.Media.FFmpeg.Tests
                     ""duration"": ""1547.168000"",
                 }
             }";
+        const string FILE_OUTPUT_4 =
+            @"{
+                ""streams"": [
+                    {
+                        ""index"": 0,
+                        ""codec_name"": ""hevc"",
+                        ""codec_long_name"": ""H.265 / HEVC (High Efficiency Video Coding)"",
+                        ""codec_type"": ""video"",
+                        ""width"": 3840,
+                        ""height"": 2160,
+                        ""pix_fmt"": ""yuv420p10le"",
+                        ""color_transfer"": ""smpte2084"",
+                        ""tags"": {
+                            ""language"": ""eng"",
+                        },
+                        ""side_data_list"": [
+                            {
+                                ""side_data_type"": ""Mastering display metadata"",
+                                ""red_x"": ""34000/50000"",
+                                ""red_y"": ""16000/50000"",
+                                ""green_x"": ""13250/50000"",
+                                ""green_y"": ""34500/50000"",
+                                ""blue_x"": ""7500/50000"",
+                                ""blue_y"": ""3000/50000"",
+                                ""white_point_x"": ""15635/50000"",
+                                ""white_point_y"": ""16450/50000"",
+                                ""min_luminance"": ""1/10000"",
+                                ""max_luminance"": ""10000000/10000""
+                            },
+                            {
+                                ""side_data_type"": ""Content light level metadata"",
+                                ""max_content"": 1000,
+                                ""max_average"": 400
+                            }
+                        ]
+                    }
+                ],
+                ""format"": {
+                    ""format_name"": ""matroska,webm"",
+                    ""format_long_name"": ""Matroska / WebM"",
+                    ""duration"": ""3186.808000"",
+                }
+            }";
         const string FRAME_OUTPUT =
             @"{
                 ""frames"": [
@@ -208,7 +251,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             #endregion
 
-            #region Test MKV with HDR
+            #region Test MKV with HDR and metadata in frames
 
             var fileName = "/Users/fred/Documents/video.mkv";
             var escapedFileName = "escaped 1";
@@ -430,6 +473,61 @@ namespace Tricycle.Media.FFmpeg.Tests
             info = await inspector.Inspect(fileName);
 
             Assert.IsNull(info);
+
+            #endregion
+
+            #region Test MKV with HDR and metadata in stream
+
+            fileName = "/Users/fred/Documents/video2.mkv";
+            escapedFileName = "escaped 4";
+
+            processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
+            processRunner.Run(ffprobeFileName,
+                              Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
+                              timeout)
+                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_4 });
+
+            info = await inspector.Inspect(fileName);
+
+            Assert.IsNotNull(info);
+            Assert.AreEqual(fileName, info.FileName);
+            Assert.AreEqual("Matroska / WebM", info.FormatName);
+            Assert.AreEqual(TimeSpan.FromSeconds(3186.808000), info.Duration);
+
+            Assert.IsNotNull(info.Streams);
+            Assert.AreEqual(1, info.Streams.Count);
+
+            stream = info.Streams[0];
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual("hevc", stream.FormatName);
+            Assert.AreEqual("eng", stream.Language);
+            Assert.AreEqual(0, stream.Index);
+            Assert.IsInstanceOfType(stream, typeof(VideoStreamInfo));
+
+            videoStream = (VideoStreamInfo)stream;
+
+            Assert.AreEqual(new Dimensions(3840, 2160), videoStream.Dimensions);
+            Assert.AreEqual(DynamicRange.High, videoStream.DynamicRange);
+            Assert.AreEqual(10, videoStream.BitDepth);
+
+            displayProperties = videoStream.MasterDisplayProperties;
+
+            Assert.IsNotNull(displayProperties);
+            Assert.AreEqual(34000, displayProperties.Red.X);
+            Assert.AreEqual(16000, displayProperties.Red.Y);
+            Assert.AreEqual(13250, displayProperties.Green.X);
+            Assert.AreEqual(34500, displayProperties.Green.Y);
+            Assert.AreEqual(7500, displayProperties.Blue.X);
+            Assert.AreEqual(3000, displayProperties.Blue.Y);
+            Assert.AreEqual(15635, displayProperties.WhitePoint.X);
+            Assert.AreEqual(16450, displayProperties.WhitePoint.Y);
+
+            lightProperties = videoStream.LightLevelProperties;
+
+            Assert.IsNotNull(lightProperties);
+            Assert.AreEqual(1000, lightProperties.MaxCll);
+            Assert.AreEqual(400, lightProperties.MaxFall);
 
             #endregion
         }

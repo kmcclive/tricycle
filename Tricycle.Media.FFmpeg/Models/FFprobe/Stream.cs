@@ -123,5 +123,8 @@ namespace Tricycle.Media.FFmpeg.Models.FFprobe
 
         [JsonProperty("duration", NullValueHandling = NullValueHandling.Ignore)]
         public string Duration { get; set; }
+
+        [JsonProperty("side_data_list")]
+        public SideData[] SideDataList { get; set; }
     }
 }
