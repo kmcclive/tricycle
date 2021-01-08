@@ -22,6 +22,16 @@ namespace Tricycle.UI.Views
             set { SetValue(StepCountProperty, value); }
         }
 
+        public SnappableSlider()
+        {
+            switch (Device.RuntimePlatform)
+            {
+                case Device.macOS:
+                    HeightRequest = 24;
+                    break;
+            }
+        }
+
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
