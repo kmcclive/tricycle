@@ -224,6 +224,7 @@
                                   Margin="20, -5, 5, 5"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"
+                                  IsVisible="{Binding IsAudioOutputsVisible}"
                                   ItemsSource="{Binding AudioOutputs}">
                             <ListView.HeightRequest>
                                 <OnPlatform x:TypeArguments="x:Double">

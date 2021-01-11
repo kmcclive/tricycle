@@ -87,6 +87,7 @@ namespace Tricycle.UI.ViewModels
         bool _isForcedSubtitlesEnabled;
         bool _isForcedSubtitlesChecked;
         IList<AudioOutputViewModel> _audioOutputs = new ObservableCollection<AudioOutputViewModel>();
+        bool _isAudioOutputsVisible = true;
         bool _isContainerFormatEnabled;
         IList<ListItem> _containerFormatOptions;
         ListItem _selectedContainerFormat;
@@ -411,6 +412,12 @@ namespace Tricycle.UI.ViewModels
         {
             get { return _audioOutputs; }
             set { SetProperty(ref _audioOutputs, value); }
+        }
+
+        public bool IsAudioOutputsVisible
+        {
+            get { return _isAudioOutputsVisible; }
+            set { SetProperty(ref _isAudioOutputsVisible, value); }
         }
 
         public bool IsContainerFormatEnabled
@@ -768,7 +775,9 @@ namespace Tricycle.UI.ViewModels
             PopulateVideoOptions(_primaryVideoStream, _croppedDimensions);
             PopulateSubtitleOptions(_sourceInfo);
             IsVideoConfigEnabled = _sourceInfo != null;
+            IsAudioOutputsVisible = false;
             PopulateAudioOptions(_sourceInfo, (ContainerFormat)SelectedContainerFormat.Value);
+            IsAudioOutputsVisible = true;
             UpdateManualCropCoordinates(_primaryVideoStream?.Dimensions,
                                         _primaryVideoStream?.StorageDimensions,
                                         _cropParameters);
@@ -1854,10 +1863,13 @@ namespace Tricycle.UI.ViewModels
 
         void ApplyTemplates(IList<AudioTemplate> templates)
         {
-            PopulateAudioOptions(_sourceInfo, (ContainerFormat)SelectedContainerFormat.Value);
+            IsAudioOutputsVisible = false;
 
+            PopulateAudioOptions(_sourceInfo, (ContainerFormat)SelectedContainerFormat.Value);
+ 
             if (AudioOutputs?.Any() != true)
             {
+                IsAudioOutputsVisible = true;
                 return;
             }
 
@@ -1867,9 +1879,10 @@ namespace Tricycle.UI.ViewModels
 
             if (templates == null)
             {
+                IsAudioOutputsVisible = true;
                 return;
             }
-
+            
             var tracksByLanguage = output.TrackOptions.Where(t => t != NONE_OPTION)
                                                       .Where(t => ((StreamInfo)t.Value).StreamType == StreamType.Audio)
                                                       .GroupBy(t => ((StreamInfo)t.Value).Language)
@@ -1917,6 +1930,8 @@ namespace Tricycle.UI.ViewModels
             }
 
             RemoveDuplicateAudioOutputs();
+
+            IsAudioOutputsVisible = true;
         }
 
         ListItem GetClosestSize(string presetName)
