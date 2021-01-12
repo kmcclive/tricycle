@@ -2520,7 +2520,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void ShowsAudioOptionsWhenDoneApplyingTemplate()
+        public void ShowsAudioOutputsWhenDoneApplyingTemplate()
         {
             SelectSource();
             ApplyTemplate();
