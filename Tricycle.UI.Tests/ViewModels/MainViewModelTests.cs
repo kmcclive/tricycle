@@ -1283,6 +1283,14 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ShowsAudioOutputsWhenDoneReadingSource()
+        {
+            SelectSource();
+
+            Assert.IsTrue(_viewModel.IsAudioOutputsVisible);
+        }
+
+        [TestMethod]
         public void ListsNoAudioOutputsWhenSourceHasNoTracks()
         {
             _mediaInfo.Streams = new StreamInfo[]
@@ -2512,6 +2520,15 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ShowsAudioOutputsWhenDoneApplyingTemplate()
+        {
+            SelectSource();
+            ApplyTemplate();
+
+            Assert.IsTrue(_viewModel.IsAudioOutputsVisible);
+        }
+
+        [TestMethod]
         public void ClearsAudioForTemplate()
         {
             SelectSource();
@@ -2577,6 +2594,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             ApplyTemplate();
 
+            Assert.IsTrue(_viewModel.IsAudioOutputsVisible, "Audio Outputs were not shown after applying template.");
             Assert.AreEqual(2, _viewModel.AudioOutputs?.Count);
 
             var output = _viewModel.AudioOutputs[0];
