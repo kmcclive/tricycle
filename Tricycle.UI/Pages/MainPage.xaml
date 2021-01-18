@@ -234,7 +234,7 @@
                             <ListView.Margin>
                                 <OnPlatform x:TypeArguments="Thickness">
                                     <On Platform="macOS" Value="-10, -13, 5, 5" />
-                                    <On Platform="WPF" Value="20, -5, 5, 5" />
+                                    <On Platform="WPF" Value="5, -5, 5, 5" />
                                 </OnPlatform>
                             </ListView.Margin>
                             <ListView.Header>
@@ -246,7 +246,7 @@
                                         <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                                                BorderColor="{StaticResource BorderColor}"
                                                HasShadow="False"
-                                               Margin="0, 0, 20, 5"
+                                               Margin="0, 0, 40, 5"
                                                Padding="5, 9">
                                             <Grid RowSpacing="5">
                                                 <Grid.HeightRequest>
