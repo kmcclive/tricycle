@@ -59,13 +59,6 @@ namespace Tricycle.UI.Views
 
         public BindablePicker()
         {
-            switch (Device.RuntimePlatform)
-            {
-                case Device.macOS:
-                    HeightRequest = 24;
-                    break;
-            }
-
             this.SelectedIndexChanged += OnSelectedIndexChanged;
         }
 
