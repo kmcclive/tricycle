@@ -221,7 +221,6 @@
                                        HeightRequest="{StaticResource PanelHeight}">
                         <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
                                   HasUnevenRows="true"
-                                  Margin="-10, -13, 5, 5"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"
                                   IsVisible="{Binding IsAudioOutputsVisible}"
@@ -232,6 +231,12 @@
                                     <On Platform="WPF" Value="410" />
                                 </OnPlatform>
                             </ListView.HeightRequest>
+                            <ListView.Margin>
+                                <OnPlatform x:TypeArguments="Thickness">
+                                    <On Platform="macOS" Value="-10, -13, 5, 5" />
+                                    <On Platform="WPF" Value="20, -5, 5, 5" />
+                                </OnPlatform>
+                            </ListView.Margin>
                             <ListView.Header>
                                 <FlexLayout />
                             </ListView.Header>

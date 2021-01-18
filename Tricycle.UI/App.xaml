@@ -33,6 +33,7 @@
                 <Setter.Value>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="24" />
+                        <On Platform="WPF" Value="27" />
                     </OnPlatform>
                 </Setter.Value>
             </Setter>
@@ -44,6 +45,7 @@
                 <Setter.Value>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="24" />
+                        <On Platform="WPF" Value="20" />
                     </OnPlatform>
                 </Setter.Value>
             </Setter>
