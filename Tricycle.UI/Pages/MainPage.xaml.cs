@@ -12,6 +12,7 @@ using Tricycle.Models.Jobs;
 using Tricycle.Models.Templates;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Tricycle.UI.Pages
@@ -26,6 +27,13 @@ namespace Tricycle.UI.Pages
         public MainPage(IAppManager appManager)
         {
             InitializeComponent();
+
+            if (DeviceInfo.Platform == DevicePlatform.macOS && DeviceInfo.Version.Major >= 11)
+            {
+                // Big Sur adds excessive padding for ListViews
+                var margin = lstAudioOutputs.Margin;
+                lstAudioOutputs.Margin = new Thickness(-10, margin.Top, margin.Right, margin.Bottom);
+            }
 
             _viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),

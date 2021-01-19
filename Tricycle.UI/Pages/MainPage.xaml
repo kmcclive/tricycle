@@ -219,7 +219,8 @@
                     <local:FramedPanel Title="Audio"
                                        FlexLayout.Basis="{StaticResource PanelWidth}"
                                        HeightRequest="{StaticResource PanelHeight}">
-                        <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
+                        <ListView x:Name="lstAudioOutputs"
+                                  BackgroundColor="{StaticResource PanelBackgroundColor}"
                                   HasUnevenRows="true"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"
@@ -233,7 +234,8 @@
                             </ListView.HeightRequest>
                             <ListView.Margin>
                                 <OnPlatform x:TypeArguments="Thickness">
-                                    <On Platform="macOS" Value="-10, -13, 5, 5" />
+                                    <!--This value is set based on version in the code-behind for macOS-->
+                                    <On Platform="macOS" Value="20, -13, 5, 5" />
                                     <On Platform="WPF" Value="5, -5, 5, 5" />
                                 </OnPlatform>
                             </ListView.Margin>

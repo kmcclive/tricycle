@@ -133,6 +133,11 @@
       <HintPath>..\packages\ByteSize.1.3.0\lib\netstandard1.0\ByteSize.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="Xamarin.Essentials">
+      <HintPath>..\packages\Xamarin.Essentials.1.6.0\lib\xamarinmac20\Xamarin.Essentials.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK" />
+    <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
