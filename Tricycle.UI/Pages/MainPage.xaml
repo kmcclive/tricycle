@@ -221,7 +221,6 @@
                                        HeightRequest="{StaticResource PanelHeight}">
                         <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
                                   HasUnevenRows="true"
-                                  Margin="20, -5, 5, 5"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"
                                   IsVisible="{Binding IsAudioOutputsVisible}"
@@ -232,6 +231,16 @@
                                     <On Platform="WPF" Value="410" />
                                 </OnPlatform>
                             </ListView.HeightRequest>
+                            <ListView.Margin>
+                                <OnPlatform x:TypeArguments="Thickness">
+                                    <On Platform="macOS">
+                                        <local:WhenVersion x:TypeArguments="Thickness" Default="20, -13, 5, 5">
+                                            <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, -13, 5, 5" />
+                                        </local:WhenVersion>
+                                    </On>
+                                    <On Platform="WPF" Value="5, -5, 5, 5" />
+                                </OnPlatform>
+                            </ListView.Margin>
                             <ListView.Header>
                                 <FlexLayout />
                             </ListView.Header>
@@ -241,8 +250,8 @@
                                         <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
                                                BorderColor="{StaticResource BorderColor}"
                                                HasShadow="False"
-                                               Margin="0, 0, 3, 5"
-                                               Padding="5, 10">
+                                               Margin="0, 0, 20, 5"
+                                               Padding="5, 9">
                                             <Grid RowSpacing="5">
                                                 <Grid.HeightRequest>
                                                     <OnPlatform x:TypeArguments="x:Double">

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Threading.Tasks;
 using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.Media;

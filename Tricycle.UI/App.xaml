@@ -29,6 +29,26 @@
                ApplyToDerivedTypes="True"
                CanCascade="True">
             <Setter Property="FontSize" Value="Micro" />
+            <Setter Property="HeightRequest">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="macOS" Value="24" />
+                        <On Platform="WPF" Value="27" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Slider"
+               ApplyToDerivedTypes="True"
+               CanCascade="True">
+            <Setter Property="HeightRequest">
+                <Setter.Value>
+                    <OnPlatform x:TypeArguments="x:Double">
+                        <On Platform="macOS" Value="24" />
+                        <On Platform="WPF" Value="20" />
+                    </OnPlatform>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Thickness x:Key="PanelPadding">20, 0, 20, 20</Thickness>
         <!-- BEGIN macOS only -->
