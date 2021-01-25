@@ -28,13 +28,6 @@ namespace Tricycle.UI.Pages
         {
             InitializeComponent();
 
-            if (DeviceInfo.Platform == DevicePlatform.macOS && DeviceInfo.Version.Major >= 11)
-            {
-                // Big Sur adds excessive padding for ListViews
-                var margin = lstAudioOutputs.Margin;
-                lstAudioOutputs.Margin = new Thickness(-10, margin.Top, margin.Right, margin.Bottom);
-            }
-
             _viewModel = new MainViewModel(
                 AppState.IocContainer.GetInstance<IFileBrowser>(),
                 AppState.IocContainer.GetInstance<IMediaInspector>(),
