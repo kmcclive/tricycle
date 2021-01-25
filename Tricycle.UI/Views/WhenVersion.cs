@@ -18,7 +18,25 @@ namespace Tricycle.UI.Views
             foreach (var condition in whenVersion.Versions)
             {
                 var predicate = GetPredicate(condition.Is);
-                var version = Version.Parse(condition.Version);
+                Version version;
+
+                try
+                {
+                    version = Version.Parse(condition.Version);
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new XamlParseException(ex.Message, ex);
+                }
+                catch (FormatException ex)
+                {
+                    throw new XamlParseException(ex.Message, ex);
+                }
+                catch (OverflowException ex)
+                {
+                    throw new XamlParseException(ex.Message, ex);
+                }
+
 
                 if (predicate(version))
                 {

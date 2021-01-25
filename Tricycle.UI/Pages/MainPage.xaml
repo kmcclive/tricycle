@@ -219,8 +219,7 @@
                     <local:FramedPanel Title="Audio"
                                        FlexLayout.Basis="{StaticResource PanelWidth}"
                                        HeightRequest="{StaticResource PanelHeight}">
-                        <ListView x:Name="lstAudioOutputs"
-                                  BackgroundColor="{StaticResource PanelBackgroundColor}"
+                        <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
                                   HasUnevenRows="true"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"

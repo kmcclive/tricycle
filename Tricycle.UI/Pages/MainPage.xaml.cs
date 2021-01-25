@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Threading.Tasks;
 using Tricycle.Globalization;
 using Tricycle.IO;
 using Tricycle.Media;
@@ -12,7 +10,6 @@ using Tricycle.Models.Jobs;
 using Tricycle.Models.Templates;
 using Tricycle.UI.ViewModels;
 using Tricycle.Utilities;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Tricycle.UI.Pages
