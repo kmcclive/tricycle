@@ -238,7 +238,7 @@ namespace Tricycle.Media.FFmpeg
             LightLevelProperties lightProperties = null;
             Frame frame = frameOutput.Frames?.FirstOrDefault();
 
-            if (frame != null)
+            if (frame != null && frame.SideDataList != null)
             {
                 foreach (SideData data in frame.SideDataList)
                 {
