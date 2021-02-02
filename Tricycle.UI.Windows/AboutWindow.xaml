@@ -16,7 +16,7 @@
         <StackPanel Margin="20, 0, 0, 0">
             <Label FontSize="24" FontWeight="Bold">Tricycle</Label>
             <Label Content="{Binding Version}" />
-            <Label>Copyright © 2020 Tricycle Team</Label>
+            <Label>Copyright © 2021 Tricycle Team</Label>
             <Label>GPLv2 License</Label>
             <Label Width="240">
                 <TextBlock TextWrapping="Wrap" Text="This software uses executables from the FFmpeg project under the LGPLv2.1."/>
