@@ -17,7 +17,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2020 Tricycle Team
+	<string>Copyright © 2021 Tricycle Team
 GPLv2 License
 This software uses executables from the FFmpeg project under the LGPLv2.1
 	</string>
@@ -30,7 +30,7 @@ This software uses executables from the FFmpeg project under the LGPLv2.1
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.3</string>
+	<string>2.5.0</string>
 	<key>CFBundleVersion</key>
 	<string>0</string>
 </dict>
