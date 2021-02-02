@@ -39,6 +39,7 @@
                    Grid.Row="0"
                    Grid.Column="0">
                 <ListView x:Name="vwSections"
+                          BackgroundColor="Transparent"
                           HorizontalOptions="FillAndExpand"
                           VerticalOptions="FillAndExpand"
                           VerticalScrollBarVisibility="Never">
