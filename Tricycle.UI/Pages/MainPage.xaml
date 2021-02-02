@@ -219,7 +219,7 @@
                     <local:FramedPanel Title="Audio"
                                        FlexLayout.Basis="{StaticResource PanelWidth}"
                                        HeightRequest="{StaticResource PanelHeight}">
-                        <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
+                        <ListView BackgroundColor="Transparent"
                                   HasUnevenRows="true"
                                   SelectionMode="None"
                                   VerticalScrollBarVisibility="Always"
@@ -247,7 +247,7 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>
-                                        <Frame BackgroundColor="{StaticResource PanelBackgroundColor}"
+                                        <Frame BackgroundColor="Transparent"
                                                BorderColor="{StaticResource BorderColor}"
                                                HasShadow="False"
                                                Margin="0, 0, 20, 5"
