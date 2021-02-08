@@ -64,6 +64,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedX264Preset;
         IList<ListItem> _x265PresetOptions;
         ListItem _selectedX265Preset;
+        string _hevcTag;
         string _aacCodec;
         string _ac3Codec;
         string _cropDetectOptions;
@@ -282,6 +283,12 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _selectedX265Preset, value);
         }
 
+        public string HevcTag
+        {
+            get => _hevcTag;
+            set => SetProperty(ref _hevcTag, value);
+        }
+
         public string AacCodec
         {
             get => _aacCodec;
@@ -451,11 +458,13 @@ namespace Tricycle.UI.ViewModels
 
         void Load(FFmpegConfig config)
         {
+            var hevcCodec = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
             string x264Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset;
-            string x265Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset;
+            string x265Preset = hevcCodec?.Preset;
 
             SelectedX264Preset = string.IsNullOrWhiteSpace(x264Preset) ? null : new ListItem(x264Preset);
             SelectedX265Preset = string.IsNullOrWhiteSpace(x265Preset) ? null : new ListItem(x265Preset);
+            HevcTag = hevcCodec?.Tag;
             AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name;
             Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name;
             CropDetectOptions = config.Video?.CropDetectOptions;
@@ -731,7 +740,8 @@ namespace Tricycle.UI.ViewModels
                         VideoFormat.Hevc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX265Preset?.ToString() ?? "medium"
+                            Preset = SelectedX265Preset?.ToString() ?? "medium",
+                            Tag = string.IsNullOrWhiteSpace(HevcTag) ? null : HevcTag
                         }
                     }
                 },

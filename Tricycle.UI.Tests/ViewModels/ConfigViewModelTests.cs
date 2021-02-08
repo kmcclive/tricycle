@@ -422,6 +422,26 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsHevcTagFromConfig()
+        {
+            string tag = "hvc1";
+
+            _ffmpegConfig.Video.Codecs = new Dictionary<VideoFormat, FFmpegVideoCodec>()
+            {
+                {
+                    VideoFormat.Hevc,
+                    new FFmpegVideoCodec()
+                    {
+                        Tag = tag
+                    }
+                }
+            };
+            _viewModel.Initialize();
+
+            Assert.AreEqual(tag, _viewModel.HevcTag);
+        }
+
+        [TestMethod]
         public void LoadsAacCodecFromConfig()
         {
             string codec = "aac";
@@ -1202,6 +1222,19 @@ namespace Tricycle.UI.Tests.ViewModels
 
             Assert.AreEqual(preset,
                             _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset);
+        }
+
+        [TestMethod]
+        public void SavesHevcTagToConfig()
+        {
+            string tag = "hvc1";
+
+            _viewModel.Initialize();
+            _viewModel.HevcTag = tag;
+            _viewModel.Close();
+
+            Assert.AreEqual(tag,
+                            _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Tag);
         }
 
         [TestMethod]
