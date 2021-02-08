@@ -211,6 +211,31 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StartAssignsTagOnJobVideoStream()
+        {
+            var tag = "hvc1";
+
+            _videoOutput.Format = VideoFormat.Hevc;
+            _configManager.Config = new FFmpegConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                    {
+                        { VideoFormat.Hevc, new VideoCodec() { Tag = tag } }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual(tag, stream.Tag);
+        }
+
+        [TestMethod]
         public void StartAssignsX264CodecOnJobVideoStream()
         {
             var preset = "fast";

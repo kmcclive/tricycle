@@ -13,6 +13,9 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [ArgumentIgnore]
         public StreamInput Input { get; set; }
 
+        [Argument("-tag")]
+        public string Tag { get; set; }
+
         [Argument("-c")]
         public Codec Codec { get; set; }
 

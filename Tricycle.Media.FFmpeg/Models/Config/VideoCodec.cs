@@ -4,6 +4,7 @@ namespace Tricycle.Media.FFmpeg.Models.Config
     public class VideoCodec
     {
         public string Preset { get; set; }
+        public string Tag { get; set; }
 
         public VideoCodec()
         {
