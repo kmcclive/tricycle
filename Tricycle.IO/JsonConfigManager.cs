@@ -60,12 +60,21 @@ namespace Tricycle.IO
                 config = DeserializeFile(_userFileName);
             }
 
-            if ((config == null) && _fileSystem.File.Exists(_defaultFileName))
+            if (_fileSystem.File.Exists(_defaultFileName))
             {
-                config = DeserializeFile(_defaultFileName);
+                var defaultConfig = DeserializeFile(_defaultFileName);
 
-                if (config != null)
+                if (defaultConfig != null)
                 {
+                    if (config != null)
+                    {
+                        Coalesce(config, defaultConfig);
+                    }
+                    else
+                    {
+                        config = defaultConfig;
+                    }
+
                     SerializeToFile(config, _userFileName);
                 }
             }
@@ -81,6 +90,11 @@ namespace Tricycle.IO
             }
 
             SerializeToFile(Config, _userFileName);
+        }
+
+        protected virtual void Coalesce(T userConfig, T defaultConfig)
+        {
+
         }
 
         T DeserializeFile(string fileName)

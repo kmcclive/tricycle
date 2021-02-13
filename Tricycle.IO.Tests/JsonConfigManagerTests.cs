@@ -16,6 +16,26 @@ namespace Tricycle.IO.Tests
             public int Value { get; set; }
         }
 
+        class MockJsonConfigManager : JsonConfigManager<Config>
+        {
+            public bool WasCoalesceCalled { get; set; }
+            public Config UserConfig { get; set; }
+            public Config DefaultConfig { get; set; }
+
+            public MockJsonConfigManager(IFileSystem fileSystem, string defaultFileName, string userFileName)
+                : base(fileSystem, defaultFileName, userFileName)
+            {
+
+            }
+
+            protected override void Coalesce(Config userConfig, Config defaultConfig)
+            {
+                WasCoalesceCalled = true;
+                UserConfig = userConfig;
+                DefaultConfig = defaultConfig;
+            }
+        }
+
         #endregion
 
         #region Fields
@@ -26,7 +46,7 @@ namespace Tricycle.IO.Tests
         string _userDirectory;
         string _userFileName;
         string _defaultFileName;
-        JsonConfigManager<Config> _configManager;
+        MockJsonConfigManager _configManager;
 
         #endregion
 
@@ -41,7 +61,7 @@ namespace Tricycle.IO.Tests
             _userDirectory = Path.Combine("Users", "fred", "Library", "Preferences");
             _userFileName = Path.Combine(_userDirectory, "config.json");
             _defaultFileName = Path.Combine("Applications", "Tricycle.app", "Resources", "Config", "config.json");
-            _configManager = new JsonConfigManager<Config>(_fileSystem, _defaultFileName, _userFileName);
+            _configManager = new MockJsonConfigManager(_fileSystem, _defaultFileName, _userFileName);
 
             _fileSystem.File.Returns(_fileService);
             _fileSystem.Directory.Returns(_directoryService);
@@ -68,15 +88,6 @@ namespace Tricycle.IO.Tests
             _configManager.Load();
 
             _fileService.DidNotReceive().ReadAllText(_userFileName);
-        }
-
-        [TestMethod]
-        public void LoadDoesNotReadDefaultConfigWhenUserConfigExists()
-        {
-            _fileService.Exists(_userFileName).Returns(true);
-            _configManager.Load();
-
-            _fileService.DidNotReceive().ReadAllText(_defaultFileName);
         }
 
         [TestMethod]
@@ -117,6 +128,42 @@ namespace Tricycle.IO.Tests
             _configManager.Load();
 
             _directoryService.DidNotReceive().CreateDirectory(Arg.Any<string>());
+        }
+
+        [TestMethod]
+        public void LoadCallsCoalesceWhenBothConfigsExist()
+        {
+            _fileService.Exists(_userFileName).Returns(true);
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_userFileName).Returns("{}");
+            _fileService.ReadAllText(_defaultFileName).Returns("{}");
+            _configManager.Load();
+
+            Assert.IsTrue(_configManager.WasCoalesceCalled);
+            Assert.IsNotNull(_configManager.UserConfig);
+            Assert.IsNotNull(_configManager.DefaultConfig);
+        }
+
+        [TestMethod]
+        public void LoadDoesNotCallCoalesceWhenUserConfigDoesNotExist()
+        {
+            _fileService.Exists(_userFileName).Returns(false);
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns("{}");
+            _configManager.Load();
+
+            Assert.IsFalse(_configManager.WasCoalesceCalled);
+        }
+
+        [TestMethod]
+        public void LoadDoesNotCallCoalesceWhenDefaultConfigDoesNotExist()
+        {
+            _fileService.Exists(_userFileName).Returns(true);
+            _fileService.Exists(_defaultFileName).Returns(false);
+            _fileService.ReadAllText(_userFileName).Returns("{}");
+            _configManager.Load();
+
+            Assert.IsFalse(_configManager.WasCoalesceCalled);
         }
 
         [TestMethod]
