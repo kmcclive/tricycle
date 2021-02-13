@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -34,12 +35,26 @@ namespace Tricycle.IO
 
         public TObject Deserialize<TObject>(string data)
         {
-            return JsonConvert.DeserializeObject<TObject>(data, _settings);
+            try
+            {
+                return JsonConvert.DeserializeObject<TObject>(data, _settings);
+            }
+            catch (JsonException ex)
+            {
+                throw new SerializationException("An error occurred deserializing the data.", ex);
+            }
         }
 
-        public string Seriialize(object obj)
+        public string Serialize(object obj)
         {
-            return JsonConvert.SerializeObject(obj, _settings);
+            try
+            {
+                return JsonConvert.SerializeObject(obj, _settings);
+            }
+            catch (JsonException ex)
+            {
+                throw new SerializationException("An error occurred serializing the object.", ex);
+            }
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tricycle.IO.Tests
@@ -41,15 +42,22 @@ namespace Tricycle.IO.Tests
         #region Test Methods
 
         [TestMethod]
-        public void TestSerialize()
+        public void SerializeReturnsJsonString()
         {
-            var actual = _serializer.Seriialize(_value);
+            var actual = _serializer.Serialize(_value);
 
             Assert.AreEqual(_json, actual);
         }
 
         [TestMethod]
-        public void TestDeserialize()
+        [ExpectedException(typeof(SerializationException))]
+        public void DeserializeThrowsSerializationException()
+        {
+            _serializer.Deserialize<MockObject>("{");
+        }
+
+        [TestMethod]
+        public void DeserializeReturnsObject()
         {
             var actual = _serializer.Deserialize<MockObject>(_json);
 

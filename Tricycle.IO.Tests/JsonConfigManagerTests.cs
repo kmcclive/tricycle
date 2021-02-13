@@ -22,8 +22,11 @@ namespace Tricycle.IO.Tests
             public Config UserConfig { get; set; }
             public Config DefaultConfig { get; set; }
 
-            public MockJsonConfigManager(IFileSystem fileSystem, string defaultFileName, string userFileName)
-                : base(fileSystem, defaultFileName, userFileName)
+            public MockJsonConfigManager(IFileSystem fileSystem,
+                                         ISerializer<string> serializer,
+                                         string defaultFileName,
+                                         string userFileName)
+                : base(fileSystem, serializer, defaultFileName, userFileName)
             {
 
             }
@@ -43,6 +46,7 @@ namespace Tricycle.IO.Tests
         IFileSystem _fileSystem;
         IFile _fileService;
         IDirectory _directoryService;
+        ISerializer<string> _serializer;
         string _userDirectory;
         string _userFileName;
         string _defaultFileName;
@@ -58,10 +62,11 @@ namespace Tricycle.IO.Tests
             _fileSystem = Substitute.For<IFileSystem>();
             _fileService = Substitute.For<IFile>();
             _directoryService = Substitute.For<IDirectory>();
+            _serializer = Substitute.For<ISerializer<string>>();
             _userDirectory = Path.Combine("Users", "fred", "Library", "Preferences");
             _userFileName = Path.Combine(_userDirectory, "config.json");
             _defaultFileName = Path.Combine("Applications", "Tricycle.app", "Resources", "Config", "config.json");
-            _configManager = new MockJsonConfigManager(_fileSystem, _defaultFileName, _userFileName);
+            _configManager = new MockJsonConfigManager(_fileSystem, _serializer, _defaultFileName, _userFileName);
 
             _fileSystem.File.Returns(_fileService);
             _fileSystem.Directory.Returns(_directoryService);
@@ -91,7 +96,19 @@ namespace Tricycle.IO.Tests
         }
 
         [TestMethod]
-        public void LoadReadsDefaultConfigWhenUserConfigDoesNotExist()
+        public void LoadDeserializesUserConfigWhenItExists()
+        {
+            var data = Guid.NewGuid().ToString();
+
+            _fileService.Exists(_userFileName).Returns(true);
+            _fileService.ReadAllText(_userFileName).Returns(data);
+            _configManager.Load();
+
+            _serializer.Received().Deserialize<Config>(data);
+        }
+
+        [TestMethod]
+        public void LoadReadsDefaultConfigWhenItExists()
         {
             _fileService.Exists(_defaultFileName).Returns(true);
             _configManager.Load();
@@ -100,15 +117,31 @@ namespace Tricycle.IO.Tests
         }
 
         [TestMethod]
-        public void LoadCreatesUserConfigDirectoryWhenItDoesNotExist()
+        public void LoadDoesNotReadDefaultConfigWhenItDoesNotExists()
         {
-            var config =
-                "{" + Environment.NewLine +
-                "  \"value\": 2" + Environment.NewLine +
-                "}";
+            _configManager.Load();
+
+            _fileService.DidNotReceive().ReadAllText(_defaultFileName);
+        }
+
+        [TestMethod]
+        public void LoadDeserializesDefaultConfigWhenItExists()
+        {
+            var data = Guid.NewGuid().ToString();
 
             _fileService.Exists(_defaultFileName).Returns(true);
-            _fileService.ReadAllText(_defaultFileName).Returns(config);
+            _fileService.ReadAllText(_defaultFileName).Returns(data);
+            _configManager.Load();
+
+            _serializer.Received().Deserialize<Config>(data);
+        }
+
+        [TestMethod]
+        public void LoadCreatesUserConfigDirectoryWhenItDoesNotExist()
+        {
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
             _directoryService.Exists(_userDirectory).Returns(false);
             _configManager.Load();
 
@@ -118,13 +151,9 @@ namespace Tricycle.IO.Tests
         [TestMethod]
         public void LoadDoesNotCreateUserConfigDirectoryWhenItExists()
         {
-            var config =
-                "{" + Environment.NewLine +
-                "  \"value\": 2" + Environment.NewLine +
-                "}";
-
             _fileService.Exists(_defaultFileName).Returns(true);
-            _fileService.ReadAllText(_defaultFileName).Returns(config);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
             _configManager.Load();
 
             _directoryService.DidNotReceive().CreateDirectory(Arg.Any<string>());
@@ -135,8 +164,9 @@ namespace Tricycle.IO.Tests
         {
             _fileService.Exists(_userFileName).Returns(true);
             _fileService.Exists(_defaultFileName).Returns(true);
-            _fileService.ReadAllText(_userFileName).Returns("{}");
-            _fileService.ReadAllText(_defaultFileName).Returns("{}");
+            _fileService.ReadAllText(_userFileName).Returns(string.Empty);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
             _configManager.Load();
 
             Assert.IsTrue(_configManager.WasCoalesceCalled);
@@ -149,7 +179,8 @@ namespace Tricycle.IO.Tests
         {
             _fileService.Exists(_userFileName).Returns(false);
             _fileService.Exists(_defaultFileName).Returns(true);
-            _fileService.ReadAllText(_defaultFileName).Returns("{}");
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
             _configManager.Load();
 
             Assert.IsFalse(_configManager.WasCoalesceCalled);
@@ -160,37 +191,54 @@ namespace Tricycle.IO.Tests
         {
             _fileService.Exists(_userFileName).Returns(true);
             _fileService.Exists(_defaultFileName).Returns(false);
-            _fileService.ReadAllText(_userFileName).Returns("{}");
+            _fileService.ReadAllText(_userFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
             _configManager.Load();
 
             Assert.IsFalse(_configManager.WasCoalesceCalled);
         }
 
         [TestMethod]
-        public void LoadWritesUserConfigWhenItDoesNotExist()
+        public void LoadDeserializesUserConfigWhenItDoesNotExist()
         {
-            var config =
-                "{" + Environment.NewLine +
-                "  \"value\": 2" + Environment.NewLine +
-                "}";
+            var config = new Config()
+            {
+                Value = 2
+            };
 
             _fileService.Exists(_defaultFileName).Returns(true);
-            _fileService.ReadAllText(_defaultFileName).Returns(config);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(config);
             _configManager.Load();
 
-            _fileService.Received().WriteAllText(_userFileName, config);
+            _serializer.Received().Serialize(config);
+        }
+
+        [TestMethod]
+        public void LoadWritesUserConfigWhenItDoesNotExist()
+        {
+            var data = Guid.NewGuid().ToString();
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(data);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(new Config());
+            _serializer.Serialize(Arg.Any<object>()).Returns(data);
+            _configManager.Load();
+
+            _fileService.Received().WriteAllText(_userFileName, data);
         }
 
         [TestMethod]
         public void LoadSetsConfig()
         {
-            var config =
-                "{" + Environment.NewLine +
-                "  \"value\": 2" + Environment.NewLine +
-                "}";
+            var config = new Config()
+            {
+                Value = 2
+            };
 
             _fileService.Exists(_userFileName).Returns(true);
-            _fileService.ReadAllText(_userFileName).Returns(config);
+            _fileService.ReadAllText(_userFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(config);
             _configManager.Load();
 
             Assert.AreEqual(2, _configManager.Config?.Value);
@@ -240,20 +288,27 @@ namespace Tricycle.IO.Tests
         }
 
         [TestMethod]
-        public void SaveWritesToUserConfigFile()
+        public void SaveSerializesConfig()
         {
-            var json =
-                "{" + Environment.NewLine +
-                "  \"value\": 2" + Environment.NewLine +
-                "}";
-
             _configManager.Config = new Config()
             {
                 Value = 2
             };
             _configManager.Save();
 
-            _fileService.Received().WriteAllText(_userFileName, json);
+            _serializer.Received().Serialize(_configManager.Config);
+        }
+
+        [TestMethod]
+        public void SaveWritesToUserConfigFile()
+        {
+            var data = Guid.NewGuid().ToString();
+
+            _configManager.Config = new Config();
+            _serializer.Serialize(Arg.Any<Config>()).Returns(data);
+            _configManager.Save();
+
+            _fileService.Received().WriteAllText(_userFileName, data);
         }
 
         [TestMethod]

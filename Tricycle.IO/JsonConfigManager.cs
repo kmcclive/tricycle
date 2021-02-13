@@ -4,34 +4,24 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Security;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace Tricycle.IO
 {
     public class JsonConfigManager<T> : IConfigManager<T> where T: class, new()
     {
-        static readonly JsonSerializerSettings SERIALIZER_SETTINGS = new JsonSerializerSettings
-        {
-            Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-            ContractResolver = new DefaultContractResolver()
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-                {
-                    ProcessDictionaryKeys = false
-                }
-            },
-            Formatting = Formatting.Indented
-        };
-
         IFileSystem _fileSystem;
+        ISerializer<string> _serializer;
         string _defaultFileName;
         string _userFileName;
         T _config;
 
-        public JsonConfigManager(IFileSystem fileSystem, string defaultFileName, string userFileName)
+        public JsonConfigManager(IFileSystem fileSystem,
+                                 ISerializer<string> serializer,
+                                 string defaultFileName,
+                                 string userFileName)
         {
             _fileSystem = fileSystem;
+            _serializer = serializer;
             _defaultFileName = defaultFileName;
             _userFileName = userFileName;
         }
@@ -105,7 +95,7 @@ namespace Tricycle.IO
             {
                 string json = _fileSystem.File.ReadAllText(fileName);
 
-                result = JsonConvert.DeserializeObject<T>(json, SERIALIZER_SETTINGS);
+                result = _serializer.Deserialize<T>(json);
             }
             catch (IOException ex)
             {
@@ -132,7 +122,7 @@ namespace Tricycle.IO
                     _fileSystem.Directory.CreateDirectory(directory);
                 }
 
-                string json = JsonConvert.SerializeObject(obj, SERIALIZER_SETTINGS);
+                string json = _serializer.Serialize(obj);
 
                 _fileSystem.File.WriteAllText(fileName, json);
             }
