@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using NSubstitute;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
 
 namespace Tricycle.Media.FFmpeg.Tests
@@ -17,6 +18,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         IFileSystem _fileSystem;
         IFile _fileService;
         IDirectory _directoryService;
+        ISerializer<string> _serializer;
         string _userDirectory;
         string _userFileName;
         string _defaultFileName;
@@ -35,10 +37,11 @@ namespace Tricycle.Media.FFmpeg.Tests
             _fileSystem = Substitute.For<IFileSystem>();
             _fileService = Substitute.For<IFile>();
             _directoryService = Substitute.For<IDirectory>();
+            _serializer = Substitute.For<ISerializer<string>>();
             _userDirectory = Path.Combine("Users", "fred", "Library", "Preferences");
             _userFileName = Path.Combine(_userDirectory, "config.json");
             _defaultFileName = Path.Combine("Applications", "Tricycle.app", "Resources", "Config", "config.json");
-            _configManager = new FFmpegConfigManager(_fileSystem, _defaultFileName, _userFileName);
+            _configManager = new FFmpegConfigManager(_fileSystem, _serializer, _defaultFileName, _userFileName);
 
             _userConfig = new FFmpegConfig();
             _defaultConfig = new FFmpegConfig();

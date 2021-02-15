@@ -7,7 +7,7 @@ using NSubstitute;
 namespace Tricycle.IO.Tests
 {
     [TestClass]
-    public class JsonConfigManagerTests
+    public class FileConfigManagerTests
     {
         #region Nested Types
 
@@ -16,7 +16,7 @@ namespace Tricycle.IO.Tests
             public int Value { get; set; }
         }
 
-        class MockJsonConfigManager : JsonConfigManager<Config>
+        class MockJsonConfigManager : FileConfigManager<Config>
         {
             public bool WasCoalesceCalled { get; set; }
             public Config CoalescedUserConfig { get; set; }

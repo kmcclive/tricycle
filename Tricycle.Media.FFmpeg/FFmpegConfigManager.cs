@@ -7,10 +7,13 @@ using Tricycle.Utilities;
 
 namespace Tricycle.Media.FFmpeg
 {
-    public class FFmpegConfigManager : JsonConfigManager<FFmpegConfig>
+    public class FFmpegConfigManager : FileConfigManager<FFmpegConfig>
     {
-        public FFmpegConfigManager(IFileSystem fileSystem, string defaultFileName, string userFileName)
-            : base(fileSystem, defaultFileName, userFileName)
+        public FFmpegConfigManager(IFileSystem fileSystem,
+                                   ISerializer<string> serializer,
+                                   string defaultFileName,
+                                   string userFileName)
+            : base(fileSystem, serializer, defaultFileName, userFileName)
         {
 
         }

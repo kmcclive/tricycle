@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Tricycle.IO
 {
-    public class JsonConfigManager<T> : IConfigManager<T> where T: class, new()
+    public class FileConfigManager<T> : IConfigManager<T> where T: class, new()
     {
         IFileSystem _fileSystem;
         ISerializer<string> _serializer;
@@ -16,7 +16,7 @@ namespace Tricycle.IO
         T _defaultConfig;
         T _config;
 
-        public JsonConfigManager(IFileSystem fileSystem,
+        public FileConfigManager(IFileSystem fileSystem,
                                  ISerializer<string> serializer,
                                  string defaultFileName,
                                  string userFileName)
