@@ -19,8 +19,8 @@ namespace Tricycle.IO.Tests
         class MockJsonConfigManager : JsonConfigManager<Config>
         {
             public bool WasCoalesceCalled { get; set; }
-            public Config UserConfig { get; set; }
-            public Config DefaultConfig { get; set; }
+            public Config CoalescedUserConfig { get; set; }
+            public Config CoalescedDefaultConfig { get; set; }
 
             public MockJsonConfigManager(IFileSystem fileSystem,
                                          ISerializer<string> serializer,
@@ -34,8 +34,15 @@ namespace Tricycle.IO.Tests
             protected override void Coalesce(Config userConfig, Config defaultConfig)
             {
                 WasCoalesceCalled = true;
-                UserConfig = userConfig;
-                DefaultConfig = defaultConfig;
+                CoalescedUserConfig = userConfig;
+                CoalescedDefaultConfig = defaultConfig;
+            }
+
+            public void ClearState()
+            {
+                WasCoalesceCalled = false;
+                CoalescedUserConfig = null;
+                CoalescedDefaultConfig = null;
             }
         }
 
@@ -170,8 +177,8 @@ namespace Tricycle.IO.Tests
             _configManager.Load();
 
             Assert.IsTrue(_configManager.WasCoalesceCalled);
-            Assert.IsNotNull(_configManager.UserConfig);
-            Assert.IsNotNull(_configManager.DefaultConfig);
+            Assert.IsNotNull(_configManager.CoalescedUserConfig);
+            Assert.IsNotNull(_configManager.CoalescedDefaultConfig);
         }
 
         [TestMethod]
@@ -199,7 +206,7 @@ namespace Tricycle.IO.Tests
         }
 
         [TestMethod]
-        public void LoadDeserializesUserConfigWhenItDoesNotExist()
+        public void LoadSerializesUserConfig()
         {
             var config = new Config()
             {
@@ -215,7 +222,7 @@ namespace Tricycle.IO.Tests
         }
 
         [TestMethod]
-        public void LoadWritesUserConfigWhenItDoesNotExist()
+        public void LoadWritesUserConfig()
         {
             var data = Guid.NewGuid().ToString();
 
@@ -242,6 +249,86 @@ namespace Tricycle.IO.Tests
             _configManager.Load();
 
             Assert.AreEqual(2, _configManager.Config?.Value);
+        }
+
+        [TestMethod]
+        public void LoadRaisesConfigChanged()
+        {
+            var expected = new Config()
+            {
+                Value = 2
+            };
+            Config actual = null;
+
+            _configManager.ConfigChanged += c =>
+            {
+                actual = c;
+            };
+
+            _fileService.Exists(_userFileName).Returns(true);
+            _fileService.ReadAllText(_userFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(expected);
+            _configManager.Load();
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void SettingConfigCallsCoalesceWhenBothConfigsAreNotNull()
+        {
+            var defaultConfig = new Config()
+            {
+                Value = 1
+            };
+            var userConfig = new Config()
+            {
+                Value = 2
+            };
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(defaultConfig);
+            _configManager.Load();
+            _configManager.ClearState();
+            _configManager.Config = userConfig;
+
+            Assert.IsTrue(_configManager.WasCoalesceCalled);
+            Assert.AreEqual(defaultConfig, _configManager.CoalescedDefaultConfig);
+            Assert.AreEqual(userConfig, _configManager.CoalescedUserConfig);
+        }
+
+        [TestMethod]
+        public void SettingConfigDoesNotCallCoalesceWhenDefaultConfigsIsNull()
+        {
+            var config = new Config()
+            {
+                Value = 2
+            };
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _configManager.Load();
+            _configManager.ClearState();
+            _configManager.Config = config;
+
+            Assert.IsFalse(_configManager.WasCoalesceCalled);
+        }
+
+        [TestMethod]
+        public void SettingConfigDoesNotCallCoalesceWhenUserConfigsIsNull()
+        {
+            var config = new Config()
+            {
+                Value = 1
+            };
+
+            _fileService.Exists(_defaultFileName).Returns(true);
+            _fileService.ReadAllText(_defaultFileName).Returns(string.Empty);
+            _serializer.Deserialize<Config>(Arg.Any<string>()).Returns(config);
+            _configManager.Load();
+            _configManager.ClearState();
+            _configManager.Config = null;
+
+            Assert.IsFalse(_configManager.WasCoalesceCalled);
         }
 
         [TestMethod]

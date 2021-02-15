@@ -13,6 +13,7 @@ namespace Tricycle.IO
         ISerializer<string> _serializer;
         string _defaultFileName;
         string _userFileName;
+        T _defaultConfig;
         T _config;
 
         public JsonConfigManager(IFileSystem fileSystem,
@@ -34,6 +35,12 @@ namespace Tricycle.IO
                 if (!object.Equals(_config, value))
                 {
                     _config = value;
+
+                    if (_config != null && _defaultConfig != null)
+                    {
+                        Coalesce(_config, _defaultConfig);
+                    }
+
                     ConfigChanged?.Invoke(value);
                 }
             }
@@ -52,24 +59,25 @@ namespace Tricycle.IO
 
             if (_fileSystem.File.Exists(_defaultFileName))
             {
-                var defaultConfig = DeserializeFile(_defaultFileName);
+                _defaultConfig = DeserializeFile(_defaultFileName);
 
-                if (defaultConfig != null)
+                if (_defaultConfig != null)
                 {
                     if (config != null)
                     {
-                        Coalesce(config, defaultConfig);
+                        Coalesce(config, _defaultConfig);
                     }
                     else
                     {
-                        config = defaultConfig;
+                        config = _defaultConfig;
                     }
 
                     SerializeToFile(config, _userFileName);
                 }
             }
 
-            Config = config ?? new T();
+            _config = config ?? new T();
+            ConfigChanged?.Invoke(_config);
         }
 
         public void Save()
