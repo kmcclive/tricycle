@@ -20,22 +20,24 @@ namespace Tricycle.Media.FFmpeg
 
         protected override void Coalesce(FFmpegConfig userConfig, FFmpegConfig defaultConfig)
         {
+            var clone = defaultConfig.Clone();
+
             if (userConfig.Audio == null)
             {
-                userConfig.Audio = defaultConfig.Audio;
+                userConfig.Audio = clone.Audio;
             }
             else
             {
-                CoalesceAudio(userConfig.Audio, defaultConfig.Audio);
+                CoalesceAudio(userConfig.Audio, clone.Audio);
             }
 
             if (userConfig.Video == null)
             {
-                userConfig.Video = defaultConfig.Video;
+                userConfig.Video = clone.Video;
             }
             else
             {
-                CoalesceVideo(userConfig.Video, defaultConfig.Video);
+                CoalesceVideo(userConfig.Video, clone.Video);
             }
         }
 
