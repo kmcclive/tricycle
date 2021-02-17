@@ -135,7 +135,8 @@ namespace Tricycle.UI.macOS
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,
-                                                                ProcessUtility.Self));
+                                                                ProcessUtility.Self,
+                                                                jsonSerializer));
                 _.For<ICropDetector>().Use(new CropDetector(ffmpegFileName,
                                                             processRunner,
                                                             ffmpegConfigManager,

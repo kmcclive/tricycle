@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Runtime.Serialization;
 using System.Security;
-using Newtonsoft.Json;
 
 namespace Tricycle.IO
 {
@@ -110,7 +110,7 @@ namespace Tricycle.IO
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
             }
-            catch (JsonException ex)
+            catch (SerializationException ex)
             {
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
@@ -134,7 +134,7 @@ namespace Tricycle.IO
 
                 _fileSystem.File.WriteAllText(fileName, json);
             }
-            catch (JsonException ex)
+            catch (SerializationException ex)
             {
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);

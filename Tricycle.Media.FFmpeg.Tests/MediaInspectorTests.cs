@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -6,6 +7,8 @@ using NSubstitute;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Models;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
+using Tricycle.Media.FFmpeg.Models.FFprobe;
 using Tricycle.Models;
 using Tricycle.Models.Media;
 
@@ -16,177 +19,207 @@ namespace Tricycle.Media.FFmpeg.Tests
     {
         #region Constants
 
-        const string FILE_OUTPUT_1 =
-            @"{
-                ""streams"": [
+        static readonly Output FILE_OUTPUT_1 = new Output()
+        {
+            Streams = new Stream[]
+            {
+                new Stream()
+                {
+                    Index = 0,
+                    CodecName = "hevc",
+                    CodecLongName = "H.265 / HEVC (High Efficiency Video Coding)",
+                    CodecType = "video",
+                    Width = 3840,
+                    Height = 2160,
+                    PixFmt = "yuv420p10le",
+                    ColorTransfer = "smpte2084",
+                    Tags = new Dictionary<string, string>()
                     {
-                        ""index"": 0,
-                        ""codec_name"": ""hevc"",
-                        ""codec_long_name"": ""H.265 / HEVC (High Efficiency Video Coding)"",
-                        ""codec_type"": ""video"",
-                        ""width"": 3840,
-                        ""height"": 2160,
-                        ""pix_fmt"": ""yuv420p10le"",
-                        ""color_transfer"": ""smpte2084"",
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
-                    },
-                    {
-                        ""index"": 1,
-                        ""codec_name"": ""dts"",
-                        ""codec_long_name"": ""DCA (DTS Coherent Acoustics)"",
-                        ""codec_type"": ""audio"",
-                        ""channels"": 6,
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
-                    },
-                    {
-                        ""index"": 2,
-                        ""codec_name"": ""dts"",
-                        ""codec_long_name"": ""DCA (DTS Coherent Acoustics)"",
-                        ""codec_type"": ""audio"",
-                        ""channels"": 6,
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
-                    },
-                    {
-                        ""index"": 3,
-                        ""codec_name"": ""hdmv_pgs_subtitle"",
-                        ""codec_long_name"": ""HDMV Presentation Graphic Stream subtitles"",
-                        ""codec_type"": ""subtitle"",
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
-                    },
-                    {
-                        ""index"": 4,
-                        ""codec_name"": ""subrip"",
-                        ""codec_long_name"": ""SubRip subtitle"",
-                        ""codec_type"": ""subtitle"",
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
+                        { "language", "eng" }
                     }
-                ],
-                ""format"": {
-                    ""format_name"": ""matroska,webm"",
-                    ""format_long_name"": ""Matroska / WebM"",
-                    ""duration"": ""3186.808000"",
+                },
+                new Stream()
+                {
+                    Index = 1,
+                    CodecName = "dts",
+                    CodecLongName = "DCA (DTS Coherent Acoustics)",
+                    CodecType = "audio",
+                    Channels = 6,
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "eng" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 2,
+                    CodecName = "dts",
+                    CodecLongName = "DCA (DTS Coherent Acoustics)",
+                    CodecType = "audio",
+                    Channels = 6,
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "eng" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 3,
+                    CodecName = "hdmv_pgs_subtitle",
+                    CodecLongName = "HDMV Presentation Graphic Stream subtitles",
+                    CodecType = "subtitle",
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "eng" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 4,
+                    CodecName = "subrip",
+                    CodecLongName = "SubRip subtitle",
+                    CodecType = "subtitle",
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "eng" }
+                    }
                 }
-            }";
-        const string FILE_OUTPUT_2 =
-            @"{
-                ""streams"": [
+            },
+            Format = new Format()
+            {
+                FormatName = "matroska,webm",
+                FormatLongName = "Matroska / WebM",
+                Duration = "3186.808000"
+            }
+        };
+        static readonly Output FILE_OUTPUT_2 = new Output()
+        {
+            Streams = new Stream[]
+            {
+                new Stream()
+                {
+                    Index = 0,
+                    CodecName = "h264",
+                    CodecLongName = "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+                    CodecType = "video",
+                    Width = 1920,
+                    Height = 1080,
+                    PixFmt = "yuv420p",
+                    ColorTransfer = "bt709",
+                    Tags = new Dictionary<string, string>()
                     {
-                        ""index"": 0,
-                        ""codec_name"": ""h264"",
-                        ""codec_long_name"": ""H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"",
-                        ""codec_type"": ""video"",
-                        ""width"": 1920,
-                        ""height"": 1080,
-                        ""pix_fmt"": ""yuv420p"",
-                        ""color_transfer"": ""bt709"",
-                        ""tags"": {
-                            ""language"": ""und"",
-                        }
-                    },
+                        { "language", "und" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 1,
+                    CodecName = "aac",
+                    CodecLongName = "AAC (Advanced Audio Coding)",
+                    CodecType = "audio",
+                    Channels = 2,
+                    Tags = new Dictionary<string, string>()
                     {
-                        ""index"": 1,
-                        ""codec_name"": ""aac"",
-                        ""codec_long_name"": ""AAC (Advanced Audio Coding)"",
-                        ""codec_type"": ""audio"",
-                        ""channels"": 2,
-                        ""tags"": {
-                            ""language"": ""eng"",
-                        }
-                    },
+                        { "language", "eng" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 2,
+                    CodecName = "ac3",
+                    CodecLongName = "ATSC A/52A (AC-3)",
+                    CodecType = "audio",
+                    Channels = 6,
+                    Tags = new Dictionary<string, string>()
                     {
-                        ""index"": 2,
-                        ""codec_name"": ""ac3"",
-                        ""codec_long_name"": ""ATSC A/52A (AC-3)"",
-                        ""codec_type"": ""audio"",
-                        ""channels"": 6,
-                        ""tags"": {
-                            ""language"": ""eng"",
+                        { "language", "eng" }
+                    }
+                }
+            },
+            Format = new Format()
+            {
+                FormatName = "mov,mp4,m4a,3gp,3g2,mj2",
+                FormatLongName = "QuickTime / MOV",
+                Duration = "1597.654000"
+            }
+        };
+        static readonly Output FILE_OUTPUT_3 = new Output()
+        {
+            Streams = new Stream[]
+            {
+                new Stream()
+                {
+                    Index = 0,
+                    CodecName = "mpeg2video",
+                    CodecLongName = "MPEG-2 video",
+                    CodecType = "video",
+                    Width = 720,
+                    Height = 480,
+                    SampleAspectRatio = "8:9",
+                    PixFmt = "yuv420p",
+                    ColorTransfer = "smpte170m",
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "und" }
+                    }
+                },
+                new Stream()
+                {
+                    Index = 1,
+                    CodecName = "ac3",
+                    CodecLongName = "ATSC A/52A (AC-3)",
+                    CodecType = "audio",
+                    Channels = 2,
+                    Tags = new Dictionary<string, string>()
+                    {
+                        { "language", "eng" }
+                    }
+                }
+            },
+            Format = new Format()
+            {
+                FormatName = "mov,mp4,m4a,3gp,3g2,mj2",
+                FormatLongName = "QuickTime / MOV",
+                Duration = "1547.168000"
+            }
+        };
+        static readonly FrameOutput FRAME_OUTPUT = new FrameOutput()
+        {
+            Frames = new Frame[]
+            {
+                new Frame()
+                {
+                    MediaType = "video",
+                    StreamIndex = 0,
+                    KeyFrame = 1,
+                    Width = 3840,
+                    Height = 2160,
+                    ColorTransfer = "smpte2084",
+                    SideDataList = new SideData[]
+                    {
+                        new SideData()
+                        {
+                            SideDataType = "Mastering display metadata",
+                            RedX = "34000/50000",
+                            RedY = "16000/50000",
+                            GreenX = "13250/50000",
+                            GreenY = "34500/50000",
+                            BlueX = "7500/50000",
+                            BlueY = "3000/50000",
+                            WhitePointX = "15635/50000",
+                            WhitePointY = "16450/50000",
+                            MaxLuminance = "10000000/10000"
                         },
-                    },
-                ],
-                ""format"": {
-                    ""format_name"": ""mov,mp4,m4a,3gp,3g2,mj2"",
-                    ""format_long_name"": ""QuickTime / MOV"",
-                    ""duration"": ""1597.654000"",
-                }
-            }";
-        const string FILE_OUTPUT_3 =
-            @"{
-                ""streams"": [
-                    {
-                        ""index"": 0,
-                        ""codec_name"": ""mpeg2video"",
-                        ""codec_long_name"": ""MPEG-2 video"",
-                        ""codec_type"": ""video"",
-                        ""width"": 720,
-                        ""height"": 480,
-                        ""sample_aspect_ratio"": ""8:9"",
-                        ""pix_fmt"": ""yuv420p"",
-                        ""color_transfer"": ""smpte170m"",
-                        ""tags"": {
-                            ""language"": ""und"",
-                        }
-                    },
-                    {
-                        ""index"": 1,
-                        ""codec_name"": ""ac3"",
-                        ""codec_long_name"": ""ATSC A/52A (AC-3)"",
-                        ""codec_type"": ""audio"",
-                        ""channels"": 2,
-                        ""tags"": {
-                            ""language"": ""eng"",
+                        new SideData()
+                        {
+                            SideDataType = "Content light level metadata",
+                            MaxContent = 1000,
+                            MaxAverage = 400
                         }
                     }
-                ],
-                ""format"": {
-                    ""format_name"": ""mov,mp4,m4a,3gp,3g2,mj2"",
-                    ""format_long_name"": ""QuickTime / MOV"",
-                    ""duration"": ""1547.168000"",
                 }
-            }";
-        const string FRAME_OUTPUT =
-            @"{
-                ""frames"": [
-                    {
-                        ""media_type"": ""video"",
-                        ""stream_index"": 0,
-                        ""key_frame"": 1,
-                        ""width"": 3840,
-                        ""height"": 2160,
-                        ""color_transfer"": ""smpte2084"",
-                        ""side_data_list"": [
-                            {
-                                ""side_data_type"": ""Mastering display metadata"",
-                                ""red_x"": ""34000/50000"",
-                                ""red_y"": ""16000/50000"",
-                                ""green_x"": ""13250/50000"",
-                                ""green_y"": ""34500/50000"",
-                                ""blue_x"": ""7500/50000"",
-                                ""blue_y"": ""3000/50000"",
-                                ""white_point_x"": ""15635/50000"",
-                                ""white_point_y"": ""16450/50000"",
-                                ""min_luminance"": ""1/10000"",
-                                ""max_luminance"": ""10000000/10000""
-                            },
-                            {
-                                ""side_data_type"": ""Content light level metadata"",
-                                ""max_content"": 1000,
-                                ""max_average"": 400
-                            }
-                        ]
-                    }
-                ]
-            }";
+            }
+        };
 
         #endregion
 
@@ -197,9 +230,10 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             var processRunner = Substitute.For<IProcessRunner>();
             var processUtility = Substitute.For<IProcessUtility>();
+            var serializer = Substitute.For<ISerializer<string>>();
             var timeout = TimeSpan.FromMilliseconds(10);
             var ffprobeFileName = "/usr/sbin/ffprobe";
-            var inspector = new MediaInspector(ffprobeFileName, processRunner, processUtility, timeout);
+            var inspector = new MediaInspector(ffprobeFileName, processRunner, processUtility, serializer, timeout);
 
             #region Test Exceptions
 
@@ -214,16 +248,20 @@ namespace Tricycle.Media.FFmpeg.Tests
             var escapedFileName = "escaped 1";
             var argPattern1 = @"-loglevel\s+error\s+-print_format\s+json\s+-show_format\s+-show_streams\s+-i\s+";
             var argPattern2 = @"-loglevel\s+error\s+-print_format\s+json\s+-show_frames\s+-select_streams\s+0\s+-read_intervals\s+%\+#1\s+-i\s+";
+            var outputText = Guid.NewGuid().ToString();
+            var frameText = Guid.NewGuid().ToString();
 
             processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
             processRunner.Run(ffprobeFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_1 });
+                         .Returns(new ProcessResult() { OutputData = outputText });
+            serializer.Deserialize<Output>(outputText).Returns(FILE_OUTPUT_1);
             processRunner.Run(ffprobeFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, argPattern2 + escapedFileName)),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = FRAME_OUTPUT });
+                         .Returns(new ProcessResult() { OutputData = frameText });
+            serializer.Deserialize<FrameOutput>(frameText).Returns(FRAME_OUTPUT);
 
             MediaInfo info = await inspector.Inspect(fileName);
 
@@ -311,12 +349,14 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             fileName = "/Users/fred/Documents/video.m4v";
             escapedFileName = "escaped 2";
+            outputText = Guid.NewGuid().ToString();
 
             processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
             processRunner.Run(ffprobeFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_2 });
+                         .Returns(new ProcessResult() { OutputData = outputText });
+            serializer.Deserialize<Output>(outputText).Returns(FILE_OUTPUT_2);
 
             info = await inspector.Inspect(fileName);
 
@@ -370,12 +410,14 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             fileName = "/Users/fred/Documents/anamorphic.m4v";
             escapedFileName = "escaped 3";
+            outputText = Guid.NewGuid().ToString();
 
             processUtility.EscapeFilePath(fileName).Returns(escapedFileName);
             processRunner.Run(ffprobeFileName,
                               Arg.Is<string>(s => Regex.IsMatch(s, argPattern1 + escapedFileName)),
                               timeout)
-                         .Returns(new ProcessResult() { OutputData = FILE_OUTPUT_3 });
+                         .Returns(new ProcessResult() { OutputData = outputText });
+            serializer.Deserialize<Output>(outputText).Returns(FILE_OUTPUT_3);
 
             info = await inspector.Inspect(fileName);
 
