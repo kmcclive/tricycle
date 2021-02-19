@@ -1475,6 +1475,7 @@ namespace Tricycle.UI.ViewModels
         VideoOutputStream GetVideoOutput()
         {
             var format = (VideoFormat)SelectedVideoFormat.Value;
+            var codec = _tricycleConfig.Video?.Codecs?.GetValueOrDefault(format);
             int divisor = 8;
 
             if (_tricycleConfig.Video?.SizeDivisor > 0)
@@ -1488,22 +1489,23 @@ namespace Tricycle.UI.ViewModels
             {
                 SourceStreamIndex = _primaryVideoStream.Index,
                 Format = format,
-                Quality = CalculateQuality(format, (decimal)Quality),
+                Quality = CalculateQuality(codec, (decimal)Quality),
                 CropParameters = cropParameters,
                 ScaledDimensions = GetScaledDimensions(cropParameters, divisor),
                 DynamicRange = IsHdrChecked ? DynamicRange.High : DynamicRange.Standard,
                 CopyHdrMetadata = IsHdrChecked,
                 Deinterlace = GetDeinterlaceFlag(_isInterlaced),
                 Denoise = IsDenoiseChecked,
-                Tonemap = IsSourceHdr && !IsHdrChecked
+                Tonemap = IsSourceHdr && !IsHdrChecked,
+                Tag = codec?.Tag
             };
         }
 
-        decimal CalculateQuality(VideoFormat format, decimal quality)
+        decimal CalculateQuality(VideoCodec codec, decimal quality)
         {
             decimal result = 20;
 
-            if ((_tricycleConfig.Video?.Codecs != null) && _tricycleConfig.Video.Codecs.TryGetValue(format, out var codec))
+            if (codec != null)
             {
                 decimal min = codec.QualityRange.Min ?? 22;
                 decimal max = codec.QualityRange.Max ?? 18;
@@ -1719,6 +1721,7 @@ namespace Tricycle.UI.ViewModels
         VideoTemplate GetVideoTemplate()
         {
             var format = (VideoFormat)SelectedVideoFormat.Value;
+            var codec = _tricycleConfig.Video?.Codecs?.GetValueOrDefault(format);
 
             return new VideoTemplate()
             {
@@ -1736,7 +1739,7 @@ namespace Tricycle.UI.ViewModels
                                  Right = int.TryParse(CropRight, out var right) ? right : 0
                              }
                              : null,
-                Quality = CalculateQuality(format, (decimal)Quality),
+                Quality = CalculateQuality(codec, (decimal)Quality),
                 SizePreset = SelectedSize != ORIGINAL_OPTION ? SelectedSize?.ToString() : null
             };
         }

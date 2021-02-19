@@ -426,11 +426,11 @@ namespace Tricycle.UI.Tests.ViewModels
         {
             string tag = "hvc1";
 
-            _ffmpegConfig.Video.Codecs = new Dictionary<VideoFormat, FFmpegVideoCodec>()
+            _tricycleConfig.Video.Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
             {
                 {
                     VideoFormat.Hevc,
-                    new FFmpegVideoCodec()
+                    new TricycleVideoCodec()
                     {
                         Tag = tag
                     }
@@ -1234,7 +1234,7 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(tag,
-                            _ffmpegConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Tag);
+                            _tricycleConfigManager?.Config?.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Tag);
         }
 
         [TestMethod]

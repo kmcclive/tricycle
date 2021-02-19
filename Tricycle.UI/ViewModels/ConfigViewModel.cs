@@ -394,6 +394,8 @@ namespace Tricycle.UI.ViewModels
             AvcQualityScale?.ClearHandlers();
             HevcQualityScale?.ClearHandlers();
 
+            var hevcCodec = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
+
             AlertOnCompletion = config.CompletionAlert;
             DeleteIncompleteFiles = config.DeleteIncompleteFiles;
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
@@ -408,7 +410,8 @@ namespace Tricycle.UI.ViewModels
                                               : null;
             SizeDivisor = config.Video?.SizeDivisor.ToString();
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
-            HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
+            HevcQualityScale = GetQualityScale(hevcCodec);
+            HevcTag = hevcCodec?.Tag;
             PassthruMatchingTracks = config.Audio?.PassthruMatchingTracks ?? false;
             IsTraceLoggingEnabled = config.Trace;
 
@@ -458,13 +461,11 @@ namespace Tricycle.UI.ViewModels
 
         void Load(FFmpegConfig config)
         {
-            var hevcCodec = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
             string x264Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc)?.Preset;
-            string x265Preset = hevcCodec?.Preset;
+            string x265Preset = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc)?.Preset;
 
             SelectedX264Preset = string.IsNullOrWhiteSpace(x264Preset) ? null : new ListItem(x264Preset);
             SelectedX265Preset = string.IsNullOrWhiteSpace(x265Preset) ? null : new ListItem(x265Preset);
-            HevcTag = hevcCodec?.Tag;
             AacCodec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Aac)?.Name;
             Ac3Codec = config.Audio?.Codecs?.GetValueOrDefault(AudioFormat.Ac3)?.Name;
             CropDetectOptions = config.Video?.CropDetectOptions;
@@ -637,7 +638,7 @@ namespace Tricycle.UI.ViewModels
                 Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
                 {
                     { VideoFormat.Avc, GenerateVideoCodec(AvcQualityScale) },
-                    { VideoFormat.Hevc, GenerateVideoCodec(HevcQualityScale) }
+                    { VideoFormat.Hevc, GenerateVideoCodec(HevcQualityScale, HevcTag) }
                 },
                 SizePresets = GenerateVideoPresets(SizePresets),
                 AspectRatioPresets = GenerateVideoPresets(AspectRatioPresets)
@@ -646,7 +647,15 @@ namespace Tricycle.UI.ViewModels
 
         TricycleVideoCodec GenerateVideoCodec(QualityScaleViewModel qualityScale)
         {
-            var result = new TricycleVideoCodec();
+            return GenerateVideoCodec(qualityScale, null);
+        }
+
+        TricycleVideoCodec GenerateVideoCodec(QualityScaleViewModel qualityScale, string tag)
+        {
+            var result = new TricycleVideoCodec()
+            {
+                Tag = tag
+            };
 
             if (decimal.TryParse(qualityScale.Min, out var min) &&
                 decimal.TryParse(qualityScale.Max, out var max) &&
@@ -741,7 +750,6 @@ namespace Tricycle.UI.ViewModels
                         new FFmpegVideoCodec()
                         {
                             Preset = SelectedX265Preset?.ToString() ?? "medium",
-                            Tag = string.IsNullOrWhiteSpace(HevcTag) ? null : HevcTag
                         }
                     }
                 },

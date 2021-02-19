@@ -215,17 +215,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         {
             var tag = "hvc1";
 
-            _videoOutput.Format = VideoFormat.Hevc;
-            _configManager.Config = new FFmpegConfig()
-            {
-                Video = new VideoConfig()
-                {
-                    Codecs = new Dictionary<VideoFormat, VideoCodec>()
-                    {
-                        { VideoFormat.Hevc, new VideoCodec() { Tag = tag } }
-                    }
-                }
-            };
+            _videoOutput.Tag = tag;
 
             _transcoder.Start(_transcodeJob);
 

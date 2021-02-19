@@ -3367,6 +3367,34 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsVideoTagForJob()
+        {
+            var format = VideoFormat.Hevc;
+            var tag = "hvc1";
+
+            _tricycleConfig.Video = new VideoConfig()
+            {
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                {
+                    {
+                        format,
+                        new VideoCodec()
+                        {
+                            Tag = tag
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(format);
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(tag, videoOutput?.Tag);
+        }
+
+        [TestMethod]
         public void SetsVideoQualityForJob()
         {
             var format = VideoFormat.Hevc;

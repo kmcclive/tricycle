@@ -183,10 +183,9 @@ namespace Tricycle.Media.FFmpeg
                                                             VideoOutputStream outputStream)
         {
             var result = base.MapVideoStream(config, sourceStream, outputStream);
-            VideoCodec codec = config?.Video?.Codecs.GetValueOrDefault(outputStream.Format) ?? new VideoCodec("medium");
 
-            result.Codec = GetVideoCodec(config, sourceStream, outputStream, codec);
-            result.Tag = codec.Tag;
+            result.Codec = GetVideoCodec(config, sourceStream, outputStream);
+            result.Tag = outputStream.Tag;
 
             return result;
         }
@@ -208,10 +207,10 @@ namespace Tricycle.Media.FFmpeg
 
         protected virtual Codec GetVideoCodec(FFmpegConfig config,
                                               VideoStreamInfo sourceStream,
-                                              VideoOutputStream outputStream,
-                                              VideoCodec codec)
+                                              VideoOutputStream outputStream)
         {
             VideoFormat format = outputStream.Format;
+            VideoCodec codec = config?.Video?.Codecs.GetValueOrDefault(format) ?? new VideoCodec("medium");
             string codecName = GetVideoCodecName(format);
             X26xCodec result = format == VideoFormat.Hevc ? new X265Codec(codecName) : new X26xCodec(codecName);
 

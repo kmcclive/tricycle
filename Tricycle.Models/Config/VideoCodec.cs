@@ -4,5 +4,6 @@
     {
         public Range<decimal> QualityRange { get; set; }
         public int QualitySteps { get; set; }
+        public string Tag { get; set; }
     }
 }

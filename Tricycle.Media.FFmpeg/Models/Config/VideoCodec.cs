@@ -4,7 +4,6 @@ namespace Tricycle.Media.FFmpeg.Models.Config
     public class VideoCodec
     {
         public string Preset { get; set; }
-        public string Tag { get; set; }
 
         public VideoCodec()
         {
@@ -18,10 +17,7 @@ namespace Tricycle.Media.FFmpeg.Models.Config
 
         public VideoCodec Clone()
         {
-            return new VideoCodec(Preset)
-            {
-                Tag = Tag
-            };
+            return new VideoCodec(Preset);
         }
     }
 }
