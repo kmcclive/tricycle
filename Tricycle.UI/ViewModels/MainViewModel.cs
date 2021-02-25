@@ -1633,20 +1633,27 @@ namespace Tricycle.UI.ViewModels
                     continue;
                 }
 
-                var output = Map(viewModel);
+                var audioOutput = Map(viewModel);
+                OutputStream output;
 
                 if ((_tricycleConfig.Audio?.PassthruMatchingTracks == true) &&
-                    Match(sourceStream, output))
+                    Match(sourceStream, audioOutput))
                 {
-                    result.Add(new OutputStream()
+                    output = new OutputStream()
                     {
-                        SourceStreamIndex = output.SourceStreamIndex
-                    });
+                        SourceStreamIndex = audioOutput.SourceStreamIndex
+                    };
                 }
                 else
                 {
-                    result.Add(output);
+                    output = audioOutput;
                 }
+
+                var codec = _tricycleConfig.Audio?.Codecs?.GetValueOrDefault(audioOutput.Format);
+
+                output.Tag = codec?.Tag;
+
+                result.Add(output);
             }
 
             return result;
