@@ -574,8 +574,8 @@ namespace Tricycle.UI.ViewModels
                 Video = GenerateTricycleVideoConfig(),
                 DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
                 {
-                    { ContainerFormat.Mp4, string.IsNullOrWhiteSpace(Mp4FileExtension) ? "mp4" : Mp4FileExtension },
-                    { ContainerFormat.Mkv, string.IsNullOrWhiteSpace(MkvFileExtension) ? "mkv" : MkvFileExtension }
+                    { ContainerFormat.Mp4, Mp4FileExtension },
+                    { ContainerFormat.Mkv, MkvFileExtension }
                 },
                 DestinationDirectoryMode = (AutomationMode)SelectedDestinationDirectoryMode.Value,
                 DestinationDirectory = DestinationDirectory,
@@ -718,14 +718,14 @@ namespace Tricycle.UI.ViewModels
                             AudioFormat.Aac,
                             new FFmpegAudioCodec()
                             {
-                                Name = string.IsNullOrWhiteSpace(AacCodec) ? "aac" : AacCodec
+                                Name = AacCodec
                             }
                         },
                         {
                             AudioFormat.Ac3,
                             new FFmpegAudioCodec()
                             {
-                                Name = string.IsNullOrWhiteSpace(Ac3Codec) ? "ac3" : Ac3Codec
+                                Name = Ac3Codec
                             }
                         }
                     }
@@ -742,21 +742,21 @@ namespace Tricycle.UI.ViewModels
                         VideoFormat.Avc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX264Preset?.ToString() ?? "medium"
+                            Preset = SelectedX264Preset?.ToString()
                         }
                     },
                     {
                         VideoFormat.Hevc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX265Preset?.ToString() ?? "medium",
+                            Preset = SelectedX265Preset?.ToString()
                         }
                     }
                 },
-                CropDetectOptions = string.IsNullOrWhiteSpace(CropDetectOptions) ? null : CropDetectOptions,
-                DeinterlaceOptions = string.IsNullOrWhiteSpace(DeinterlaceOptions) ? "bwdif" : DeinterlaceOptions,
-                DenoiseOptions = string.IsNullOrWhiteSpace(DenoiseOptions) ? "hqdn3d=4:4:3:3" : DenoiseOptions,
-                TonemapOptions = string.IsNullOrWhiteSpace(TonemapOptions) ? "hable:desat=0" : TonemapOptions
+                CropDetectOptions = CropDetectOptions,
+                DeinterlaceOptions = DeinterlaceOptions,
+                DenoiseOptions = DenoiseOptions,
+                TonemapOptions = TonemapOptions
             };
         }
 
