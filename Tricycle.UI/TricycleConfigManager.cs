@@ -57,7 +57,7 @@ namespace Tricycle.UI
                 return;
             }
 
-            foreach (var pair in userConfig.DefaultFileExtensions)
+            foreach (var pair in userConfig.DefaultFileExtensions.ToList()) // copy the elements so they can be modified
             {
                 var format = pair.Key;
                 var userExtension = pair.Value;
@@ -103,7 +103,7 @@ namespace Tricycle.UI
                 userConfig.SizeDivisor = defaultConfig.SizeDivisor;
             }
 
-            if (!Enum.IsDefined(typeof(AutomationMode), userConfig.Deinterlace))
+            if (!Enum.IsDefined(typeof(SmartSwitchOption), userConfig.Deinterlace))
             {
                 userConfig.Deinterlace = defaultConfig.Deinterlace;
             }

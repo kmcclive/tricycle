@@ -135,7 +135,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 Codecs = new Dictionary<AudioFormat, AudioCodec>()
                 {
-                    { format, new AudioCodec("aac") }
+                    { format, new AudioCodec("aac2") }
                 }
             };
 
