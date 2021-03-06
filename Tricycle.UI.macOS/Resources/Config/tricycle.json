@@ -13,7 +13,8 @@
                     "min": 22.0,
                     "max": 18.0
                 },
-                "qualitySteps": 4
+                "qualitySteps": 4,
+                "tag": "hvc1"
             }
         },
         "sizePresets": {

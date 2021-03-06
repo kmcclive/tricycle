@@ -89,16 +89,14 @@ namespace Tricycle.UI.macOS
             var processRunner = new ProcessRunner(processCreator);
             var fileSystem = new FileSystem();
             var jsonSerializer = new JsonSerializer();
-            var ffmpegConfigManager =
-                new FileConfigManager<FFmpegConfig>(fileSystem,
-                                                    jsonSerializer,
-                                                    Path.Combine(defaultConfigPath, FFMPEG_CONFIG_NAME),
-                                                    Path.Combine(userConfigPath, FFMPEG_CONFIG_NAME));
-            var tricycleConfigManager =
-                new FileConfigManager<TricycleConfig>(fileSystem,
-                                                      jsonSerializer,
-                                                      Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
-                                                      Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
+            var ffmpegConfigManager = new FFmpegConfigManager(fileSystem,
+                                                              jsonSerializer,
+                                                              Path.Combine(defaultConfigPath, FFMPEG_CONFIG_NAME),
+                                                              Path.Combine(userConfigPath, FFMPEG_CONFIG_NAME));
+            var tricycleConfigManager = new TricycleConfigManager(fileSystem,
+                                                                  jsonSerializer,
+                                                                  Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
+                                                                  Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
             _templateManager =
                 new FileConfigManager<Dictionary<string, JobTemplate>>(
                     fileSystem,
