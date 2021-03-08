@@ -119,7 +119,7 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void CoalesceDoesNotCopyAudioCodecNameWhenNotEmpty()
+        public void CoalesceDoesNotCopyAudioCodecTagWhenNotEmpty()
         {
             var format = AudioFormat.Aac;
             var tag = "aac";
@@ -434,9 +434,9 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void CoalesceDoesNotCopyCropDetectOptionsWhenNotEmpty()
+        public void CoalesceDoesNotCopySizeDivisorWhenGreaterThanOrEqualTo1()
         {
-            var sizeDivisor = 16;
+            var sizeDivisor = 1;
             _userConfig.Video = new VideoConfig()
             {
                 SizeDivisor = sizeDivisor

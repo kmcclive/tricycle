@@ -151,7 +151,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 Codecs = new Dictionary<AudioFormat, AudioCodec>()
                 {
-                    { AudioFormat.Aac, new AudioCodec("aac") }
+                    { AudioFormat.Aac, new AudioCodec(string.Empty) }
                 }
             };
             _defaultConfig.Audio = new AudioConfig()
@@ -253,7 +253,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 Codecs = new Dictionary<VideoFormat, VideoCodec>()
                 {
-                    { VideoFormat.Avc, new VideoCodec("medium") }
+                    { VideoFormat.Avc, new VideoCodec(string.Empty) }
                 }
             };
             _defaultConfig.Video = new VideoConfig()
