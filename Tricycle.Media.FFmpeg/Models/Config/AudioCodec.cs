@@ -22,5 +22,10 @@ namespace Tricycle.Media.FFmpeg.Models.Config
             Name = name;
             Options = options;
         }
+
+        public AudioCodec Clone()
+        {
+            return new AudioCodec(Name, Options);
+        }
     }
 }

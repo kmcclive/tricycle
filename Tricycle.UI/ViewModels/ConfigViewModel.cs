@@ -64,6 +64,7 @@ namespace Tricycle.UI.ViewModels
         ListItem _selectedX264Preset;
         IList<ListItem> _x265PresetOptions;
         ListItem _selectedX265Preset;
+        string _hevcTag;
         string _aacCodec;
         string _ac3Codec;
         string _cropDetectOptions;
@@ -282,6 +283,12 @@ namespace Tricycle.UI.ViewModels
             set => SetProperty(ref _selectedX265Preset, value);
         }
 
+        public string HevcTag
+        {
+            get => _hevcTag;
+            set => SetProperty(ref _hevcTag, value);
+        }
+
         public string AacCodec
         {
             get => _aacCodec;
@@ -387,6 +394,8 @@ namespace Tricycle.UI.ViewModels
             AvcQualityScale?.ClearHandlers();
             HevcQualityScale?.ClearHandlers();
 
+            var hevcCodec = config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc);
+
             AlertOnCompletion = config.CompletionAlert;
             DeleteIncompleteFiles = config.DeleteIncompleteFiles;
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
@@ -401,7 +410,8 @@ namespace Tricycle.UI.ViewModels
                                               : null;
             SizeDivisor = config.Video?.SizeDivisor.ToString();
             AvcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Avc));
-            HevcQualityScale = GetQualityScale(config.Video?.Codecs?.GetValueOrDefault(VideoFormat.Hevc));
+            HevcQualityScale = GetQualityScale(hevcCodec);
+            HevcTag = hevcCodec?.Tag;
             PassthruMatchingTracks = config.Audio?.PassthruMatchingTracks ?? false;
             IsTraceLoggingEnabled = config.Trace;
 
@@ -564,8 +574,8 @@ namespace Tricycle.UI.ViewModels
                 Video = GenerateTricycleVideoConfig(),
                 DefaultFileExtensions = new Dictionary<ContainerFormat, string>()
                 {
-                    { ContainerFormat.Mp4, string.IsNullOrWhiteSpace(Mp4FileExtension) ? "mp4" : Mp4FileExtension },
-                    { ContainerFormat.Mkv, string.IsNullOrWhiteSpace(MkvFileExtension) ? "mkv" : MkvFileExtension }
+                    { ContainerFormat.Mp4, Mp4FileExtension },
+                    { ContainerFormat.Mkv, MkvFileExtension }
                 },
                 DestinationDirectoryMode = (AutomationMode)SelectedDestinationDirectoryMode.Value,
                 DestinationDirectory = DestinationDirectory,
@@ -628,7 +638,7 @@ namespace Tricycle.UI.ViewModels
                 Codecs = new Dictionary<VideoFormat, TricycleVideoCodec>()
                 {
                     { VideoFormat.Avc, GenerateVideoCodec(AvcQualityScale) },
-                    { VideoFormat.Hevc, GenerateVideoCodec(HevcQualityScale) }
+                    { VideoFormat.Hevc, GenerateVideoCodec(HevcQualityScale, HevcTag) }
                 },
                 SizePresets = GenerateVideoPresets(SizePresets),
                 AspectRatioPresets = GenerateVideoPresets(AspectRatioPresets)
@@ -637,7 +647,15 @@ namespace Tricycle.UI.ViewModels
 
         TricycleVideoCodec GenerateVideoCodec(QualityScaleViewModel qualityScale)
         {
-            var result = new TricycleVideoCodec();
+            return GenerateVideoCodec(qualityScale, null);
+        }
+
+        TricycleVideoCodec GenerateVideoCodec(QualityScaleViewModel qualityScale, string tag)
+        {
+            var result = new TricycleVideoCodec()
+            {
+                Tag = tag
+            };
 
             if (decimal.TryParse(qualityScale.Min, out var min) &&
                 decimal.TryParse(qualityScale.Max, out var max) &&
@@ -700,14 +718,14 @@ namespace Tricycle.UI.ViewModels
                             AudioFormat.Aac,
                             new FFmpegAudioCodec()
                             {
-                                Name = string.IsNullOrWhiteSpace(AacCodec) ? "aac" : AacCodec
+                                Name = AacCodec
                             }
                         },
                         {
                             AudioFormat.Ac3,
                             new FFmpegAudioCodec()
                             {
-                                Name = string.IsNullOrWhiteSpace(Ac3Codec) ? "ac3" : Ac3Codec
+                                Name = Ac3Codec
                             }
                         }
                     }
@@ -724,21 +742,21 @@ namespace Tricycle.UI.ViewModels
                         VideoFormat.Avc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX264Preset?.ToString() ?? "medium"
+                            Preset = SelectedX264Preset?.ToString()
                         }
                     },
                     {
                         VideoFormat.Hevc,
                         new FFmpegVideoCodec()
                         {
-                            Preset = SelectedX265Preset?.ToString() ?? "medium"
+                            Preset = SelectedX265Preset?.ToString()
                         }
                     }
                 },
-                CropDetectOptions = string.IsNullOrWhiteSpace(CropDetectOptions) ? null : CropDetectOptions,
-                DeinterlaceOptions = string.IsNullOrWhiteSpace(DeinterlaceOptions) ? "bwdif" : DeinterlaceOptions,
-                DenoiseOptions = string.IsNullOrWhiteSpace(DenoiseOptions) ? "hqdn3d=4:4:3:3" : DenoiseOptions,
-                TonemapOptions = string.IsNullOrWhiteSpace(TonemapOptions) ? "hable:desat=0" : TonemapOptions
+                CropDetectOptions = CropDetectOptions,
+                DeinterlaceOptions = DeinterlaceOptions,
+                DenoiseOptions = DenoiseOptions,
+                TonemapOptions = TonemapOptions
             };
         }
 

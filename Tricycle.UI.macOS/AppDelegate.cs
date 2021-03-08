@@ -88,17 +88,19 @@ namespace Tricycle.UI.macOS
             var processCreator = new Func<IProcess>(() => new ProcessWrapper());
             var processRunner = new ProcessRunner(processCreator);
             var fileSystem = new FileSystem();
-            var ffmpegConfigManager =
-                new JsonConfigManager<FFmpegConfig>(fileSystem,
-                                                    Path.Combine(defaultConfigPath, FFMPEG_CONFIG_NAME),
-                                                    Path.Combine(userConfigPath, FFMPEG_CONFIG_NAME));
-            var tricycleConfigManager =
-                new JsonConfigManager<TricycleConfig>(fileSystem,
-                                                      Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
-                                                      Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
+            var jsonSerializer = new JsonSerializer();
+            var ffmpegConfigManager = new FFmpegConfigManager(fileSystem,
+                                                              jsonSerializer,
+                                                              Path.Combine(defaultConfigPath, FFMPEG_CONFIG_NAME),
+                                                              Path.Combine(userConfigPath, FFMPEG_CONFIG_NAME));
+            var tricycleConfigManager = new TricycleConfigManager(fileSystem,
+                                                                  jsonSerializer,
+                                                                  Path.Combine(defaultConfigPath, TRICYCLE_CONFIG_NAME),
+                                                                  Path.Combine(userConfigPath, TRICYCLE_CONFIG_NAME));
             _templateManager =
-                new JsonConfigManager<Dictionary<string, JobTemplate>>(
+                new FileConfigManager<Dictionary<string, JobTemplate>>(
                     fileSystem,
+                    jsonSerializer,
                     Path.Combine(defaultConfigPath, TEMPLATE_CONFIG_NAME),
                     Path.Combine(userConfigPath, TEMPLATE_CONFIG_NAME));
 
@@ -131,7 +133,8 @@ namespace Tricycle.UI.macOS
                 _.For<IProcessUtility>().Use(ProcessUtility.Self);
                 _.For<IMediaInspector>().Use(new MediaInspector(Path.Combine(ffmpegPath, "ffprobe"),
                                                                 processRunner,
-                                                                ProcessUtility.Self));
+                                                                ProcessUtility.Self,
+                                                                jsonSerializer));
                 _.For<ICropDetector>().Use(new CropDetector(ffmpegFileName,
                                                             processRunner,
                                                             ffmpegConfigManager,

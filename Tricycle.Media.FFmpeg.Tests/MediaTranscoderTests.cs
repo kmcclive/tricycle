@@ -211,6 +211,21 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StartAssignsTagOnJobVideoStream()
+        {
+            var tag = "hvc1";
+
+            _videoOutput.Tag = tag;
+
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.IsNotNull(stream);
+            Assert.AreEqual(tag, stream.Tag);
+        }
+
+        [TestMethod]
         public void StartAssignsX264CodecOnJobVideoStream()
         {
             var preset = "fast";

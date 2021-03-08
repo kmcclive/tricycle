@@ -3367,6 +3367,34 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsVideoTagForJob()
+        {
+            var format = VideoFormat.Hevc;
+            var tag = "hvc1";
+
+            _tricycleConfig.Video = new VideoConfig()
+            {
+                Codecs = new Dictionary<VideoFormat, VideoCodec>()
+                {
+                    {
+                        format,
+                        new VideoCodec()
+                        {
+                            Tag = tag
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            _viewModel.SelectedVideoFormat = new ListItem(format);
+            Start();
+
+            var videoOutput = _transcodeJob?.Streams?.FirstOrDefault() as VideoOutputStream;
+
+            Assert.AreEqual(tag, videoOutput?.Tag);
+        }
+
+        [TestMethod]
         public void SetsVideoQualityForJob()
         {
             var format = VideoFormat.Hevc;
@@ -4027,6 +4055,40 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsTagOnPassedThruAudioForJob()
+        {
+            var format = AudioFormat.Ac3;
+            var tag = "ac3";
+
+            _tricycleConfig.Audio.PassthruMatchingTracks = true;
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    format,
+                    new AudioCodec()
+                    {
+                        Tag = tag,
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Surround5dot1
+                            }
+                        }
+                    }
+                }
+            };
+            _audioStream.Format = format;
+            _audioStream.ChannelCount = 6;
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.LastOrDefault();
+
+            Assert.AreEqual(tag, audioOutput?.Tag);
+        }
+
+        [TestMethod]
         public void SetsAudioFormatForJob()
         {
             _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
@@ -4135,6 +4197,35 @@ namespace Tricycle.UI.Tests
             var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
 
             Assert.AreEqual("Mono", audioOutput?.Metadata?.GetValueOrDefault("title"));
+        }
+
+        [TestMethod]
+        public void SetsAudioTagForJob()
+        {
+            var tag = "ac3";
+            _tricycleConfig.Audio.Codecs = new Dictionary<AudioFormat, AudioCodec>()
+            {
+                {
+                    AudioFormat.Ac3,
+                    new AudioCodec()
+                    {
+                        Tag = tag,
+                        Presets = new AudioPreset[]
+                        {
+                            new AudioPreset()
+                            {
+                                Mixdown = AudioMixdown.Mono
+                            }
+                        }
+                    }
+                }
+            };
+            SelectSource();
+            Start();
+
+            var audioOutput = _transcodeJob?.Streams?.OfType<AudioOutputStream>().FirstOrDefault();
+
+            Assert.AreEqual(tag, audioOutput?.Tag);
         }
 
         [TestMethod]

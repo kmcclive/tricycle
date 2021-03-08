@@ -14,5 +14,10 @@ namespace Tricycle.Media.FFmpeg.Models.Config
         {
             Preset = preset;
         }
+
+        public VideoCodec Clone()
+        {
+            return new VideoCodec(Preset);
+        }
     }
 }

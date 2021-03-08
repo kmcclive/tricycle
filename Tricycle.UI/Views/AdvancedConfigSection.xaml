@@ -18,20 +18,22 @@
                               SelectedItem="{Binding SelectedX265Preset}"
                               Grid.Column="1"
                               Grid.Row="1" />
-        <Label Text="AAC Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
-        <Entry Text="{Binding AacCodec}" Grid.Column="1" Grid.Row="2" />
-        <Label Text="Dolby Digital Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-        <Entry Text="{Binding Ac3Codec}" Grid.Column="1" Grid.Row="3" />
-        <Label Text="Crop Detect Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-        <Entry Text="{Binding CropDetectOptions}" Grid.Column="1" Grid.Row="4" />
-        <Label Text="Deinterlace Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
-        <Entry Text="{Binding DeinterlaceOptions}" Grid.Column="1" Grid.Row="5" />
-        <Label Text="Denoise Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
-        <Entry Text="{Binding DenoiseOptions}" Grid.Column="1" Grid.Row="6" />
-        <Label Text="Tonemap Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
-        <Entry Text="{Binding TonemapOptions}" Grid.Column="1" Grid.Row="7" />
-        <Label Text="Trace Logging" VerticalOptions="Center" Grid.Column="0" Grid.Row="8" />
-        <StackLayout Orientation="Horizontal" VerticalOptions="Center" Grid.Column="1" Grid.Row="8">
+        <Label Text="HEVC Tag" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
+        <Entry Text="{Binding HevcTag}" Grid.Column="1" Grid.Row="2" />
+        <Label Text="AAC Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+        <Entry Text="{Binding AacCodec}" Grid.Column="1" Grid.Row="3" />
+        <Label Text="Dolby Digital Codec" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+        <Entry Text="{Binding Ac3Codec}" Grid.Column="1" Grid.Row="4" />
+        <Label Text="Crop Detect Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+        <Entry Text="{Binding CropDetectOptions}" Grid.Column="1" Grid.Row="5" />
+        <Label Text="Deinterlace Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
+        <Entry Text="{Binding DeinterlaceOptions}" Grid.Column="1" Grid.Row="6" />
+        <Label Text="Denoise Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="7" />
+        <Entry Text="{Binding DenoiseOptions}" Grid.Column="1" Grid.Row="7" />
+        <Label Text="Tonemap Options" VerticalOptions="Center" Grid.Column="0" Grid.Row="8" />
+        <Entry Text="{Binding TonemapOptions}" Grid.Column="1" Grid.Row="8" />
+        <Label Text="Trace Logging" VerticalOptions="Center" Grid.Column="0" Grid.Row="9" />
+        <StackLayout Orientation="Horizontal" VerticalOptions="Center" Grid.Column="1" Grid.Row="9">
             <Switch IsToggled="{Binding IsTraceLoggingEnabled}" VerticalOptions="Center" />
             <Label Text="(Restart Required)" />
         </StackLayout>

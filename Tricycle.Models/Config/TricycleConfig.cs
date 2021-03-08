@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Tricycle.Models.Config
 {
@@ -13,5 +14,21 @@ namespace Tricycle.Models.Config
         public AutomationMode DestinationDirectoryMode { get; set; }
         public string DestinationDirectory { get; set; }
         public bool Trace { get; set; }
+
+        public TricycleConfig Clone()
+        {
+            return new TricycleConfig()
+            {
+                Video = Video?.Clone(),
+                Audio = Audio?.Clone(),
+                ForcedSubtitlesOnly = ForcedSubtitlesOnly,
+                DefaultFileExtensions = DefaultFileExtensions?.ToDictionary(p => p.Key, p => p.Value),
+                CompletionAlert = CompletionAlert,
+                DeleteIncompleteFiles = DeleteIncompleteFiles,
+                DestinationDirectoryMode = DestinationDirectoryMode,
+                DestinationDirectory = DestinationDirectory,
+                Trace = Trace
+            };
+        }
     }
 }

@@ -2,36 +2,27 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Runtime.Serialization;
 using System.Security;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace Tricycle.IO
 {
-    public class JsonConfigManager<T> : IConfigManager<T> where T: class, new()
+    public class FileConfigManager<T> : IConfigManager<T> where T: class, new()
     {
-        static readonly JsonSerializerSettings SERIALIZER_SETTINGS = new JsonSerializerSettings
-        {
-            Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-            ContractResolver = new DefaultContractResolver()
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-                {
-                    ProcessDictionaryKeys = false
-                }
-            },
-            Formatting = Formatting.Indented
-        };
-
         IFileSystem _fileSystem;
+        ISerializer<string> _serializer;
         string _defaultFileName;
         string _userFileName;
+        T _defaultConfig;
         T _config;
 
-        public JsonConfigManager(IFileSystem fileSystem, string defaultFileName, string userFileName)
+        public FileConfigManager(IFileSystem fileSystem,
+                                 ISerializer<string> serializer,
+                                 string defaultFileName,
+                                 string userFileName)
         {
             _fileSystem = fileSystem;
+            _serializer = serializer;
             _defaultFileName = defaultFileName;
             _userFileName = userFileName;
         }
@@ -44,6 +35,12 @@ namespace Tricycle.IO
                 if (!object.Equals(_config, value))
                 {
                     _config = value;
+
+                    if (_config != null && _defaultConfig != null)
+                    {
+                        Coalesce(_config, _defaultConfig);
+                    }
+
                     ConfigChanged?.Invoke(value);
                 }
             }
@@ -60,17 +57,27 @@ namespace Tricycle.IO
                 config = DeserializeFile(_userFileName);
             }
 
-            if ((config == null) && _fileSystem.File.Exists(_defaultFileName))
+            if (_fileSystem.File.Exists(_defaultFileName))
             {
-                config = DeserializeFile(_defaultFileName);
+                _defaultConfig = DeserializeFile(_defaultFileName);
 
-                if (config != null)
+                if (_defaultConfig != null)
                 {
+                    if (config != null)
+                    {
+                        Coalesce(config, _defaultConfig);
+                    }
+                    else
+                    {
+                        config = _defaultConfig;
+                    }
+
                     SerializeToFile(config, _userFileName);
                 }
             }
 
-            Config = config ?? new T();
+            _config = config ?? new T();
+            ConfigChanged?.Invoke(_config);
         }
 
         public void Save()
@@ -83,6 +90,11 @@ namespace Tricycle.IO
             SerializeToFile(Config, _userFileName);
         }
 
+        protected virtual void Coalesce(T userConfig, T defaultConfig)
+        {
+
+        }
+
         T DeserializeFile(string fileName)
         {
             T result = null;
@@ -91,14 +103,14 @@ namespace Tricycle.IO
             {
                 string json = _fileSystem.File.ReadAllText(fileName);
 
-                result = JsonConvert.DeserializeObject<T>(json, SERIALIZER_SETTINGS);
+                result = _serializer.Deserialize<T>(json);
             }
             catch (IOException ex)
             {
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
             }
-            catch (JsonException ex)
+            catch (SerializationException ex)
             {
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);
@@ -118,11 +130,11 @@ namespace Tricycle.IO
                     _fileSystem.Directory.CreateDirectory(directory);
                 }
 
-                string json = JsonConvert.SerializeObject(obj, SERIALIZER_SETTINGS);
+                string json = _serializer.Serialize(obj);
 
                 _fileSystem.File.WriteAllText(fileName, json);
             }
-            catch (JsonException ex)
+            catch (SerializationException ex)
             {
                 Trace.WriteLine(ex.Message);
                 Debug.WriteLine(ex.StackTrace);

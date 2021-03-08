@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Utilities;
+using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.FFprobe;
 using Tricycle.Models;
 using Tricycle.Models.Media;
@@ -20,6 +21,7 @@ namespace Tricycle.Media.FFmpeg
         readonly string _ffprobeFileName;
         readonly IProcessRunner _processRunner;
         readonly IProcessUtility _processUtility;
+        readonly ISerializer<string> _serializer;
         readonly TimeSpan _timeout;
 
         #endregion
@@ -28,8 +30,9 @@ namespace Tricycle.Media.FFmpeg
 
         public MediaInspector(string ffprobeFileName,
                               IProcessRunner processRunner,
-                              IProcessUtility processUtility)
-            : this(ffprobeFileName, processRunner, processUtility, TimeSpan.FromSeconds(5))
+                              IProcessUtility processUtility,
+                              ISerializer<string> serializer)
+            : this(ffprobeFileName, processRunner, processUtility, serializer, TimeSpan.FromSeconds(5))
         {
 
         }
@@ -37,11 +40,13 @@ namespace Tricycle.Media.FFmpeg
         public MediaInspector(string ffprobeFileName,
                               IProcessRunner processRunner,
                               IProcessUtility processUtility,
+                              ISerializer<string> serializer,
                               TimeSpan timeout)
         {
             _ffprobeFileName = ffprobeFileName;
             _processRunner = processRunner;
             _processUtility = processUtility;
+            _serializer = serializer;
             _timeout = timeout;
         }
 
@@ -144,9 +149,9 @@ namespace Tricycle.Media.FFmpeg
 
             try
             {
-                result = JsonConvert.DeserializeObject<T>(output);
+                result = _serializer.Deserialize<T>(output);
             }
-            catch (JsonException ex)
+            catch (SerializationException ex)
             {
                 if (retry)
                 {
