@@ -296,7 +296,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             _videoSource.Dimensions = new Dimensions(1920, 1080);
             _transcodeJob.Subtitles = new SubtitlesConfig()
             {
-                SourceStreamIndex = subtitleStream.Index
+                SourceStreamIndex = subtitleStream.Index,
+                Overlay = true
             };
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
@@ -362,7 +363,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
             _transcodeJob.Subtitles = new SubtitlesConfig()
             {
-                SourceStreamIndex = subtitleStream.Index
+                SourceStreamIndex = subtitleStream.Index,
+                Overlay = true
             };
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
@@ -426,7 +428,8 @@ namespace Tricycle.Media.FFmpeg.Tests
             });
             _transcodeJob.Subtitles = new SubtitlesConfig()
             {
-                SourceStreamIndex = subtitleStream.Index
+                SourceStreamIndex = subtitleStream.Index,
+                Overlay = true
             };
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);

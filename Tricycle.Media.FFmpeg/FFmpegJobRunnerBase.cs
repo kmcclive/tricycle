@@ -18,6 +18,7 @@ namespace Tricycle.Media.FFmpeg
             public int RelativeIndex { get; set; }
             public SubtitleType SubtitleType { get; set; }
             public string FileName { get; set; }
+            public bool Overlay { get; set; }
         }
 
         protected IConfigManager<FFmpegConfig> _configManager;
@@ -100,7 +101,8 @@ namespace Tricycle.Media.FFmpeg
                                                          AbsoluteIndex = s.Index,
                                                          RelativeIndex = i++,
                                                          SubtitleType = s.SubtitleType,
-                                                         FileName = job.SourceInfo.FileName
+                                                         FileName = job.SourceInfo.FileName,
+                                                         Overlay = job.Subtitles.Overlay
                                                      })
                                                      .FirstOrDefault(s =>
                                                         s.AbsoluteIndex == job.Subtitles.SourceStreamIndex);
@@ -116,7 +118,10 @@ namespace Tricycle.Media.FFmpeg
                     result.ForcedSubtitlesOnly = true;
                 }
 
-                result.CanvasSize = videoSource.Dimensions;
+                if (job.Subtitles.Overlay)
+                {
+                    result.CanvasSize = videoSource.Dimensions;
+                }
             }
 
             result.Streams = MapStreams(config, job);
@@ -136,20 +141,30 @@ namespace Tricycle.Media.FFmpeg
         {
             IList<MappedStream> result = new List<MappedStream>();
             IDictionary<int, StreamInfo> sourceStreamsByIndex = job.SourceInfo.Streams.ToDictionary(s => s.Index);
+            IEnumerable<OutputStream> jobStreams = job.Streams;
 
-            for (int i = 0; i < job.Streams.Count; i++)
+            if (job.Subtitles?.Overlay == false)
             {
-                OutputStream outputStream = job.Streams[i];
+                var subtitleStream = new OutputStream()
+                {
+                    SourceStreamIndex = job.Subtitles.SourceStreamIndex
+                };
+
+                jobStreams = jobStreams.Concat(new OutputStream[]{ subtitleStream });
+            }
+
+            foreach (var jobStream in jobStreams)
+            {
                 StreamInfo sourceStream;
 
-                if (!sourceStreamsByIndex.TryGetValue(outputStream.SourceStreamIndex, out sourceStream))
+                if (!sourceStreamsByIndex.TryGetValue(jobStream.SourceStreamIndex, out sourceStream))
                 {
                     throw new ArgumentException(
-                        $"{nameof(job.SourceInfo)} does not contain a stream with index {outputStream.SourceStreamIndex}.",
+                        $"{nameof(job.SourceInfo)} does not contain a stream with index {jobStream.SourceStreamIndex}.",
                         nameof(job.SourceInfo));
                 }
 
-                MappedStream mappedStream = MapStream(config, sourceStream, outputStream);
+                MappedStream mappedStream = MapStream(config, sourceStream, jobStream);
 
                 if (mappedStream != null)
                 {
@@ -205,7 +220,7 @@ namespace Tricycle.Media.FFmpeg
         {
             var result = new List<IFilter>();
 
-            if (subtitleInfo != null)
+            if (subtitleInfo?.Overlay == true)
             {
                 if (subtitleInfo.SubtitleType == SubtitleType.Graphic)
                 {

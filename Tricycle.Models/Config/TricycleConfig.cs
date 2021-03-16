@@ -8,6 +8,7 @@ namespace Tricycle.Models.Config
         public VideoConfig Video { get; set; }
         public AudioConfig Audio { get; set; }
         public bool ForcedSubtitlesOnly { get; set; }
+        public bool OverlaySubtitles { get; set; } = true;
         public IDictionary<ContainerFormat, string> DefaultFileExtensions { get; set; }
         public bool CompletionAlert { get; set; }
         public bool DeleteIncompleteFiles { get; set; }
