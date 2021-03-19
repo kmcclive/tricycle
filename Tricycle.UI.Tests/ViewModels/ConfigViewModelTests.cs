@@ -112,6 +112,15 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsOverlaySubtitlesFromConfig()
+        {
+            _tricycleConfig.OverlaySubtitles = true;
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_tricycleConfig.OverlaySubtitles, _viewModel.OverlaySubtitles);
+        }
+
+        [TestMethod]
         public void LoadsMp4FileExtensionFromConfig()
         {
             string extension = "m4v";
@@ -958,6 +967,18 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(preferForcedSubtitles, _tricycleConfigManager.Config?.ForcedSubtitlesOnly);
+        }
+
+        [TestMethod]
+        public void SavesOverlaySubtitlesToConfig()
+        {
+            bool overlaySubtitles = true;
+
+            _viewModel.Initialize();
+            _viewModel.OverlaySubtitles = overlaySubtitles;
+            _viewModel.Close();
+
+            Assert.AreEqual(overlaySubtitles, _tricycleConfigManager.Config?.OverlaySubtitles);
         }
 
         [TestMethod]
