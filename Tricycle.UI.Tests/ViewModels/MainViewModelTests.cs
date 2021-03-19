@@ -3968,6 +3968,54 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsOverlaidSubtitlesForJobWhenEnabled()
+        {
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _tricycleConfig.OverlaySubtitles = true;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.Subtitles);
+            Assert.AreEqual(true, _transcodeJob.Subtitles.Overlay);
+        }
+
+        [TestMethod]
+        public void DoesNotSetOverlaidSubtitlesForJobWhenDisabled()
+        {
+            var subtitle = new StreamInfo()
+            {
+                Index = 2,
+                StreamType = StreamType.Subtitle,
+                Language = "eng"
+            };
+
+            _tricycleConfig.OverlaySubtitles = false;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.Subtitles);
+            Assert.AreEqual(false, _transcodeJob.Subtitles.Overlay);
+        }
+
+        [TestMethod]
         public void SetsCorrectNumberOfAudioOutputsForJob()
         {
             SelectSource();

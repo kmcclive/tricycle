@@ -1597,7 +1597,8 @@ namespace Tricycle.UI.ViewModels
             return new SubtitlesConfig()
             {
                 SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
-                ForcedOnly = IsForcedSubtitlesChecked
+                ForcedOnly = IsForcedSubtitlesChecked,
+                Overlay = _tricycleConfig.OverlaySubtitles
             };
         }
 
