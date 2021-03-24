@@ -32,7 +32,6 @@
                           BackgroundColor="{StaticResource PanelBackgroundColor}"
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
-                          Margin="15, 0, 5, 20"
                           SelectionMode="None"
                           ItemsSource="{Binding AudioQualityPresets}">
                     <ListView.HeightRequest>
@@ -41,13 +40,23 @@
                             <On Platform="WPF" Value="480" />
                         </OnPlatform>
                     </ListView.HeightRequest>
+                    <ListView.Margin>
+                        <OnPlatform x:TypeArguments="Thickness">
+                            <On Platform="macOS">
+                                <local:WhenVersion x:TypeArguments="Thickness" Default="15, 0, 5, 20">
+                                    <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, 0, 5, 20" />
+                                </local:WhenVersion>
+                            </On>
+                            <On Platform="WPF" Value="15, 0, 5, 20" />
+                        </OnPlatform>
+                    </ListView.Margin>
                     <ListView.Header>
                         <StackLayout />
                     </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="5, 1, 10, 7">
+                                <Grid Padding="5, 1, 20, 7">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />

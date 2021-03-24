@@ -4,7 +4,14 @@
              xmlns:local="clr-namespace:Tricycle.UI.Views"
              x:Class="Tricycle.UI.Views.VideoConfigSection">
     <ContentView.Resources>
-        <Thickness x:Key="PresetGridPadding">5, 1, 7, 5</Thickness>
+        <OnPlatform x:Key="PresetGridPadding" x:TypeArguments="Thickness">
+            <On Platform="macOS">
+                <local:WhenVersion x:TypeArguments="Thickness" Default="5, 1, 7, 5">
+                    <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="5, 1, 17, 5" />
+                </local:WhenVersion>
+            </On>
+            <On Platform="WPF" Value="5, 1, 7, 5" />
+        </OnPlatform>
         <OnPlatform x:Key="PresetRowHeight" x:TypeArguments="x:Double">
             <On Platform="macOS" Value="28" />
             <On Platform="WPF" Value="32" />
@@ -69,7 +76,7 @@
             </Grid>
         </local:FramedPanel>
         <local:FramedPanel Title="Size Presets">
-            <StackLayout>
+            <StackLayout Spacing="0">
                 <Grid Margin="0, -5, 0, 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -83,18 +90,27 @@
                     <Label Text="Height" HorizontalOptions="Center" Grid.Column="3" Grid.Row="0" />
                 </Grid>
                 <ListView x:Name="vwSizePresets"
-                          BackgroundColor="{StaticResource PanelBackgroundColor}"
+                          BackgroundColor="Transparent"
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
-                          Margin="15, -5, 5, 10"
                           SelectionMode="None"
                           ItemsSource="{Binding SizePresets}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="65" />
+                            <On Platform="macOS" Value="75" />
                             <On Platform="WPF" Value="90" />
                         </OnPlatform>
                     </ListView.HeightRequest>
+                    <ListView.Margin>
+                        <OnPlatform x:TypeArguments="Thickness">
+                            <On Platform="macOS">
+                                <local:WhenVersion x:TypeArguments="Thickness" Default="15, 0, 5, 10">
+                                    <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, 0, 5, 10" />
+                                </local:WhenVersion>
+                            </On>
+                            <On Platform="WPF" Value="15, 0, 5, 10" />
+                        </OnPlatform>
+                    </ListView.Margin>
                     <ListView.Header>
                         <StackLayout />
                     </ListView.Header>
@@ -149,15 +165,24 @@
                           BackgroundColor="{StaticResource PanelBackgroundColor}"
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
-                          Margin="15, 0, 5, 10"
                           SelectionMode="None"
                           ItemsSource="{Binding AspectRatioPresets}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="65" />
+                            <On Platform="macOS" Value="75" />
                             <On Platform="WPF" Value="90" />
                         </OnPlatform>
                     </ListView.HeightRequest>
+                    <ListView.Margin>
+                        <OnPlatform x:TypeArguments="Thickness">
+                            <On Platform="macOS">
+                                <local:WhenVersion x:TypeArguments="Thickness" Default="15, 0, 5, 10">
+                                    <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, 0, 5, 10" />
+                                </local:WhenVersion>
+                            </On>
+                            <On Platform="WPF" Value="15, 0, 5, 10" />
+                        </OnPlatform>
+                    </ListView.Margin>
                     <ListView.Header>
                         <StackLayout />
                     </ListView.Header>
