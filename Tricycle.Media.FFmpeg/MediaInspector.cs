@@ -208,7 +208,8 @@ namespace Tricycle.Media.FFmpeg
                 case "subtitle":
                     result = new SubtitleStreamInfo()
                     {
-                        SubtitleType = GetSubtitleType(stream.CodecName)
+                        SubtitleType = GetSubtitleType(stream.CodecName),
+                        Format = GetSubtitleFormat(stream.CodecName)
                     };
                     break;
                 case "video":
@@ -308,6 +309,29 @@ namespace Tricycle.Media.FFmpeg
                     return SubtitleType.Graphic;
                 default:
                     return SubtitleType.Text;
+            }
+        }
+
+        SubtitleFormat? GetSubtitleFormat(string codecName)
+        {
+            switch (codecName)
+            {
+                case "ass":
+                case "ssa":
+                    return SubtitleFormat.Ssa;
+                case "dvd_subtitle":
+                    return SubtitleFormat.Dvb;
+                case "hdmv_pgs_subtitle":
+                    return SubtitleFormat.Pgs;
+                case "mov_text":
+                    return SubtitleFormat.TimedText;
+                case "srt":
+                case "subrip":
+                    return SubtitleFormat.Subrip;
+                case "webvtt":
+                    return SubtitleFormat.WebVtt;
+                default:
+                    return null;
             }
         }
 
