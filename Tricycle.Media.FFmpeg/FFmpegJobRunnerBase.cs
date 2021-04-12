@@ -18,7 +18,6 @@ namespace Tricycle.Media.FFmpeg
             public int RelativeIndex { get; set; }
             public SubtitleType SubtitleType { get; set; }
             public string FileName { get; set; }
-            public bool Overlay { get; set; }
         }
 
         protected IConfigManager<FFmpegConfig> _configManager;
@@ -91,7 +90,7 @@ namespace Tricycle.Media.FFmpeg
 
             SubtitleInfo subtitleInfo = null;
 
-            if (job.Subtitles != null)
+            if (job.HardSubtitles != null)
             {
                 int i = 0;
 
@@ -101,27 +100,23 @@ namespace Tricycle.Media.FFmpeg
                                                          AbsoluteIndex = s.Index,
                                                          RelativeIndex = i++,
                                                          SubtitleType = s.SubtitleType,
-                                                         FileName = job.SourceInfo.FileName,
-                                                         Overlay = job.Subtitles.Overlay
+                                                         FileName = job.SourceInfo.FileName
                                                      })
                                                      .FirstOrDefault(s =>
-                                                        s.AbsoluteIndex == job.Subtitles.SourceStreamIndex);
+                                                        s.AbsoluteIndex == job.HardSubtitles.SourceStreamIndex);
 
                 if (subtitleInfo == null)
                 {
                     throw new ArgumentException(
-                        $"{nameof(job)}.{nameof(job.Subtitles)} contains an invalid index.", nameof(job));
+                        $"{nameof(job)}.{nameof(job.HardSubtitles)} contains an invalid index.", nameof(job));
                 }
 
-                if (job.Subtitles.ForcedOnly)
+                if (job.HardSubtitles.ForcedOnly)
                 {
                     result.ForcedSubtitlesOnly = true;
                 }
 
-                if (job.Subtitles.Overlay)
-                {
-                    result.CanvasSize = videoSource.Dimensions;
-                }
+                result.CanvasSize = videoSource.Dimensions;
             }
 
             result.Streams = MapStreams(config, job);
@@ -141,30 +136,20 @@ namespace Tricycle.Media.FFmpeg
         {
             IList<MappedStream> result = new List<MappedStream>();
             IDictionary<int, StreamInfo> sourceStreamsByIndex = job.SourceInfo.Streams.ToDictionary(s => s.Index);
-            IEnumerable<OutputStream> jobStreams = job.Streams;
 
-            if (job.Subtitles?.Overlay == false)
+            for (int i = 0; i < job.Streams.Count; i++)
             {
-                var subtitleStream = new OutputStream()
-                {
-                    SourceStreamIndex = job.Subtitles.SourceStreamIndex
-                };
-
-                jobStreams = jobStreams.Concat(new OutputStream[]{ subtitleStream });
-            }
-
-            foreach (var jobStream in jobStreams)
-            {
+                OutputStream outputStream = job.Streams[i];
                 StreamInfo sourceStream;
 
-                if (!sourceStreamsByIndex.TryGetValue(jobStream.SourceStreamIndex, out sourceStream))
+                if (!sourceStreamsByIndex.TryGetValue(outputStream.SourceStreamIndex, out sourceStream))
                 {
                     throw new ArgumentException(
-                        $"{nameof(job.SourceInfo)} does not contain a stream with index {jobStream.SourceStreamIndex}.",
+                        $"{nameof(job.SourceInfo)} does not contain a stream with index {outputStream.SourceStreamIndex}.",
                         nameof(job.SourceInfo));
                 }
 
-                MappedStream mappedStream = MapStream(config, sourceStream, jobStream);
+                MappedStream mappedStream = MapStream(config, sourceStream, outputStream);
 
                 if (mappedStream != null)
                 {
@@ -220,7 +205,7 @@ namespace Tricycle.Media.FFmpeg
         {
             var result = new List<IFilter>();
 
-            if (subtitleInfo?.Overlay == true)
+            if (subtitleInfo != null)
             {
                 if (subtitleInfo.SubtitleType == SubtitleType.Graphic)
                 {

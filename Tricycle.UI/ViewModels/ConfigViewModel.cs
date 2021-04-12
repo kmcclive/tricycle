@@ -406,7 +406,7 @@ namespace Tricycle.UI.ViewModels
             AlertOnCompletion = config.CompletionAlert;
             DeleteIncompleteFiles = config.DeleteIncompleteFiles;
             PreferForcedSubtitles = config.ForcedSubtitlesOnly;
-            OverlaySubtitles = config.OverlaySubtitles;
+            OverlaySubtitles = config.PreferSoftSubtitles;
             Mp4FileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mp4);
             MkvFileExtension = config.DefaultFileExtensions?.GetValueOrDefault(ContainerFormat.Mkv);
             SelectedDestinationDirectoryMode = new ListItem(config.DestinationDirectoryMode);
@@ -578,7 +578,7 @@ namespace Tricycle.UI.ViewModels
                 CompletionAlert = AlertOnCompletion,
                 DeleteIncompleteFiles = DeleteIncompleteFiles,
                 ForcedSubtitlesOnly = PreferForcedSubtitles,
-                OverlaySubtitles = OverlaySubtitles,
+                PreferSoftSubtitles = OverlaySubtitles,
                 Audio = GenerateTricycleAudioConfig(),
                 Video = GenerateTricycleVideoConfig(),
                 DefaultFileExtensions = new Dictionary<ContainerFormat, string>()

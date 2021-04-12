@@ -3894,8 +3894,8 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(2, _transcodeJob.Subtitles.SourceStreamIndex);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(2, _transcodeJob.HardSubtitles.SourceStreamIndex);
         }
 
         [TestMethod]
@@ -3916,7 +3916,7 @@ namespace Tricycle.UI.Tests
             SelectSource();
             Start();
 
-            Assert.IsNull(_transcodeJob.Subtitles);
+            Assert.IsNull(_transcodeJob.HardSubtitles);
         }
 
         [TestMethod]
@@ -3939,8 +3939,8 @@ namespace Tricycle.UI.Tests
             _viewModel.IsForcedSubtitlesChecked = true;
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(true, _transcodeJob.Subtitles.ForcedOnly);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(true, _transcodeJob.HardSubtitles.ForcedOnly);
         }
 
         [TestMethod]
@@ -3963,8 +3963,8 @@ namespace Tricycle.UI.Tests
             _viewModel.IsForcedSubtitlesChecked = false;
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(false, _transcodeJob.Subtitles.ForcedOnly);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(false, _transcodeJob.HardSubtitles.ForcedOnly);
         }
 
         [TestMethod]
@@ -3977,7 +3977,7 @@ namespace Tricycle.UI.Tests
                 Language = "eng"
             };
 
-            _tricycleConfig.OverlaySubtitles = true;
+            _tricycleConfig.PreferSoftSubtitles = true;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
@@ -3987,8 +3987,8 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(true, _transcodeJob.Subtitles.Overlay);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(true, _transcodeJob.HardSubtitles.Overlay);
         }
 
         [TestMethod]
@@ -4001,7 +4001,7 @@ namespace Tricycle.UI.Tests
                 Language = "eng"
             };
 
-            _tricycleConfig.OverlaySubtitles = false;
+            _tricycleConfig.PreferSoftSubtitles = false;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
@@ -4011,8 +4011,8 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(false, _transcodeJob.Subtitles.Overlay);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(false, _transcodeJob.HardSubtitles.Overlay);
         }
 
         [TestMethod]

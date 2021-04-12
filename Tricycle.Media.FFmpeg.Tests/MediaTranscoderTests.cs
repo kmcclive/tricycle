@@ -374,32 +374,6 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void StartAddsPassthruStreamForSubtitlesOnJob()
-        {
-            int index = 1;
-
-            _transcodeJob.SourceInfo.Streams.Add(new SubtitleStreamInfo()
-            {
-                Index = index
-            });
-            _transcodeJob.Subtitles = new SubtitlesConfig()
-            {
-                SourceStreamIndex = index,
-                Overlay = false
-            };
-
-            _transcoder.Start(_transcodeJob);
-
-            Assert.AreEqual(2, _ffmpegJob.Streams?.Count);
-
-            var stream = _ffmpegJob.Streams[1];
-
-            Assert.AreEqual(0, stream.Input?.FileIndex);
-            Assert.AreEqual(index, stream.Input?.StreamIndex);
-            Assert.AreEqual("copy", stream.Codec?.Name);
-        }
-
-        [TestMethod]
         public void StartAddsAacAudioStreamOnJob()
         {
             int index = 1;

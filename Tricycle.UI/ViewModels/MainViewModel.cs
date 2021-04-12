@@ -1452,7 +1452,7 @@ namespace Tricycle.UI.ViewModels
                 OutputFileName = DestinationName,
                 Format = format,
                 Streams = GetOutputStreams(),
-                Subtitles = GetSubtitles(),
+                HardSubtitles = GetSubtitles(),
                 Metadata = new Dictionary<string, string>()
                 {
                     {
@@ -1587,18 +1587,17 @@ namespace Tricycle.UI.ViewModels
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }
 
-        SubtitlesConfig GetSubtitles()
+        HardSubtitlesConfig GetSubtitles()
         {
             if (SelectedSubtitle == NONE_OPTION)
             {
                 return null;
             }
 
-            return new SubtitlesConfig()
+            return new HardSubtitlesConfig()
             {
                 SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
-                ForcedOnly = IsForcedSubtitlesChecked,
-                Overlay = _tricycleConfig.OverlaySubtitles
+                ForcedOnly = IsForcedSubtitlesChecked
             };
         }
 

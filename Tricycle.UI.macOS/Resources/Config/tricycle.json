@@ -90,7 +90,7 @@
         "passthruMatchingTracks": true
     },
     "forcedSubtitlesOnly": true,
-    "overlaySubtitles": true,
+    "preferSoftSubtitles": false,
     "defaultFileExtensions": {
         "mp4": "m4v",
         "mkv": "mkv"
