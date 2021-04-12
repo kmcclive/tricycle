@@ -16,10 +16,17 @@
     "audio": {
         "codecs": {
             "aac": {
-                "name":  "aac"
+                "name": "aac"
             },
             "ac3": {
                 "name": "ac3"
+            }
+        }
+    },
+    "subtitles": {
+        "codecs": {
+            "timedText": {
+                "name": "mov_text"
             }
         }
     }
