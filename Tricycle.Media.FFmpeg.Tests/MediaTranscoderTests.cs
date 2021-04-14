@@ -458,6 +458,44 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StartAddsSubtitleStreamOnJob()
+        {
+            int index = 2;
+            var format = SubtitleFormat.TimedText;
+            string codec = "mov_text";
+
+            _transcodeJob.SourceInfo.Streams.Add(new SubtitleStreamInfo()
+            {
+                Index = index
+            });
+            _transcodeJob.Streams.Add(new SubtitleOutputStream()
+            {
+                SourceStreamIndex = index,
+                Format = format
+            });
+            _configManager.Config = new FFmpegConfig()
+            {
+                Subtitles = new SubtitleConfig()
+                {
+                    Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                    {
+                        { format, new SubtitleCodec(codec) }
+                    }
+                }
+            };
+
+            _transcoder.Start(_transcodeJob);
+
+            Assert.AreEqual(2, _ffmpegJob.Streams?.Count);
+
+            var stream = _ffmpegJob.Streams[1];
+
+            Assert.AreEqual(0, stream.Input?.FileIndex);
+            Assert.AreEqual(index, stream.Input?.StreamIndex);
+            Assert.AreEqual(codec, stream.Codec?.Name);
+        }
+
+        [TestMethod]
         public void StartAssignsStreamMetadataOnJob()
         {
             _videoOutput.Metadata = new Dictionary<string, string>()
