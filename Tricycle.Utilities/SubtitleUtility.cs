@@ -1,5 +1,6 @@
 ﻿using System;
 using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Utilities
 {
@@ -32,6 +33,33 @@ namespace Tricycle.Utilities
                     }
                 default:
                     return false;
+            }
+        }
+
+        public static SubtitleFormat? GetPreferredFormat(ContainerFormat containerFormat, SubtitleType subtitleType)
+        {
+            switch (containerFormat)
+            {
+                case ContainerFormat.Mkv:
+                    switch (subtitleType)
+                    {
+                        case SubtitleType.Graphic:
+                            return SubtitleFormat.Dvd;
+                        case SubtitleType.Text:
+                            return SubtitleFormat.Ssa;
+                        default:
+                            return null;
+                    }
+                case ContainerFormat.Mp4:
+                    switch (subtitleType)
+                    {
+                        case SubtitleType.Text:
+                            return SubtitleFormat.TimedText;
+                        default:
+                            return null;
+                    }
+                default:
+                    return null;
             }
         }
     }

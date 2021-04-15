@@ -1446,13 +1446,12 @@ namespace Tricycle.UI.ViewModels
         {
             var format = (ContainerFormat)SelectedContainerFormat.Value;
 
-            return new TranscodeJob()
+            var result = new TranscodeJob()
             {
                 SourceInfo = _sourceInfo,
                 OutputFileName = DestinationName,
                 Format = format,
                 Streams = GetOutputStreams(),
-                HardSubtitles = GetSubtitles(),
                 Metadata = new Dictionary<string, string>()
                 {
                     {
@@ -1461,6 +1460,18 @@ namespace Tricycle.UI.ViewModels
                     }
                 }
             };
+
+            switch(GetSubtitles(format))
+            {
+                case HardSubtitlesConfig hardSubtitles:
+                    result.HardSubtitles = hardSubtitles;
+                    break;
+                case OutputStream subtitleStream:
+                    result.Streams.Add(subtitleStream);
+                    break;
+            }
+
+            return result;
         }
 
         IList<OutputStream> GetOutputStreams()
@@ -1587,11 +1598,33 @@ namespace Tricycle.UI.ViewModels
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }
 
-        HardSubtitlesConfig GetSubtitles()
+        object GetSubtitles(ContainerFormat containerFormat)
         {
             if (SelectedSubtitle == NONE_OPTION)
             {
                 return null;
+            }
+
+            var stream = (SubtitleStreamInfo)SelectedSubtitle?.Value;
+
+            if (_tricycleConfig.PreferSoftSubtitles)
+            {
+                if (stream.Format.HasValue && SubtitleUtility.IsSupportedByContainer(containerFormat, stream.Format.Value))
+                {
+                    return new OutputStream()
+                    {
+                        SourceStreamIndex = stream.Index
+                    };
+                }
+                else
+                {
+                    var subtitleFormat = SubtitleUtility.GetPreferredFormat(containerFormat, stream.SubtitleType);
+
+                    if (subtitleFormat.HasValue)
+                    {
+                        return new SubtitleOutputStream(subtitleFormat.Value);
+                    }
+                }
             }
 
             return new HardSubtitlesConfig()

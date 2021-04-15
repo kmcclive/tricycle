@@ -25,6 +25,12 @@
     },
     "subtitles": {
         "codecs": {
+            "dvd": {
+                "name": "dvdsub"
+            },
+            "ssa": {
+                "name": "ass"
+            },
             "timedText": {
                 "name": "mov_text"
             }
