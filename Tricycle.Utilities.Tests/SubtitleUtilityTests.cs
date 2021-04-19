@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tricycle.Models;
+using Tricycle.Models.Media;
 
 namespace Tricycle.Utilities.Tests
 {
@@ -20,6 +21,19 @@ namespace Tricycle.Utilities.Tests
 
                 Assert.AreEqual(subtitleFormat == SubtitleFormat.TimedText, isSupported);
             }
+        }
+
+        [TestMethod]
+        public void TestGetPreferredFormat()
+        {
+            Assert.AreEqual(SubtitleFormat.Ssa,
+                SubtitleUtility.GetPreferredFormat(ContainerFormat.Mkv, SubtitleType.Text));
+            Assert.AreEqual(SubtitleFormat.Dvd,
+                SubtitleUtility.GetPreferredFormat(ContainerFormat.Mkv, SubtitleType.Graphic));
+
+            Assert.AreEqual(SubtitleFormat.TimedText,
+                SubtitleUtility.GetPreferredFormat(ContainerFormat.Mp4, SubtitleType.Text));
+            Assert.IsNull(SubtitleUtility.GetPreferredFormat(ContainerFormat.Mp4, SubtitleType.Graphic));
         }
     }
 }

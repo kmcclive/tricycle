@@ -1622,7 +1622,10 @@ namespace Tricycle.UI.ViewModels
 
                     if (subtitleFormat.HasValue)
                     {
-                        return new SubtitleOutputStream(subtitleFormat.Value);
+                        return new SubtitleOutputStream(subtitleFormat.Value)
+                        {
+                            SourceStreamIndex = stream.Index
+                        };
                     }
                 }
             }
