@@ -112,12 +112,12 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void LoadsOverlaySubtitlesFromConfig()
+        public void LoadsPreferSoftSubtitlesFromConfig()
         {
             _tricycleConfig.PreferSoftSubtitles = true;
             _viewModel.Initialize();
 
-            Assert.AreEqual(_tricycleConfig.PreferSoftSubtitles, _viewModel.OverlaySubtitles);
+            Assert.AreEqual(_tricycleConfig.PreferSoftSubtitles, _viewModel.PreferSoftSubtitles);
         }
 
         [TestMethod]
@@ -970,15 +970,15 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
-        public void SavesOverlaySubtitlesToConfig()
+        public void SavesPreferSoftSubtitlesToConfig()
         {
-            bool overlaySubtitles = true;
+            bool preferSoftSubtitles = true;
 
             _viewModel.Initialize();
-            _viewModel.OverlaySubtitles = overlaySubtitles;
+            _viewModel.PreferSoftSubtitles = preferSoftSubtitles;
             _viewModel.Close();
 
-            Assert.AreEqual(overlaySubtitles, _tricycleConfigManager.Config?.PreferSoftSubtitles);
+            Assert.AreEqual(preferSoftSubtitles, _tricycleConfigManager.Config?.PreferSoftSubtitles);
         }
 
         [TestMethod]

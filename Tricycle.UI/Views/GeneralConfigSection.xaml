@@ -15,8 +15,8 @@
             <Switch IsToggled="{Binding DeleteIncompleteFiles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
             <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
             <Switch IsToggled="{Binding PreferForcedSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="2" />
-            <Label Text="Overlay subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-            <Switch IsToggled="{Binding OverlaySubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="3" />
+            <Label Text="Use soft subtitles when supported" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+            <Switch IsToggled="{Binding PreferSoftSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="3" />
             <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
             <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="4" />
             <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
