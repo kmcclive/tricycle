@@ -319,7 +319,7 @@ namespace Tricycle.Media.FFmpeg
                                                          SubtitleStreamInfo sourceStream,
                                                          SubtitleOutputStream outputStream)
         {
-            return new MappedStream()
+            return new MappedStream(StreamType.Subtitle)
             {
                 Input = GetStreamInput(sourceStream),
                 Codec = new Codec(GetSubtitleCodecName(config, outputStream.Format))
