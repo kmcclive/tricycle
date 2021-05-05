@@ -28,8 +28,7 @@ namespace Tricycle.Utilities.Tests
         {
             Assert.AreEqual(SubtitleFormat.Ssa,
                 SubtitleUtility.GetPreferredFormat(ContainerFormat.Mkv, SubtitleType.Text));
-            Assert.AreEqual(SubtitleFormat.Dvd,
-                SubtitleUtility.GetPreferredFormat(ContainerFormat.Mkv, SubtitleType.Graphic));
+            Assert.IsNull(SubtitleUtility.GetPreferredFormat(ContainerFormat.Mkv, SubtitleType.Graphic));
 
             Assert.AreEqual(SubtitleFormat.TimedText,
                 SubtitleUtility.GetPreferredFormat(ContainerFormat.Mp4, SubtitleType.Text));

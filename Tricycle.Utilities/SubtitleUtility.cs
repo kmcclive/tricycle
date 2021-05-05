@@ -43,8 +43,6 @@ namespace Tricycle.Utilities
                 case ContainerFormat.Mkv:
                     switch (subtitleType)
                     {
-                        case SubtitleType.Graphic:
-                            return SubtitleFormat.Dvd;
                         case SubtitleType.Text:
                             return SubtitleFormat.Ssa;
                         default:
