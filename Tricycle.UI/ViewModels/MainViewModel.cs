@@ -560,7 +560,11 @@ namespace Tricycle.UI.ViewModels
                         _configManager.Config.DestinationDirectory = Path.GetDirectoryName(result.FileName);
                         _configManager.Save();
                     }
-                    catch (ArgumentException) { }
+                    catch (ArgumentException ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.StackTrace);
+                    }
                 }
                 
                 DestinationName = result.FileName;
@@ -1180,8 +1184,11 @@ namespace Tricycle.UI.ViewModels
                 {
                     Path.Combine(directory, fileName);
                 }
-                catch (ArgumentException)
+                catch (ArgumentException ex)
                 {
+                    Trace.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
+
                     directory = null;
                 }
             }
@@ -1355,9 +1362,22 @@ namespace Tricycle.UI.ViewModels
 
                 success = true;
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+
 
             if (!success)
             {
@@ -1392,9 +1412,21 @@ namespace Tricycle.UI.ViewModels
 
                 success = true;
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
 
             if (!success)
             {
@@ -1436,10 +1468,26 @@ namespace Tricycle.UI.ViewModels
                     _fileSystem.File.Delete(DestinationName);
                 }
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (IOException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
         }
 
         TranscodeJob CreateJob()
