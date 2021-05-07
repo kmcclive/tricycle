@@ -319,8 +319,10 @@ namespace Tricycle.Media.FFmpeg
                 case "ass":
                 case "ssa":
                     return SubtitleFormat.Ssa;
-                case "dvd_subtitle":
+                case "dvb_subtitle":
                     return SubtitleFormat.Dvb;
+                case "dvd_subtitle":
+                    return SubtitleFormat.Dvd;
                 case "hdmv_pgs_subtitle":
                     return SubtitleFormat.Pgs;
                 case "mov_text":
