@@ -1,100 +1,101 @@
 ﻿{
-    "video": {
-        "codecs": {
-            "avc": {
-                "qualityRange": {
-                    "min": 22.0,
-                    "max": 18.0
-                },
-                "qualitySteps": 4
-            },
-            "hevc": {
-                "qualityRange": {
-                    "min": 22.0,
-                    "max": 18.0
-                },
-                "qualitySteps": 4,
-                "tag": "hvc1"
-            }
+  "video": {
+    "codecs": {
+      "avc": {
+        "qualityRange": {
+          "min": 22.0,
+          "max": 18.0
         },
-        "sizePresets": {
-            "480p": {
-                "width": 854,
-                "height": 480
-            },
-            "720p": {
-                "width": 1280,
-                "height": 720
-            },
-            "1080p": {
-                "width": 1920,
-                "height": 1080
-            },
-            "4K": {
-                "width": 3840,
-                "height": 2160
-            }
+        "qualitySteps": 4
+      },
+      "hevc": {
+        "qualityRange": {
+          "min": 22.0,
+          "max": 18.0
         },
-        "aspectRatioPresets": {
-            "4:3": {
-                "width": 4,
-                "height": 3
-            },
-            "16:9": {
-                "width": 16,
-                "height": 9
-            },
-            "21:9": {
-                "width": 21,
-                "height": 9
-            }
-        },
-        "deinterlace": "auto",
-        "sizeDivisor": 8
+        "qualitySteps": 4,
+        "tag": "hvc1"
+      }
     },
-    "audio": {
-        "codecs": {
-            "aac": {
-                "presets": [
-                    {
-                        "mixdown": "mono",
-                        "quality": 96.0
-                    },
-                    {
-                        "mixdown": "stereo",
-                        "quality": 160.0
-                    },
-                    {
-                        "mixdown": "surround5dot1",
-                        "quality": 640.0
-                    }
-                ]
-            },
-            "ac3": {
-                "presets": [
-                    {
-                        "mixdown": "mono",
-                        "quality": 96.0
-                    },
-                    {
-                        "mixdown": "stereo",
-                        "quality": 160.0
-                    },
-                    {
-                        "mixdown": "surround5dot1",
-                        "quality": 640.0
-                    }
-                ]
-            }
-        },
-        "passthruMatchingTracks": true
+    "sizePresets": {
+      "480p": {
+        "width": 854,
+        "height": 480
+      },
+      "720p": {
+        "width": 1280,
+        "height": 720
+      },
+      "1080p": {
+        "width": 1920,
+        "height": 1080
+      },
+      "4K": {
+        "width": 3840,
+        "height": 2160
+      }
     },
-    "forcedSubtitlesOnly": true,
-    "defaultFileExtensions": {
-        "mp4": "m4v",
-        "mkv": "mkv"
+    "aspectRatioPresets": {
+      "4:3": {
+        "width": 4,
+        "height": 3
+      },
+      "16:9": {
+        "width": 16,
+        "height": 9
+      },
+      "21:9": {
+        "width": 21,
+        "height": 9
+      }
     },
-    "completionAlert": true,
-    "deleteIncompleteFiles": true,
-    "destinationDirectoryMode": "auto"
+    "deinterlace": "auto",
+    "sizeDivisor": 8
+  },
+  "audio": {
+    "codecs": {
+      "aac": {
+        "presets": [
+          {
+            "mixdown": "mono",
+            "quality": 96.0
+          },
+          {
+            "mixdown": "stereo",
+            "quality": 160.0
+          },
+          {
+            "mixdown": "surround5dot1",
+            "quality": 640.0
+          }
+        ]
+      },
+      "ac3": {
+        "presets": [
+          {
+            "mixdown": "mono",
+            "quality": 96.0
+          },
+          {
+            "mixdown": "stereo",
+            "quality": 160.0
+          },
+          {
+            "mixdown": "surround5dot1",
+            "quality": 640.0
+          }
+        ]
+      }
+    },
+    "passthruMatchingTracks": true
+  },
+  "forcedSubtitlesOnly": true,
+  "preferSoftSubtitles": false,
+  "defaultFileExtensions": {
+    "mp4": "m4v",
+    "mkv": "mkv"
+  },
+  "completionAlert": true,
+  "deleteIncompleteFiles": true,
+  "destinationDirectoryMode": "auto"
 }

@@ -31,6 +31,15 @@ namespace Tricycle.Media.FFmpeg
                 CoalesceAudio(userConfig.Audio, clone.Audio);
             }
 
+            if (userConfig.Subtitles == null)
+            {
+                userConfig.Subtitles = clone.Subtitles;
+            }
+            else
+            {
+                CoalesceSubtitles(userConfig.Subtitles, clone.Subtitles);
+            }
+
             if (userConfig.Video == null)
             {
                 userConfig.Video = clone.Video;
@@ -42,6 +51,32 @@ namespace Tricycle.Media.FFmpeg
         }
 
         void CoalesceAudio(AudioConfig userConfig, AudioConfig defaultConfig)
+        {
+            if (userConfig.Codecs?.Any() != true)
+            {
+                userConfig.Codecs = defaultConfig.Codecs;
+                return;
+            }
+
+            if (defaultConfig.Codecs?.Any() != true)
+            {
+                return;
+            }
+
+            foreach (var pair in userConfig.Codecs)
+            {
+                var format = pair.Key;
+                var userCodec = pair.Value;
+                var defaultCodec = defaultConfig.Codecs.GetValueOrDefault(format);
+
+                if (string.IsNullOrWhiteSpace(userCodec.Name) && defaultCodec != null)
+                {
+                    userCodec.Name = defaultCodec.Name;
+                }
+            }
+        }
+
+        void CoalesceSubtitles(SubtitleConfig userConfig, SubtitleConfig defaultConfig)
         {
             if (userConfig.Codecs?.Any() != true)
             {

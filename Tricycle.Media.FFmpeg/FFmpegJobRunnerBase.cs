@@ -90,7 +90,7 @@ namespace Tricycle.Media.FFmpeg
 
             SubtitleInfo subtitleInfo = null;
 
-            if (job.Subtitles != null)
+            if (job.HardSubtitles != null)
             {
                 int i = 0;
 
@@ -103,15 +103,15 @@ namespace Tricycle.Media.FFmpeg
                                                          FileName = job.SourceInfo.FileName
                                                      })
                                                      .FirstOrDefault(s =>
-                                                        s.AbsoluteIndex == job.Subtitles.SourceStreamIndex);
+                                                        s.AbsoluteIndex == job.HardSubtitles.SourceStreamIndex);
 
                 if (subtitleInfo == null)
                 {
                     throw new ArgumentException(
-                        $"{nameof(job)}.{nameof(job.Subtitles)} contains an invalid index.", nameof(job));
+                        $"{nameof(job)}.{nameof(job.HardSubtitles)} contains an invalid index.", nameof(job));
                 }
 
-                if (job.Subtitles.ForcedOnly)
+                if (job.HardSubtitles.ForcedOnly)
                 {
                     result.ForcedSubtitlesOnly = true;
                 }

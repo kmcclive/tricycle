@@ -112,6 +112,15 @@ namespace Tricycle.UI.Tests.ViewModels
         }
 
         [TestMethod]
+        public void LoadsPreferSoftSubtitlesFromConfig()
+        {
+            _tricycleConfig.PreferSoftSubtitles = true;
+            _viewModel.Initialize();
+
+            Assert.AreEqual(_tricycleConfig.PreferSoftSubtitles, _viewModel.PreferSoftSubtitles);
+        }
+
+        [TestMethod]
         public void LoadsMp4FileExtensionFromConfig()
         {
             string extension = "m4v";
@@ -958,6 +967,18 @@ namespace Tricycle.UI.Tests.ViewModels
             _viewModel.Close();
 
             Assert.AreEqual(preferForcedSubtitles, _tricycleConfigManager.Config?.ForcedSubtitlesOnly);
+        }
+
+        [TestMethod]
+        public void SavesPreferSoftSubtitlesToConfig()
+        {
+            bool preferSoftSubtitles = true;
+
+            _viewModel.Initialize();
+            _viewModel.PreferSoftSubtitles = preferSoftSubtitles;
+            _viewModel.Close();
+
+            Assert.AreEqual(preferSoftSubtitles, _tricycleConfigManager.Config?.PreferSoftSubtitles);
         }
 
         [TestMethod]

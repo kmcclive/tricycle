@@ -124,7 +124,7 @@ namespace Tricycle.Media.FFmpeg
             result.Metadata = job.Metadata;
 
             // This is a workaround for subtitle overlays with MKV reporting an incorrect duration
-            if ((job.Format == ContainerFormat.Mkv) && (job.Subtitles?.SourceStreamIndex != null))
+            if ((job.Format == ContainerFormat.Mkv) && (job.HardSubtitles?.SourceStreamIndex != null))
             {
                 result.Duration = job.SourceInfo.Duration;
             }
@@ -158,6 +158,16 @@ namespace Tricycle.Media.FFmpeg
                         if (sourceStream is AudioStreamInfo audioInput)
                         {
                             result = MapAudioStream(config, audioInput, audioOutput);
+                        }
+                        else
+                        {
+                            throw GetStreamMismatchException(nameof(sourceStream), nameof(outputStream));
+                        }
+                        break;
+                    case SubtitleOutputStream subtitleOutput:
+                        if (sourceStream is SubtitleStreamInfo subtitleInput)
+                        {
+                            result = MapSubtitleStream(config, subtitleInput, subtitleOutput);
                         }
                         else
                         {
@@ -305,31 +315,44 @@ namespace Tricycle.Media.FFmpeg
             return result;
         }
 
+        protected virtual MappedStream MapSubtitleStream(FFmpegConfig config,
+                                                         SubtitleStreamInfo sourceStream,
+                                                         SubtitleOutputStream outputStream)
+        {
+            return new MappedStream(StreamType.Subtitle)
+            {
+                Input = GetStreamInput(sourceStream),
+                Codec = new Codec(GetSubtitleCodecName(config, outputStream.Format))
+            };
+        }
+
+        #endregion
+
+        #region Private
+
         string GetAudioCodecName(FFmpegConfig config, AudioFormat format)
         {
             string result = config?.Audio?.Codecs?.GetValueOrDefault(format)?.Name;
 
             if (result == null)
             {
-                switch (format)
-                {
-                    case AudioFormat.Aac:
-                        result = "aac";
-                        break;
-                    case AudioFormat.Ac3:
-                        result = "ac3";
-                        break;
-                    default:
-                        throw new NotSupportedException($"The audio format {format} is not supported.");
-                }
+                throw new NotSupportedException($"The audio format {format} is not supported.");
             }
 
             return result;
         }
 
-        #endregion
+        string GetSubtitleCodecName(FFmpegConfig config, SubtitleFormat format)
+        {
+            string result = config?.Subtitles?.Codecs?.GetValueOrDefault(format)?.Name;
 
-        #region Private
+            if (result == null)
+            {
+                throw new NotSupportedException($"The subtitle format {format} is not supported.");
+            }
+
+            return result;
+        }
 
         void SubscribeToEvents(IProcess process)
         {

@@ -15,16 +15,18 @@
             <Switch IsToggled="{Binding DeleteIncompleteFiles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="1" />
             <Label Text="Prefer forced subtitles" VerticalOptions="Center" Grid.Column="0" Grid.Row="2" />
             <Switch IsToggled="{Binding PreferForcedSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="2" />
-            <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
-            <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="3" />
-            <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
-            <Entry Text="{Binding MkvFileExtension}" Grid.Column="1" Grid.Row="4" />
-            <Label Text="Destination Directory" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+            <Label Text="Use soft subtitles when supported" VerticalOptions="Center" Grid.Column="0" Grid.Row="3" />
+            <Switch IsToggled="{Binding PreferSoftSubtitles}" VerticalOptions="Center" Grid.Column="1" Grid.Row="3" />
+            <Label Text="MP4 file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="4" />
+            <Entry Text="{Binding Mp4FileExtension}" Grid.Column="1" Grid.Row="4" />
+            <Label Text="MKV file extension" VerticalOptions="Center" Grid.Column="0" Grid.Row="5" />
+            <Entry Text="{Binding MkvFileExtension}" Grid.Column="1" Grid.Row="5" />
+            <Label Text="Destination Directory" VerticalOptions="Center" Grid.Column="0" Grid.Row="6" />
             <local:BindablePicker ItemsSource="{Binding DestinationDirectoryModeOptions}"
                                   SelectedItem="{Binding SelectedDestinationDirectoryMode}"
                                   VerticalOptions="Center"
                                   Grid.Column="1"
-                                  Grid.Row="5" />
+                                  Grid.Row="6" />
         </Grid>
         <FlexLayout>
             <Entry Text="{Binding DestinationDirectory}" IsReadOnly="True" Margin="0, 0, 5, 0" FlexLayout.Grow="1" />
@@ -33,25 +35,34 @@
         </FlexLayout>
         <local:FramedPanel Title="Templates" Margin="0, 10, 0, 0">
             <StackLayout>
-                <ListView BackgroundColor="{StaticResource PanelBackgroundColor}"
+                <ListView BackgroundColor="Transparent"
                           HasUnevenRows="True"
                           HorizontalOptions="FillAndExpand"
-                          Margin="15, -5, 5, 10"
                           SelectionMode="None"
                           ItemsSource="{Binding Templates}">
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
-                            <On Platform="macOS" Value="140" />
-                            <On Platform="WPF" Value="215" />
+                            <On Platform="macOS" Value="105" />
+                            <On Platform="WPF" Value="130" />
                         </OnPlatform>
                     </ListView.HeightRequest>
+                    <ListView.Margin>
+                        <OnPlatform x:TypeArguments="Thickness">
+                            <On Platform="macOS">
+                                <local:WhenVersion x:TypeArguments="Thickness" Default="15, -5, 5, 10">
+                                    <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, -5, 5, 10" />
+                                </local:WhenVersion>
+                            </On>
+                            <On Platform="WPF" Value="15, -5, 5, 10" />
+                        </OnPlatform>
+                    </ListView.Margin>
                     <ListView.Header>
                         <StackLayout />
                     </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <Grid Padding="5, 1, 7, 5" HorizontalOptions="FillAndExpand">
+                                <Grid Padding="5, 1, 17, 5" HorizontalOptions="FillAndExpand">
                                     <Grid.HeightRequest>
                                         <OnPlatform x:TypeArguments="x:Double">
                                             <On Platform="macOS" Value="28" />

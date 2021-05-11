@@ -333,6 +333,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(3, stream.Index);
             Assert.IsInstanceOfType(stream, typeof(SubtitleStreamInfo));
             Assert.AreEqual(SubtitleType.Graphic, ((SubtitleStreamInfo)stream).SubtitleType);
+            Assert.AreEqual(SubtitleFormat.Pgs, ((SubtitleStreamInfo)stream).Format);
 
             stream = info.Streams[4];
 
@@ -342,6 +343,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual(4, stream.Index);
             Assert.IsInstanceOfType(stream, typeof(SubtitleStreamInfo));
             Assert.AreEqual(SubtitleType.Text, ((SubtitleStreamInfo)stream).SubtitleType);
+            Assert.AreEqual(SubtitleFormat.Subrip, ((SubtitleStreamInfo)stream).Format);
 
             #endregion
 

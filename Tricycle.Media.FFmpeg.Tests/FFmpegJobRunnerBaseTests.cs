@@ -203,7 +203,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void MapThrowsExceptionWhenSubtitlesIndexIsNotFound()
         {
-            _transcodeJob.Subtitles = new SubtitlesConfig()
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
             {
                 SourceStreamIndex = 1
             };
@@ -273,7 +273,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             };
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
-            _transcodeJob.Subtitles = new SubtitlesConfig()
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
             {
                 SourceStreamIndex = subtitleStream.Index,
                 ForcedOnly = true
@@ -281,7 +281,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
 
-            Assert.AreEqual(_transcodeJob.Subtitles.ForcedOnly, ffmpegJob.ForcedSubtitlesOnly);
+            Assert.AreEqual(_transcodeJob.HardSubtitles.ForcedOnly, ffmpegJob.ForcedSubtitlesOnly);
         }
 
         [TestMethod]
@@ -294,7 +294,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
             _videoSource.Dimensions = new Dimensions(1920, 1080);
-            _transcodeJob.Subtitles = new SubtitlesConfig()
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
             {
                 SourceStreamIndex = subtitleStream.Index
             };
@@ -360,7 +360,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             };
 
             _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
-            _transcodeJob.Subtitles = new SubtitlesConfig()
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
             {
                 SourceStreamIndex = subtitleStream.Index
             };
@@ -380,7 +380,7 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             Assert.IsNotNull(streamInput);
             Assert.AreEqual(0, streamInput.FileIndex);
-            Assert.AreEqual(_transcodeJob.Subtitles.SourceStreamIndex, streamInput.StreamIndex);
+            Assert.AreEqual(_transcodeJob.HardSubtitles.SourceStreamIndex, streamInput.StreamIndex);
 
             streamInput = scale2RefFilter.Inputs[1] as StreamInput;
 
@@ -424,7 +424,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             {
                 Index = 3
             });
-            _transcodeJob.Subtitles = new SubtitlesConfig()
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
             {
                 SourceStreamIndex = subtitleStream.Index
             };

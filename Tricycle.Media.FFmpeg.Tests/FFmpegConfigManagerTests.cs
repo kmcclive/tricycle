@@ -166,6 +166,108 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void CoalesceCopiesSubtitlesWhenNull()
+        {
+            _defaultConfig.Subtitles = new SubtitleConfig();
+
+            _configManager.Load();
+
+            Assert.IsNotNull(_configManager.Config?.Subtitles);
+        }
+
+        [TestMethod]
+        public void CoalesceCopiesSubtitlesCodecsWhenEmpty()
+        {
+            _userConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+            };
+            _defaultConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { SubtitleFormat.TimedText, new SubtitleCodec() }
+                }
+            };
+
+            _configManager.Load();
+
+            Assert.AreEqual(_defaultConfig.Subtitles.Codecs.Count, _configManager.Config?.Subtitles?.Codecs?.Count);
+        }
+
+        [TestMethod]
+        public void CoalesceCopiesSubtitlesCodecNameWhenEmpty()
+        {
+            var format = SubtitleFormat.TimedText;
+            var name = "mov_text";
+            _userConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { format, new SubtitleCodec(string.Empty) }
+                }
+            };
+            _defaultConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { format, new SubtitleCodec(name) },
+                    { SubtitleFormat.Subrip, new SubtitleCodec("subrip") }
+                }
+            };
+
+            _configManager.Load();
+
+            Assert.AreEqual(name, _configManager.Config?.Subtitles?.Codecs?.GetValueOrDefault(format)?.Name);
+        }
+
+        [TestMethod]
+        public void CoalesceDoesNotCopySubtitlesCodecNameWhenNotEmpty()
+        {
+            var format = SubtitleFormat.TimedText;
+            var name = "mov_text";
+            _userConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { format, new SubtitleCodec(name) }
+                }
+            };
+            _defaultConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { format, new SubtitleCodec("timed_text") }
+                }
+            };
+
+            _configManager.Load();
+
+            Assert.AreEqual(name, _configManager.Config?.Subtitles?.Codecs?.GetValueOrDefault(format)?.Name);
+        }
+
+        [TestMethod]
+        public void CoalesceDoesNotThrowExceptionWhenDefaultSubtitlesCodecIsMissing()
+        {
+            _userConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { SubtitleFormat.TimedText, new SubtitleCodec(string.Empty) }
+                }
+            };
+            _defaultConfig.Subtitles = new SubtitleConfig()
+            {
+                Codecs = new Dictionary<SubtitleFormat, SubtitleCodec>()
+                {
+                    { SubtitleFormat.Subrip, new SubtitleCodec("subrip") }
+                }
+            };
+
+            _configManager.Load();
+        }
+
+        [TestMethod]
         public void CoalesceCopiesVideoWhenNull()
         {
             _defaultConfig.Video = new VideoConfig();

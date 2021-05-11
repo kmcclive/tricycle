@@ -560,7 +560,11 @@ namespace Tricycle.UI.ViewModels
                         _configManager.Config.DestinationDirectory = Path.GetDirectoryName(result.FileName);
                         _configManager.Save();
                     }
-                    catch (ArgumentException) { }
+                    catch (ArgumentException ex)
+                    {
+                        Trace.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.StackTrace);
+                    }
                 }
                 
                 DestinationName = result.FileName;
@@ -1180,8 +1184,11 @@ namespace Tricycle.UI.ViewModels
                 {
                     Path.Combine(directory, fileName);
                 }
-                catch (ArgumentException)
+                catch (ArgumentException ex)
                 {
+                    Trace.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.StackTrace);
+
                     directory = null;
                 }
             }
@@ -1355,9 +1362,22 @@ namespace Tricycle.UI.ViewModels
 
                 success = true;
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+
 
             if (!success)
             {
@@ -1392,9 +1412,21 @@ namespace Tricycle.UI.ViewModels
 
                 success = true;
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (InvalidOperationException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
 
             if (!success)
             {
@@ -1436,23 +1468,38 @@ namespace Tricycle.UI.ViewModels
                     _fileSystem.File.Delete(DestinationName);
                 }
             }
-            catch (ArgumentException) { }
-            catch (NotSupportedException) { }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
+            catch (ArgumentException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (NotSupportedException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (IOException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
         }
 
         TranscodeJob CreateJob()
         {
             var format = (ContainerFormat)SelectedContainerFormat.Value;
 
-            return new TranscodeJob()
+            var result = new TranscodeJob()
             {
                 SourceInfo = _sourceInfo,
                 OutputFileName = DestinationName,
                 Format = format,
                 Streams = GetOutputStreams(),
-                Subtitles = GetSubtitles(),
                 Metadata = new Dictionary<string, string>()
                 {
                     {
@@ -1461,6 +1508,18 @@ namespace Tricycle.UI.ViewModels
                     }
                 }
             };
+
+            switch(GetSubtitles(format))
+            {
+                case HardSubtitlesConfig hardSubtitles:
+                    result.HardSubtitles = hardSubtitles;
+                    break;
+                case OutputStream subtitleStream:
+                    result.Streams.Add(subtitleStream);
+                    break;
+            }
+
+            return result;
         }
 
         IList<OutputStream> GetOutputStreams()
@@ -1587,14 +1646,39 @@ namespace Tricycle.UI.ViewModels
             return _transcodeCalculator.CalculateScaledDimensions(sourceDimensions, targetDimensions, divisor);
         }
 
-        SubtitlesConfig GetSubtitles()
+        object GetSubtitles(ContainerFormat containerFormat)
         {
             if (SelectedSubtitle == NONE_OPTION)
             {
                 return null;
             }
 
-            return new SubtitlesConfig()
+            var stream = (SubtitleStreamInfo)SelectedSubtitle?.Value;
+
+            if (_tricycleConfig.PreferSoftSubtitles)
+            {
+                if (stream.Format.HasValue && SubtitleUtility.IsSupportedByContainer(containerFormat, stream.Format.Value))
+                {
+                    return new OutputStream()
+                    {
+                        SourceStreamIndex = stream.Index
+                    };
+                }
+                else
+                {
+                    var subtitleFormat = SubtitleUtility.GetPreferredFormat(containerFormat, stream.SubtitleType);
+
+                    if (subtitleFormat.HasValue)
+                    {
+                        return new SubtitleOutputStream(subtitleFormat.Value)
+                        {
+                            SourceStreamIndex = stream.Index
+                        };
+                    }
+                }
+            }
+
+            return new HardSubtitlesConfig()
             {
                 SourceStreamIndex = ((StreamInfo)SelectedSubtitle?.Value).Index,
                 ForcedOnly = IsForcedSubtitlesChecked

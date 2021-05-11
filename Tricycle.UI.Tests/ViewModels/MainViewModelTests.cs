@@ -3876,15 +3876,38 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
-        public void SetsSubtitlesForJobWhenSelected()
+        public void DoesNotSetSubtitlesForJobWhenNotSelected()
         {
-            var subtitle = new StreamInfo()
+            var subtitle = new SubtitleStreamInfo()
             {
                 Index = 2,
-                StreamType = StreamType.Subtitle,
                 Language = "eng"
             };
 
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            Start();
+
+            Assert.IsNull(_transcodeJob.HardSubtitles);
+            Assert.AreNotEqual(true, _transcodeJob.Streams?.OfType<SubtitleOutputStream>().Any());
+        }
+
+        [TestMethod]
+        public void SetsSoftSubtitlesForJobWhenSelected()
+        {
+            var subtitle = new SubtitleStreamInfo()
+            {
+                Index = 2,
+                Language = "eng",
+                SubtitleType = SubtitleType.Text,
+                Format = SubtitleFormat.Ssa,
+            };
+
+            _tricycleConfig.PreferSoftSubtitles = true;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
@@ -3894,38 +3917,70 @@ namespace Tricycle.UI.Tests
             _viewModel.SelectedSubtitle = new ListItem(subtitle);
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(2, _transcodeJob.Subtitles.SourceStreamIndex);
+            var stream = _transcodeJob.Streams?.OfType<SubtitleOutputStream>().FirstOrDefault();
+
+            Assert.IsNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(2, stream.SourceStreamIndex);
+            Assert.AreEqual(SubtitleFormat.TimedText, stream.Format);
         }
 
         [TestMethod]
-        public void DoesNotSetSubtitlesForJobWhenNotSelected()
+        public void PassesThruSubtitlesForJobWhenSelected()
         {
-            var subtitle = new StreamInfo()
+            var subtitle = new SubtitleStreamInfo()
             {
                 Index = 2,
-                StreamType = StreamType.Subtitle,
-                Language = "eng"
+                Language = "eng",
+                SubtitleType = SubtitleType.Text,
+                Format = SubtitleFormat.TimedText,
             };
 
+            _tricycleConfig.PreferSoftSubtitles = true;
             _mediaInfo.Streams = new StreamInfo[]
             {
                 _videoStream,
                 subtitle
             };
             SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
             Start();
 
-            Assert.IsNull(_transcodeJob.Subtitles);
+            var stream = _transcodeJob.Streams?.LastOrDefault();
+
+            Assert.IsNull(_transcodeJob.HardSubtitles);
+            Assert.IsNotInstanceOfType(stream, typeof(SubtitleOutputStream));
+            Assert.AreEqual(2, stream.SourceStreamIndex);
+        }
+
+        [TestMethod]
+        public void SetsHardSubtitlesForJobWhenSelected()
+        {
+            var subtitle = new SubtitleStreamInfo()
+            {
+                Index = 2,
+                Language = "eng"
+            };
+
+            _tricycleConfig.PreferSoftSubtitles = false;
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                subtitle
+            };
+            SelectSource();
+            _viewModel.SelectedSubtitle = new ListItem(subtitle);
+            Start();
+
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(2, _transcodeJob.HardSubtitles.SourceStreamIndex);
         }
 
         [TestMethod]
         public void SetsForcedSubtitlesForJobWhenEnabled()
         {
-            var subtitle = new StreamInfo()
+            var subtitle = new SubtitleStreamInfo()
             {
                 Index = 2,
-                StreamType = StreamType.Subtitle,
                 Language = "eng"
             };
 
@@ -3939,17 +3994,16 @@ namespace Tricycle.UI.Tests
             _viewModel.IsForcedSubtitlesChecked = true;
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(true, _transcodeJob.Subtitles.ForcedOnly);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(true, _transcodeJob.HardSubtitles.ForcedOnly);
         }
 
         [TestMethod]
         public void DoesNotSetForcedSubtitlesForJobWhenDisabled()
         {
-            var subtitle = new StreamInfo()
+            var subtitle = new SubtitleStreamInfo()
             {
                 Index = 2,
-                StreamType = StreamType.Subtitle,
                 Language = "eng"
             };
 
@@ -3963,8 +4017,8 @@ namespace Tricycle.UI.Tests
             _viewModel.IsForcedSubtitlesChecked = false;
             Start();
 
-            Assert.IsNotNull(_transcodeJob.Subtitles);
-            Assert.AreEqual(false, _transcodeJob.Subtitles.ForcedOnly);
+            Assert.IsNotNull(_transcodeJob.HardSubtitles);
+            Assert.AreEqual(false, _transcodeJob.HardSubtitles.ForcedOnly);
         }
 
         [TestMethod]
