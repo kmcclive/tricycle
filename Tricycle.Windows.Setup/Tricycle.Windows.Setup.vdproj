@@ -5516,7 +5516,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Tricycle.IO.Windows, Version=2.4.3.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Tricycle.IO.Windows, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_96FA25A738D16778E3C332E74974009E"
@@ -7818,15 +7818,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Tricycle"
-        "ProductCode" = "8:{C9556899-53D4-4160-99A5-7B189C2DCD5D}"
-        "PackageCode" = "8:{9E9BCE96-4966-4148-AC90-153377F06878}"
+        "ProductCode" = "8:{7B77A441-D0B0-458F-9D00-8DFB24A34372}"
+        "PackageCode" = "8:{A1399065-31E8-4E47-AB1E-E68466EF837C}"
         "UpgradeCode" = "8:{D12CFAFF-0049-4FB5-85E7-EEE6E1F2BECE}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.5.0"
+        "ProductVersion" = "8:2.6.0"
         "Manufacturer" = "8:Tricycle Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/kmcclive/tricycle/issues"
