@@ -453,6 +453,37 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void MapAddsFormatFilterAfterSubtitlesFor10BitSource()
+        {
+            var subtitleStream = new SubtitleStreamInfo()
+            {
+                Index = 1,
+                SubtitleType = SubtitleType.Graphic
+            };
+
+            _videoSource.BitDepth = 10;
+            _transcodeJob.SourceInfo.Streams.Add(subtitleStream);
+            _transcodeJob.HardSubtitles = new HardSubtitlesConfig()
+            {
+                SourceStreamIndex = subtitleStream.Index
+            };
+
+            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
+
+            var filter = ffmpegJob.Filters.LastOrDefault() as Filter;
+
+            Assert.IsNotNull(filter);
+            Assert.AreEqual("format", filter.Name);
+            Assert.AreEqual(1, filter.Options?.Count);
+
+            var option = filter.Options[0];
+
+            Assert.IsNotNull(option);
+            Assert.IsNull(option.Name);
+            Assert.AreEqual("yuv420p10le", option.Value);
+        }
+
+        [TestMethod]
         public void MapAddsCropFilter()
         {
             _videoSource.Dimensions = new Dimensions(1920, 1080);

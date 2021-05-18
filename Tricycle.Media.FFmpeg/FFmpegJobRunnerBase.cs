@@ -219,6 +219,11 @@ namespace Tricycle.Media.FFmpeg
                 {
                     result.Add(GetSubtitlesFilter(subtitleInfo));
                 }
+
+                if (sourceStream.BitDepth >= 10)
+                {
+                    result.Add(GetFormatFilter($"yuv420p{sourceStream.BitDepth}le"));
+                }
             }
 
             bool setSampleAspectRatio = false;
@@ -375,47 +380,15 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual void AddTonemapFilters(IList<IFilter> filters, FFmpegConfig config)
+        protected virtual IFilter GetFormatFilter(string format)
         {
-            filters.Add(new Filter("zscale")
+            return new Filter("format")
             {
                 Options = new Option[]
                 {
-                    new Option("t", "linear"),
-                    new Option("npl", "100")
+                    Option.FromValue(format)
                 }
-            });
-            filters.Add(new Filter("format")
-            {
-                Options = new Option[]
-                {
-                    Option.FromValue("gbrpf32le")
-                }
-            });
-            filters.Add(new Filter("zscale")
-            {
-                Options = new Option[]
-                {
-                    new Option("p", "bt709")
-                }
-            });
-            filters.Add(GetTonemapFilter(config));
-            filters.Add(new Filter("zscale")
-            {
-                Options = new Option[]
-                {
-                    new Option("t", "bt709"),
-                    new Option("m", "bt709"),
-                    new Option("r", "tv")
-                }
-            });
-            filters.Add(new Filter("format")
-            {
-                Options = new Option[]
-                {
-                    Option.FromValue("yuv420p")
-                }
-            });
+            };
         }
 
         protected virtual IFilter GetTonemapFilter(FFmpegConfig config)
@@ -436,5 +409,36 @@ namespace Tricycle.Media.FFmpeg
                 }
             };
         }
+
+        protected virtual void AddTonemapFilters(IList<IFilter> filters, FFmpegConfig config)
+        {
+            filters.Add(new Filter("zscale")
+            {
+                Options = new Option[]
+                {
+                    new Option("t", "linear"),
+                    new Option("npl", "100")
+                }
+            });
+            filters.Add(GetFormatFilter("gbrpf32le"));
+            filters.Add(new Filter("zscale")
+            {
+                Options = new Option[]
+                {
+                    new Option("p", "bt709")
+                }
+            });
+            filters.Add(GetTonemapFilter(config));
+            filters.Add(new Filter("zscale")
+            {
+                Options = new Option[]
+                {
+                    new Option("t", "bt709"),
+                    new Option("m", "bt709"),
+                    new Option("r", "tv")
+                }
+            });
+            filters.Add(GetFormatFilter("yuv420p"));
+        }       
     }
 }
