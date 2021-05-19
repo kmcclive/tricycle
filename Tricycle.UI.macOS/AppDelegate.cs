@@ -79,6 +79,14 @@ namespace Tricycle.UI.macOS
             const string TRICYCLE_CONFIG_NAME = "tricycle.json";
             const string TEMPLATE_CONFIG_NAME = "templates.json";
 
+            var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
+            var revision = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
+
+            AppState.AppName = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleName").ToString();
+            AppState.AppVersion = Version.TryParse(version, out var a) && int.TryParse(revision, out var b)
+                                  ? new Version(a.Major, a.Minor, a.Build, b)
+                                  : new Version();
+
             string resourcePath = NSBundle.MainBundle.ResourcePath;
             string defaultConfigPath = Path.Combine(resourcePath, "Config");
             string ffmpegPath = Path.Combine(resourcePath, "Tools", "FFmpeg");
@@ -116,13 +124,7 @@ namespace Tricycle.UI.macOS
             _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
-            var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString").ToString();
-            var revision = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion").ToString();
 
-            AppState.AppName = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleName").ToString();
-            AppState.AppVersion = Version.TryParse(version, out var a) && int.TryParse(revision, out var b)
-                                  ? new Version(a.Major, a.Minor, a.Build, b)
-                                  : new Version();
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);

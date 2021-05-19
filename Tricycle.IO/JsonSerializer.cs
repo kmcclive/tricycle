@@ -10,7 +10,11 @@ namespace Tricycle.IO
     {
         JsonSerializerSettings _settings = new JsonSerializerSettings
         {
-            Converters = new JsonConverter[] { new StringEnumConverter(new CamelCaseNamingStrategy()) },
+            Converters = new JsonConverter[]
+            {
+                new StringEnumConverter(new CamelCaseNamingStrategy()),
+                new VersionConverter()
+            },
             ContractResolver = new DefaultContractResolver()
             {
                 NamingStrategy = new CamelCaseNamingStrategy()
