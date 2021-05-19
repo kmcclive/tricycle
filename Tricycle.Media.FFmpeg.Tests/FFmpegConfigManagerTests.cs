@@ -462,7 +462,7 @@ namespace Tricycle.Media.FFmpeg.Tests
             _userConfig.Version = new Version("2.6.0.0");
             _userConfig.Video = new VideoConfig()
             {
-                DenoiseOptions = "hqdn3d=3:3:4:4"
+                DenoiseOptions = "hqdn3d=4:4:3:3"
             };
             _defaultConfig.Video = new VideoConfig()
             {
