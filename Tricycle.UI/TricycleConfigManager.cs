@@ -41,33 +41,9 @@ namespace Tricycle.UI
                 CoalesceVideo(userConfig.Video, clone.Video);
             }
 
-            if (!Enum.IsDefined(typeof(AutomationMode), userConfig.DestinationDirectoryMode))
-            {
-                userConfig.DestinationDirectoryMode = defaultConfig.DestinationDirectoryMode;
-            }
+            CoalesceDefaultFileExtensions(userConfig, defaultConfig);
 
-            if (userConfig.DefaultFileExtensions?.Any() != true)
-            {
-                userConfig.DefaultFileExtensions = defaultConfig.DefaultFileExtensions;
-                return;
-            }
-
-            if (defaultConfig.DefaultFileExtensions?.Any() != true)
-            {
-                return;
-            }
-
-            foreach (var pair in userConfig.DefaultFileExtensions.ToList()) // copy the elements so they can be modified
-            {
-                var format = pair.Key;
-                var userExtension = pair.Value;
-                var defaultExtension = defaultConfig.DefaultFileExtensions.GetValueOrDefault(format);
-
-                if (string.IsNullOrWhiteSpace(userExtension) && defaultExtension != null)
-                {
-                    userConfig.DefaultFileExtensions[format] = defaultExtension;
-                }
-            }
+            userConfig.Version = AppState.AppVersion;
         }
 
         void CoalesceAudio(AudioConfig userConfig, AudioConfig defaultConfig)
@@ -140,6 +116,37 @@ namespace Tricycle.UI
                     {
                         userCodec.Tag = defaultCodec.Tag;
                     }
+                }
+            }
+        }
+
+        void CoalesceDefaultFileExtensions(TricycleConfig userConfig, TricycleConfig defaultConfig)
+        {
+            if (!Enum.IsDefined(typeof(AutomationMode), userConfig.DestinationDirectoryMode))
+            {
+                userConfig.DestinationDirectoryMode = defaultConfig.DestinationDirectoryMode;
+            }
+
+            if (userConfig.DefaultFileExtensions?.Any() != true)
+            {
+                userConfig.DefaultFileExtensions = defaultConfig.DefaultFileExtensions;
+                return;
+            }
+
+            if (defaultConfig.DefaultFileExtensions?.Any() != true)
+            {
+                return;
+            }
+
+            foreach (var pair in userConfig.DefaultFileExtensions.ToList()) // copy the elements so they can be modified
+            {
+                var format = pair.Key;
+                var userExtension = pair.Value;
+                var defaultExtension = defaultConfig.DefaultFileExtensions.GetValueOrDefault(format);
+
+                if (string.IsNullOrWhiteSpace(userExtension) && defaultExtension != null)
+                {
+                    userConfig.DefaultFileExtensions[format] = defaultExtension;
                 }
             }
         }

@@ -457,6 +457,24 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void CoalesceReplacesBadDenoiseOptions()
+        {
+            _userConfig.Version = new Version("2.6.0.0");
+            _userConfig.Video = new VideoConfig()
+            {
+                DenoiseOptions = "hqdn3d=3:3:4:4"
+            };
+            _defaultConfig.Video = new VideoConfig()
+            {
+                DenoiseOptions = "hqdn3d"
+            };
+
+            _configManager.Load();
+
+            Assert.AreEqual(_defaultConfig.Video.DenoiseOptions, _configManager.Config?.Video?.DenoiseOptions);
+        }
+
+        [TestMethod]
         public void CoalesceDoesNotCopyDenoiseOptionsWhenNotEmpty()
         {
             var denoiseOptions = "hqdn3d=1:2:3:4";
@@ -507,6 +525,16 @@ namespace Tricycle.Media.FFmpeg.Tests
             _configManager.Load();
 
             Assert.AreEqual(tonemapOptions, _configManager.Config?.Video?.TonemapOptions);
+        }
+
+        [TestMethod]
+        public void CoalesceSetsVersion()
+        {
+            AppState.AppVersion = new Version("2.6.1.0");
+
+            _configManager.Load();
+
+            Assert.AreEqual(AppState.AppVersion, _configManager.Config?.Version);
         }
 
         #endregion
