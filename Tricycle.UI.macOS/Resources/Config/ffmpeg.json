@@ -1,4 +1,5 @@
 ﻿{
+  "version": "2.6.0.0",
   "video": {
     "codecs": {
       "avc": {
@@ -10,7 +11,7 @@
     },
     "cropDetectOptions": "0.125:2:0",
     "deinterlaceOptions": "bwdif",
-    "denoiseOptions": "hqdn3d=4:4:3:3",
+    "denoiseOptions": "hqdn3d=2:1:5:5",
     "tonemapOptions": "hable:desat=0"
   },
   "audio": {

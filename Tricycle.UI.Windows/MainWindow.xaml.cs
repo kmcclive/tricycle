@@ -230,6 +230,11 @@ namespace Tricycle.UI.Windows
             const string TRICYCLE_CONFIG_NAME = "tricycle.json";
             const string TEMPLATE_CONFIG_NAME = "templates.json";
 
+            var asm = Assembly.GetExecutingAssembly();
+
+            AppState.AppName = asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
+            AppState.AppVersion = asm.GetName().Version;
+
             string appPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             string assetsPath = Path.Combine(appPath, "Assets");
             string defaultConfigPath = Path.Combine(assetsPath, "Config");
@@ -268,10 +273,7 @@ namespace Tricycle.UI.Windows
             _templateManager.ConfigChanged += config => PopulateTemplateMenu();
 
             var ffmpegArgumentGenerator = new FFmpegArgumentGenerator(new ArgumentPropertyReflector());
-            var asm = Assembly.GetExecutingAssembly();
-
-            AppState.AppName = asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
-            AppState.AppVersion = asm.GetName().Version;
+            
             AppState.IocContainer = new Container(_ =>
             {
                 _.For<IConfigManager<FFmpegConfig>>().Use(ffmpegConfigManager);

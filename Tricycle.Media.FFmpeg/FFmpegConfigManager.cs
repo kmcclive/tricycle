@@ -3,6 +3,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using Tricycle.IO;
 using Tricycle.Media.FFmpeg.Models.Config;
+using Tricycle.Models;
 using Tricycle.Utilities;
 
 namespace Tricycle.Media.FFmpeg
@@ -46,8 +47,10 @@ namespace Tricycle.Media.FFmpeg
             }
             else
             {
-                CoalesceVideo(userConfig.Video, clone.Video);
+                CoalesceVideo(userConfig.Video, clone.Video, userConfig.Version);
             }
+
+            userConfig.Version = AppState.AppVersion;
         }
 
         void CoalesceAudio(AudioConfig userConfig, AudioConfig defaultConfig)
@@ -102,7 +105,7 @@ namespace Tricycle.Media.FFmpeg
             }
         }
 
-        void CoalesceVideo(VideoConfig userConfig, VideoConfig defaultConfig)
+        void CoalesceVideo(VideoConfig userConfig, VideoConfig defaultConfig, Version userVersion)
         {
             if (string.IsNullOrWhiteSpace(userConfig.CropDetectOptions))
             {
@@ -114,7 +117,10 @@ namespace Tricycle.Media.FFmpeg
                 userConfig.DeinterlaceOptions = defaultConfig.DeinterlaceOptions;
             }
 
-            if (string.IsNullOrWhiteSpace(userConfig.DenoiseOptions))
+            if (string.IsNullOrWhiteSpace(userConfig.DenoiseOptions)
+                // replace "bad" denoise options from earlier versions
+                || (userConfig.DenoiseOptions == "hqdn3d=4:4:3:3")
+                    && (userVersion == null || userVersion <= new Version("2.6.0.0")))
             {
                 userConfig.DenoiseOptions = defaultConfig.DenoiseOptions;
             }

@@ -562,6 +562,16 @@ namespace Tricycle.UI.Tests
             Assert.AreEqual(extension, _configManager.Config?.DefaultFileExtensions?.GetValueOrDefault(format));
         }
 
+        [TestMethod]
+        public void CoalesceSetsVersion()
+        {
+            AppState.AppVersion = new Version("2.6.1.0");
+
+            _configManager.Load();
+
+            Assert.AreEqual(AppState.AppVersion, _configManager.Config?.Version);
+        }
+
         #endregion
     }
 }

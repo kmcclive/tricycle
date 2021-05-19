@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Tricycle.Models.Config
 {
     public class TricycleConfig
     {
+        public Version Version { get; set; }
         public VideoConfig Video { get; set; }
         public AudioConfig Audio { get; set; }
         public bool ForcedSubtitlesOnly { get; set; }
@@ -20,6 +22,7 @@ namespace Tricycle.Models.Config
         {
             return new TricycleConfig()
             {
+                Version = Version,
                 Video = Video?.Clone(),
                 Audio = Audio?.Clone(),
                 ForcedSubtitlesOnly = ForcedSubtitlesOnly,

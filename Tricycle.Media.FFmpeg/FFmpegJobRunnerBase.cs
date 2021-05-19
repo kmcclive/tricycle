@@ -353,31 +353,12 @@ namespace Tricycle.Media.FFmpeg
 
         protected virtual IFilter GetDeinterlaceFilter(FFmpegConfig config)
         {
-            if (!string.IsNullOrWhiteSpace(config?.Video?.DeinterlaceOptions))
-            {
-                return new CustomFilter(config.Video.DeinterlaceOptions);
-            }
-
-            return new Filter("bwdif");
+            return new CustomFilter(config.Video.DeinterlaceOptions);
         }
 
         protected virtual IFilter GetDenoiseFilter(FFmpegConfig config)
         {
-            if (!string.IsNullOrWhiteSpace(config?.Video?.DenoiseOptions))
-            {
-                return new CustomFilter(config.Video.DenoiseOptions);
-            }
-
-            return new Filter("hqdn3d")
-            {
-                Options = new Option[]
-                {
-                    Option.FromValue(4),
-                    Option.FromValue(4),
-                    Option.FromValue(3),
-                    Option.FromValue(3)
-                }
-            };
+            return new CustomFilter(config.Video.DenoiseOptions);
         }
 
         protected virtual IFilter GetFormatFilter(string format)
@@ -393,21 +374,7 @@ namespace Tricycle.Media.FFmpeg
 
         protected virtual IFilter GetTonemapFilter(FFmpegConfig config)
         {
-            const string NAME = "tonemap";
-
-            if (!string.IsNullOrWhiteSpace(config?.Video?.TonemapOptions))
-            {
-                return new CustomFilter($"{NAME}={config.Video.TonemapOptions}");
-            }
-
-            return new Filter(NAME)
-            {
-                Options = new Option[]
-                {
-                    Option.FromValue("hable"),
-                    new Option("desat", "0")
-                }
-            };
+            return new CustomFilter($"tonemap={config.Video.TonemapOptions}");
         }
 
         protected virtual void AddTonemapFilters(IList<IFilter> filters, FFmpegConfig config)

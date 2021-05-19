@@ -622,26 +622,11 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void MapAddsDeinterlaceFilter()
         {
-            _videoOutput.Deinterlace = true;
-
-            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
-
-            Assert.AreEqual(1, ffmpegJob.Filters?.Count);
-
-            var filter = ffmpegJob.Filters[0] as Filter;
-
-            Assert.IsNotNull(filter);
-            Assert.AreEqual("bwdif", filter.Name);
-        }
-
-        [TestMethod]
-        public void MapUsesDeinterlaceOptionsFromConfig()
-        {
             var config = new FFmpegConfig()
             {
                 Video = new VideoConfig()
                 {
-                    DeinterlaceOptions = "kerndeint"
+                    DeinterlaceOptions = "bwdif"
                 }
             };
 
@@ -660,51 +645,11 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void MapAddsDenoiseFilter()
         {
-            _videoOutput.Denoise = true;
-
-            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
-
-            Assert.AreEqual(1, ffmpegJob.Filters?.Count);
-
-            var filter = ffmpegJob.Filters[0] as Filter;
-
-            Assert.IsNotNull(filter);
-            Assert.AreEqual("hqdn3d", filter.Name);
-            Assert.AreEqual(4, filter.Options?.Count);
-
-            var option = filter.Options[0];
-
-            Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("4", option.Value);
-
-            option = filter.Options[1];
-
-            Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("4", option.Value);
-
-            option = filter.Options[2];
-
-            Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("3", option.Value);
-
-            option = filter.Options[3];
-
-            Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("3", option.Value);
-        }
-
-        [TestMethod]
-        public void MapUsesDenoiseOptionsFromConfig()
-        {
             var config = new FFmpegConfig()
             {
                 Video = new VideoConfig()
                 {
-                    DenoiseOptions = "nlmeans"
+                    DenoiseOptions = "hqdn3d"
                 }
             };
 
@@ -723,9 +668,17 @@ namespace Tricycle.Media.FFmpeg.Tests
         [TestMethod]
         public void MapAddsTonemapFilters()
         {
+            var config = new FFmpegConfig()
+            {
+                Video = new VideoConfig()
+                {
+                    TonemapOptions = "hable"
+                }
+            };
+
             _videoOutput.Tonemap = true;
 
-            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
+            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, config);
 
             Assert.AreEqual(6, ffmpegJob.Filters?.Count);
 
@@ -771,23 +724,10 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.AreEqual("p", option.Name);
             Assert.AreEqual("bt709", option.Value);
 
-            filter = ffmpegJob.Filters[3] as Filter;
+            var customfilter = ffmpegJob.Filters[3] as CustomFilter;
 
             Assert.IsNotNull(filter);
-            Assert.AreEqual("tonemap", filter.Name);
-            Assert.AreEqual(2, filter.Options?.Count);
-
-            option = filter.Options[0];
-
-            Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("hable", option.Value);
-
-            option = filter.Options[1];
-
-            Assert.IsNotNull(option);
-            Assert.AreEqual("desat", option.Name);
-            Assert.AreEqual("0", option.Value);
+            Assert.AreEqual($"tonemap=hable", customfilter.Data);
 
             filter = ffmpegJob.Filters[4] as Filter;
 
@@ -824,26 +764,6 @@ namespace Tricycle.Media.FFmpeg.Tests
             Assert.IsNotNull(option);
             Assert.IsNull(option.Name);
             Assert.AreEqual("yuv420p", option.Value);
-        }
-
-        [TestMethod]
-        public void MapUsesTonemapOptionsFromConfig()
-        {
-            var config = new FFmpegConfig()
-            {
-                Video = new VideoConfig()
-                {
-                    TonemapOptions = "reinhard"
-                }
-            };
-
-            _videoOutput.Tonemap = true;
-
-            var ffmpegJob = _jobRunner.CallMap(_transcodeJob, config);
-            var filter = ffmpegJob.Filters.OfType<CustomFilter>().FirstOrDefault();
-
-            Assert.IsNotNull(filter);
-            Assert.AreEqual($"tonemap={config.Video.TonemapOptions}", filter.Data);
         }
 
         [TestMethod]
