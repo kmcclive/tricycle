@@ -119,7 +119,7 @@ namespace Tricycle.Media.FFmpeg
 
             if (string.IsNullOrWhiteSpace(userConfig.DenoiseOptions)
                 // replace "bad" denoise options from earlier versions
-                || (userConfig.DenoiseOptions == "hqdn3d=3:3:4:4")
+                || (userConfig.DenoiseOptions == "hqdn3d=4:4:3:3")
                     && (userVersion == null || userVersion <= new Version("2.6.0.0")))
             {
                 userConfig.DenoiseOptions = defaultConfig.DenoiseOptions;
