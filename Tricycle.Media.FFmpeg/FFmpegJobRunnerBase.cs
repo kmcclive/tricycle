@@ -213,16 +213,11 @@ namespace Tricycle.Media.FFmpeg
                     const string REF_LABEL = "ref";
 
                     result.Add(GetScale2RefFilter(sourceStream, subtitleInfo.AbsoluteIndex, SUB_LABEL, REF_LABEL));
-                    result.Add(GetOverlayFilter(REF_LABEL, SUB_LABEL));
+                    result.Add(GetOverlayFilter(sourceStream, REF_LABEL, SUB_LABEL));
                 }
                 else
                 {
                     result.Add(GetSubtitlesFilter(subtitleInfo));
-                }
-
-                if (sourceStream.BitDepth >= 10)
-                {
-                    result.Add(GetFormatFilter($"yuv420p{sourceStream.BitDepth}le"));
                 }
             }
 
@@ -288,9 +283,9 @@ namespace Tricycle.Media.FFmpeg
             };
         }
 
-        protected virtual IFilter GetOverlayFilter(string bottomLabel, string topLabel)
+        protected virtual IFilter GetOverlayFilter(VideoStreamInfo sourceStream, string bottomLabel, string topLabel)
         {
-            return new Filter("overlay")
+            var result = new Filter("overlay")
             {
                 Inputs = new IInput[]
                 {
@@ -299,6 +294,16 @@ namespace Tricycle.Media.FFmpeg
                 },
                 ChainToPrevious = true
             };
+
+            if (sourceStream.BitDepth >= 10)
+            {
+                result.Options = new Option[]
+                {
+                    new Option("format", "yuv420p10")
+                };
+            }
+
+            return result;
         }
 
         protected virtual IFilter GetSubtitlesFilter(SubtitleInfo subtitleInfo)

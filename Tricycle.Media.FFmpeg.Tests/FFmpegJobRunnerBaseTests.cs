@@ -453,7 +453,7 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
-        public void MapAddsFormatFilterAfterSubtitlesFor10BitSource()
+        public void MapSetsOverlayFilterFormatOptionFor10BitSource()
         {
             var subtitleStream = new SubtitleStreamInfo()
             {
@@ -470,17 +470,16 @@ namespace Tricycle.Media.FFmpeg.Tests
 
             var ffmpegJob = _jobRunner.CallMap(_transcodeJob, null);
 
-            var filter = ffmpegJob.Filters.LastOrDefault() as Filter;
+            var filter = ffmpegJob.Filters.OfType<Filter>().FirstOrDefault(f => f.Name == "overlay");
 
             Assert.IsNotNull(filter);
-            Assert.AreEqual("format", filter.Name);
             Assert.AreEqual(1, filter.Options?.Count);
 
             var option = filter.Options[0];
 
             Assert.IsNotNull(option);
-            Assert.IsNull(option.Name);
-            Assert.AreEqual("yuv420p10le", option.Value);
+            Assert.AreEqual("format", option.Name);
+            Assert.AreEqual("yuv420p10", option.Value);
         }
 
         [TestMethod]
