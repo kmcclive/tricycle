@@ -4283,6 +4283,20 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void SetsAudioDefaultsForJob()
+        {
+            SelectSource();
+            _viewModel.AudioOutputs.LastOrDefault().SelectedTrack = new ListItem(_audioStream);
+            Start();
+
+            var audioOutputs = _transcodeJob?.Streams?.OfType<AudioOutputStream>().ToList();
+
+            Assert.AreEqual(2, audioOutputs?.Count);
+            Assert.AreEqual(true, audioOutputs[0]?.IsDefault);
+            Assert.AreEqual(false, audioOutputs[1]?.IsDefault);
+        }
+
+        [TestMethod]
         public void DisplaysCorrectButtonImageInitially()
         {
             SelectSource();

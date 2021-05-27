@@ -1708,8 +1708,9 @@ namespace Tricycle.UI.ViewModels
                 return result;
             }
 
-            foreach (var viewModel in AudioOutputs)
+            for (int i = 0; i < AudioOutputs.Count; i++)
             {
+                var viewModel = AudioOutputs[i];
                 AudioStreamInfo sourceStream = GetStream(viewModel);
 
                 if (sourceStream == null)
@@ -1736,6 +1737,7 @@ namespace Tricycle.UI.ViewModels
                 var codec = _tricycleConfig.Audio?.Codecs?.GetValueOrDefault(audioOutput.Format);
 
                 output.Tag = codec?.Tag;
+                output.IsDefault = i == 0;
 
                 result.Add(output);
             }
