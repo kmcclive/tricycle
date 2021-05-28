@@ -511,6 +511,40 @@ namespace Tricycle.Media.FFmpeg.Tests
         }
 
         [TestMethod]
+        public void StartDoesNotAssignStreamDispositionOnJobByDefault()
+        {
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.IsNull(stream.Disposition);
+        }
+
+        [TestMethod]
+        public void StartAssignsDefaultStreamDispositionOnJob()
+        {
+            _videoOutput.IsDefault = true;
+
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.AreEqual("default", stream.Disposition);
+        }
+
+        [TestMethod]
+        public void StartDeletesStreamDispositionOnJob()
+        {
+            _videoOutput.IsDefault = false;
+
+            _transcoder.Start(_transcodeJob);
+
+            var stream = _ffmpegJob.Streams.FirstOrDefault();
+
+            Assert.AreEqual("0", stream.Disposition);
+        }
+
+        [TestMethod]
         public void StartPassesCorrectProcessStartInfo()
         {
             string arguments = "transcode arguments";

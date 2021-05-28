@@ -183,6 +183,11 @@ namespace Tricycle.Media.FFmpeg
             if (result != null)
             {
                 result.Metadata = outputStream.Metadata;
+
+                if (outputStream.IsDefault.HasValue)
+                {
+                    result.Disposition = outputStream.IsDefault.Value ? "default" : "0";
+                }
             }
 
             return result;

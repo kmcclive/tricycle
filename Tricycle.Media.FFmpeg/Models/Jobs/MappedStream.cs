@@ -22,6 +22,9 @@ namespace Tricycle.Media.FFmpeg.Models.Jobs
         [Argument("-b")]
         public string Bitrate { get; set; }
 
+        [Argument("-disposition")]
+        public string Disposition { get; set; }
+
         [Argument("-metadata:s")]
         [ArgumentConverter(typeof(MetadataConverter))]
         public IDictionary<string, string> Metadata { get; set; }
