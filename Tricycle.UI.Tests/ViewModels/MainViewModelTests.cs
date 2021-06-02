@@ -2532,6 +2532,12 @@ namespace Tricycle.UI.Tests
             SelectSource();
             _template.Subtitles = new SubtitleTemplate() { Language = language };
             ApplyTemplate();
+
+            if (_viewModel.SelectedSubtitle?.Name == "None")
+            {
+                Assert.Inconclusive("A subtitle was not selected when applying the template.");
+            }
+
             _template.Subtitles = null;
             ApplyTemplate();
 
