@@ -2520,6 +2520,26 @@ namespace Tricycle.UI.Tests
         }
 
         [TestMethod]
+        public void ResetsSubtitleSelectionWhenNotSetInTemplate()
+        {
+            var language = "eng";
+
+            _mediaInfo.Streams = new StreamInfo[]
+            {
+                _videoStream,
+                new SubtitleStreamInfo() { Index = 2, Language = language }
+            };
+            SelectSource();
+            _template.Subtitles = new SubtitleTemplate() { Language = language };
+            ApplyTemplate();
+            _template.Subtitles = null;
+            ApplyTemplate();
+
+            Assert.AreEqual("None", _viewModel.SelectedSubtitle?.Name);
+            Assert.AreEqual(_tricycleConfig.ForcedSubtitlesOnly, _viewModel.IsForcedSubtitlesChecked);
+        }
+
+        [TestMethod]
         public void ShowsAudioOutputsWhenDoneApplyingTemplate()
         {
             SelectSource();
