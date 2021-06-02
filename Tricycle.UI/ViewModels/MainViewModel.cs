@@ -985,8 +985,8 @@ namespace Tricycle.UI.ViewModels
         void PopulateSubtitleOptions(MediaInfo sourceInfo)
         {
             SubtitleOptions = GetSubtitleOptions(sourceInfo);
-            SelectedSubtitle = SubtitleOptions?.FirstOrDefault();
-            IsForcedSubtitlesChecked = SubtitleOptions?.Count() > 1 && _tricycleConfig.ForcedSubtitlesOnly;
+
+            SelectSubtitleDefaults();
         }
 
         IList<ListItem> GetSubtitleOptions(MediaInfo sourceInfo)
@@ -1020,6 +1020,12 @@ namespace Tricycle.UI.ViewModels
             }
 
             return _languageService.Find(code)?.Name ?? code;
+        }
+
+        void SelectSubtitleDefaults()
+        {
+            SelectedSubtitle = SubtitleOptions?.FirstOrDefault();
+            IsForcedSubtitlesChecked = SubtitleOptions?.Count() > 1 && _tricycleConfig.ForcedSubtitlesOnly;
         }
 
         void PopulateAudioOptions(MediaInfo sourceInfo, ContainerFormat containerFormat)
@@ -1910,6 +1916,10 @@ namespace Tricycle.UI.ViewModels
                                                         (s.Value as StreamInfo)?.Language == subtitles.Language)
                                    ?? NONE_OPTION;
                 IsForcedSubtitlesChecked = subtitles.ForcedOnly;
+            }
+            else
+            {
+                SelectSubtitleDefaults();
             }
 
             ApplyTemplates(template.AudioTracks);
