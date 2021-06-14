@@ -196,6 +196,11 @@ namespace Tricycle.UI.macOS
         [Action("validateMenuItem:")]
         public bool ValidateMenuItem(NSMenuItem item)
         {
+            if (item.ParentItem?.Title == "Templates")
+            {
+                return IsTemplateMenuItemValid(item);
+            }
+
             switch (item.Title)
             {
                 case "Manage…":
