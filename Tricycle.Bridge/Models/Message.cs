@@ -7,5 +7,15 @@ namespace Tricycle.Bridge.Models
     public class Message
     {
         public int ProcessId { get; set; }
+
+        public Message()
+        {
+
+        }
+
+        public Message(int processId)
+        {
+            ProcessId = processId;
+        }
     }
 }

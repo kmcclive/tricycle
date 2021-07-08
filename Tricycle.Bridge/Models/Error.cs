@@ -8,5 +8,21 @@ namespace Tricycle.Bridge.Models
     {
         public string ErrorType { get; set; }
         public string Message { get; set; }
+
+        public Error()
+        {
+
+        }
+
+        public Error(string errorType)
+        {
+            ErrorType = errorType;
+        }
+
+        public Error(string errorType, string message)
+            : this(errorType)
+        {
+            Message = message;
+        }
     }
 }

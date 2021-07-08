@@ -10,4 +10,11 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tricycle.Bridge\Tricycle.Bridge.csproj" />
+    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj" />
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
+    <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>
