@@ -2,9 +2,9 @@
 
 namespace Tricycle.Bridge
 {
-    public static class SharedMessageKey
+    public static class MessageKey
     {
         public static string MessageType { get; } = "MESSAGE_TYPE";
-        public static string ProcessId { get; } = "PID";
+        public static string Body { get; } = "BODY";
     }
 }
