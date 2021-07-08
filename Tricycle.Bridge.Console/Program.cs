@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Tricycle.Diagnostics;
+using Tricycle.IO;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 
@@ -7,45 +9,22 @@ namespace Tricycle.Bridge.Console
 {
     class Program
     {
-        static AppServiceConnection connection;
-        static AppServiceClosedStatus? closedStatus;
-
-        static async Task<int> Main()
+        static int Main()
         {
-            var status = await InitializeAppServiceConnection();
+            var connection = InitializeConnection();
+            var serializer = new JsonSerializer(new Newtonsoft.Json.JsonSerializerSettings());
+            var service = new ProcessService(connection, serializer, () => new ProcessWrapper());
 
-            if (status != AppServiceConnectionStatus.Success)
+            return service.Start() == AppServiceClosedStatus.Completed ? 0 : 1;
+        }
+
+        static IAppServiceConnection InitializeConnection()
+        {
+            return new AppServiceConnectionWrapper()
             {
-                return 1;
-            }
-
-            do
-            {
-                await Task.Yield();
-            } while (closedStatus == null);
-
-            return closedStatus == AppServiceClosedStatus.Completed ? 0 : 1;
-        }
-
-        static async Task<AppServiceConnectionStatus> InitializeAppServiceConnection()
-        {
-            connection = new AppServiceConnection();
-            connection.AppServiceName = "TricycleProcessService";
-            connection.PackageFamilyName = Package.Current.Id.FamilyName;
-            connection.RequestReceived += OnRequestReceived;
-            connection.ServiceClosed += OnServiceClosed;
-
-            return await connection.OpenAsync();
-        }
-
-        static void OnServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            closedStatus = args.Status;
-        }
-
-        static void OnRequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
-        {
-            throw new NotImplementedException();
+                AppServiceName = "TricycleProcessService",
+                PackageFamilyName = Package.Current.Id.FamilyName
+            };
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Tricycle.Bridge.Models;
 using Tricycle.Diagnostics;
@@ -20,6 +21,7 @@ namespace Tricycle.Bridge.Console
         readonly ISerializer<string> _serializer;
         readonly Func<IProcess> _processCreator;
         readonly IDictionary<int, IProcess> _processesById = new ConcurrentDictionary<int, IProcess>();
+        AppServiceClosedStatus? _closedStatus;
 
         public ProcessService(IAppServiceConnection connection, ISerializer<string> serializer, Func<IProcess> processCreator)
         {
@@ -28,6 +30,33 @@ namespace Tricycle.Bridge.Console
             _processCreator = processCreator;
 
             _connection.RequestReceived += OnRequestReceived;
+            _connection.ServiceClosed += OnServiceClosed;
+        }
+
+        public AppServiceClosedStatus Start()
+        {
+            _closedStatus = null;
+
+            var task = _connection.OpenAsync().AsTask();
+
+            task.RunSynchronously();
+
+            if (task.Result != AppServiceConnectionStatus.Success)
+            {
+                return AppServiceClosedStatus.Canceled;
+            }
+
+            do
+            {
+                Thread.Sleep(100);
+            } while (!_closedStatus.HasValue);
+
+            return _closedStatus.Value;
+        }
+
+        void OnServiceClosed(IAppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            _closedStatus = args.Status;
         }
 
         async void OnRequestReceived(IAppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
