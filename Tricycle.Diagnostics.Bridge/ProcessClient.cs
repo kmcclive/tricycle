@@ -37,7 +37,7 @@ namespace Tricycle.Diagnostics.Bridge
 
         public void Dispose()
         {
-            // Nothing to dispose
+            Reset();
         }
 
         public void Kill()
@@ -63,6 +63,18 @@ namespace Tricycle.Diagnostics.Bridge
 
         public bool Start(ProcessStartInfo startInfo)
         {
+            if (Id != default)
+            {
+                if (HasExited)
+                {
+                    Reset();
+                }
+                else
+                {
+                    throw new InvalidOperationException("Process is already running.");
+                }
+            }
+
             _connection = InitializeConnection();
 
             Trace.WriteLine($"Starting process: {startInfo.FileName} {startInfo.Arguments}");
@@ -189,6 +201,7 @@ namespace Tricycle.Diagnostics.Bridge
             if (message != null && IsSameProcess(message.ProcessId))
             {
                 ExitCode = message.ExitCode;
+                HasExited = true;
                 Exited?.Invoke();
             }
         }
@@ -314,6 +327,13 @@ namespace Tricycle.Diagnostics.Bridge
             }
 
             return builder.ToString();
+        }
+
+        void Reset()
+        {
+            Id = default;
+            ExitCode = default;
+            HasExited = false;
         }
     }
 }
