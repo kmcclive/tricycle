@@ -12,9 +12,9 @@ namespace Tricycle.IO.UWP
 {
     public static class StorageUtility
     {
-        public static PickerLocationId GetPickerLocationId(string directory)
+        public static PickerLocationId? GetPickerLocationId(string directory)
         {
-            var result = PickerLocationId.Unspecified;
+            PickerLocationId? result = null;
 
             if (string.IsNullOrWhiteSpace(directory))
             {

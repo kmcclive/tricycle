@@ -25,17 +25,24 @@ namespace Tricycle.IO.UWP
 
         public async Task<FileBrowserResult> BrowseToOpen(string defaultDirectory, IList<string> extensions)
         {
-            var openPicker = new FileOpenPicker()
-            {
-                SuggestedStartLocation = StorageUtility.GetPickerLocationId(defaultDirectory),
-            };
+            var openPicker = new FileOpenPicker();
+            var startlocation = StorageUtility.GetPickerLocationId(defaultDirectory);
 
-            if (extensions != null)
+            if (startlocation.HasValue)
+            {
+                openPicker.SuggestedStartLocation = startlocation.Value;
+            }
+
+            if (extensions?.Any() == true)
             {
                 foreach (var extension in extensions)
                 {
                     openPicker.FileTypeFilter.Add(extension);
                 }
+            }
+            else
+            {
+                openPicker.FileTypeFilter.Add("*");
             }
 
             var file = await openPicker.PickSingleFileAsync();
@@ -64,9 +71,14 @@ namespace Tricycle.IO.UWP
         {
             var savePicker = new FileSavePicker()
             {
-                SuggestedStartLocation = StorageUtility.GetPickerLocationId(defaultDirectory),
                 SuggestedFileName = defaultFileName,
             };
+            var startlocation = StorageUtility.GetPickerLocationId(defaultDirectory);
+
+            if (startlocation.HasValue)
+            {
+                savePicker.SuggestedStartLocation = startlocation.Value;
+            }
 
             var file = await savePicker.PickSaveFileAsync();
             var result = new FileBrowserResult();

@@ -17,10 +17,13 @@ namespace Tricycle.IO.UWP
 
         public async Task<FolderBrowserResult> Browse(string defaultDirectory)
         {
-            var folderPicker = new FolderPicker()
+            var folderPicker = new FolderPicker();
+            var startlocation = StorageUtility.GetPickerLocationId(defaultDirectory);
+
+            if (startlocation.HasValue)
             {
-                SuggestedStartLocation = StorageUtility.GetPickerLocationId(defaultDirectory)
-            };
+                folderPicker.SuggestedStartLocation = startlocation.Value;
+            }
 
             var folder = await folderPicker.PickSingleFolderAsync();
             var result = new FolderBrowserResult();
