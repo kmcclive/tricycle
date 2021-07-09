@@ -5,7 +5,7 @@ using Windows.ApplicationModel.AppService;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
-namespace Tricycle.Bridge
+namespace Tricycle.Diagnostics.Bridge
 {
     public class AppServiceConnectionWrapper : IAppServiceConnection
     {
