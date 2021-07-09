@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tricycle.Bridge\Tricycle.Bridge.csproj" />
+    <ProjectReference Include="..\Tricycle.Diagnostics\Tricycle.Diagnostics.csproj" />
+    <ProjectReference Include="..\Tricycle.IO\Tricycle.IO.csproj" />
+    <ProjectReference Include="..\Tricycle.Utilities\Tricycle.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -39,7 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Globalization.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Bridge.Console", "Tricycle.Bridge.Console\Tricycle.Bridge.Console.csproj", "{86E262DF-7E91-4449-B5D3-A1601690C79E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Bridge", "Tricycle.Bridge\Tricycle.Bridge.csproj", "{5F01BCB1-09DA-4909-9CF0-740E9B2C421E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Bridge", "Tricycle.Bridge\Tricycle.Bridge.csproj", "{5F01BCB1-09DA-4909-9CF0-740E9B2C421E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Diagnostics.Bridge", "Tricycle.Diagnostics.Bridge\Tricycle.Diagnostics.Bridge.csproj", "{2531B84C-DDC6-474A-A3DE-368057A12BB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,6 +123,10 @@ Global
 		{5F01BCB1-09DA-4909-9CF0-740E9B2C421E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F01BCB1-09DA-4909-9CF0-740E9B2C421E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F01BCB1-09DA-4909-9CF0-740E9B2C421E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2531B84C-DDC6-474A-A3DE-368057A12BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2531B84C-DDC6-474A-A3DE-368057A12BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2531B84C-DDC6-474A-A3DE-368057A12BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2531B84C-DDC6-474A-A3DE-368057A12BB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
