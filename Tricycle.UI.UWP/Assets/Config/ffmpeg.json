@@ -1,0 +1,37 @@
+﻿{
+  "version": "2.6.1.0",
+  "video": {
+    "codecs": {
+      "avc": {
+        "preset": "medium"
+      },
+      "hevc": {
+        "preset": "medium"
+      }
+    },
+    "cropDetectOptions": "0.125:2:0",
+    "deinterlaceOptions": "bwdif",
+    "denoiseOptions": "hqdn3d=2:1:5:5",
+    "tonemapOptions": "hable:desat=0"
+  },
+  "audio": {
+    "codecs": {
+      "aac": {
+        "name": "aac"
+      },
+      "ac3": {
+        "name": "ac3"
+      }
+    }
+  },
+  "subtitles": {
+    "codecs": {
+      "ssa": {
+        "name": "ass"
+      },
+      "timedText": {
+        "name": "mov_text"
+      }
+    }
+  }
+}

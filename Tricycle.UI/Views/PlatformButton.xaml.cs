@@ -39,8 +39,8 @@ namespace Tricycle.UI.Views
                     case Device.macOS:
                         macButton.Clicked += value;
                         break;
-                    case Device.WPF:
-                        wpfButton.Clicked += value;
+                    case Device.UWP:
+                        uwpButton.Clicked += value;
                         break;
                 }
             }
@@ -52,8 +52,8 @@ namespace Tricycle.UI.Views
                     case Device.macOS:
                         macButton.Clicked -= value;
                         break;
-                    case Device.WPF:
-                        wpfButton.Clicked -= value;
+                    case Device.UWP:
+                        uwpButton.Clicked -= value;
                         break;
                 }
             }
@@ -76,8 +76,8 @@ namespace Tricycle.UI.Views
                         case Device.macOS:
                             macButton.Command = Command;
                             break;
-                        case Device.WPF:
-                            wpfButton.Command = Command;
+                        case Device.UWP:
+                            uwpButton.Command = Command;
                             break;
                     }
                     break;
@@ -87,8 +87,8 @@ namespace Tricycle.UI.Views
                         case Device.macOS:
                             macButton.Source = Source;
                             break;
-                        case Device.WPF:
-                            wpfButton.Source = Source;
+                        case Device.UWP:
+                            uwpButton.Source = Source;
                             break;
                     }
                     break;

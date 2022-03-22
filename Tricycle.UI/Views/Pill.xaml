@@ -9,7 +9,7 @@
             <Label.FontSize>
                 <OnPlatform x:TypeArguments="x:Double">
                     <On Platform="macOS" Value="8" />
-                    <On Platform="WPF" Value="10" />
+                    <On Platform="UWP" Value="10" />
                 </OnPlatform>
             </Label.FontSize>
         </Label>

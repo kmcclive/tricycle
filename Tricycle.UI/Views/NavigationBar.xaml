@@ -7,7 +7,7 @@
         <FlexLayout.BackgroundColor>
             <OnPlatform x:TypeArguments="Color">
                 <On Platform="macOS" Value="#e3e3e3" />
-                <On Platform="WPF" Value="WhiteSmoke" />
+                <On Platform="UWP" Value="WhiteSmoke" />
             </OnPlatform>
         </FlexLayout.BackgroundColor>
         <local:PlatformButton x:Name="btnBack" Source="Images/previous.png" />

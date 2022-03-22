@@ -15,7 +15,7 @@
                                    IsStartVisible="False" />
 
             </On>
-            <On Platform="WPF">
+            <On Platform="UWP">
                 <BoxView IsVisible="False" />
             </On>
         </OnPlatform>
@@ -63,7 +63,7 @@
             <On Platform="macOS">
                 <BoxView IsVisible="False" />
             </On>
-            <On Platform="WPF">
+            <On Platform="UWP">
                 <local:WindowsStatusBar Status="Options" />
             </On>
         </OnPlatform>

@@ -5,15 +5,15 @@
     <Application.Resources>
         <OnPlatform x:TypeArguments="Color" x:Key="BackgroundColor">
             <On Platform="macOS" Value="#e9e9e9" />
-            <On Platform="WPF" Value="#ffffff" />
+            <On Platform="UWP" Value="#ffffff" />
         </OnPlatform>
         <OnPlatform x:TypeArguments="Color" x:Key="PanelBackgroundColor">
             <On Platform="macOS" Value="#e6e6e6" />
-            <On Platform="WPF" Value="#ffffff" />
+            <On Platform="UWP" Value="#ffffff" />
         </OnPlatform>
         <OnPlatform x:TypeArguments="Color" x:Key="PanelTitleColor">
             <On Platform="macOS" Value="#686868" />
-            <On Platform="WPF" Value="#545454" />
+            <On Platform="UWP" Value="#545454" />
         </OnPlatform>
         <Style TargetType="Entry"
                ApplyToDerivedTypes="True"
@@ -33,7 +33,7 @@
                 <Setter.Value>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="24" />
-                        <On Platform="WPF" Value="27" />
+                        <On Platform="UWP" Value="27" />
                     </OnPlatform>
                 </Setter.Value>
             </Setter>
@@ -45,7 +45,7 @@
                 <Setter.Value>
                     <OnPlatform x:TypeArguments="x:Double">
                         <On Platform="macOS" Value="24" />
-                        <On Platform="WPF" Value="20" />
+                        <On Platform="UWP" Value="20" />
                     </OnPlatform>
                 </Setter.Value>
             </Setter>

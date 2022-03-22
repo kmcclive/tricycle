@@ -43,7 +43,7 @@
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="105" />
-                            <On Platform="WPF" Value="130" />
+                            <On Platform="UWP" Value="130" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Margin>
@@ -53,7 +53,7 @@
                                     <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, -5, 5, 10" />
                                 </local:WhenVersion>
                             </On>
-                            <On Platform="WPF" Value="15, -5, 5, 10" />
+                            <On Platform="UWP" Value="15, -5, 5, 10" />
                         </OnPlatform>
                     </ListView.Margin>
                     <ListView.Header>
@@ -66,7 +66,7 @@
                                     <Grid.HeightRequest>
                                         <OnPlatform x:TypeArguments="x:Double">
                                             <On Platform="macOS" Value="28" />
-                                            <On Platform="WPF" Value="32" />
+                                            <On Platform="UWP" Value="32" />
                                         </OnPlatform>
                                     </Grid.HeightRequest>
                                     <Grid.ColumnDefinitions>

@@ -7,11 +7,11 @@
     <ContentPage.Resources>
         <OnPlatform x:Key="PanelWidth" x:TypeArguments="FlexBasis">
             <On Platform="macOS" Value="370" />
-            <On Platform="WPF" Value="480" />
+            <On Platform="UWP" Value="480" />
         </OnPlatform>
         <OnPlatform x:Key="PanelHeight" x:TypeArguments="x:Double">
             <On Platform="macOS" Value="400" />
-            <On Platform="WPF" Value="465" />
+            <On Platform="UWP" Value="465" />
         </OnPlatform>
         <Thickness x:Key="PillMargin">2, 0</Thickness>
     </ContentPage.Resources>
@@ -26,7 +26,7 @@
                                    StartCommand="{Binding StartCommand}"
                                    StartImageSource="{Binding StartImageSource}" />
             </On>
-            <On Platform="WPF">
+            <On Platform="UWP">
                 <local:WindowsToolbar PreviewCommand="{Binding PreviewCommand}"
                                       StartCommand="{Binding StartCommand}"
                                       StartImageSource="{Binding StartImageSource}"
@@ -46,7 +46,7 @@
                             <RowDefinition.Height>
                                 <OnPlatform x:TypeArguments="GridLength">
                                     <On Platform="macOS" Value="13" />
-                                    <On Platform="WPF" Value="18" />
+                                    <On Platform="UWP" Value="18" />
                                 </OnPlatform>
                             </RowDefinition.Height>
                         </RowDefinition>
@@ -228,7 +228,7 @@
                             <ListView.HeightRequest>
                                 <OnPlatform x:TypeArguments="x:Double">
                                     <On Platform="macOS" Value="355" />
-                                    <On Platform="WPF" Value="410" />
+                                    <On Platform="UWP" Value="410" />
                                 </OnPlatform>
                             </ListView.HeightRequest>
                             <ListView.Margin>
@@ -238,7 +238,7 @@
                                             <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, -13, 5, 5" />
                                         </local:WhenVersion>
                                     </On>
-                                    <On Platform="WPF" Value="5, -5, 5, 5" />
+                                    <On Platform="UWP" Value="5, -5, 5, 5" />
                                 </OnPlatform>
                             </ListView.Margin>
                             <ListView.Header>
@@ -256,7 +256,7 @@
                                                 <Grid.HeightRequest>
                                                     <OnPlatform x:TypeArguments="x:Double">
                                                         <On Platform="macOS" Value="79" />
-                                                        <On Platform="WPF" Value="115" />
+                                                        <On Platform="UWP" Value="115" />
                                                     </OnPlatform>
                                                 </Grid.HeightRequest>
                                                 <Grid.ColumnDefinitions>
@@ -327,7 +327,7 @@
             <On Platform="macOS">
                 <BoxView IsVisible="False" />
             </On>
-            <On Platform="WPF">
+            <On Platform="UWP">
                 <local:WindowsStatusBar IsSpinnerVisible="{Binding IsSpinnerVisible}"
                                         Status="{Binding Status}"
                                         Progress="{Binding Progress}"

@@ -37,7 +37,7 @@
                     <ListView.HeightRequest>
                         <OnPlatform x:TypeArguments="x:Double">
                             <On Platform="macOS" Value="360" />
-                            <On Platform="WPF" Value="480" />
+                            <On Platform="UWP" Value="480" />
                         </OnPlatform>
                     </ListView.HeightRequest>
                     <ListView.Margin>
@@ -47,7 +47,7 @@
                                     <local:When Is="GreaterThanOrEqualTo" Version="11.0.0" Value="-10, 0, 5, 20" />
                                 </local:WhenVersion>
                             </On>
-                            <On Platform="WPF" Value="15, 0, 5, 20" />
+                            <On Platform="UWP" Value="15, 0, 5, 20" />
                         </OnPlatform>
                     </ListView.Margin>
                     <ListView.Header>
