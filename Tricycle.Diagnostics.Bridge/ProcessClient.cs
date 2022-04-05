@@ -268,12 +268,12 @@ namespace Tricycle.Diagnostics.Bridge
 
             var message = new ValueSet()
             {
-                { MessageKey.MessageType, messageType },
+                { MessageKey.MessageType, (int)messageType },
                 { MessageKey.Body, body }
             };
             var task = _connection.SendMessageAsync(message).AsTask();
 
-            task.RunSynchronously();
+            task.Wait();
 
             var result = task.Result;
 

@@ -21,7 +21,7 @@ namespace Tricycle.UI.UWP
         {
             var dialog = new MessageDialog(message, title);
 
-            dialog.ShowAsync().AsTask().RunSynchronously();
+            dialog.ShowAsync().AsTask().Wait();
         }
 
         public override string Ask(string title, string message, string defaultValue)
@@ -38,7 +38,7 @@ namespace Tricycle.UI.UWP
 
             var task = dialog.ShowAsync().AsTask();
 
-            task.RunSynchronously();
+            task.Wait();
 
             return Equals(task.Result.Id, CommandId.OK);
         }

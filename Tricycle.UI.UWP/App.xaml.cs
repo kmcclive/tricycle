@@ -86,7 +86,7 @@ namespace Tricycle.UI.UWP
 
             if (ApiInformation.IsApiContractPresent("Windows.ApplicationModel.FullTrustAppContract", 1, 0))
             {
-                FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync().AsTask().RunSynchronously();
+                FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync().AsTask().Wait();
             }
         }
 

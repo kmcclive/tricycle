@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Diagnostics", "Tricycle.Diagnostics\Tricycle.Diagnostics.csproj", "{B08428F2-A465-42D6-97EA-0215B8DC374C}"
 EndProject
@@ -43,9 +43,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.UI.UWP", "Tricycle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Diagnostics.Bridge", "Tricycle.Diagnostics.Bridge\Tricycle.Diagnostics.Bridge.csproj", "{C175841F-C9AA-4BD2-B209-1ACD64674EAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Bridge", "Tricycle.Bridge\Tricycle.Bridge.csproj", "{F294B42A-5CF1-4F5E-8CE6-EFB88BAD11B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Bridge", "Tricycle.Bridge\Tricycle.Bridge.csproj", "{F294B42A-5CF1-4F5E-8CE6-EFB88BAD11B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tricycle.Bridge.Console", "Tricycle.Bridge.Console\Tricycle.Bridge.Console.csproj", "{7BF68B11-A852-4E33-9807-96805E53F8F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tricycle.Bridge.Console", "Tricycle.Bridge.Console\Tricycle.Bridge.Console.csproj", "{7BF68B11-A852-4E33-9807-96805E53F8F9}"
+EndProject
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Tricycle.UI.UWP.Packaging", "Tricycle.UI.UWP.Packaging\Tricycle.UI.UWP.Packaging.wapproj", "{20CA082F-7045-48D6-8239-BA79830FE102}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -505,6 +507,36 @@ Global
 		{7BF68B11-A852-4E33-9807-96805E53F8F9}.Release|x64.Build.0 = Release|Any CPU
 		{7BF68B11-A852-4E33-9807-96805E53F8F9}.Release|x86.ActiveCfg = Release|Any CPU
 		{7BF68B11-A852-4E33-9807-96805E53F8F9}.Release|x86.Build.0 = Release|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM.ActiveCfg = Debug|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM.Build.0 = Debug|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM.Deploy.0 = Debug|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM64.Build.0 = Debug|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x64.ActiveCfg = Debug|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x64.Build.0 = Debug|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x64.Deploy.0 = Debug|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x86.ActiveCfg = Debug|x86
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x86.Build.0 = Debug|x86
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Debug|x86.Deploy.0 = Debug|x86
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM.ActiveCfg = Release|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM.Build.0 = Release|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM.Deploy.0 = Release|ARM
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM64.ActiveCfg = Release|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM64.Build.0 = Release|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|ARM64.Deploy.0 = Release|ARM64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x64.ActiveCfg = Release|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x64.Build.0 = Release|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x64.Deploy.0 = Release|x64
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x86.ActiveCfg = Release|x86
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x86.Build.0 = Release|x86
+		{20CA082F-7045-48D6-8239-BA79830FE102}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

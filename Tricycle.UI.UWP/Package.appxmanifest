@@ -41,10 +41,6 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-	    <desktop:Extension
-	        xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-			Category="windows.fullTrustProcess"
-			Executable="Assets\Tools\TricycleBridge.exe" />
 	  </Extensions>
     </Application>
   </Applications>

@@ -37,6 +37,7 @@ namespace Tricycle.Diagnostics.Tests
         {
             ManualResetEvent _completion = new ManualResetEvent(false);
 
+            public int Id { get; set; }
             public int ExitCode { get; set; }
             public bool HasExited { get; set; }
 

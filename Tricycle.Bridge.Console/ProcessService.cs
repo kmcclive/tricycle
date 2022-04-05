@@ -39,7 +39,7 @@ namespace Tricycle.Bridge.Console
 
             var task = _connection.OpenAsync().AsTask();
 
-            task.RunSynchronously();
+            task.Wait();
 
             if (task.Result != AppServiceConnectionStatus.Success)
             {
@@ -247,12 +247,12 @@ namespace Tricycle.Bridge.Console
             };
             var message = new ValueSet();
 
-            message[MessageKey.MessageType] = messageType;
+            message[MessageKey.MessageType] = (int)messageType;
             message[MessageKey.Body] = SerializeBody(body);
 
             lock (process)
             {
-                _connection.SendMessageAsync(message).AsTask().RunSynchronously();
+                _connection.SendMessageAsync(message).AsTask().Wait();
             }
         }
 
@@ -261,12 +261,12 @@ namespace Tricycle.Bridge.Console
             var body = new ExitedMessage(process.Id, process.ExitCode);
             var message = new ValueSet();
 
-            message[MessageKey.MessageType] = MessageType.Exited;
+            message[MessageKey.MessageType] = (int)MessageType.Exited;
             message[MessageKey.Body] = SerializeBody(body);
 
             lock (process)
             {
-                _connection.SendMessageAsync(message).AsTask().RunSynchronously();
+                _connection.SendMessageAsync(message).AsTask().Wait();
             }
 
             _processesById.Remove(process.Id);
