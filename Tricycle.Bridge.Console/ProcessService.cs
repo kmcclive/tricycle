@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tricycle.Bridge.Models;
@@ -21,6 +20,7 @@ namespace Tricycle.Bridge.Console
         readonly ISerializer<string> _serializer;
         readonly Func<IProcess> _processCreator;
         readonly IDictionary<int, IProcess> _processesById = new ConcurrentDictionary<int, IProcess>();
+        readonly ManualResetEvent _closed = new ManualResetEvent(false);
         AppServiceClosedStatus? _closedStatus;
 
         public ProcessService(IAppServiceConnection connection, ISerializer<string> serializer, Func<IProcess> processCreator)
@@ -46,10 +46,7 @@ namespace Tricycle.Bridge.Console
                 return AppServiceClosedStatus.Canceled;
             }
 
-            do
-            {
-                Thread.Sleep(100);
-            } while (!_closedStatus.HasValue);
+            _closed.WaitOne();
 
             return _closedStatus.Value;
         }
@@ -57,6 +54,7 @@ namespace Tricycle.Bridge.Console
         void OnServiceClosed(IAppServiceConnection sender, AppServiceClosedEventArgs args)
         {
             _closedStatus = args.Status;
+            _closed.Set();
         }
 
         async void OnRequestReceived(IAppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -70,7 +68,13 @@ namespace Tricycle.Bridge.Console
                 return;
             }
 
-            var messageType = message.GetValueOrDefault(MessageKey.MessageType) as MessageType?;
+            MessageType? messageType = null;
+
+            if (message.TryGetValue(MessageKey.MessageType, out var temp) && temp is int)
+            {
+                messageType = (MessageType)temp;
+            }
+
             var body = message.GetValueOrDefault(MessageKey.Body) as string;
 
             if (!messageType.HasValue || string.IsNullOrWhiteSpace(body))
