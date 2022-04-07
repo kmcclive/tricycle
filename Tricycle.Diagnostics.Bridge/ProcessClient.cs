@@ -17,6 +17,7 @@ namespace Tricycle.Diagnostics.Bridge
     {
         readonly Func<IAppServiceConnection> _connectionProvider;
         readonly ISerializer<string> _serializer;
+        readonly AutoResetEvent _exitedEvent = new AutoResetEvent(false);
         IAppServiceConnection _connection;
 
         public int Id { get; private set; }
@@ -101,40 +102,16 @@ namespace Tricycle.Diagnostics.Bridge
 
         public bool WaitForExit(int milliseconds)
         {
-            var intervalMs = 10;
-
-            if (milliseconds > 0 && milliseconds < intervalMs)
+            if (!HasExited)
             {
-                intervalMs = 1;
-            }
-
-            DateTime? expiration = null;
-
-            if (milliseconds > 0)
-            {
-                expiration = DateTime.Now.AddMilliseconds(milliseconds);
-            }
-
-            while (!HasExited)
-            {
-                var interval = TimeSpan.FromMilliseconds(intervalMs);
-
-                if (expiration.HasValue)
+                if (milliseconds > 0)
                 {
-                    var remaining = expiration.Value - DateTime.Now;
-
-                    if (remaining <= TimeSpan.Zero)
-                    {
-                        break;
-                    }
-
-                    if (remaining < interval)
-                    {
-                        interval = remaining;
-                    }
+                    _exitedEvent.WaitOne(milliseconds);
                 }
-
-                Thread.Sleep(interval);
+                else
+                {
+                    _exitedEvent.WaitOne();
+                }
             }
 
             return HasExited;
@@ -149,7 +126,13 @@ namespace Tricycle.Diagnostics.Bridge
                 return;
             }
 
-            var messageType = message.GetValueOrDefault(MessageKey.MessageType) as MessageType?;
+            MessageType? messageType = null;
+
+            if (message.TryGetValue(MessageKey.MessageType, out var temp) && temp is int)
+            {
+                messageType = (MessageType)temp;
+            }
+
             var body = message.GetValueOrDefault(MessageKey.Body) as string;
 
             if (!messageType.HasValue || string.IsNullOrWhiteSpace(body))
@@ -202,6 +185,7 @@ namespace Tricycle.Diagnostics.Bridge
             {
                 ExitCode = message.ExitCode;
                 HasExited = true;
+                _exitedEvent.Set();
                 Exited?.Invoke();
             }
         }
