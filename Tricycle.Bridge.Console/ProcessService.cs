@@ -193,8 +193,6 @@ namespace Tricycle.Bridge.Console
                 response.Error = MapToError(ex);
             }
 
-            Debug.WriteLine($"Started process with ID {process.Id}");
-
             result[MessageKey.Body] = SerializeBody(response);
 
             return result;
@@ -227,8 +225,6 @@ namespace Tricycle.Bridge.Console
                 return result;
             }
 
-            Debug.WriteLine($"Killing process with ID {request.ProcessId}");
-
             try
             {
                 lock (process)
@@ -248,8 +244,6 @@ namespace Tricycle.Bridge.Console
 
         void OnDataReceived<T>(IProcess process, MessageType messageType, string data) where T : DataMessage<string>, new()
         {
-            Trace.WriteLine($"[{(messageType == MessageType.ErrorData ? "stderr" : "stdout")}] {data}");
-
             var body = new T
             {
                 ProcessId = process.Id,
@@ -268,8 +262,6 @@ namespace Tricycle.Bridge.Console
 
         void OnExited(IProcess process)
         {
-            Debug.WriteLine($"Process with ID {process.Id} has exited");
-
             var body = new ExitedMessage(process.Id, process.ExitCode);
             var message = new ValueSet();
 
