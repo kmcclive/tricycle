@@ -17,7 +17,7 @@ namespace Tricycle.Diagnostics.Bridge
     {
         readonly Func<IAppServiceConnection> _connectionProvider;
         readonly ISerializer<string> _serializer;
-        readonly AutoResetEvent _exitedEvent = new AutoResetEvent(false);
+        readonly ManualResetEvent _exitedEvent = new ManualResetEvent(false);
         IAppServiceConnection _connection;
 
         public int Id { get; private set; }
@@ -318,6 +318,7 @@ namespace Tricycle.Diagnostics.Bridge
             Id = default;
             ExitCode = default;
             HasExited = false;
+            _exitedEvent.Reset();
         }
     }
 }
