@@ -13,9 +13,9 @@ namespace Tricycle.Diagnostics
     {
         readonly Process _process;
 
-        public int Id => _process.Id;
-        public int ExitCode => _process.ExitCode;
-        public bool HasExited => _process.HasExited;
+        public int Id { get; private set; }
+        public int ExitCode { get; private set; }
+        public bool HasExited { get; private set; }
 
         public event Action Exited;
         public event Action<string> ErrorDataReceived;
@@ -28,7 +28,13 @@ namespace Tricycle.Diagnostics
                 EnableRaisingEvents = true
             };
 
-            _process.Exited += (sender, e) => Exited?.Invoke();
+            _process.Exited += (sender, e) =>
+            {
+                ExitCode = _process.ExitCode;
+                HasExited = _process.HasExited;
+
+                Exited?.Invoke();
+            };
             _process.ErrorDataReceived += (sender, e) =>
             {
                 Trace.WriteLine($"[stderr] {e?.Data}");
@@ -80,6 +86,8 @@ namespace Tricycle.Diagnostics
             try
             {
                 bool result = _process.Start();
+
+                Id = _process.Id;
 
                 if (!startInfo.UseShellExecute)
                 {
