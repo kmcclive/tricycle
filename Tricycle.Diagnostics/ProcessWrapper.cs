@@ -143,8 +143,8 @@ namespace Tricycle.Diagnostics
                 {
                     if (_process.WaitForExit(milliseconds))
                     {
-                        // This is a workaround for a bug in the .NET code.
-                        // See https://stackoverflow.com/a/25772586/9090758 for more details.
+                        // This is a workaround for an odd design choice in the .NET code.
+                        // See https://github.com/dotnet/runtime/issues/18789#issuecomment-252324082 for more details.
                         _process.WaitForExit();
                         return true;
                     }

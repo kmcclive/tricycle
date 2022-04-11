@@ -262,6 +262,10 @@ namespace Tricycle.Bridge.Console
 
         void OnExited(IProcess process)
         {
+            // This ensures that all processing has been completed.
+            // See https://github.com/dotnet/runtime/issues/18789#issuecomment-252324082 for more details.
+            process.WaitForExit();
+
             var body = new ExitedMessage(process.Id, process.ExitCode);
             var message = new ValueSet();
 
