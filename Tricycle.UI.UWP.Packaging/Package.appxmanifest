@@ -52,5 +52,6 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <rescap:Capability Name="runFullTrust" />
+    <uap:Capability Name="videosLibrary"/>
   </Capabilities>
 </Package>

@@ -16,22 +16,6 @@ namespace Tricycle.IO.UWP
 
         }
 
-        public override bool Exists(string path)
-        {
-            StorageFolder folder;
-
-            try
-            {
-                folder = GetFolder(path);
-            }
-            catch (FileNotFoundException)
-            {
-                return false;
-            }
-
-            return TryGetFile(folder, path, out var _, out var _);
-        }
-
         public override void WriteAllText(string path, string contents)
         {
             var folder = GetFolder(path);
