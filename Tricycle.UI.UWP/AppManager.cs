@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Windows;
+using Tricycle.Utilities;
 using Windows.UI.Popups;
 
 namespace Tricycle.UI.UWP
@@ -21,7 +21,7 @@ namespace Tricycle.UI.UWP
         {
             var dialog = new MessageDialog(message, title);
 
-            dialog.ShowAsync().AsTask().Wait();
+            dialog.ShowAsync().AsTask().RunSync();
         }
 
         public override string Ask(string title, string message, string defaultValue)
@@ -36,11 +36,9 @@ namespace Tricycle.UI.UWP
             dialog.Commands.Add(new UICommand() { Id = CommandId.OK, Label = "OK" });
             dialog.Commands.Add(new UICommand() { Id = CommandId.Cancel, Label = "Cancel" });
 
-            var task = dialog.ShowAsync().AsTask();
+            var result = dialog.ShowAsync().AsTask().RunSync();
 
-            task.Wait();
-
-            return Equals(task.Result.Id, CommandId.OK);
+            return Equals(result.Id, CommandId.OK);
         }
     }
 }

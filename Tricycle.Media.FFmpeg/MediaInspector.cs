@@ -32,7 +32,7 @@ namespace Tricycle.Media.FFmpeg
                               IProcessRunner processRunner,
                               IProcessUtility processUtility,
                               ISerializer<string> serializer)
-            : this(ffprobeFileName, processRunner, processUtility, serializer, TimeSpan.FromSeconds(5))
+            : this(ffprobeFileName, processRunner, processUtility, serializer, TimeSpan.FromSeconds(10))
         {
 
         }

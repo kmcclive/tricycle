@@ -255,11 +255,7 @@ namespace Tricycle.Diagnostics.Bridge
                 { MessageKey.MessageType, (int)messageType },
                 { MessageKey.Body, body }
             };
-            var task = _connection.SendMessageAsync(message).AsTask();
-
-            task.Wait();
-
-            var result = task.Result;
+            var result = _connection.SendMessageAsync(message).AsTask().RunSync();
 
             if (result.Status != AppServiceResponseStatus.Success)
             {

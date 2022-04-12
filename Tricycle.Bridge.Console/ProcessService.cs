@@ -37,11 +37,9 @@ namespace Tricycle.Bridge.Console
         {
             _closedStatus = null;
 
-            var task = _connection.OpenAsync().AsTask();
+            var result = _connection.OpenAsync().AsTask().RunSync();
 
-            task.Wait();
-
-            if (task.Result != AppServiceConnectionStatus.Success)
+            if (result != AppServiceConnectionStatus.Success)
             {
                 return AppServiceClosedStatus.Canceled;
             }
@@ -256,7 +254,7 @@ namespace Tricycle.Bridge.Console
 
             lock (process)
             {
-                _connection.SendMessageAsync(message).AsTask().Wait();
+                _connection.SendMessageAsync(message).AsTask().RunSync();
             }
         }
 
@@ -274,7 +272,7 @@ namespace Tricycle.Bridge.Console
 
             lock (process)
             {
-                _connection.SendMessageAsync(message).AsTask().Wait();
+                _connection.SendMessageAsync(message).AsTask().RunSync();
             }
 
             _processesById.Remove(process.Id);
