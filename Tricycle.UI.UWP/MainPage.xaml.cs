@@ -3,10 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Tricycle.Diagnostics;
 using Tricycle.Diagnostics.Bridge;
 using Tricycle.Diagnostics.Utilities;
@@ -21,16 +18,9 @@ using Tricycle.Models;
 using Tricycle.Models.Config;
 using Tricycle.Models.Templates;
 using Tricycle.Utilities;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Windows.Storage;
 using Xamarin.Forms.Platform.UWP;
+using IFileSystem = System.IO.Abstractions.IFileSystem;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -67,12 +57,12 @@ namespace Tricycle.UI.UWP
             string defaultConfigPath = Path.Combine(assetsPath, "Config");
             string ffmpegPath = Path.Combine(assetsPath, "Tools", "FFmpeg");
             string ffmpegFileName = Path.Combine(ffmpegPath, "ffmpeg.exe");
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appDataPath = ApplicationData.Current.RoamingFolder.Path;
             string userConfigPath = Path.Combine(appDataPath, "Tricycle");
             var connSerializer = new JsonSerializer(new Newtonsoft.Json.JsonSerializerSettings());
             var processCreator = new Func<IProcess>(() => new ProcessClient(() => WindowsAppState.Connection, connSerializer));
             var processRunner = new ProcessRunner(processCreator);
-            var fileSystem = new FileSystem();
+            var fileSystem = new FileSystem(new System.IO.Abstractions.FileSystem());
             var jsonSerializer = new JsonSerializer();
             var ffmpegConfigManager = new FFmpegConfigManager(fileSystem,
                                                               jsonSerializer,
