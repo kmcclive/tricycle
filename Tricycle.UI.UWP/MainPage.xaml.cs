@@ -126,7 +126,8 @@ namespace Tricycle.UI.UWP
                                                                               fileSystem));
                 _.For<ILanguageService>().Use<LanguageService>();
             });
-            AppState.DefaultDestinationDirectory = KnownFolders.VideosLibrary.Path;
+            AppState.DefaultDestinationDirectory =
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos");
         }
     }
 }
