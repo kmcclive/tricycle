@@ -1,87 +1,85 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Tricycle.Media.FFmpeg.Models.Jobs;
 using Tricycle.Media.FFmpeg.Serialization.Argument;
 
-namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument
+namespace Tricycle.Media.FFmpeg.Tests.Serialization.Argument;
+
+[TestClass]
+public class OptionListConverterTests
 {
-    [TestClass]
-    public class OptionListConverterTests
+    OptionListConverter _converter;
+
+    [TestInitialize]
+    public void Setup()
     {
-        OptionListConverter _converter;
+        _converter = new OptionListConverter();
+    }
 
-        [TestInitialize]
-        public void Setup()
+    [TestMethod]
+    [ExpectedException(typeof(NotSupportedException))]
+    public void ConvertThrowsExceptionWhenValueIsNotOptionList()
+    {
+        _converter.Convert("-x265-params", 0);
+    }
+
+    [TestMethod]
+    public void ConvertIncludesOptionName()
+    {
+        var option = Option.FromName("hable");
+
+        Assert.AreEqual("-tonemap hable",
+                        _converter.Convert("-tonemap", new Option[] { option }));
+    }
+
+    [TestMethod]
+    public void ConvertIncludesOptionValue()
+    {
+        var option = Option.FromValue("1");
+
+        Assert.AreEqual("-setsar 1",
+                        _converter.Convert("-setsar", new Option[] { option }));
+    }
+
+    [TestMethod]
+    public void ConvertIncludesOptionNameAndValue()
+    {
+        var option = new Option("desat", "0");
+
+        var filter = new Filter("tonemap")
         {
-            _converter = new OptionListConverter();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public void ConvertThrowsExceptionWhenValueIsNotOptionList()
-        {
-            _converter.Convert("-x265-params", 0);
-        }
-
-        [TestMethod]
-        public void ConvertIncludesOptionName()
-        {
-            var option = Option.FromName("hable");
-
-            Assert.AreEqual("-tonemap hable",
-                            _converter.Convert("-tonemap", new Option[] { option }));
-        }
-
-        [TestMethod]
-        public void ConvertIncludesOptionValue()
-        {
-            var option = Option.FromValue("1");
-
-            Assert.AreEqual("-setsar 1",
-                            _converter.Convert("-setsar", new Option[] { option }));
-        }
-
-        [TestMethod]
-        public void ConvertIncludesOptionNameAndValue()
-        {
-            var option = new Option("desat", "0");
-
-            var filter = new Filter("tonemap")
+            Options = new Option[]
             {
-                Options = new Option[]
-                {
-                    new Option("desat", "0")
-                }
-            };
+                new Option("desat", "0")
+            }
+        };
 
-            Assert.AreEqual("-tonemap desat=0",
-                            _converter.Convert("-tonemap", new Option[] { option }));
-        }
+        Assert.AreEqual("-tonemap desat=0",
+                        _converter.Convert("-tonemap", new Option[] { option }));
+    }
 
-        [TestMethod]
-        public void ConvertEscapesOptionValue()
+    [TestMethod]
+    public void ConvertEscapesOptionValue()
+    {
+        var option = new Option("subtitles", "\"D:\\HD Small'.srt\"");
+        var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                       ? "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\'.srt\""
+                       : "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\\\\\'.srt\"";
+
+        Assert.AreEqual(expected, _converter.Convert("-filter", new Option[] { option }));
+    }
+
+    [TestMethod]
+    public void ConvertDelimitsOptions()
+    {
+        var options = new Option[]
         {
-            var option = new Option("subtitles", "\"D:\\HD Small'.srt\"");
-            var expected = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                           ? "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\'.srt\""
-                           : "-filter subtitles=\"D\\\\:\\\\\\\\HD Small\\\\\\\\\\\'.srt\"";
+            new Option("colorprim", "bt2020"),
+            new Option("colormatrix", "bt2020nc"),
+            new Option("transfer", "smpte2084")
+        };
 
-            Assert.AreEqual(expected, _converter.Convert("-filter", new Option[] { option }));
-        }
-
-        [TestMethod]
-        public void ConvertDelimitsOptions()
-        {
-            var options = new Option[]
-            {
-                new Option("colorprim", "bt2020"),
-                new Option("colormatrix", "bt2020nc"),
-                new Option("transfer", "smpte2084")
-            };
-
-            Assert.AreEqual("-x265-params colorprim=bt2020:colormatrix=bt2020nc:transfer=smpte2084",
-                            _converter.Convert("-x265-params", options));
-        }
+        Assert.AreEqual("-x265-params colorprim=bt2020:colormatrix=bt2020nc:transfer=smpte2084",
+                        _converter.Convert("-x265-params", options));
     }
 }
