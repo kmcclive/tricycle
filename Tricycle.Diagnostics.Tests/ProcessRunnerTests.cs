@@ -3,185 +3,182 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
 using Tricycle.Diagnostics.Utilities;
 
-namespace Tricycle.Diagnostics.Tests
-{
-    [TestClass]
-    public class ProcessRunnerTests
-    {
-        #region Constants
+namespace Tricycle.Diagnostics.Tests;
 
-        const string EXE_FILE_NAME = "exe";
-        const string ARGS_1 = "args1";
-        const string ARGS_2 = "args2";
-        const string OUTPUT =
-            @"line 1
+[TestClass]
+public class ProcessRunnerTests
+{
+    #region Constants
+
+    const string EXE_FILE_NAME = "exe";
+    const string ARGS_1 = "args1";
+    const string ARGS_2 = "args2";
+    const string OUTPUT =
+        @"line 1
               line 2
               line 3
               line 4
               line 5";
-        const string ERRORS =
-            @"error 1
+    const string ERRORS =
+        @"error 1
               error 2
               error 3";
-        const int TIMEOUT_MS = 100;
+    const int TIMEOUT_MS = 100;
 
-        #endregion
+    #endregion
 
-        #region Nested Types
+    #region Nested Types
 
-        private class MockProcess : IProcess
+    private class MockProcess : IProcess
+    {
+        ManualResetEvent _completion = new ManualResetEvent(false);
+
+        public int ExitCode { get; set; }
+        public bool HasExited { get; set; }
+
+        public event Action Exited;
+        public event Action<string> ErrorDataReceived;
+        public event Action<string> OutputDataReceived;
+
+        public void Dispose()
         {
-            ManualResetEvent _completion = new ManualResetEvent(false);
 
-            public int ExitCode { get; set; }
-            public bool HasExited { get; set; }
+        }
 
-            public event Action Exited;
-            public event Action<string> ErrorDataReceived;
-            public event Action<string> OutputDataReceived;
+        public void Kill()
+        {
+            ExitCode = 1;
+            HasExited = true;
+        }
 
-            public void Dispose()
+        public bool Start(ProcessStartInfo startInfo)
+        {
+            if (startInfo == null)
             {
-
+                throw new ArgumentNullException();
             }
 
-            public void Kill()
+            if (startInfo.FileName != EXE_FILE_NAME)
             {
-                ExitCode = 1;
-                HasExited = true;
+                throw new InvalidOperationException();
             }
 
-            public bool Start(ProcessStartInfo startInfo)
+            Task.Run(() =>
             {
-                if (startInfo == null)
+                var output = string.Empty;
+                var errors = string.Empty;
+
+                switch (startInfo.Arguments)
                 {
-                    throw new ArgumentNullException();
+                    case ARGS_1:
+                        output = OUTPUT;
+                        errors = ERRORS;
+                        break;
+                    case ARGS_2:
+                        Thread.Sleep(TIMEOUT_MS + 5);
+                        break;
                 }
 
-                if (startInfo.FileName != EXE_FILE_NAME)
+                if (!startInfo.UseShellExecute)
                 {
-                    throw new InvalidOperationException();
-                }
-
-                Task.Run(() =>
-                {
-                    var output = string.Empty;
-                    var errors = string.Empty;
-
-                    switch (startInfo.Arguments)
+                    using (var outputReader = new StringReader(output))
                     {
-                        case ARGS_1:
-                            output = OUTPUT;
-                            errors = ERRORS;
-                            break;
-                        case ARGS_2:
-                            Thread.Sleep(TIMEOUT_MS + 5);
-                            break;
-                    }
-
-                    if (!startInfo.UseShellExecute)
-                    {
-                        using (var outputReader = new StringReader(output))
+                        using (var errorReader = new StringReader(errors))
                         {
-                            using (var errorReader = new StringReader(errors))
+                            string outputLine = null;
+                            string errorLine = null;
+
+                            do
                             {
-                                string outputLine = null;
-                                string errorLine = null;
+                                Thread.Sleep(5);
 
-                                do
+                                outputLine = outputReader.ReadLine();
+                                errorLine = errorReader.ReadLine();
+
+                                if (startInfo.RedirectStandardOutput && !string.IsNullOrEmpty(outputLine))
                                 {
-                                    Thread.Sleep(5);
+                                    OutputDataReceived?.Invoke(outputLine);
+                                }
 
-                                    outputLine = outputReader.ReadLine();
-                                    errorLine = errorReader.ReadLine();
-
-                                    if (startInfo.RedirectStandardOutput && !string.IsNullOrEmpty(outputLine))
-                                    {
-                                        OutputDataReceived?.Invoke(outputLine);
-                                    }
-
-                                    if (startInfo.RedirectStandardError && !string.IsNullOrEmpty(errorLine))
-                                    {
-                                        ErrorDataReceived?.Invoke(errorLine);
-                                    }
-                                } while ((outputLine != null) || (errorLine != null));
-                            }
+                                if (startInfo.RedirectStandardError && !string.IsNullOrEmpty(errorLine))
+                                {
+                                    ErrorDataReceived?.Invoke(errorLine);
+                                }
+                            } while ((outputLine != null) || (errorLine != null));
                         }
                     }
-
-                    ExitCode = 0;
-                    HasExited = true;
-                    Exited?.Invoke();
-                    _completion.Set();
-                });
-
-                return true;
-            }
-
-            public void WaitForExit()
-            {
-                WaitForExit(-1);
-            }
-
-            public bool WaitForExit(int milliseconds)
-            {
-                if (milliseconds > 0)
-                {
-                    return _completion.WaitOne(milliseconds);
                 }
 
-                _completion.WaitOne();
-                return true;
-            }
+                ExitCode = 0;
+                HasExited = true;
+                Exited?.Invoke();
+                _completion.Set();
+            });
+
+            return true;
         }
+
+        public void WaitForExit()
+        {
+            WaitForExit(-1);
+        }
+
+        public bool WaitForExit(int milliseconds)
+        {
+            if (milliseconds > 0)
+            {
+                return _completion.WaitOne(milliseconds);
+            }
+
+            _completion.WaitOne();
+            return true;
+        }
+    }
+
+    #endregion
+
+    [TestMethod]
+    public async Task TestRun()
+    {
+        Func<IProcess> processCreator = () => new MockProcess();
+        var processUtility = Substitute.For<IProcessUtility>();
+        var timeout = TimeSpan.FromMilliseconds(TIMEOUT_MS);
+        var runner = new ProcessRunner(processCreator);
+
+        #region Test exceptions
+
+        Assert.ThrowsException<ArgumentNullException>(() => runner.Run(null));
 
         #endregion
 
-        [TestMethod]
-        public async Task TestRun()
-        {
-            Func<IProcess> processCreator = () => new MockProcess();
-            var processUtility = Substitute.For<IProcessUtility>();
-            var timeout = TimeSpan.FromMilliseconds(TIMEOUT_MS);
-            var runner = new ProcessRunner(processCreator);
+        #region Test successful process with output and error data
 
-            #region Test exceptions
+        var result = await runner.Run(EXE_FILE_NAME, ARGS_1, TimeSpan.FromSeconds(1));
 
-            Assert.ThrowsException<ArgumentNullException>(() => runner.Run(null));
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.ExitCode);
+        Assert.AreEqual(OUTPUT + Environment.NewLine, result.OutputData);
+        Assert.AreEqual(ERRORS + Environment.NewLine, result.ErrorData);
 
-            #endregion
+        #endregion
 
-            #region Test successful process with output and error data
+        #region Test process that times out
 
-            var result = await runner.Run(EXE_FILE_NAME, ARGS_1, TimeSpan.FromSeconds(1));
+        var stopwatch = new Stopwatch();
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.ExitCode);
-            Assert.AreEqual(OUTPUT + Environment.NewLine, result.OutputData);
-            Assert.AreEqual(ERRORS + Environment.NewLine, result.ErrorData);
+        stopwatch.Start();
 
-            #endregion
+        result = await runner.Run(EXE_FILE_NAME, ARGS_2, timeout);
 
-            #region Test process that times out
+        stopwatch.Stop();
 
-            var stopwatch = new Stopwatch();
+        Assert.IsTrue(stopwatch.Elapsed > timeout, "The specified timeout was not honored.");
+        Assert.AreEqual(1, result.ExitCode);
+        Assert.AreEqual(string.Empty, result.OutputData);
+        Assert.AreEqual(string.Empty, result.ErrorData);
 
-            stopwatch.Start();
-
-            result = await runner.Run(EXE_FILE_NAME, ARGS_2, timeout);
-
-            stopwatch.Stop();
-
-            Assert.IsTrue(stopwatch.Elapsed > timeout, "The specified timeout was not honored.");
-            Assert.AreEqual(1, result.ExitCode);
-            Assert.AreEqual(string.Empty, result.OutputData);
-            Assert.AreEqual(string.Empty, result.ErrorData);
-
-            #endregion
-        }
+        #endregion
     }
 }
